@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {ArrowRight, RotateCcw, Wrench} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Inbound = {tag: string; protocol: string; port: number; network: string; security: string; hosts: number; nodes: number; nodes_online: number; switchable: boolean};
@@ -11,7 +12,7 @@ type Job = {id: string; created_at: string; actor: string; profile_name: string;
   hosts_updated: number; restored: string[]; nodes: NodeRow[]; checks: number; stages: Stage[]};
 
 const API = "/api/admin/rw/protocol-switch";
-const time = (v: string | null) => (v ? new Date(v).toLocaleTimeString("ru-RU") : "—");
+const time = (v: string | null) => (v ? serverDate(v).toLocaleTimeString("ru-RU") : "—");
 const flag = (code: string | null) => (code && /^[A-Z]{2}$/.test(code) ? String.fromCodePoint(...[...code].map((c) => 127397 + c.charCodeAt(0))) : "🌐");
 const STAGE: Record<string, [string, "ok" | "warn" | "danger" | "idle"]> = {
   done: ["выполнен", "ok"], running: ["идёт", "warn"], partial: ["частично", "warn"], failed: ["ошибка", "danger"], skipped: ["не требуется", "idle"], pending: ["ожидает", "idle"]};
@@ -224,7 +225,7 @@ export function ProtocolSwitch({request, toast}: {request: RequestFn; toast: (m:
               <tbody>
                 {jobs.map((j) => (
                   <tr key={j.id}>
-                    <td>{new Date(j.created_at).toLocaleString("ru-RU")}</td>
+                    <td>{serverDate(j.created_at).toLocaleString("ru-RU")}</td>
                     <td>{j.profile_name} · {j.inbound_tag}</td>
                     <td>{transports[j.from] || j.from || "?"} → {transports[j.to] || j.to}</td>
                     <td><StatusBadge tone={(JOB[j.status] || ["", "idle"])[1]}>{(JOB[j.status] || [j.status])[0]}</StatusBadge></td>

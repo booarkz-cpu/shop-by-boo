@@ -1,6 +1,7 @@
 import {SelectField} from "./components/select-field";
 import React, {useEffect, useState} from 'react';
 import {HistoryImport} from './history-import';
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn=(path:string,options?:RequestInit)=>Promise<any>;
 const ROOT='/api/admin/customer-operations';
@@ -46,11 +47,11 @@ export function CustomerOperations({request,history=[],reload}:{request:RequestF
    <button disabled={busy||!bulk.ids.trim()||bulk.reason.trim().length<3} onClick={previewBulk}>Проверить операцию</button>
    {bulkPreview&&<div><h3>{actions[bulkPreview.action]}</h3><p>Клиентов: {bulkPreview.users}, подписок: {bulkPreview.subscriptions}, сессий: {bulkPreview.sessions}.</p><p>ID: {bulkPreview.user_ids.join(', ')}</p><label className='check'><input disabled={busy} type='checkbox' checked={bulkAccepted} onChange={e=>setBulkAccepted(e.target.checked)}/>Я проверил список и действие</label><button className='primary' disabled={busy||!bulkAccepted} onClick={applyBulk}>Применить операцию</button></div>}
   </section></div>
-  {preview&&<section className='card'><h2>Результат проверки импорта</h2><p>Новых: {preview.counts.new}, совпадений: {preview.counts.existing}, уже перенесено: {preview.counts.already_imported}, конфликтов: {preview.counts.blocked}. Зачисление: {preview.total_credit} {mapping.currency}.</p><p>Проверка действует до {new Date(preview.expires_at+'Z').toLocaleString()}.</p>
+  {preview&&<section className='card'><h2>Результат проверки импорта</h2><p>Новых: {preview.counts.new}, совпадений: {preview.counts.existing}, уже перенесено: {preview.counts.already_imported}, конфликтов: {preview.counts.blocked}. Зачисление: {preview.total_credit} {mapping.currency}.</p><p>Проверка действует до {serverDate(preview.expires_at).toLocaleString()}.</p>
    <div className='table-wrap' style={{maxHeight:500,overflow:'auto'}}><table><thead><tr><th>ID источника</th><th>Telegram</th><th>Имя</th><th>Результат</th><th>Зачисление</th></tr></thead><tbody>{preview.rows.map((row:any)=><tr key={row.source_id}><td>{row.source_id}</td><td>{row.telegram_id}</td><td>{row.username||'—'}</td><td>{statuses[row.status]}</td><td>{row.credit}</td></tr>)}</tbody></table></div>
    <label className='check'><input disabled={busy} type='checkbox' checked={accepted} onChange={e=>setAccepted(e.target.checked)}/>Я проверил все строки, валюту и достоверность исходного остатка</label><div className='inline'><button className='primary' disabled={busy||!accepted||preview.counts.blocked>0} onClick={applyImport}>Применить перенос</button><button disabled={busy} onClick={cancel}>Отменить preview</button></div>
   </section>}
   <HistoryImport request={request} currency={mapping.currency}/>
-  <section className='card'><h2>История импорта</h2><div className='table-wrap'><table><thead><tr><th>Источник</th><th>Статус</th><th>Создано</th><th>Результат</th></tr></thead><tbody>{historyRows.map(row=><tr key={row.id}><td>{row.namespace}<details><summary>SHA256 snapshot</summary><code>{row.source_sha256}</code></details></td><td>{statuses[row.status]||row.status}</td><td>{new Date(row.created_at+'Z').toLocaleString()}</td><td>{row.result?`Новых: ${row.result.created}, сопоставлено: ${row.result.linked_existing}, зачислено: ${row.result.credited}`:'—'}</td></tr>)}{!historyRows.length&&<tr><td colSpan={4}>Импортов пока нет</td></tr>}</tbody></table></div></section>
+  <section className='card'><h2>История импорта</h2><div className='table-wrap'><table><thead><tr><th>Источник</th><th>Статус</th><th>Создано</th><th>Результат</th></tr></thead><tbody>{historyRows.map(row=><tr key={row.id}><td>{row.namespace}<details><summary>SHA256 snapshot</summary><code>{row.source_sha256}</code></details></td><td>{statuses[row.status]||row.status}</td><td>{serverDate(row.created_at).toLocaleString()}</td><td>{row.result?`Новых: ${row.result.created}, сопоставлено: ${row.result.linked_existing}, зачислено: ${row.result.credited}`:'—'}</td></tr>)}{!historyRows.length&&<tr><td colSpan={4}>Импортов пока нет</td></tr>}</tbody></table></div></section>
  </div>;
 }

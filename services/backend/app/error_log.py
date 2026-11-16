@@ -20,18 +20,17 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
+from .log_redact import mask  # configured secret values and patterns, as in console logs
 from .security import require_permission
 
 router = APIRouter()
 _queue: asyncio.Queue | None = None
 RETENTION = timedelta(days=30)
-SECRET = re.compile(r"(?i)(token|secret|password|passwd|api[_-]?key|authorization|bearer)([\"'=:\s]+)([^\s\"',;]{4,})")
-BOT_TOKEN = re.compile(r"\b\d{6,12}:[A-Za-z0-9_-]{30,}\b")
 NUMBERS = re.compile(r"\d+")
 
 
 def redact(text: str) -> str:
-    return BOT_TOKEN.sub("***", SECRET.sub(lambda m: m.group(1) + m.group(2) + "***", text or ""))
+    return mask(text)
 
 
 def fingerprint(logger: str, message: str, trace: str) -> str:
@@ -47,7 +46,7 @@ class DatabaseHandler(logging.Handler):
         if _queue is None or record.name.startswith(("sqlalchemy", "vpnshop.error_log")):
             return
         try:
-            trace = "".join(tb.format_exception(*record.exc_info)) if record.exc_info else ""
+            trace = record.exc_text or ("".join(tb.format_exception(*record.exc_info)) if record.exc_info else "")
             item = {"level": record.levelname, "logger": record.name[:120], "message": redact(record.getMessage())[:4000],
                     "traceback": redact(trace)[-8000:], "process": os.environ.get("APP_PROCESS", "api")[:32],
                     "at": datetime.utcnow()}

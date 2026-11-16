@@ -291,3 +291,86 @@ async def test_meta_answers_without_the_panel(env):
     out = await auto.meta(db, ADMIN)
     assert out["enabled"] is False and set(out["algorithms"]) == {"leastPing", "leastLoad", "roundRobin", "random"}
     assert not panel.calls
+
+
+# ---- «Сбросить шаблон» (REQ-AUTO-0012, REQ-AUTO-0020)
+
+@pytest.mark.asyncio
+async def test_reset_template_drops_hand_edits_and_leaves_the_tile_and_hidden_nodes(env):
+    panel, stored, db = env
+    await auto.put_pool(pool(hide_nodes=True, algorithm="leastLoad"), db, ADMIN)
+    tile_before, listed_before, hidden_before = copy.deepcopy(panel.tile()), panel.listed(), list(stored["hidden_by_us"])
+    clean = copy.deepcopy(panel.pool_template())
+    # The owner edited the template in the panel by hand: another strategy and a stray rule.
+    edited = panel.templates[stored["template_uuid"]]["templateJson"]
+    edited["routing"]["balancers"][0]["strategy"]["type"] = "random"
+    edited["routing"]["rules"].insert(0, {"type": "field", "domain": ["example.org"], "outboundTag": "direct"})
+    panel.calls.clear()
+
+    view = await auto.reset_template(db, ADMIN)
+    assert view["template_changed"] is True
+    assert panel.pool_template() == clean
+    # Only the template was written: no host was created, hidden, shown or deleted.
+    writes = [(m, p) for m, p, _ in panel.calls if m != "GET"]
+    assert writes == [("PATCH", "/api/subscription-templates")]
+    assert panel.tile() == tile_before and panel.listed() == listed_before and stored["hidden_by_us"] == hidden_before
+    assert db.rows[-1].action == "rw.autoselect.template_reset"
+
+    # A second reset finds nothing to change and writes nothing.
+    panel.calls.clear()
+    again = await auto.reset_template(db, ADMIN)
+    assert again["template_changed"] is False
+    assert [(m, p) for m, p, _ in panel.calls if m != "GET"] == []
+
+
+@pytest.mark.asyncio
+async def test_reset_template_uses_the_current_default_and_skips_deleted_hosts(env):
+    panel, stored, db = env
+    await auto.put_pool(pool(), db, ADMIN)
+    # The Default template got a new rule and one pool host was deleted on the panel since.
+    panel.templates[uid(70)]["templateJson"]["routing"]["rules"].insert(0, {"type": "field", "ip": ["geoip:private"], "outboundTag": "direct"})
+    del panel.hosts[CZ]
+    await auto.reset_template(db, ADMIN)
+    template = panel.pool_template()
+    assert template["remnawave"]["injectHosts"][0]["selector"]["values"] == [DE, NL]
+    assert {"type": "field", "ip": ["geoip:private"], "outboundTag": "direct"} in template["routing"]["rules"]
+    # The saved choice is not rewritten by a reset: «Обновить пул» does that.
+    assert stored["hosts"] == [DE, CZ, NL]
+
+
+@pytest.mark.asyncio
+async def test_reset_template_refuses_without_a_pool_or_without_hosts(env):
+    panel, stored, db = env
+    with pytest.raises(HTTPException) as off:
+        await auto.reset_template(db, ADMIN)
+    assert off.value.status_code == 409
+    await auto.put_pool(pool(hosts=[DE]), db, ADMIN)
+    panel.hosts[DE]["isDisabled"] = True
+    panel.calls.clear()
+    with pytest.raises(HTTPException) as empty:
+        await auto.reset_template(db, ADMIN)
+    assert empty.value.status_code == 409
+    assert [(m, p) for m, p, _ in panel.calls if m != "GET"] == []
+
+
+@pytest.mark.asyncio
+async def test_reset_template_recreates_a_template_deleted_on_the_panel(env):
+    panel, stored, db = env
+    await auto.put_pool(pool(), db, ADMIN)
+    old = stored["template_uuid"]
+    del panel.templates[old]
+    view = await auto.reset_template(db, ADMIN)
+    assert view["template_changed"] is True and stored["template_uuid"] != old
+    assert panel.tile()["xrayJsonTemplateUuid"] == stored["template_uuid"]
+    assert panel.pool_template()["routing"]["balancers"][0]["strategy"]["type"] == "leastPing"
+
+
+def test_the_ready_made_balancer_fragment_is_a_whole_xray_balancer():
+    """REQ-AUTO-0006: the fragment for the old «whole list» mode — observatory and balancer over the same outbounds."""
+    from app import rw_extensions as ext
+    fragment = ext.BALANCER_TEMPLATE
+    balancer = fragment["routing"]["balancers"][0]
+    assert balancer["strategy"]["type"] == "leastPing" and balancer["fallbackTag"] == "direct"
+    assert fragment["observatory"]["subjectSelector"] == balancer["selector"]
+    assert fragment["observatory"]["probeUrl"].startswith("https://")
+    assert fragment["routing"]["rules"][-1]["balancerTag"] == balancer["tag"]

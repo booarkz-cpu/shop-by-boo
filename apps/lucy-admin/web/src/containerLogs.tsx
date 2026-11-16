@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 const TITLES: Record<string, string> = {backend: "API (backend)", worker: "Фоновый обработчик", bot: "Telegram-бот", caddy: "Caddy (прокси, TLS)",
@@ -47,7 +48,7 @@ export function ContainerLogs({request, toast}: {request: Request; toast?: (text
       <button className="primary" disabled={data?.pending} onClick={ask}>{data?.pending ? "Ждём агента…" : "Получить свежий журнал"}</button>
       <label>Фильтр<input value={filter} onChange={e => setFilter(e.target.value)} placeholder="error, 500, payment…"/></label>
     </div>
-    <p className="muted">{data?.at ? <>Получено {new Date(data.at).toLocaleString("ru-RU")} · {data.lines} строк {data.code ? <StatusBadge tone="warn">docker compose завершился с кодом {data.code}</StatusBadge> : null}</> : "Журнал ещё не запрашивался"}</p>
+    <p className="muted">{data?.at ? <>Получено {serverDate(data.at).toLocaleString("ru-RU")} · {data.lines} строк {data.code ? <StatusBadge tone="warn">docker compose завершился с кодом {data.code}</StatusBadge> : null}</> : "Журнал ещё не запрашивался"}</p>
     {text ? <pre className="log-view" tabIndex={0}>{shown || "Нет строк по фильтру"}</pre> : null}
   </div>;
 }

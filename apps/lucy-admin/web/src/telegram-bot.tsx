@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Props = {request: Request; toast: (text: string) => void};
 const API = "/api/admin/telegram";
 const json = (method: string, data?: unknown): RequestInit => ({method, body: data === undefined ? undefined : JSON.stringify(data)});
-const when = (v?: string | null) => v ? new Date(v).toLocaleString() : "—";
+const when = (v?: string | null) => v ? serverDate(v).toLocaleString() : "—";
 const LANG_NAMES: Record<string, string> = {ru: "Русский (по умолчанию)", en: "English", uk: "Українська"};
 const STATE: Record<string, string> = {running: "работает", idle: "ждёт токен", error: "ошибка", unknown: "нет данных"};
 

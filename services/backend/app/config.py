@@ -454,3 +454,8 @@ class Settings(BaseSettings):
         return redis_connection_kwargs(self.redis_url, self.redis_password)
 
 settings = Settings()
+
+# v28.159.0 (REQ-SEC-0012): from here on no log line of this process carries a configured secret.
+from .log_redact import install as _install_log_redaction  # noqa: E402
+
+_install_log_redaction(settings)

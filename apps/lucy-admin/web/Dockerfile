@@ -13,6 +13,7 @@ COPY apps/user-cabinet/src/support-attachments.tsx /src/apps/user-cabinet/src/su
 COPY apps/user-cabinet/src/public-pages.tsx /src/apps/user-cabinet/src/public-pages.tsx
 COPY apps/user-cabinet/src/button-tree.tsx /src/apps/user-cabinet/src/button-tree.tsx
 COPY apps/user-cabinet/src/http-json.ts /src/apps/user-cabinet/src/http-json.ts
+COPY apps/user-cabinet/src/dates.ts /src/apps/user-cabinet/src/dates.ts
 COPY apps/user-cabinet/scripts/csp-externalize.mjs /src/apps/user-cabinet/scripts/csp-externalize.mjs
 RUN ln -s /src/admin/node_modules /src/apps/user-cabinet/node_modules
 RUN npm run build

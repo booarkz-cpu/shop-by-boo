@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {serverDate} from "./dates";
 
 export function PartnerPortal({request}:{request:(p:string,o?:RequestInit)=>Promise<any>}) {
   const [data,setData]=useState<any>(null),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
@@ -18,7 +19,7 @@ export function PartnerPortal({request}:{request:(p:string,o?:RequestInit)=>Prom
       <form className="workspace-form" onSubmit={withdraw}><label className="field">Сумма<input required type="number" min={1} max={10000000} step="0.01" value={amount} onChange={e=>setAmount(e.target.value)}/></label>
         <label className="field">Реквизиты<input required minLength={3} maxLength={255} value={destination} onChange={e=>setDestination(e.target.value)}/></label>
         <button className="btn-primary" disabled={busy||!data.enabled}>Запросить выплату</button></form>
-      <h3>Последние начисления</h3><div className="table-wrap"><table><thead><tr><th>Дата</th><th>Сумма</th><th>Ставка</th><th>Состояние</th></tr></thead><tbody>{data.commissions.map((x:any)=><tr key={x.id}><td>{new Date(x.created_at).toLocaleString()}</td><td>{x.amount} {x.currency}</td><td>{x.percent}%</td><td>{x.status==='credited'?'Начислено':'Отменено возвратом'}</td></tr>)}</tbody></table></div>
+      <h3>Последние начисления</h3><div className="table-wrap"><table><thead><tr><th>Дата</th><th>Сумма</th><th>Ставка</th><th>Состояние</th></tr></thead><tbody>{data.commissions.map((x:any)=><tr key={x.id}><td>{serverDate(x.created_at).toLocaleString()}</td><td>{x.amount} {x.currency}</td><td>{x.percent}%</td><td>{x.status==='credited'?'Начислено':'Отменено возвратом'}</td></tr>)}</tbody></table></div>
       <h3>Заявки на выплату</h3><div className="table-wrap"><table><thead><tr><th>№</th><th>Сумма</th><th>Состояние</th><th>Номер выплаты</th></tr></thead><tbody>{data.withdrawals.map((x:any)=><tr key={x.id}><td>{x.id}</td><td>{x.amount} {x.currency}</td><td>{({requested:'Запрошена',approved:'Одобрена',paid:'Выплачена',rejected:'Отклонена'} as Record<string,string>)[x.status]||x.status}</td><td>{x.reference||'—'}</td></tr>)}</tbody></table></div>
     </>}
   </section>;

@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {StatusBadge} from "./ui";
+import {serverDate} from "./dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
-const when = (v?: string | null) => (v ? new Date(v.endsWith("Z") || v.includes("+") ? v : v + "Z").toLocaleString() : "—");
+const when = (v?: string | null) => (v ? serverDate(v).toLocaleString() : "—");
 
 /** «Устройства»: devices the VPN panel counts against the subscription limit (HWID), v28.63.0.
  *  The limit itself is enforced by Remnawave; here the customer sees it and frees a slot. */

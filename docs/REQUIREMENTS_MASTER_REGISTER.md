@@ -11,12 +11,12 @@
 ## Итог
 
 - Требований: **653**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **194** — 29.7%.
+- Подтверждено (`PASS`): **208** — 31.9%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 194 | Проверено, доказательство указано |
-| `PARTIAL` | 254 | Сделано частично, остаток описан |
+| `PASS` | 208 | Проверено, доказательство указано |
+| `PARTIAL` | 240 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 36 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
@@ -26,22 +26,22 @@
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 123 | 12 | 5 | 0 | 102 |
 | Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
-| «Корги Люси: Клиент» | 33 | 8 | 24 | 0 | 0 |
-| Магазин, кабинет, Telegram | 32 | 11 | 20 | 0 | 0 |
+| «Корги Люси: Клиент» | 33 | 13 | 19 | 0 | 0 |
+| Магазин, кабинет, Telegram | 32 | 12 | 19 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
 | Lucy Admin | 19 | 3 | 11 | 0 | 0 |
 | Платежи | 44 | 8 | 19 | 1 | 9 |
 | Remnawave | 16 | 1 | 13 | 0 | 0 |
 | MASQUE | 12 | 5 | 7 | 0 | 0 |
 | Ноды: установка, обслуживание, защита | 71 | 16 | 54 | 0 | 0 |
-| Автовыбор | 35 | 21 | 13 | 0 | 1 |
+| Автовыбор | 35 | 24 | 10 | 0 | 1 |
 | Инфраструктура, установщик, копии | 41 | 22 | 18 | 1 | 0 |
 | Backend, API, база | 2 | 0 | 2 | 0 | 0 |
 | Интерфейсы | 10 | 1 | 9 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
-| CI/CD и выпуски | 15 | 11 | 4 | 0 | 0 |
+| CI/CD и выпуски | 15 | 12 | 3 | 0 | 0 |
 | Документация | 37 | 16 | 1 | 0 | 11 |
-| Аудит, тесты, скриншоты | 69 | 16 | 7 | 0 | 43 |
+| Аудит, тесты, скриншоты | 69 | 20 | 3 | 0 | 43 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 1 | 4 | 0 | 0 |
@@ -1217,12 +1217,12 @@
 
 > - Поддерживать несколько независимых подписок и локальных профилей.
 
-### REQ-CLIENT-0012 — `PARTIAL`
+### REQ-CLIENT-0012 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2161). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/SubInfo.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/SettingsAndInfoTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`.
-- Примечание: Показываются срок действия, трафик, время последнего обновления, число серверов, число пропущенных ссылок и ошибка. Время следующего обновления не показывается.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backoff.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/ClientApp.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/BackoffTest.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`.
+- Примечание: Карточка подписки показывает имя (источник), срок действия, трафик, время последнего обновления, число серверов, пропущенные ссылки, ошибку и с 1.10.1 — время следующего обновления (интервал из настроек или из подписки, пауза после ошибок). Время совпадает с тем, по которому решает фоновое обновление (BackoffTest); строка на экране проверена на эмуляторе (ClientScreensTest.theSubscriptionCardSaysWhenItIsUpdatedNext). На телефоне не проверено.
 
 > - Отображать источник, дату последнего обновления, дату следующего обновления, срок действия, количество конфигураций и ошибки.
 
@@ -1277,12 +1277,12 @@
 
 > - Поддерживать резервное копирование и перенос профилей с защитой приватных данных.
 
-### REQ-CLIENT-0019 — `PARTIAL`
+### REQ-CLIENT-0019 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.1. Управление профилями и подписками (строка 2168). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Dialogs.kt`.
-- Примечание: Экспорт и «поделиться» — только по нажатию пользователя. Отдельного предупреждения о ключах и UUID перед экспортом нет.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt`; `docs/ru/new/CLIENT_PRIVACY.md`.
+- Примечание: Экспорт и «поделиться» доступны только по явному нажатию; перед ссылкой, QR-кодом и файлом без пароля реализовано предупреждение о чувствительных UUID/паролях. ClientScreensTest.aPlainBackupLinkIsCopiedOnlyAfterTheWarning проверяет исходный clipboard sentinel после получения фокуса, отмену без изменения clipboard и подтверждение с разбором Backup и сравнением профилей. Полный connectedDebugAndroidTest и реальные VPN-пробы успешно завершились в CI run 43807885310/job133102823342 на commit dda67a16326560e12e7497b91dc5310fecd24366 (AOSP/API34). После этого изменения только доказательств и интеграция main требуют нового общего CI. На физическом телефоне не проверено.
 
 > - Экспортировать конфигурации только после явного действия пользователя и предупреждать о чувствительных ключах/UUID.
 
@@ -1339,12 +1339,12 @@
 
 > - Обеспечить корректное завершение соединения, освобождение ресурсов и защиту от zombie service.
 
-### REQ-CLIENT-0026 — `PARTIAL`
+### REQ-CLIENT-0026 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.2. Подключение и стабильность (строка 2178). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/Phase3Test.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Logs.kt`.
-- Примечание: Журналы одним .zip по нажатию. Вычищение адресов серверов и UUID из журналов перед экспортом не сверено.
+- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Redact.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/LogZip.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/RedactTest.kt`; `docs/ru/new/CLIENT_PRIVACY.md`.
+- Примечание: С 1.10.1 каждая строка журналов перед записью в .zip очищается: ссылки серверов, UUID, адреса IPv4/IPv6 в интернете, места назначения tcp:/udp:, адреса https://, значения password/id/key/token/uuid. Время, уровни и ошибки остаются, локальные адреса тоже. Проверено модульным тестом RedactTest на строках ядра и на архиве целиком. Архив с настоящего телефона не смотрели.
 
 > - Реализовать диагностический экспорт без секретов и персональных данных по умолчанию.
 
@@ -1357,12 +1357,12 @@
 
 > - Объяснять назначение VPN permission, локального VPN API, уведомлений и иных разрешений.
 
-### REQ-CLIENT-0028 — `PARTIAL`
+### REQ-CLIENT-0028 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2183). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/NetworkLog.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/NetworkLogTest.kt`; `apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/TrafficHistoryTest.kt`.
-- Примечание: История трафика — только объём по дням, на устройстве. Журнал сети (домены и маршруты) выключен по умолчанию, включается пользователем и хранится только на устройстве. Политики приватности клиента отдельным документом нет.
+- Доказательство: `docs/ru/new/CLIENT_PRIVACY.md`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/TrafficHistory.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Settings.kt`.
+- Примечание: История трафика — только объём по дням (последние 90 дат-записей, без календарного TTL при простое, без адресов) для экрана статистики; журнал сети выключен по умолчанию и включается человеком; всё хранится только на устройстве, аналитики и отчётов о сбоях нет. Описано в docs/ru/new/CLIENT_PRIVACY.md по коду. Сетевой трафик клиента снифером на телефоне не записывали.
 
 > - Не собирать историю трафика, содержимое пакетов или browsing history без необходимости и явного основания.
 
@@ -1375,12 +1375,12 @@
 
 > - Не передавать диагностические данные без согласия пользователя.
 
-### REQ-CLIENT-0030 — `PARTIAL`
+### REQ-CLIENT-0030 — `PASS`
 
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2185). Продукт: Клиент.
 - Платформы: Android client.
-- Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/SettingsScreens.kt`; `docs/BRAND_COPY.md`.
-- Примечание: В текстах клиента и бренда нет обещаний анонимности и обхода любых блокировок. Явной оговорки об этом в приложении или в документе клиента нет.
+- Доказательство: `docs/ru/new/CLIENT_PRIVACY.md`.
+- Примечание: В docs/ru/new/CLIENT_PRIVACY.md («Что клиент не обещает») прямо сказано: VPN не даёт анонимности, не обходит любые блокировки и не защищает от вредоносных программ на телефоне. В текстах клиента таких обещаний нет.
 
 > - Документировать, что VPN не гарантирует анонимность, защиту от всех угроз или обход всех блокировок.
 
@@ -1397,7 +1397,7 @@
 - Источник: Часть IV → 25. VPN-клиент — расширенные требования → 25.3. Приватность и разрешения (строка 2187). Продукт: Клиент.
 - Платформы: Android client.
 - Доказательство: `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Vault.kt`; `apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt`; `apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt`.
-- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено.
+- Примечание: Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Дополнительно установлено по Vault.seal(): при отказе Android Keystore сохраняется открытый исходный текст. Поэтому шифрование профилей не гарантировано на каждом устройстве; этот fallback и чувствительные поля вне Vault остаются задачей.
 
 > - Секреты профилей хранить в защищённом хранилище платформы, где это применимо.
 
@@ -1538,8 +1538,8 @@
 ### REQ-SHOP-0017 — `PARTIAL`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.1. Жизненный цикл пользователя (строка 2202). Продукт: Магазин.
-- Доказательство: `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`; `services/backend/app/legal_texts.py`.
-- Примечание: Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет.
+- Доказательство: `apps/user-cabinet/src/my-data.test.tsx`; `apps/user-cabinet/src/my-data.tsx`; `services/backend/app/legal_texts.py`; `services/backend/app/operations_api.py`; `tests/test_matrix_privacy.py`; `tests/test_multiple_subscriptions.py`.
+- Примечание: GET /api/me/privacy/export и DELETE /api/me/privacy/account существуют; #355 добавляет кнопки кабинета и подтверждение. Экспорт фильтрует владельца, а удаление проверяет подписки/покупки/партнёрские обязательства и отключение Remnawave. Полный PASS не доказан: выгрузка не включает, например, email/vk_id основного объекта user, сессии/IP/User-Agent и вложения; анонимизация сохраняет тексты SupportTicket/SupportMessage, финансовую историю, аудит и старые копии. Это не утверждение о незаконности хранения: применимая политика, полнота экспорта/очистки и законные сроки ещё не установлены/не подтверждены. Наличие UI не закрывает весь исходный пункт.
 
 > - Предусмотреть удаление/экспорт данных в пределах применимого законодательства и политики сервиса.
 
@@ -1574,11 +1574,11 @@
 
 > - Синхронизировать entitlement после подтверждённого платежа; повторный webhook не должен создавать повторную подписку или повторное начисление.
 
-### REQ-SHOP-0022 — `PARTIAL`
+### REQ-SHOP-0022 — `PASS`
 
 - Источник: Часть IV → 26. VPN Shop, пользовательский кабинет и Telegram — расширение → 26.2. Подписки и entitlement (строка 2210). Продукт: Магазин.
-- Доказательство: `tests/test_subscription_commerce.py`; `tests/test_renewal_readiness.py`; `tests/test_multiple_subscriptions.py`.
-- Примечание: Продление до и после окончания и смена тарифа с пересчётом покрыты тестами. Отдельных тестов на часовые пояса нет.
+- Доказательство: `apps/user-cabinet/src/dates.test.tsx`; `apps/user-cabinet/src/dates.ts`; `tests/admin-safe.test.mjs`; `tests/test_multiple_subscriptions.py`; `tests/test_renewal_readiness.py`; `tests/test_subscription_commerce.py`.
+- Примечание: Продление до и после окончания и смена тарифа с пересчётом покрыты тестами; сервер считает сроки в UTC. С v28.159.0 исправлен показ времени: API отдаёт UTC без указания пояса, а кабинет, Mini App и веб-панель читали такое время как местное (в Москве срок подписки и счётчик дней были сдвинуты на 3 часа). Теперь все времена сервера разбираются одной функцией serverDate; тесты гоняются в поясах Москвы, Лос-Анджелеса, Владивостока и UTC, а проверка в CI не даёт показать время сервера в панели в обход неё.
 
 > - Правильно обрабатывать timezone, даты окончания, продление до окончания, продление после окончания и смену тарифов.
 
@@ -3201,11 +3201,11 @@
 
 > Отдельная плитка «Автовыбор»; обычные ноды могут отображаться отдельно.
 
-### REQ-AUTO-0006 — `PARTIAL`
+### REQ-AUTO-0006 — `PASS`
 
 - Источник: Часть I → Auto Selection → Delivery → all-list (строка 594). Продукт: Все три.
-- Доказательство: `services/backend/app/rw_extensions.py`; `docs/AUTO_SELECTION.md`.
-- Примечание: Заготовка балансировщика по всему списку есть в «Расширения Remnawave → Готовые фрагменты»; владелец вставляет её в шаблон сам. Пул автовыбора старый режим не меняет. Теста на заготовку нет.
+- Доказательство: `services/backend/app/rw_extensions.py`; `tests/test_rw_extensions.py`; `tests/live/test_remnawave_live.py`; `tests/test_rw_autoselect.py`; `docs/AUTO_SELECTION.md`.
+- Примечание: Старый режим «Весь список» пул не меняет: узлы остаются в списке, пока не включено скрытие (тесты пула). Заготовка балансировщика для шаблона Xray JSON — в «Расширения Remnawave → Готовые фрагменты»; тест проверяет, что это целый балансировщик (observatory и balancer над одними outbound, запасной direct), а живой тест в CI записывает её в шаблон настоящей панели Remnawave в контейнере. Плитка пула раздаётся только в формате Xray JSON, если узлы не скрыты.
 
 > Старый режим «Весь список»; балансировка только при поддержке формата.
 
@@ -3248,11 +3248,11 @@
 
 > Для каждого алгоритма определить входные данные, выбор, недоступность, обновление метрик, равные значения и fallback.
 
-### REQ-AUTO-0012 — `PARTIAL`
+### REQ-AUTO-0012 — `PASS`
 
 - Источник: Часть I → Auto Selection → Management (строка 622). Продукт: Все три.
-- Доказательство: `services/backend/app/rw_autoselect.py`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
-- Примечание: Есть: включение, обновление, удаление плитки, имя, алгоритм, выбор узлов, «выбрать все» и «снять все», скрытие, состав, доступность. Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при каждом «Обновить пул».
+- Доказательство: `services/backend/app/rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
+- Примечание: Есть: включение, отключение («Убрать плитку»), «Обновить пул», «Сбросить шаблон» (с v28.159.0: шаблон пула пишется заново из Default и сохранённого выбора, плитка и скрытые узлы не меняются, повтор ничего не пишет), удаление плитки, имя, алгоритм, выбор узлов, «Выбрать все» и «Снять все», скрытие, состав, доступность. Проверено тестами на модели панели Remnawave; на настоящей панели — нужен VPS (O1).
 
 > Включение; отключение; обновление; сброс шаблона; удаление плитки; имя; алгоритм; выбор нод; массовое включение/исключение; скрытие; состав; доступность.
 
@@ -3312,11 +3312,11 @@
 
 > Пул автовыбора — «быстрейшая нода клиенту».
 
-### REQ-AUTO-0020 — `PARTIAL`
+### REQ-AUTO-0020 — `PASS`
 
 - Источник: Часть I → Completeness Supplement → Protocol Switch And Node Pool Screenshot Acceptance → Auto Selection Pool Ui → Actions (строка 1410). Продукт: Все три.
-- Доказательство: `apps/lucy-admin/web/src/autoselect.tsx`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`; `services/backend/app/rw_autoselect.py`.
-- Примечание: Есть «Убрать плитку», «Включить <алгоритм>», «Обновить пул». Отдельной кнопки «Сбросить шаблон» нет: шаблон пересобирается при «Обновить пул».
+- Доказательство: `services/backend/app/rw_autoselect.py`; `apps/lucy-admin/web/src/autoselect.tsx`; `tests/test_rw_autoselect.py`; `apps/lucy-admin/web/e2e/autoselect.spec.ts`.
+- Примечание: Все четыре действия есть на странице: «Сбросить шаблон», «Убрать плитку», «Включить leastPing» (кнопка включения называет выбранный алгоритм), «Обновить пул». Проверено тестами на модели панели; на настоящей панели — O1.
 
 > Сбросить шаблон; убрать плитку; включить leastPing; обновить пул.
 
@@ -3494,7 +3494,7 @@
 - Источник: Часть I → Docker Installer Vps Termux → Termux (строка 740). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `docs/ru/new/TERMUX_GUIDE.md`.
-- Примечание: Пошаговая инструкция для Android/Termux написана (v28.158.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
+- Примечание: Пошаговая инструкция для Android/Termux написана (v28.159.0): установка Termux, SSH и ключ, установка в tmux, проверка, обновление, журналы, диагностика. На настоящем телефоне не проверена.
 
 > Android/Termux: инструменты; подключение к VPS; Git; проверка репозитория; установка; запуск; обновление; логи; диагностика. Пошагово для новичка.
 
@@ -3503,7 +3503,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.1. Установщик (строка 2297). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `infrastructure/deployment/install-status.sh`; `infrastructure/deployment/install-vps.sh`; `tests/test_install_status.py`.
-- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.158.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.158.0, решение владельца 2026-11-14). На VPS не проверено.
+- Примечание: Этапы с машиночитаемым состоянием и ошибкой (v28.159.0); повторный запуск после сбоя продолжает с упавшего этапа без повторных вопросов (v28.159.0, решение владельца 2026-11-14). На VPS не проверено.
 
 > Поддерживать идемпотентные этапы: preflight → environment validation → DNS/ports → secrets → dependencies → database → migrations → services → health checks → admin bootstrap → final report. Каждый этап должен иметь машинно-читаемый статус, лог, понятную ошибку и безопасный повтор.
 
@@ -3528,7 +3528,7 @@
 - Источник: Часть IV → 30. Установка, обновления и миграции — расширение → 30.2. Обновление (строка 2303). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `scripts/update-space.sh`; `scripts/update.sh`; `tests/test_update_space.py`; `scripts/github_release_fetch.py`.
-- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.158.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
+- Примечание: Свободное место для снимка, дампа и образов проверяется до любых изменений (v28.159.0); недоступный GitHub останавливает обновление до изменений. Доступность реестров образов отдельно не проверяется — сбой сборки откатывает обновление.
 
 > - Проверять свободное место и доступность внешних зависимостей.
 
@@ -3638,7 +3638,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2324). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `services/backend/app/log_format.py`; `services/backend/app/main.py`; `services/backend/app/errors.py`; `tests/test_ops_alerts.py`.
-- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.158.0). Трассировки (OpenTelemetry) нет.
+- Примечание: Есть сквозной X-Request-ID (журналы, ответы, аудит), метрики /metrics, журналы в JSON при LOG_FORMAT=json (v28.159.0). Трассировки (OpenTelemetry) нет.
 
 > - Добавить structured logs, metrics, traces и correlation IDs.
 
@@ -3647,7 +3647,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2325). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `services/backend/app/host_metrics.py`; `services/backend/app/observability.py`; `services/backend/app/main.py`; `tests/test_host_metrics.py`.
-- Примечание: С v28.158.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
+- Примечание: С v28.159.0 в /metrics есть перцентили задержки, диск, память, нагрузка CPU, память процесса и пул БД, плюс прежние ошибки, очередь, воркеры. Нет отдельных метрик задержки вебхуков и доступности нод (доступность нод — оповещениями).
 
 > - Отслеживать error rate, latency percentiles, throughput, saturation, queue depth, failed jobs, webhook lag, DB pool, disk, memory, CPU, node availability и certificate expiry.
 
@@ -3665,7 +3665,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2327). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `services/backend/app/ops_alerts.py`; `services/backend/app/masque_panel.py`; `services/backend/app/rw_drift.py`; `tests/test_ops_alerts.py`.
-- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.158.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
+- Примечание: Оповещения: сбой и непроверяемость копии, нарушение RPO, срок сертификатов доменов магазина (v28.159.0), отключение кассы, недоступность Remnawave и нод, блокировки, сертификат MASQUE. Нет: сбой миграций (бэкенд с упавшей миграцией не стартует и сообщить не может; ловит doctor.sh и откат обновления), инциденты безопасности.
 
 > - Уведомлять о backup failures, certificate expiry, payment provider outage, node degradation, failed migrations и security incidents.
 
@@ -3674,7 +3674,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.1. Health и observability (строка 2328). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `services/backend/app/ops_alerts.py`; `tests/test_ops_alerts.py`.
-- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.158.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
+- Примечание: Расхождение часов сервера больше минуты — оповещение (сверка с HTTPS-сервером раз в 6 часов, v28.159.0). Часовые пояса расписаний (МСК для ночного автообновления Remnawave) не сверены по всем задачам.
 
 > - Учитывать timezone и clock drift для cron, webhook signature и сертификатов.
 
@@ -3750,7 +3750,7 @@
 - Источник: Часть IV → 31. Инфраструктура, наблюдаемость и SRE → 31.2. Backup и disaster recovery (строка 2340). Продукт: Все три.
 - Платформы: services/backend/API, server.
 - Доказательство: `services/backend/app/backups_api.py`; `tests/test_backup_retention_verified.py`; `scripts/auto_update.py`; `scripts/backup.sh`.
-- Примечание: v28.158.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
+- Примечание: v28.159.0: срок хранения в панели больше не удаляет последнюю копию, прошедшую проверку восстановления (раньше могла, если после неё было много непроверенных).
 
 > - Не удалять последний проверенный backup автоматически.
 
@@ -4003,11 +4003,11 @@
 
 > - Разделить preview, staging и production.
 
-### REQ-CI-0011 — `PARTIAL`
+### REQ-CI-0011 — `PASS`
 
 - Источник: Часть IV → 35. CI/CD, релизы и управление версиями (строка 2413). Продукт: Все три.
-- Доказательство: `scripts/check-current-docs.py`; `scripts/package-distribution.py`; `docs/ru/RELEASE_V28_122_0.md`; `docs/VERSIONING.md`.
-- Примечание: Заметки каждого выпуска содержат миграции, проверки, известные ограничения; у файлов выпуска есть SHA-256. Отдельных разделов «ломающие изменения» и «откат» в заметках нет.
+- Доказательство: `docs/VERSIONING.md`; `docs/ru/RELEASE_V28_122_0.md`; `docs/ru/RELEASE_V28_159_0.md`; `scripts/check-current-docs.py`; `scripts/package-distribution.py`.
+- Примечание: С v28.159.0 заметки текущего выпуска обязаны содержать разделы «Ломающие изменения», «Миграции», «Откат», «Известные ограничения» и «Чем проверено» — scripts/check-current-docs.py в CI не пропускает выпуск без них; у файлов выпуска есть SHA-256 (package-distribution.py). Заметки прежних выпусков не переписывались.
 
 > - Создавать release notes с breaking changes, migrations, rollback, known issues и checksum artifacts.
 
@@ -4385,21 +4385,21 @@
 
 > ImportError: cannot import AsyncSessionLocal from app.db; suggested SessionLocal
 
-### REQ-QA-0005 — `PARTIAL`
+### REQ-QA-0005 — `PASS`
 
 - Источник: Часть I → Full Audit → Known Error (строка 229). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`.
-- Примечание: На текущем коде ошибка не воспроизводится (отчёт AUD-04): сервер отдаёт метки объектами. Отдельного теста на этот симптом нет.
+- Доказательство: `apps/lucy-admin/web/src/safe.ts`; `tests/admin-safe.test.mjs`; `tests/test_mobile_layout.py`; `docs/MASTER_EXECUTION_REPORTS.md`.
+- Примечание: Метки панель получает и отдаёт только целыми: safe.label() дополняет недостающие языки строками, LabelFields и обработчики «Тексты» и «Строки» работают через неё. Тест tests/admin-safe.test.mjs воспроизводит исходное падение (undefined.trim) и проверяет, что помощник его не допускает; tests/test_mobile_layout.py проверяет, что сервер отдаёт ru/en/uk строками даже для макета, сохранённого с одной русской меткой.
 
 > Cannot read properties of undefined (reading 'trim')
 
-### REQ-QA-0006 — `PARTIAL`
+### REQ-QA-0006 — `PASS`
 
 - Источник: Часть I → Full Audit → Known Error (строка 233). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
-- Примечание: В панели списки приводятся к массиву функцией list() (отчёт AUD-05). Отдельного теста на этот симптом нет.
+- Доказательство: `apps/lucy-admin/web/src/safe.ts`; `apps/lucy-admin/web/src/main.tsx`; `tests/admin-safe.test.mjs`.
+- Примечание: list() вынесена в apps/lucy-admin/web/src/safe.ts и используется панелью. Тест tests/admin-safe.test.mjs воспроизводит исходное падение ((s || []).map на объекте) и проверяет, что list() отдаёт массив для обёрток items/results/data и пустой массив для любых других ответов.
 
 > (s || []).map is not a function
 
@@ -4646,20 +4646,20 @@
 
 > - Проверить ранее упомянутую ошибку Python `ImportError: cannot import AsyncSessionLocal from app.db`; сообщение предлагало `SessionLocal`, но сначала изучить реальный session factory и импорты.
 
-### REQ-QA-0043 — `PARTIAL`
+### REQ-QA-0043 — `PASS`
 
 - Источник: Часть II → II.1. Дополнительные технические ошибки и проверки (строка 1565). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`.
-- Примечание: То же, что REQ-QA-0005: не воспроизводится, отдельного теста нет.
+- Доказательство: `apps/lucy-admin/web/src/safe.ts`; `tests/admin-safe.test.mjs`; `tests/test_mobile_layout.py`.
+- Примечание: То же, что REQ-QA-0005.
 
 > - Исправить JavaScript `Cannot read properties of undefined (reading 'trim')`.
 
-### REQ-QA-0044 — `PARTIAL`
+### REQ-QA-0044 — `PASS`
 
 - Источник: Часть II → II.1. Дополнительные технические ошибки и проверки (строка 1566). Продукт: Все три.
 - Платформы: Web.
-- Доказательство: `docs/MASTER_EXECUTION_REPORTS.md`; `apps/lucy-admin/web/src/main.tsx`.
+- Доказательство: `apps/lucy-admin/web/src/safe.ts`; `tests/admin-safe.test.mjs`.
 - Примечание: То же, что REQ-QA-0006.
 
 > - Исправить `(s || []).map is not a function`.
@@ -4933,8 +4933,8 @@
 ### REQ-SEC-0012 — `PARTIAL`
 
 - Источник: Часть IV → 32. Безопасность и privacy — расширение (строка 2358). Продукт: Все три.
-- Доказательство: `tests/test_behaviour_plans_privacy.py`; `tests/test_fiscal.py`; `tests/test_runtime_settings.py`; `docs/ru/new/SECURITY_AUDIT.md`.
-- Примечание: Секреты зашифрованы в базе и не отдаются интерфейсу. Автоматической проверки, что ни один секрет не попадает в журналы, нет.
+- Доказательство: `services/backend/app/log_redact.py`; `services/backend/app/config.py`; `services/backend/app/error_log.py`; `tests/test_log_redact.py`; `tests/test_behaviour_plans_privacy.py`; `tests/test_runtime_settings.py`; `docs/ru/new/SECURITY_AUDIT.md`.
+- Примечание: Секреты зашифрованы в базе и не отдаются интерфейсу. С v28.159.0 каждый процесс магазина (API, worker, бот, CLI) при импорте app.config ставит фабрику записей журнала: значения всех секретных настроек (токены, пароли, ключи, пароли внутри DATABASE_URL/REDIS_URL) и шаблоны token=/password:/Bearer/токен бота маскируются до того, как запись увидит любой обработчик — консоль, JSON-формат, журнал ошибок в базе. Тест tests/test_log_redact.py проверяет консоль, исключения, JSON-формат, строки доступа uvicorn и то, что обычные строки не меняются. Секреты, которые хранятся только в базе (ключи касс из панели), маскируются только шаблонами. Проверка PR выявила утечки повторно сформированного traceback в JSON и журнале ошибок и немаскированный stack_info: исправлены и добавлены регрессионные тесты. Полный PASS пока не доказан: произвольные значения ключей, хранящихся только в базе, короткие секреты и полные персональные данные не покрыты единой защитой всех каналов; остаются аудит и отрицательные тесты всех источников секретов/персональных данных. Изолированное воспроизведение подтверждает исправление трёх найденных выходов, но не заменяет полный CI и живую проверку.
 
 > - Не логировать токены, пароли, private keys, VPN credentials, payment secrets и полные персональные данные.
 
@@ -5113,8 +5113,8 @@
 ### REQ-ARCH-0020 — `PARTIAL`
 
 - Источник: Часть IV → 24. Продуктовая архитектура и границы доменов → 24.2. Архитектурные документы (строка 2154). Продукт: Все три.
-- Доказательство: `docs/architecture/ADR/README.md`; `docs/architecture/ADR/0000-template.md`; `tests/test_architecture_docs.py`.
-- Примечание: Образец записи и пять записей о решениях ноября 2026 года есть; тест проверяет состав записи. Решения, принятые раньше, записями не оформлены.
+- Доказательство: `docs/architecture/ADR/README.md`; `docs/architecture/ADR/0000-template.md`; `docs/architecture/ADR/0001-audit-seals-in-settings.md`; `docs/architecture/ADR/0002-drift-check-is-read-only.md`; `docs/architecture/ADR/0003-pin-actions-and-scanner-by-digest.md`; `docs/architecture/ADR/0004-apps-self-update-from-github.md`; `docs/architecture/ADR/0005-runtime-images-without-packaging-tools.md`; `docs/architecture/ADR/0006-folder-layout-in-stages-with-shims.md`; `docs/architecture/ADR/0007-foreign-sources-ideas-only.md`; `docs/architecture/ADR/0008-hourly-backups-rpo-rto.md`; `docs/architecture/ADR/0009-installer-resumes-from-the-failed-stage.md`; `docs/architecture/ADR/0010-client-secrets-in-android-keystore.md`; `docs/architecture/ADR/0011-log-records-masked-at-creation.md`; `tests/test_architecture_docs.py`.
+- Примечание: Одиннадцать записей по образцу (контекст, варианты, решение, последствия, риски, обратимость, дата, статус); в том числе решения владельца ноября 2026 года: перекладка папок с переходниками, только идеи из чужих проектов, копии каждый час (RPO/RTO), продолжение установки с этапа, шифрование подписок клиента, маскировка секретов в журналах. Тест проверяет состав записей и указатель. Решения до ноября 2026 года (автообновление Remnawave выключено по умолчанию, main.py короче 1000 строк и другие) записями не оформлены: их дата и варианты в журнале работ не записаны.
 
 > Для значимых решений оформлять ADR: контекст, варианты, решение, последствия, риски, обратимость, дата и статус.
 

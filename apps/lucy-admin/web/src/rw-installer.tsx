@@ -1,6 +1,7 @@
 import {SiteTemplateSelect} from "./selfsteal";
 import React, {useEffect, useRef, useState} from "react";
 import {EmptyState, LoadState, SuccessNote} from "./components/ui/state";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
 type Props = {request: Request; toast: (text: string) => void};
@@ -117,7 +118,7 @@ function Registry({servers, request, toast, reload}: {servers: any[]; request: R
             <div className={s.ssh_key?.rotation_due ? "warn-text" : "muted"} data-ssh-key>{s.ssh_key?.managed
               ? `Ключ магазина ${s.ssh_key.fingerprint} · ${s.ssh_key.age_days ?? 0} дн.${s.ssh_key.rotation_due ? " — пора сменить" : ""}`
               : `Вход по ${s.auth_method === "password" ? "паролю" : "ключу"} владельца — смените на ключ магазина`}</div></td>
-          <td data-status={s.status}>{STATUS[s.status] || s.status}<div className="muted">{s.last_checked_at ? new Date(s.last_checked_at).toLocaleString() : "не проверялся"}</div></td>
+          <td data-status={s.status}>{STATUS[s.status] || s.status}<div className="muted">{s.last_checked_at ? serverDate(s.last_checked_at).toLocaleString() : "не проверялся"}</div></td>
           <td>{s.os || "—"}{s.arch ? ` · ${s.arch}` : ""}</td>
           <td>{s.cpu_cores ? `${s.cpu_cores} CPU · ${s.ram_mb} МБ · ${s.disk_gb} ГБ свободно` : "—"}</td>
           <td>{(s.roles || []).map((r: string) => ROLE[r]).join(", ") || "—"}</td>
@@ -284,7 +285,7 @@ function Jobs({jobs, servers, request, toast, opened, setOpened, reload}: any) {
           <td>{j.server_ids.map((id: number) => names[id] || `#${id}`).join(", ")}</td>
           <td>{STATUS[j.status] || j.status}{j.current_step && <div className="muted">{j.current_step}</div>}{j.error && <div className="error">{j.error}</div>}</td>
           <td><progress max={100} value={j.progress}/> {j.progress}%</td>
-          <td>{j.started_at ? new Date(j.started_at).toLocaleString() : "—"}</td><td>{j.finished_at ? new Date(j.finished_at).toLocaleString() : "—"}</td>
+          <td>{j.started_at ? serverDate(j.started_at).toLocaleString() : "—"}</td><td>{j.finished_at ? serverDate(j.finished_at).toLocaleString() : "—"}</td>
           <td><button onClick={() => setOpened(opened === j.id ? null : j.id)}>{opened === j.id ? "Скрыть" : "Журнал"}</button></td></tr>
           {opened === j.id && <tr><td colSpan={8}><JobDetail id={j.id} request={request} toast={toast} reload={reload}/></td></tr>}
         </React.Fragment>)}</tbody>

@@ -6,8 +6,13 @@ import os
 from datetime import datetime, timezone
 import subprocess
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
+
+
+# Compatibility floor: installed updaters cap compressed AND expanded bytes.
+LEGACY_ARCHIVE_LIMIT = 80 * 1024 * 1024
 
 
 def main() -> None:
@@ -25,20 +30,35 @@ def main() -> None:
         info.external_attr = mode << 16
         info.compress_type = zipfile.ZIP_DEFLATED
         archive.writestr(info, path.read_bytes(), compresslevel=9)
-    with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for raw in sorted(filter(None, paths)):
-            rel = Path(os.fsdecode(raw))
-            path = root / rel
-            if path.is_symlink() or not path.is_file():
-                continue
-            if rel.name.startswith(".env") and rel.name != ".env.example" and rel.name != ".env.test.example":
-                continue
-            if rel.suffix.lower() in {".apk", ".ipa", ".zip"}:
-                continue
-            write_entry(archive, path, rel.as_posix())
-        template = root / "release-manifest.template.json"
-        if template.is_file() and b"release-manifest.template.json" not in paths:
-            write_entry(archive, template, template.name)
+    entries = []
+    for raw in sorted(filter(None, paths)):
+        rel = Path(os.fsdecode(raw))
+        path = root / rel
+        # Review screenshots stay in GitHub. Runtime assets remain in the ZIP.
+        if rel.parts[0] == "screenshots":
+            continue
+        if path.is_symlink() or not path.is_file():
+            continue
+        if rel.name.startswith(".env") and rel.name not in {".env.example", ".env.test.example"}:
+            continue
+        if rel.suffix.lower() in {".apk", ".ipa", ".zip"}:
+            continue
+        entries.append((path, rel.as_posix()))
+    template = root / "release-manifest.template.json"
+    if template.is_file() and b"release-manifest.template.json" not in paths:
+        entries.append((template, template.name))
+    expanded = sum(path.stat().st_size for path, _ in entries)
+    if expanded > LEGACY_ARCHIVE_LIMIT:
+        raise SystemExit(f"Expanded release archive exceeds installed updater limit: {expanded} > {LEGACY_ARCHIVE_LIMIT}")
+    with tempfile.TemporaryDirectory(dir=target.parent, prefix="release-package-") as staging:
+        staged = Path(staging) / "release.zip"
+        with zipfile.ZipFile(staged, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path, name in entries:
+                write_entry(archive, path, name)
+        if staged.stat().st_size > LEGACY_ARCHIVE_LIMIT:
+            raise SystemExit("Compressed release archive exceeds installed updater limit")
+        os.replace(staged, target)
+    print(f"Release source: {len(entries)} files, {expanded} expanded bytes; screenshots/ remain in GitHub")
 
 
 if __name__ == "__main__":

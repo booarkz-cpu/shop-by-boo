@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Waypoints} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Plan = {id: number; name: string; enabled: boolean; traffic_limit_gb: number | null};
@@ -21,7 +22,7 @@ type Status = {users: number; port: number; certificate_until: string; traffic: 
 const API = "/api/admin/masque/panel";
 const JSON_HEADERS = {"Content-Type": "application/json"};
 const mb = (bytes: number) => (bytes / 1048576).toFixed(bytes < 10485760 ? 2 : 0) + " МБ";
-const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("ru-RU") : "—");
+const when = (iso: string | null) => (iso ? serverDate(iso).toLocaleString("ru-RU") : "—");
 
 /** «Смена протокола» → «MASQUE: ноды и подписка»: the shop's own panel for a protocol Remnawave does not know. */
 export function MasquePanel({request, toast}: {request: RequestFn; toast: (m: string) => void}) {

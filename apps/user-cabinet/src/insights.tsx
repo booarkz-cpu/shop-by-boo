@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {SectionBanner} from "./miniapp-sections";
+import {serverDate} from "./dates";
 
 /** v28.37 customer surfaces: avatar, «Моя статистика», one-click offers, referral contest, smart cart, guest purchase. */
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
@@ -56,7 +57,7 @@ export function ReferralContest({request}: {request: RequestFn}) {
   useEffect(() => { request("/api/me/referral-contest").then((r: any) => setC(r.contest)).catch(() => setC(null)); }, [request]);
   if (!c) return null;
   return <section className="form-card"><SectionBanner kind="contest" title={c.title} /><h3>🏆 {c.title}</h3>
-    <p>До {new Date(c.ends_at).toLocaleDateString()} · считаются друзья, которые {c.metric === "paid" ? "оплатили подписку" : "пришли по вашей ссылке"}.</p>
+    <p>До {serverDate(c.ends_at).toLocaleDateString()} · считаются друзья, которые {c.metric === "paid" ? "оплатили подписку" : "пришли по вашей ссылке"}.</p>
     <p>Призы: {c.prizes.map((p: any) => `${p.place} место — ${p.days ? `${p.days} дн.` : ""}${p.days && Number(p.amount) ? " и " : ""}${Number(p.amount) ? `${p.amount} ₽` : ""}`).join("; ")}</p>
     <ol>{c.top.map((r: any) => <li key={r.place}>{r.name} — {r.score}</li>)}</ol>
     <p><strong>{c.me ? `Вы на ${c.me.place} месте (${c.me.score})` : "Пригласите друга, чтобы попасть в таблицу"}</strong></p></section>;

@@ -21,7 +21,7 @@ function view(state: any) {
     json_at_base: false, hosts};
 }
 
-test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', async ({page}) => {
+test('auto-selection pool: choose nodes, switch on, hide, refresh, reset the template, remove', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('rw_lang', 'ru'));
   await page.goto('/');
   await page.getByLabel('Email', {exact: true}).fill('browser@example.test');
@@ -39,6 +39,11 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
     return r.fulfill({json: view(state)});
   });
   await page.route('**/api/admin/rw/autoselect/refresh', (r: any) => { refreshed += 1; return r.fulfill({json: view(state)}); });
+  let resets = 0;
+  await page.route('**/api/admin/rw/autoselect/reset-template', (r: any) => {
+    resets += 1;
+    return r.fulfill({json: {...view(state), template_changed: resets === 1}});
+  });
   page.on('dialog', (d: any) => d.accept());
 
   await page.locator('.sidebar').getByRole('button', {name: /Пул автовыбора/}).click();
@@ -70,6 +75,12 @@ test('auto-selection pool: choose nodes, switch on, hide, refresh, remove', asyn
 
   await root.getByRole('button', {name: 'Обновить пул', exact: true}).click();
   await expect.poll(() => refreshed).toBe(1);
+  // «Сбросить шаблон»: the answer says whether the template had to be written again.
+  await root.getByRole('button', {name: 'Сбросить шаблон', exact: true}).click();
+  await expect(page.getByText('Шаблон пула записан заново')).toBeVisible();
+  await root.getByRole('button', {name: 'Сбросить шаблон', exact: true}).click();
+  await expect(page.getByText('Шаблон пула уже совпадал с сохранённым выбором')).toBeVisible();
+  expect(resets).toBe(2);
   await root.getByRole('button', {name: 'Убрать плитку', exact: true}).click();
   await expect(root.getByText('Плитки нет')).toBeVisible();
   await expect(root.getByRole('button', {name: 'Убрать плитку', exact: true})).toHaveCount(0);

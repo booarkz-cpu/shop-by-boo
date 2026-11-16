@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
-const date = (v: string) => v ? new Date(v).toLocaleString() : "—";
+const date = (v: string) => v ? serverDate(v).toLocaleString() : "—";
 const status = (v: string) => ({active:"Активна",cancel_scheduled:"Отмена запланирована",expired:"Истекла",fulfilled:"Выдан",paid:"Оплачен",pending:"Ожидается",failed:"Ошибка",completed:"Завершено",open:"Открыто",closed:"Закрыто",requested:"Запрошено"}[v] || v || "—");
 export function CustomerDesk({request, initialRows}: {request: RequestFn; initialRows: any[]}) {
  const [rows,setRows]=useState(initialRows),[query,setQuery]=useState(""),[page,setPage]=useState(1),[customer,setCustomer]=useState<any>(null),[busy,setBusy]=useState(false),[error,setError]=useState("");

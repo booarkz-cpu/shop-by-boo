@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter
 
+from .log_redact import mask
+
 router = APIRouter()
 __all__ = ["router", "JsonFormatter", "install"]
 
@@ -27,8 +29,8 @@ class JsonFormatter(logging.Formatter):
             request_id = "system"
         line = {"time": datetime.fromtimestamp(record.created, timezone.utc).isoformat(timespec="milliseconds"),
                 "level": record.levelname, "logger": record.name, "message": record.getMessage(), "request_id": request_id}
-        if record.exc_info:
-            line["exception"] = self.formatException(record.exc_info)
+        if record.exc_text or record.exc_info:
+            line["exception"] = mask(record.exc_text or self.formatException(record.exc_info))
         return json.dumps(line, ensure_ascii=False)
 
 

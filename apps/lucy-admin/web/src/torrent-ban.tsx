@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Ban} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type NodeRow = {uuid: string; name: string; country: string | null; online: boolean; plugin: {uuid: string; name: string; ours: boolean} | null; ban: boolean; minutes: number | null; node_version: string | null; supported: boolean | null};
@@ -105,7 +106,7 @@ export function TorrentBan({request, toast}: {request: RequestFn; toast: (m: str
             <thead><tr><th>Когда</th><th>Нода</th><th>Клиент</th><th>Адрес</th><th>Срок</th></tr></thead>
             <tbody>
               {view.reports.map((r, i) => (
-                <tr key={i}><td>{r.at ? new Date(r.at).toLocaleString("ru-RU") : "—"}</td><td>{r.node || "—"}</td><td>{r.user || "—"}</td><td>{r.ip || "—"}</td><td>{r.seconds ? `${Math.round(r.seconds / 60)} мин.` : "—"}</td></tr>
+                <tr key={i}><td>{r.at ? serverDate(r.at).toLocaleString("ru-RU") : "—"}</td><td>{r.node || "—"}</td><td>{r.user || "—"}</td><td>{r.ip || "—"}</td><td>{r.seconds ? `${Math.round(r.seconds / 60)} мин.` : "—"}</td></tr>
               ))}
             </tbody>
           </table>

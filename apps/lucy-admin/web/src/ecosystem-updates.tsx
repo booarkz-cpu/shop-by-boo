@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Layers} from "lucide-react";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 type Row = {key: string; title: string; installed: string | null; latest: string | null; state: string; auto: string; schedule: string | null; last_result: string | null; how: string; note: string | null};
@@ -62,7 +63,7 @@ export function EcosystemUpdates({request}: {request: RequestFn}) {
           </tbody>
         </table>
       </div>
-      <p className="muted">Проверено: {new Date(view.checked_at).toLocaleString("ru-RU")}. <button type="button" className="secondary" onClick={load}>Проверить снова</button></p>
+      <p className="muted">Проверено: {serverDate(view.checked_at).toLocaleString("ru-RU")}. <button type="button" className="secondary" onClick={load}>Проверить снова</button></p>
     </section>
   );
 }

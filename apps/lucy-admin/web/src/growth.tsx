@@ -1,6 +1,7 @@
 import React from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
-const when = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
+const when = (v?: string | null) => (v ? serverDate(v).toLocaleString() : "—");
 
 /** «Аналитика → Удержание клиентов»: cohorts by the month of the first payment, LTV and why customers cancel. */
 export function Retention({d}: {d: any}) {

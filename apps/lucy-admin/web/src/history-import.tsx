@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {SelectField} from "./components/select-field";
 import {StatusBadge} from "./components/ui/status";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type RequestFn = (path: string, options?: RequestInit) => Promise<any>;
 const ROOT = "/api/admin/customer-operations/history";
@@ -252,10 +253,10 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
         <div className="history-checks">
           {preview.reconciliation.checks.map((c: any) => <div key={c.name}><StatusBadge tone={c.ok ? "ok" : "danger"}>{c.ok ? "Совпадает" : "Расхождение"}</StatusBadge><b>{CHECK[c.name] || c.name}</b><span>ожидалось {c.expected} · прочитано {c.actual}</span></div>)}
         </div>
-        <p className="muted">Пропущено платежей с другими статусами: {preview.reconciliation.skipped_payments}; возвращённых: {preview.reconciliation.refunded_payments}. Проверка действует до {new Date(preview.expires_at + "Z").toLocaleString()}.</p>
+        <p className="muted">Пропущено платежей с другими статусами: {preview.reconciliation.skipped_payments}; возвращённых: {preview.reconciliation.refunded_payments}. Проверка действует до {serverDate(preview.expires_at).toLocaleString()}.</p>
         <p>Платежи — новых {preview.payments.counts.new}, уже перенесено {preview.payments.counts.already_imported}, конфликтов {preview.payments.counts.conflict + preview.payments.counts.blocked}. Подписки — новых {preview.subscriptions.counts.new}, уже перенесено {preview.subscriptions.counts.already_imported}, конфликтов {preview.subscriptions.counts.conflict + preview.subscriptions.counts.blocked}.</p>
         <div className="table-wrap" style={{maxHeight: 420, overflow: "auto"}}><table><thead><tr><th>Тип</th><th>Источник</th><th>Клиент</th><th>Данные</th><th>Результат</th></tr></thead><tbody>
-          {rows.map((r: any) => <tr key={r.kind + r.key}><td>{r.kind}</td><td><code>{r.key}</code></td><td>{r.user_id ? `#${r.user_id}` : r.user}</td><td>{r.kind === "Платёж" ? `${r.amount} ${r.currency} · ${r.status === "refunded" ? "возврат" : "оплачен"}` : `до ${new Date(r.expires_at + "Z").toLocaleDateString()}`}</td><td>{ROW_STATUS[r.status_import]}{r.reason ? ` — ${r.reason}` : ""}</td></tr>)}
+          {rows.map((r: any) => <tr key={r.kind + r.key}><td>{r.kind}</td><td><code>{r.key}</code></td><td>{r.user_id ? `#${r.user_id}` : r.user}</td><td>{r.kind === "Платёж" ? `${r.amount} ${r.currency} · ${r.status === "refunded" ? "возврат" : "оплачен"}` : `до ${serverDate(r.expires_at).toLocaleDateString()}`}</td><td>{ROW_STATUS[r.status_import]}{r.reason ? ` — ${r.reason}` : ""}</td></tr>)}
           {!rows.length && <tr><td colSpan={5}>Нет строк для переноса</td></tr>}
         </tbody></table></div>
         <label className="check"><input disabled={busy} type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />Я сверил итоги и строки с исходной системой</label>
@@ -267,7 +268,7 @@ export function HistoryImport({request, currency}: {request: RequestFn; currency
 
       <h3>Журнал переносов истории</h3>
       <div className="table-wrap"><table><thead><tr><th>Источник</th><th>Статус</th><th>Создано</th><th>Результат</th><th /></tr></thead><tbody>
-        {jobs.map((j) => <tr key={j.id}><td>{j.namespace}<details><summary>SHA256</summary><code>{j.source_sha256}</code></details></td><td>{JOB_STATUS[j.status] || j.status}</td><td>{new Date(j.created_at + "Z").toLocaleString()}</td><td>{j.result ? (j.result.rolled_back ? `Откатан: платежей ${j.result.payments_removed}, подписок ${j.result.subscriptions_removed}` : `Платежей ${j.result.payments_created}, подписок ${j.result.subscriptions_created}, сумма ${j.result.paid_total}`) : "—"}</td><td>{j.status === "applied" && <button disabled={busy} onClick={() => rollback(j)}>Откатить</button>}</td></tr>)}
+        {jobs.map((j) => <tr key={j.id}><td>{j.namespace}<details><summary>SHA256</summary><code>{j.source_sha256}</code></details></td><td>{JOB_STATUS[j.status] || j.status}</td><td>{serverDate(j.created_at).toLocaleString()}</td><td>{j.result ? (j.result.rolled_back ? `Откатан: платежей ${j.result.payments_removed}, подписок ${j.result.subscriptions_removed}` : `Платежей ${j.result.payments_created}, подписок ${j.result.subscriptions_created}, сумма ${j.result.paid_total}`) : "—"}</td><td>{j.status === "applied" && <button disabled={busy} onClick={() => rollback(j)}>Откатить</button>}</td></tr>)}
         {!jobs.length && <tr><td colSpan={5}>Переносов истории пока нет</td></tr>}
       </tbody></table></div>
     </section>

@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
+import {serverDate} from "../../../user-cabinet/src/dates";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
-const when = (v?: string | null) => (v ? new Date(v).toLocaleString() : "—");
+const when = (v?: string | null) => (v ? serverDate(v).toLocaleString() : "—");
 
 const STATUS: Record<string, string> = {sent: "отправлена", sending: "отправляется", scheduled: "запланирована", cancelled: "отменена"};
 const moscow = (v?: string | null) => (v ? `${v.replace("T", " ")} МСК` : "—");
