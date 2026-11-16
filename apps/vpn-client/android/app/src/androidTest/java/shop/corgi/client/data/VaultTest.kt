@@ -68,8 +68,9 @@ class VaultTest {
             override fun decrypt(stored: String): String = throw VaultUnavailable("open down")
         }
         val again = Store(context)
-        assertTrue(again.profiles.isEmpty() && again.profilesLocked)
-        assertTrue(again.settingsLocked)
+        assertTrue("profiles stay unread", again.profiles.isEmpty() && again.profilesLocked)
+        val opened = again.settings
+        assertTrue("password stays unread", opened.proxyPass.isEmpty() && again.settingsLocked)
         assertEquals(profiles, prefs.getString("profiles", ""))
         assertEquals(settings, prefs.getString("settings", ""))
         try {
