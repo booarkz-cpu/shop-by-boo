@@ -1,3 +1,10 @@
+# v28.161.0
+
+- «Скачать мои данные»: основной user теперь содержитemail/email_verified_at/vk_id; парольныйхеш/passkeyhandle и чужие сведения не добавлены.
+- HTTP-ответы /api/me/privacy/ получают Cache-Control:no-store в существующем middleware; авторизация/удаление не меняются.
+- Регрессии идентификаторов и HTTP200/401 на SQLite/PostgreSQL; интеграционная9b49 прошла20CIjobs/3345backendPASS, новый релизныйhead требует свежегоCI.
+- Все653требования/статусы сохранены; SHOP0017 остаётсяPARTIAL. Новыхмиграций/нативныхверсий нет:runtime21.5.1/shop0094_store_subscriptions/SupportPro0008/семейство3.9.0/клиент1.10.1.
+
 # v28.160.0
 
 - Исправления веб-доступности A11Y-01..04: контраст primary-текста, modal search/изоляция фона/замыканиеTab/возврат фокуса, keyboard auth-tabs, Meter unknown отдельно от измерения0..100.
