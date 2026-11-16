@@ -2,6 +2,11 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-16 — повтор CI 66523bda недоступен без actions:write
+
+**Факт.** Голова `66523bda`: Corgi Lusi CI `43948416515` failure. 19 заданий success; iOS • ios-user PKCE job `133584108943` cancelled без раннера и без шагов (20:18:30–20:33:31Z). Gate `133596389272`: `ios: abandoned`. Android client `43948416423` failure раньше тестов: Maven Central ответил 429 на `kotlinx-coroutines-android:1.11.0` и `zxing:core:3.5.4` в `:app:processDebugNavigationResources`. Это не дефект Vault.
+**Граница.** `POST .../rerun-failed-jobs` для обоих прогонов вернул 403 (`actions=write`). Чужие прогоны не отменялись. Следующая запись в этом журнале нужна только как новый коммит, чтобы GitHub сам запустил проверки заново. Слияние по-прежнему ждёт полный v28.161.0.
+
 ## 2026-11-16 — инструментальный VaultTest читал флаг до чтения настроек
 
 **Причина.** Прогон Android client `43944964263` / job `133572075181`: 21 tests, 1 failed, 0 ignored. `unreadableProfilesAndPasswordAreNotReplaced` падал на `assertTrue(again.settingsLocked)` до вызова `settings`, поэтому флаг ещё был ложным. Профили в том же тесте уже были заблокированы. Unit-тесты и ktlint этого прогона прошли. Это ошибка теста, не возврат plaintext.
