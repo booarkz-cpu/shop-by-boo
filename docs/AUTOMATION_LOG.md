@@ -1511,3 +1511,7 @@ PR #355 run 43805377711 stopped before instrumentation: android-emulator-runner 
 ### 2026-11-16 — Focus failure evidence
 
 Run 43806437911 still failed at the initial focus wait (18/19 device tests passed), despite an awake display. Post-run dumpsys showed an ANR window for com.google.android.apps.nexuslauncher, but this was after ActivityScenario teardown and does not prove the focus owner during the failing assertion. Switch the standalone client test image to AOSP default (Google services are not required here), and capture dumpsys power/window inside the focus timeout before rethrowing the original failure. Keep all clipboard and data assertions. REQ-CLIENT-0019 remains PARTIAL until actual passing evidence.
+
+### 2026-11-16 — Verified Android export and Python3.15 integration
+
+PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 CI jobs, including gate/iOS, passed. Standalone Android client run43807885310/job133102823342 on dda67a16 passed real links/JSON tunnel probes and connectedDebugAndroidTest on AOSP/API34. Restore REQ-CLIENT-0019 to PASS with exact evidence; no physical-device claim. Merge current main into #355 without conflicts and preserve new pinned Actions/Gradle/npm/Python3.15. New full CI is required for the integrated head. #345 was closed unmerged by Dependabot and replaced with #359 (user-event14.6.10); #357 has a new head, so old results do not prove it.

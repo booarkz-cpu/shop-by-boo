@@ -4264,13 +4264,13 @@
   "note": "Копия в файл с паролем шифруется (AES-256-GCM, ключ из пароля по PBKDF2); логин и пароль локального прокси в копию не попадают. Пароль необязателен; копия ссылкой и QR-кодом не шифруется. На телефоне не проверено."
  },
  "REQ-CLIENT-0019": {
-  "status": "PARTIAL",
+  "status": "PASS",
   "evidence": [
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt",
    "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt",
    "docs/ru/new/CLIENT_PRIVACY.md"
   ],
-  "note": "Экспорт и «поделиться» доступны только по явному нажатию; перед ссылкой, QR-кодом и файлом без пароля реализовано предупреждение о чувствительных UUID/паролях. Подтверждение и отмена покрыты ClientScreensTest.aPlainBackupLinkIsCopiedOnlyAfterTheWarning, но успешного эмуляторного результата для текущей реализации пока нет: run 43761838880 остановился при ожидании фокуса до clipboard sentinel, run 43805377711 — до instrumentation из-за shell orchestration; скрипт запуска исправлен. До успешного сценария отмены без изменения clipboard и подтверждения с разбором Backup статус PARTIAL. На физическом телефоне не проверено.",
+  "note": "Экспорт и «поделиться» доступны только по явному нажатию; перед ссылкой, QR-кодом и файлом без пароля реализовано предупреждение о чувствительных UUID/паролях. ClientScreensTest.aPlainBackupLinkIsCopiedOnlyAfterTheWarning проверяет исходный clipboard sentinel после получения фокуса, отмену без изменения clipboard и подтверждение с разбором Backup и сравнением профилей. Полный connectedDebugAndroidTest и реальные VPN-пробы успешно завершились в CI run 43807885310/job133102823342 на commit dda67a16326560e12e7497b91dc5310fecd24366 (AOSP/API34). После этого изменения только доказательств и интеграция main требуют нового общего CI. На физическом телефоне не проверено.",
   "platforms": "Android client"
  },
  "REQ-CLIENT-0020": {
