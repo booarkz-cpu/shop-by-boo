@@ -111,3 +111,42 @@ async def test_the_customer_exports_own_data_without_secrets_or_other_customers(
     text = repr(data)
     assert 'secret-hash' not in text and 'Чужое обращение' not in text and '999' not in text
     assert data['exported_at']
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('linked', [False, True])
+async def test_privacy_export_includes_own_login_identities_but_not_credentials(database, linked):
+    """REQ-SHOP-0017: account identifiers belong in the owner's download, authentication secrets do not."""
+    from app import operations_api
+
+    owner = await database.get(User, 1)
+    verified_at = datetime(2026, 11, 1, 12, 30) if linked else None
+    identities = {
+        'telegram_id': 711001 if linked else None,
+        'yandex_id': 'yandex-owner' if linked else None,
+        'vk_id': 'vk-owner' if linked else None,
+        'email': 'owner+privacy@example.test' if linked else None,
+        'email_verified_at': verified_at,
+    }
+    for field, value in identities.items():
+        setattr(owner, field, value)
+    owner.email_password_hash = 'private-owner-password-hash'
+    owner.passkey_user_handle = 'private-owner-passkey-handle'
+    other = await database.get(User, 2)
+    other.email = 'other-private@example.test'
+    other.vk_id = 'vk-other-private'
+    other.yandex_id = 'yandex-other-private'
+    other.email_password_hash = 'private-other-password-hash'
+    await database.commit()
+
+    data = await operations_api.privacy_export(request(), database)
+
+    assert data['user']['id'] == owner.id
+    assert {field: data['user'][field] for field in identities} == identities
+    assert 'email_password_hash' not in data['user']
+    assert 'passkey_user_handle' not in data['user']
+    exported = repr(data)
+    for private in ('private-owner-password-hash', 'private-owner-passkey-handle',
+                    'other-private@example.test', 'vk-other-private',
+                    'yandex-other-private', 'private-other-password-hash'):
+        assert private not in exported
