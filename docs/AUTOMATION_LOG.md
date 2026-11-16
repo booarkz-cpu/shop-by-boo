@@ -1489,3 +1489,7 @@ line 2: alembic: command not found
 ### 2026-11-16 — Observability documentation and backup alert drift
 
 Created docs/OBSERVABILITY.md from actual main4a7cb78d sources. It distinguishes live/ready health, process-local counters versus database gauges, metrics authentication, request IDs, error-log retention, alert delivery semantics and scheduler role conditions. It records unverified VPS/physical-client checks and the pending #355 redaction change instead of claiming production validation. Found Prometheus backup alert still using36h/for30m despite owner RPO1h +20m grace; align to4800s/for5m and add missing/boundary/aging/recovery promtool cases. Real promtool is required in CI; Docker/promtool are unavailable locally. No live notification or payment was triggered.
+
+### 2026-11-16 — Source-based security and privacy documents
+
+Added SECURITY_BASELINE and PRIVACY_DATA_MAP from actual authentication, configuration, models, privacy routes, Support Pro, backup and Android client sources. Explicitly distinguish document completion from ASVS/MASVS, legal-policy compliance and production proof. Found plaintext Keystore fallback, plain Support Pro TOTP storage, retained shop support bodies/history/backups and export omissions; keep relevant functional requirements PARTIAL. No live deletion, payment, alert or credential rotation performed.

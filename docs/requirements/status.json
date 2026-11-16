@@ -2160,9 +2160,11 @@
   "evidence": [
    "tests/test_matrix_privacy.py",
    "tests/test_multiple_subscriptions.py",
-   "services/backend/app/legal_texts.py"
+   "services/backend/app/legal_texts.py",
+   "services/backend/app/operations_api.py",
+   "docs/PRIVACY_DATA_MAP.md"
   ],
-  "note": "Удаление учётной записи стирает ключи и имена. Выгрузки своих данных клиентом нет."
+  "note": "Backend выгрузки/анонимизации существует; UI добавляется в #355. Описаны реальные ограничения: export.user не включает email/vk_id, выгрузка не содержит сессии/IP/User-Agent и вложения; тексты поддержки, финансовая история, аудит и старые копии не удаляются этим маршрутом. Полнота по применимой политике/праву ещё не установлена, поэтому PARTIAL; это не утверждение, что вся сохраняемая история обязана удаляться."
  },
  "REQ-SHOP-0018": {
   "status": "PARTIAL",
@@ -3120,16 +3122,28 @@
   "note": "SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом."
  },
  "REQ-DOC-0025": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/SECURITY_BASELINE.md",
+   "services/backend/app/security.py",
+   "services/backend/app/operations_api.py",
+   "services/backend/app/models.py",
+   "services/support-pro/app/models.py"
+  ],
   "platforms": "all products",
-  "note": "docs/SECURITY_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу."
  },
  "REQ-DOC-0026": {
-  "status": "NOT_IMPLEMENTED",
-  "evidence": [],
+  "status": "PASS",
+  "evidence": [
+   "docs/PRIVACY_DATA_MAP.md",
+   "services/backend/app/security.py",
+   "services/backend/app/operations_api.py",
+   "services/backend/app/models.py",
+   "services/support-pro/app/models.py"
+  ],
   "platforms": "all products",
-  "note": "docs/PRIVACY_DATA_MAP.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037)."
+  "note": "Создан содержательный документ по исходникам main4a7cb78d: границы реализованных мер/данных, фактические хранилища и внешние потоки, доступ, сроки и остатки. Не является сертификацией ASVS/MASVS, подтверждением полноты удаления, юридическим заключением или живой проверкой VPS. После #355 пересверить изменения логирования и кабинета; PASS относится к документу."
  },
  "REQ-DOC-0028": {
   "status": "PASS",
@@ -4379,7 +4393,7 @@
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt"
   ],
   "platforms": "Android client",
-  "note": "Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено."
+  "note": "Профили (ссылки подписок, серверы) и пароль локального прокси зашифрованы ключом Android Keystore (AES-256-GCM), данные прежних версий переносятся. Не шифруются конфиг Geek Mode (в нём могут быть ключи серверов), история трафика и журнал сети. На телефоне не проверено. Vault.seal при отказе Keystore возвращает открытый текст: защита не гарантирована на всех устройствах. Источник дополнительно отражён в SECURITY_BASELINE/PRIVACY_DATA_MAP."
  },
  "REQ-CLIENT-0033": {
   "status": "NOT_IMPLEMENTED",
