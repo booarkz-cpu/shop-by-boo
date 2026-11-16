@@ -4264,13 +4264,13 @@
   "note": "Копия в файл с паролем шифруется (AES-256-GCM, ключ из пароля по PBKDF2); логин и пароль локального прокси в копию не попадают. Пароль необязателен; копия ссылкой и QR-кодом не шифруется. На телефоне не проверено."
  },
  "REQ-CLIENT-0019": {
-  "status": "PASS",
+  "status": "PARTIAL",
   "evidence": [
    "apps/vpn-client/android/app/src/main/java/shop/corgi/client/ui/Extras.kt",
    "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt",
    "docs/ru/new/CLIENT_PRIVACY.md"
   ],
-  "note": "Экспорт и «поделиться» — только по нажатию. С 1.10.1 ссылка, QR-код и файл копии без пароля уходят только после предупреждения «Копия без шифрования»: в ней подписки и ключи серверов (UUID, пароли) открытым текстом. Отмена ничего не передаёт — проверено на эмуляторе (ClientScreensTest.aPlainBackupLinkIsCopiedOnlyAfterTheWarning). Журналы перед копированием и экспортом очищаются (REQ-CLIENT-0026).",
+  "note": "Экспорт и «поделиться» доступны только по явному нажатию; перед ссылкой, QR-кодом и файлом без пароля реализовано предупреждение о чувствительных UUID/паролях. Подтверждение и отмена покрыты ClientScreensTest.aPlainBackupLinkIsCopiedOnlyAfterTheWarning, но успешного эмуляторного результата для текущей реализации пока нет: run 43761838880 остановился при ожидании фокуса до clipboard sentinel, run 43805377711 — до instrumentation из-за shell orchestration; скрипт запуска исправлен. До успешного сценария отмены без изменения clipboard и подтверждения с разбором Backup статус PARTIAL. На физическом телефоне не проверено.",
   "platforms": "Android client"
  },
  "REQ-CLIENT-0020": {
