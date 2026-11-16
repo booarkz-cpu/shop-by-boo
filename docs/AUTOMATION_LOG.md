@@ -1519,3 +1519,7 @@ PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 
 ### 2026-11-16 — Privacy source verification
 
 Inspection of actual privacy_export/privacy_delete found incomplete export categories and retained support text/history/backups. Restore REQ-SHOP-0017 to PARTIAL: existence of UI is not evidence of the full policy/legal-scope requirement. No live data or deletion behavior changed. Correct client privacy statements: Vault.seal returns plaintext on Keystore failure, proxy username is outside Vault, TrafficHistory uses takeLast(90) dated records rather than a calendar TTL. Preserve REQ-CLIENT-0032 PARTIAL and all653 requirement IDs. Fresh integrated CI remains required.
+
+### 2026-11-16 — Final dependency candidate for v28.159
+
+PR #357 merged as d1e3db50 after full green current-head CI and empty reviews. Integrate that main into #355 and the reviewed manifest/lock changes of #359 (head414ba454, user-event14.6.10). All working jobs of #359 passed; its required gate was still queued at preparation, so #359 itself was not merged early. This candidate includes both dependency updates for a fresh full CI; neither old branch results nor a prepared candidate imply a published release. No runtime feature or privacy status changed in this integration.
