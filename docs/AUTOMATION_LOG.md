@@ -1507,3 +1507,7 @@ line 2: alembic: command not found
 ### 2026-11-16 — Android emulator script execution
 
 PR #355 run 43805377711 stopped before instrumentation: android-emulator-runner executes each script line in a separate shell, so the multiline failure block was incomplete. Move the full sequence to scripts/mobile/client-ui-e2e.sh and invoke it as one command. Preserve the real tunnel probes, clipboard assertions and diagnostic failure exit. A fresh device run is required; this change alone does not prove the focus issue fixed.
+
+### 2026-11-16 — Focus failure evidence
+
+Run 43806437911 still failed at the initial focus wait (18/19 device tests passed), despite an awake display. Post-run dumpsys showed an ANR window for com.google.android.apps.nexuslauncher, but this was after ActivityScenario teardown and does not prove the focus owner during the failing assertion. Switch the standalone client test image to AOSP default (Google services are not required here), and capture dumpsys power/window inside the focus timeout before rethrowing the original failure. Keep all clipboard and data assertions. REQ-CLIENT-0019 remains PARTIAL until actual passing evidence.

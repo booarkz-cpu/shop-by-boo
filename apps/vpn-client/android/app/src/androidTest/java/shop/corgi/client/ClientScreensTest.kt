@@ -264,10 +264,22 @@ class ClientScreensTest {
         val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
         launch()
         fun focused() {
-            compose.waitUntil(10_000) {
-                var active = false
-                scenario?.onActivity { active = it.hasWindowFocus() }
-                active
+            try {
+                compose.waitUntil(10_000) {
+                    var active = false
+                    scenario?.onActivity { active = it.hasWindowFocus() }
+                    active
+                }
+            } catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
+                // Capture the actual focus owner before ActivityScenario teardown changes it.
+                val automation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+                for (command in listOf("dumpsys power", "dumpsys window")) {
+                    runCatching {
+                        android.os.ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
+                            .bufferedReader().use { println("Clipboard focus failure: $command\n${it.readText()}") }
+                    }.onFailure { println("Could not collect $command: ${it.javaClass.simpleName}") }
+                }
+                throw failure
             }
         }
         fun clip(): String {
