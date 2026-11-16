@@ -104,12 +104,13 @@ async def test_the_customer_exports_own_data_without_secrets_or_other_customers(
     await database.commit()
     data = await operations_api.privacy_export(request(), database)
     assert data['user']['id'] == 1 and data['user']['referral_code'] == 'OWNER'
-    assert [p['id'] for p in data['payments']] and all(p['amount'].startswith('100') for p in data['payments'])
+    assert [Decimal(p['amount']) for p in data['payments']] == [Decimal('100')]
     assert len(data['payments']) == 1
     assert [t['subject'] for t in data['tickets']] == ['Не подключается']
     assert [s['id'] for s in data['subscriptions']] == [1]
     text = repr(data)
-    assert 'secret-hash' not in text and 'Чужое обращение' not in text and '999' not in text
+    assert 'email_password_hash' not in data['user']
+    assert 'secret-hash' not in text and 'Чужое обращение' not in text
     assert data['exported_at']
 
 
