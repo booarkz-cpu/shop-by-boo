@@ -44,12 +44,13 @@ groups:
         labels: {severity: warning}
         annotations:
           summary: 'Repeated wrong confirmations of dangerous actions'
+      # Keep the threshold in sync with ops_alerts.RPO (1h) + RPO_GRACE (20m), owner decision #8.
       - alert: VpnShopBackupStale
-        expr: vpnshop_backup_last_success_age_seconds{job="vpnshop"} > 129600 or vpnshop_backup_last_success_age_seconds{job="vpnshop"} < 0
-        for: 30m
+        expr: vpnshop_backup_last_success_age_seconds{job="vpnshop"} > 4800 or vpnshop_backup_last_success_age_seconds{job="vpnshop"} < 0
+        for: 5m
         labels: {severity: warning}
         annotations:
-          summary: 'No completed backup within thirty-six hours'
+          summary: 'No completed backup or its age exceeds the one-hour RPO plus twenty-minute grace'
       - alert: VpnShopNodesDown
         expr: vpnshop_nodes_down{job="vpnshop"} > 0
         for: 5m

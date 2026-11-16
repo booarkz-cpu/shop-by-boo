@@ -38,7 +38,7 @@
 | `VpnShopApiErrors` | warning | ошибок больше 5 % |
 | `VpnShopAdminBruteForce` | critical | 10 и больше неудачных входов за 15 минут |
 | `VpnShopStepUpFailures` | warning | 5 и больше неверных подтверждений за час |
-| `VpnShopBackupStale` | warning | нет успешной копии 36 часов |
+| `VpnShopBackupStale` | warning | нет completed-копии либо её возраст >1 ч 20 мин; for 5 мин |
 | `VpnShopNodesDown` | critical | нода недоступна 5 минут |
 | `VpnShopRemnawaveRunFailed` | warning | действие мастера не удалось и откатилось |
 | `VpnShopSshKeyRotationDue` | info | пора сменить SSH-ключ сервера |

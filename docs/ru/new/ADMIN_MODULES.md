@@ -1,4 +1,4 @@
-# Модули админ-панели — v28.159.0
+# Модули админ-панели — v28.160.0
 
 Сгенерировано командой `python scripts/generate-admin-matrix.py`: модули и их API — из `services/backend/app/admin_center.py` и маршрутов приложения, разделы и их описания — из `apps/lucy-admin/web/src/sections.ts`. Сводная таблица операций — [ADMIN_CONTROL_MATRIX](ADMIN_CONTROL_MATRIX.md), права ролей — [RBAC](RBAC.md), работа с панелью — [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md).
 
