@@ -2,7 +2,7 @@
 
 ## 1. Выберите контур
 
-v28.160.0 выпускает текущее проверенное ядро; runtime/API сообщает версию `21.5.1`. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
+v28.161.0 выпускает текущее проверенное ядро; runtime/API сообщает версию `21.5.1`. Перед эксплуатацией нужен отдельный стенд; production-платежи пока закрыты. Локальная песочница не требует касс и Remnawave. Отдельный HTTPS стенд нужен для внешних callbacks, SMTP и настоящего тестового VPN. [Все требования](INSTALL.md).
 
 ## 2. Подключитесь к VDS
 
@@ -17,7 +17,7 @@ ssh root@SERVER_IP
 ## 3. Поднимите тестовый магазин одной последовательностью
 
 ```bash
-git clone --branch v28.160.0 https://github.com/booarkz-cpu/shop-by-boo.git
+git clone --branch v28.161.0 https://github.com/booarkz-cpu/shop-by-boo.git
 cd shop-by-boo
 bash scripts/test-up.sh
 ```

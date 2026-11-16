@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "21.5.1"
 TAG = f"v{VERSION}"
-DISTRIBUTION_TAG = "v28.160.0"
+DISTRIBUTION_TAG = "v28.161.0"
 SHOP_HEAD = "0094_store_subscriptions"
 SUPPORT_HEAD = "0008"
 RELEASE_SECTIONS = ("## Ломающие изменения", "## Миграции", "## Откат", "## Известные ограничения", "## Чем проверено")
@@ -46,9 +46,9 @@ def main() -> None:
     require("docs/ru/WORKSPACE_COVERAGE.md", TAG, SHOP_HEAD, SUPPORT_HEAD)
     require("docs/ru/ACCOUNT_MERGE_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
     require("docs/ru/RUNTIME_SETTINGS_CURRENT.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD)
-    require("docs/ru/RELEASE_V28_160_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
+    require("docs/ru/RELEASE_V28_161_0.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
     # REQ-CI-0011: the notes of the current release name breaking changes, migrations, rollback and known limits.
-    require("docs/ru/RELEASE_V28_160_0.md", *RELEASE_SECTIONS)
+    require("docs/ru/RELEASE_V28_161_0.md", *RELEASE_SECTIONS)
     require("docs/ru/STAGING_E2E_V2_IMPLEMENTATION.md", DISTRIBUTION_TAG, SHOP_HEAD, "admission/attestation")
     require("PROJECT_SPEC.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "134")
     require("PROJECT_STRUCTURE.md", DISTRIBUTION_TAG, SHOP_HEAD, "runtime_settings.py")
@@ -61,12 +61,12 @@ def main() -> None:
     expected = {
         "version": VERSION,
         "distribution_tag": DISTRIBUTION_TAG,
-        "artifact": "remnawave_vpn_shop_v28_160_0_full_release.zip",
-        "detached_manifest": "remnawave_vpn_shop_v28_160_0_full_release_manifest.json",
+        "artifact": "remnawave_vpn_shop_v28_161_0_full_release.zip",
+        "detached_manifest": "remnawave_vpn_shop_v28_161_0_full_release_manifest.json",
         "migration_head": SHOP_HEAD,
         "support_migration_head": SUPPORT_HEAD,
         "upgrade_from": "21.5.0",
-        "release_notes": "docs/ru/RELEASE_V28_160_0.md",
+        "release_notes": "docs/ru/RELEASE_V28_161_0.md",
     }
     mismatches = {key: (manifest.get(key), value) for key, value in expected.items() if manifest.get(key) != value}
     if mismatches:

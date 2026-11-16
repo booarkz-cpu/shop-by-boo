@@ -1,19 +1,7 @@
-# Передача смены — VPN Shop by Corgi Lucy
+# Передача смены — кандидат v28.161.0
 
-## Состояние и кандидат
+Main337f73e4d6a431f30fa2b0a7729d0c3b6af38e90, полный160/33assets. PR362 объединён сmain;9b49 имеетCI43862385661SUCCESS20jobs,3345backendPASS/98skip и baselineSUCCESS. Этаголова готовит161; её свежийCI/iOS/gate/reviews обязательны, старый9b49 не заменяет их.
 
-Main после355:2a204cd367aced3332f4cbbb904c6fe1d1e35841. v28.159.0 опубликован с33uploaded ненулевымиassets и тегом наэтомmain. Историческиефайлы не менять.
-Этаветка готовитv28.160.0:документация360+исправлениядоступности361. Runtime21.5.1,shop0094_store_subscriptions,SupportPro0008,семейство3.9.0/клиент1.10.1 неизменны.
-Все653ID:215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED. UI0007/SHOP0017/CLIENT0032/SEC0012 остаютсяPARTIAL.
-На873febf0 реальны71ChromiumE2E/74unitPASS;новыйcombinedhead проверяетсязаново.
+В161: email/email_verified_at/vk_id основного владельца вprivacy/export, no-store дляprivacy; HTTP200/401 и identity регрессии SQLite/PostgreSQL. Все653ID и215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED сохранены. SHOP0017PARTIAL. Runtime21.5.1/shop0094_store_subscriptions/SupportPro0008/мобильные3.9.0/клиент1.10.1 безсмены.
 
-## Следующая работа
-
-ДождатьсявсехActions точнойголовы,разобратьотказы/отзывы,проверитьсохранениеобоихPRиверсию160. ЗатемобычноезащищённоеслияниеисвежийmainCI;посленего полныйрелиз160/33assets преждедальнейшегодвиженияmain.
-РаботатьчерезGitHubбезтерминала,сexpected_sha/expected_current_version,сохранятьвсеисходныезадачи полногофайлаPROMPT_CORGI_LUCY_FULL_2026_11_15.md.
-Плановоеавтопродолжениеуженастроено;дубликатне создавать.
-
-## Остаток
-
-VPS/SLO/восстановление/домены,merchant/OAuth/Appleключи,реквизиты,устройства/дикторы—внешниеO1–O14безфейков.
-Продолжитьвсенезавершённыеprivacy/SEC/NODE/RW/ADMIN/PAY/QA/DOC/CI/MIG/GOV/брендтребования;неждатьбесконечноCI,делатьнезависимуюдоступнуюработу.
+Продолжать автономно черезGitHub безтерминала. Перечитать полныйPROMPT_CORGI_LUCY_FULL_2026_11_15.md,живыеheads/Actions/reviews/релиз. После успешного gate нормальный squash точнойголовы; затем свежийmainCI иполный161/33assets до дальнейшегоmainдвижения. Исторические теги/файлы не переписывать. Оставшиесяprivacy/политика/Vault/TOTP/SEC/NODE/RW/ADMIN/PAY/DOC/QA/GOV/INFRA/MIG/CI/UI/бренд иO1–O14 сохраняются безфейков.

@@ -363,7 +363,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
         response.headers.setdefault("Cross-Origin-Resource-Policy", "same-site")
-        if request.url.path.startswith("/api/admin") or request.url.path.startswith("/api/auth") or request.url.path.startswith("/api/me/connection") or request.url.path.startswith("/api/me/dashboard"):
+        if request.url.path.startswith("/api/admin") or request.url.path.startswith("/api/auth") or request.url.path.startswith("/api/me/connection") or request.url.path.startswith("/api/me/dashboard") or request.url.path.startswith("/api/me/privacy/"):
             response.headers.setdefault("Cache-Control", "no-store")
         if request.url.scheme == "https":
             response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")

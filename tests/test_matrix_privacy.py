@@ -104,10 +104,84 @@ async def test_the_customer_exports_own_data_without_secrets_or_other_customers(
     await database.commit()
     data = await operations_api.privacy_export(request(), database)
     assert data['user']['id'] == 1 and data['user']['referral_code'] == 'OWNER'
-    assert [p['id'] for p in data['payments']] and all(p['amount'].startswith('100') for p in data['payments'])
+    assert [Decimal(p['amount']) for p in data['payments']] == [Decimal('100')]
     assert len(data['payments']) == 1
     assert [t['subject'] for t in data['tickets']] == ['Не подключается']
     assert [s['id'] for s in data['subscriptions']] == [1]
     text = repr(data)
-    assert 'secret-hash' not in text and 'Чужое обращение' not in text and '999' not in text
+    assert 'email_password_hash' not in data['user']
+    assert 'secret-hash' not in text and 'Чужое обращение' not in text
     assert data['exported_at']
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('linked', [False, True])
+async def test_privacy_export_includes_own_login_identities_but_not_credentials(database, linked):
+    """REQ-SHOP-0017: account identifiers belong in the owner's download, authentication secrets do not."""
+    from app import operations_api
+
+    owner = await database.get(User, 1)
+    verified_at = datetime(2026, 11, 1, 12, 30) if linked else None
+    identities = {
+        'telegram_id': 711001 if linked else None,
+        'yandex_id': 'yandex-owner' if linked else None,
+        'vk_id': 'vk-owner' if linked else None,
+        'email': 'owner+privacy@example.test' if linked else None,
+        'email_verified_at': verified_at,
+    }
+    for field, value in identities.items():
+        setattr(owner, field, value)
+    owner.email_password_hash = 'private-owner-password-hash'
+    owner.passkey_user_handle = 'private-owner-passkey-handle'
+    other = await database.get(User, 2)
+    other.email = 'other-private@example.test'
+    other.vk_id = 'vk-other-private'
+    other.yandex_id = 'yandex-other-private'
+    other.email_password_hash = 'private-other-password-hash'
+    await database.commit()
+
+    data = await operations_api.privacy_export(request(), database)
+
+    assert data['user']['id'] == owner.id
+    assert {field: data['user'][field] for field in identities} == identities
+    assert 'email_password_hash' not in data['user']
+    assert 'passkey_user_handle' not in data['user']
+    exported = repr(data)
+    for private in ('private-owner-password-hash', 'private-owner-passkey-handle',
+                    'other-private@example.test', 'vk-other-private',
+                    'yandex-other-private', 'private-other-password-hash'):
+        assert private not in exported
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('authorized', [True, False])
+async def test_privacy_download_cannot_be_stored_in_http_caches(database, monkeypatch, authorized):
+    """Exercise the export route, dependency injection and production middleware over HTTP."""
+    from fastapi import FastAPI
+    from httpx import ASGITransport, AsyncClient
+    from app import operations_api
+    from app.db import get_db
+
+    application = FastAPI()
+    application.add_middleware(shop.SecurityHeadersMiddleware)
+    application.get('/api/me/privacy/export')(operations_api.privacy_export)
+
+    async def session():
+        yield database
+
+    application.dependency_overrides[get_db] = session
+    if not authorized:
+        async def reject(request, db):
+            raise HTTPException(401, 'Authentication required')
+        monkeypatch.setattr(shop, 'user_from_token', reject)
+
+    async with AsyncClient(transport=ASGITransport(app=application), base_url='https://shop.example.test') as client:
+        response = await client.get('/api/me/privacy/export')
+
+    assert response.status_code == (200 if authorized else 401)
+    assert response.headers['cache-control'] == 'no-store'
+    if authorized:
+        assert response.json()['user']['id'] == 1
+        assert 'email' in response.json()['user']
+    else:
+        assert response.json() == {'detail': 'Authentication required'}
