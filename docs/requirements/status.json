@@ -1021,9 +1021,11 @@
   "evidence": [
    "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "tests/test_rw_node_modules.py",
+   "services/backend/app/rw_plan.py"
   ],
-  "note": "Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.",
+  "note": "Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены. 17.11.2026: план действия «Удаление» перечисляет каждый ресурс (база панели и каталог компонента) и что остаётся. Копия базы панели снимается и шифруется до первого compose_down; установка только из ноды копии панели не требует. Проверено tests/test_rw_node_modules.py::test_remove_names_every_resource_and_copies_the_panel_first. Тома и файлы на сервере не удаляются, отдельной проверки уже существующей копии до запуска плана нет. Статус остаётся PARTIAL.",
   "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0040": {
@@ -1031,9 +1033,11 @@
   "evidence": [
    "services/backend/app/install_catalogue.py",
    "tests/test_install_catalogue.py",
-   "apps/lucy-admin/web/e2e/install-hub.spec.ts"
+   "apps/lucy-admin/web/e2e/install-hub.spec.ts",
+   "tests/test_rw_node_modules.py",
+   "services/backend/app/rw_plan.py"
   ],
-  "note": "То же, что REQ-NODE-0023.",
+  "note": "То же, что REQ-NODE-0023. 17.11.2026: план действия «Удаление» перечисляет каждый ресурс (база панели и каталог компонента) и что остаётся. Копия базы панели снимается и шифруется до первого compose_down; установка только из ноды копии панели не требует. Проверено tests/test_rw_node_modules.py::test_remove_names_every_resource_and_copies_the_panel_first. Тома и файлы на сервере не удаляются, отдельной проверки уже существующей копии до запуска плана нет. Статус остаётся PARTIAL.",
   "platforms": "server, services/backend/API, Web"
  },
  "REQ-NODE-0024": {

@@ -2734,8 +2734,8 @@
 
 - Источник: Часть I → Server Installation Maintenance → Danger Zone → Clean Server (строка 545). Продукт: Все три.
 - Платформы: server, services/backend/API, Web.
-- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
-- Примечание: Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `tests/test_rw_node_modules.py`; `services/backend/app/rw_plan.py`.
+- Примечание: Полная очистка требует ввода имени сервера и подтверждения 2FA, пишется в журнал. Показ полного списка удаляемых ресурсов и проверка наличия копии перед очисткой ещё не сверены. 17.11.2026: план действия «Удаление» перечисляет каждый ресурс (база панели и каталог компонента) и что остаётся. Копия базы панели снимается и шифруется до первого compose_down; установка только из ноды копии панели не требует. Проверено tests/test_rw_node_modules.py::test_remove_names_every_resource_and_copies_the_panel_first. Тома и файлы на сервере не удаляются, отдельной проверки уже существующей копии до запуска плана нет. Статус остаётся PARTIAL.
 
 > Полное удаление Remnawave, нод, контейнеров, конфигураций и связанных компонентов. Необратимая операция: повторное подтверждение; точный сервер; список ресурсов; проверка backup; журнал; проверка полномочий.
 
@@ -2888,8 +2888,8 @@
 
 - Источник: Часть I → Completeness Supplement → Server Maintenance Screenshot Acceptance → Danger Zone Exact → Clean Server (строка 1342). Продукт: Все три.
 - Платформы: server, services/backend/API, Web.
-- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`.
-- Примечание: То же, что REQ-NODE-0023.
+- Доказательство: `services/backend/app/install_catalogue.py`; `tests/test_install_catalogue.py`; `apps/lucy-admin/web/e2e/install-hub.spec.ts`; `tests/test_rw_node_modules.py`; `services/backend/app/rw_plan.py`.
+- Примечание: То же, что REQ-NODE-0023. 17.11.2026: план действия «Удаление» перечисляет каждый ресурс (база панели и каталог компонента) и что остаётся. Копия базы панели снимается и шифруется до первого compose_down; установка только из ноды копии панели не требует. Проверено tests/test_rw_node_modules.py::test_remove_names_every_resource_and_copies_the_panel_first. Тома и файлы на сервере не удаляются, отдельной проверки уже существующей копии до запуска плана нет. Статус остаётся PARTIAL.
 
 > Полностью удалить Remnawave, ноду, контейнеры и конфигурации. Необратимо. Требовать точный выбор сервера, перечень удаляемых ресурсов, проверку backup и повторное подтверждение.
 
