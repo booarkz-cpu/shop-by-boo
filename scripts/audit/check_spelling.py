@@ -14,15 +14,25 @@ from pathlib import Path
 from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[2]
-LANGUAGES = {"ru": "ru_RU,en_US", "en": "en_US", "uk": "uk_UA,en_US"}
+LANGUAGES = {"ru": "ru_RU,en_US,en_GB", "en": "en_US,en_GB", "uk": "uk_UA,en_US,en_GB"}
 JSON_SOURCES = ("packages/localization/admin.json", "packages/localization/user.json")
 # Product names, protocol identifiers and technical units only. Ordinary prose must use dictionaries.
 TERMS = {
-    "ai", "api", "autostart", "corgi", "geoip", "geosite", "github", "happ", "hiddify",
+    "2fa", "ai", "api", "autostart", "corgi", "geoip", "geosite", "github", "happ", "hiddify",
     "html", "http", "https", "localhost", "lusi", "mbit", "mbps", "ms", "otp", "passkey",
     "passkeys", "pin", "qr", "regexp", "remnawave", "streisand", "telegram", "tls",
-    "v2rayng", "vk", "vpn", "yandex", "корги", "коргі", "люси", "люсі",
+    "v2rayng", "vk", "vpn", "yandex", "корги", "коргі", "люси", "люсі", "ии", "яндекс", "ноды", "ноди", "ru", "su", "рф",
 }
+# Reviewed gaps in the packaged dictionaries, not a baseline of unreviewed failures.
+# Exact language-specific forms only; rationale and primary references: docs/SPELLING_AUDIT.md.
+SUPPLEMENT = {
+    "ru": {"оплат", "реферальный", "промокод", "безлимит", "тикет", "офлайн",
+           "виджет", "виджете", "виджета", "разблокировки", "автозапуск"},
+    "en": set(),
+    "uk": {"акаунт", "реферальний", "дн", "оформіть"},
+}
+# Older dictionaries can accept obsolete double-f spellings. Enforce the current form explicitly.
+REJECT = {"ru": {"оффлайн", "оффлайне"}, "en": set(), "uk": {"аккаунт"}}
 TOKEN = re.compile(r"[^\W_]+(?:['’ʼ][^\W_]+)*", re.UNICODE)
 NON_PROSE = re.compile(
     r"https?://[^\s<>]+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|"
@@ -91,7 +101,9 @@ class Engine:
         )
         if result.returncode or result.stderr.strip():
             raise RuntimeError(f"Hunspell {language} failed: {result.stderr.strip()}")
-        return set(result.stdout.splitlines())
+        unknown = set(result.stdout.splitlines())
+        unknown = {word for word in unknown if word.casefold() not in SUPPLEMENT[language]}
+        return unknown | {word for word in tokens if word.casefold() in REJECT[language]}
 
 
 def self_test(engine: Engine) -> None:
@@ -100,6 +112,10 @@ def self_test(engine: Engine) -> None:
         ("ru", "подключение", "подклчение"),
         ("en", "connection", "conection"),
         ("uk", "підключення", "підклчення"),
+        ("ru", "виджет", "виджэт"),
+        ("ru", "офлайн", "оффлайн"),
+        ("en", "cancelled", "canceld"),
+        ("uk", "акаунт", "аккаунт"),
     ]:
         if engine.unknown(language, {valid, invalid}) != {invalid}:
             raise RuntimeError(f"Hunspell positive/negative control failed for {language}")
