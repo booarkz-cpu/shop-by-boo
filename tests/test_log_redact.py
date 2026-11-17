@@ -18,11 +18,13 @@ DB_PASSWORD = "Db-Pass-" + "z" * 12
 @pytest.fixture
 def secrets(monkeypatch):
     """A settings object with real-looking secrets, installed as this process's secrets for the test."""
+    before = log_redact.snapshot()
     configured = Settings(BOT_TOKEN=BOT, REMNAWAVE_TOKEN=REMNAWAVE, METRICS_TOKEN=METRICS,
                           DATABASE_URL=f"postgresql+asyncpg://shop:{DB_PASSWORD}@db:5432/shop",
                           APP_SECRET="app-secret-" + "s" * 30, ANTILOPAY_PUBLIC_KEY="public-key-value-1234")
     log_redact.install(configured)
     yield configured
+    log_redact.restore(before)
     log_redact.install(settings)
 
 
@@ -163,6 +165,59 @@ def test_stack_information_is_masked_before_plain_text_formatting(secrets):
     out = logging.Formatter().format(record)
     assert METRICS not in out
     assert "Stack source contains ***" in out
+
+
+def test_a_database_only_secret_is_masked_after_it_is_decrypted(secrets):
+    from app.security import decrypt_secret, encrypt_secret
+    raw = "pay-secret-" + "m" * 24
+    assert decrypt_secret(encrypt_secret(raw)) == raw
+    logger, stream, handler = capture("test.redact.database-secret")
+    try:
+        logger.info("gateway returned %s", raw)
+        try:
+            raise RuntimeError(f"webhook body {raw}")
+        except RuntimeError:
+            logger.exception("payment notify failed")
+    finally:
+        logger.removeHandler(handler)
+    out = stream.getvalue()
+    assert raw not in out
+    assert "gateway returned ***" in out
+    assert "RuntimeError: webhook body ***" in out
+
+
+def test_a_short_remembered_secret_is_a_whole_token_only(secrets):
+    assert log_redact.remember("k9Qx")
+    assert not log_redact.remember("ab")
+    assert not log_redact.remember("change-me")
+    logger, stream, handler = capture("test.redact.short")
+    try:
+        logger.info("paid k9Qx now, packagek9Qxextra, code ab")
+    finally:
+        logger.removeHandler(handler)
+    out = stream.getvalue()
+    assert "k9Qx" not in out.split("package")[0]
+    assert "packagek9Qxextra" in out
+    assert "code ab" in out
+    assert "paid *** now" in out
+
+
+def test_an_unlabelled_secret_stays_until_it_is_known(secrets):
+    raw = "only-in-db-" + "q" * 20
+    assert raw in log_redact.mask(f"seen {raw}")
+    assert log_redact.remember(raw)
+    assert raw not in log_redact.mask(f"seen {raw}")
+
+
+def test_private_keys_and_vpn_uris_are_masked_without_a_field_name(secrets):
+    pem = "-----BEGIN PRIVATE KEY-----\nMII" + "A" * 40 + "\n-----END PRIVATE KEY-----"
+    link = "vless://11111111-2222-3333-4444-555555555555@node.example:443"
+    out = log_redact.mask(f"key {pem} link {link} PrivateKey=abcd1234")
+    assert "MII" not in out
+    assert "11111111-2222-3333-4444-555555555555" not in out
+    assert "abcd1234" not in out
+    assert "vless://***" in out
+    assert "https://shop.example" == log_redact.mask("https://shop.example")
 
 
 def test_malformed_format_does_not_expose_arguments_through_logging_errors(secrets, capsys):

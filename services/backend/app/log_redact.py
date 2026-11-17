@@ -1,4 +1,4 @@
-"""v28.159.0 (REQ-SEC-0012): no configured secret reaches a log line.
+"""REQ-SEC-0012: no known secret reaches a log line.
 
 Every process of the shop (API, worker, bot, CLI) imports ``app.config`` first, and that import installs a log record
 factory: each record is formatted once when it is created, the message and the exception text are masked, and the
@@ -9,35 +9,86 @@ handler sees it.
 What is masked:
 
 - the exact values of the secret settings (tokens, passwords, API keys, signing secrets, the database and Redis
-  passwords inside their URLs) — the name of the setting decides, see ``SECRET_WORDS``; values shorter than 6
-  characters and the defaults ``change-me`` are left alone, they cannot be told from ordinary words;
-- the same patterns as the error journal (``token=…``, ``password: …``, ``Authorization: Bearer …``, Telegram bot tokens).
+  passwords inside their URLs) — the name of the setting decides, see ``SECRET_WORDS``;
+- plaintext opened by ``decrypt_secret`` (payment secrets, VPN/SSH secrets and other values that exist only in the
+  database) via ``remember``; values of 4 or 5 characters are masked only as a whole token, longer values anywhere;
+- the same patterns as the error journal (``token=…``, ``password: …``, ``private key=…``, ``Authorization: Bearer …``,
+  Telegram bot tokens), PEM private keys and VPN URI schemes.
+
+Values shorter than 4 characters and the defaults ``change-me`` are left alone: they cannot be told from ordinary
+words. Full personal data, ``print`` and logs of other programs are not covered here.
 """
 from __future__ import annotations
 
 import logging
 import re
+import threading
 
 # The patterns of the error journal (error_log imports this module, not the other way round: config loads first).
 # The scheme word of «Authorization: Bearer <token>» is not the secret: the token after it is (fixed in v28.159.0,
 # before the journal masked «Bearer» and kept the token).
 SCHEME = re.compile(r"(?i)\b(bearer|basic|token)(\s+)([A-Za-z0-9._~+/=-]{6,})")
-SECRET = re.compile(r"""(?i)(token|secret|password|passwd|api[_-]?key|authorization)(["']?\s*[=:]\s*["']?)(?!(?:bearer|basic)\s)(?!\*\*\*)([^\s"',;]{4,})""")
+SECRET = re.compile(
+    r"""(?i)(token|secret|password|passwd|api[_-]?key|authorization|private[_-]?key|privatekey)"""
+    r"""(["']?\s*[=:]\s*["']?)(?!(?:bearer|basic)\s)(?!\*\*\*)([^\s"',;]{4,})"""
+)
 BOT_TOKEN = re.compile(r"\b\d{6,12}:[A-Za-z0-9_-]{30,}\b")
+PEM = re.compile(r"-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY-----.*?-----END [A-Z0-9 ]{0,40}PRIVATE KEY-----", re.DOTALL)
+VPN_URI = re.compile(r"(?i)\b((?:vless|vmess|trojan|ss|ssr|hysteria2|hy2|tuic|wireguard)://)\S+")
 
 
 def redact_patterns(text: str) -> str:
-    text = BOT_TOKEN.sub(MASK, text or "")
+    text = PEM.sub(MASK, text or "")
+    text = BOT_TOKEN.sub(MASK, text)
     text = SCHEME.sub(lambda m: m.group(1) + m.group(2) + MASK, text)
+    text = VPN_URI.sub(lambda m: m.group(1) + MASK, text)
     return SECRET.sub(lambda m: m.group(1) + m.group(2) + MASK, text)
 
 MASK = "***"
 SECRET_WORDS = ("secret", "token", "password", "passwd", "api_key", "private_key", "access_key", "secret_key", "_key")
 NOT_SECRET = ("public_key", "key_id", "_key_id", "keys_dir")
 MIN_LENGTH = 6
+REMEMBER_MIN = 4
+_MAX_KNOWN = 512
+_SKIP = {"change-me", "changeme", "replace-me"}
 _installed = False
+_lock = threading.Lock()
+_known: set[str] = set()
 _values: list[str] = []
+_short: list[str] = []
 _URL_PASSWORD = re.compile(r"://[^:/@\s]+:([^@/\s]+)@")
+
+
+def _publish() -> None:
+    _values[:] = sorted((v for v in _known if len(v) >= MIN_LENGTH), key=len, reverse=True)
+    _short[:] = sorted((v for v in _known if len(v) < MIN_LENGTH), key=len, reverse=True)
+
+
+def remember(value: str) -> bool:
+    """Register a plaintext secret opened at runtime. Returns whether it was newly registered."""
+    if not isinstance(value, str):
+        return False
+    value = value.strip()
+    if len(value) < REMEMBER_MIN or value.lower() in _SKIP:
+        return False
+    with _lock:
+        if value in _known or len(_known) >= _MAX_KNOWN:
+            return False
+        _known.add(value)
+        _publish()
+        return True
+
+
+def snapshot() -> set[str]:
+    with _lock:
+        return set(_known)
+
+
+def restore(known: set[str]) -> None:
+    with _lock:
+        _known.clear()
+        _known.update(v for v in known if isinstance(v, str) and len(v) >= REMEMBER_MIN and v.lower() not in _SKIP)
+        _publish()
 
 
 def secret_values(settings) -> list[str]:
@@ -58,16 +109,21 @@ def secret_values(settings) -> list[str]:
 def mask(text: str) -> str:
     if not text:
         return text
-    for value in _values:
+    with _lock:
+        longs, shorts = tuple(_values), tuple(_short)
+    for value in longs:
         if value in text:
             text = text.replace(value, MASK)
+    for value in shorts:
+        text = re.sub(rf"(?<![A-Za-z0-9]){re.escape(value)}(?![A-Za-z0-9])", MASK, text)
     return redact_patterns(text)
 
 
 def install(settings) -> bool:
     """Puts the masking factory in front of logging once per process. Returns whether it was installed now."""
-    global _installed, _values
-    _values = secret_values(settings)
+    global _installed
+    for value in secret_values(settings):
+        remember(value)
     if _installed:
         return False
     previous = logging.getLogRecordFactory()
