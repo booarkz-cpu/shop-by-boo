@@ -1,6 +1,7 @@
 package shop.corgi.client.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -14,51 +15,140 @@ import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.Update
 import shop.corgi.client.core.tr
 
-/** Profiles, the chosen server and the settings in one private SharedPreferences file (no cloud backup). */
-class Store(context: Context) {
-    private val app = context.applicationContext
-    private val prefs = app.getSharedPreferences("client", 0)
+/**
+ * Profiles, the chosen server and the settings in one private SharedPreferences file (no cloud backup).
+ * A failed read locks the corresponding writes so an empty stand-in cannot replace the saved bytes.
+ */
+class Store private constructor(private val app: Context?, private val prefs: SharedPreferences) {
+    constructor(context: Context) : this(
+        context.applicationContext,
+        context.applicationContext.getSharedPreferences("client", 0),
+    )
+
+    /** Unit tests supply memory preferences and never touch a device Keystore. */
+    internal constructor(prefs: SharedPreferences) : this(null, prefs)
+
+    /** The last read of profiles failed. [profiles] is then empty and must not be written back. */
+    @Volatile var profilesLocked: Boolean = false
+        private set
+
+    /** The proxy password or the settings record could not be trusted. Writes are refused. */
+    @Volatile var settingsLocked: Boolean = false
+        private set
+
+    /** A short, non-secret reason for the last vault failure. Null when the last read succeeded. */
+    @Volatile var vaultMessage: String? = null
+        private set
+
+    private fun device(): Context = app ?: error("no context")
+
+    private fun lockProfiles(message: String) {
+        profilesLocked = true
+        vaultMessage = message
+    }
+
+    private fun lockSettings(message: String) {
+        settingsLocked = true
+        vaultMessage = message
+    }
 
     var profiles: List<Profile>
-        get() = runCatching {
+        get() {
             // v1.10.0: kept encrypted (Vault); a value of an older version is plain and is re-saved encrypted.
             val stored = prefs.getString("profiles", "[]") ?: "[]"
-            val text = Vault.open(stored) ?: "[]"
-            if (!Vault.isSealed(stored) && text != "[]") Vault.seal(text).takeIf { it != text }?.let { prefs.edit().putString("profiles", it).apply() }
-            JSONArray(text).let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } }
+            if (stored == "[]") {
+                profilesLocked = false
+                return emptyList()
+            }
+            val text = try {
+                Vault.open(stored)
+            } catch (error: VaultUnavailable) {
+                lockProfiles(error.message ?: "vault")
+                return emptyList()
+            }
+            val list = try {
+                JSONArray(text).let { array -> (0 until array.length()).map { Profile.of(array.getJSONObject(it)) } }
+            } catch (error: Exception) {
+                lockProfiles(error.message ?: "profiles")
+                return emptyList()
+            }
+            if (!Vault.isSealed(stored)) {
+                try {
+                    prefs.edit().putString("profiles", Vault.seal(text)).apply()
+                } catch (error: VaultUnavailable) {
+                    // The old plaintext stays. A failed seal must not pretend the value is now encrypted.
+                    vaultMessage = error.message
+                }
+            }
+            profilesLocked = false
+            return list
         }
-            .getOrDefault(emptyList())
         set(value) {
-            prefs.edit().putString("profiles", Vault.seal(JSONArray(value.map { it.toJson() }).toString())).apply()
+            if (profilesLocked) throw VaultUnavailable("profiles unreadable; refusing to overwrite")
+            val sealed = Vault.seal(JSONArray(value.map { it.toJson() }).toString())
+            prefs.edit().putString("profiles", sealed).apply()
         }
 
     var settings: Settings
-        get() = Settings.of(prefs.getString("settings", null)?.let { runCatching { JSONObject(it) }.getOrNull() }?.also { j ->
+        get() {
+            val raw = prefs.getString("settings", null) ?: return firstSettings()
+            val json = runCatching { JSONObject(raw) }.getOrNull()
+            if (json == null) {
+                lockSettings("settings")
+                return Settings()
+            }
             // v1.10.0: the local proxy's password is kept encrypted (Vault); the rest of the settings is plain.
-            val pass = j.optString("proxyPass")
-            if (Vault.isSealed(pass)) {
-                j.put("proxyPass", Vault.open(pass) ?: "")
-            } else if (pass.isNotBlank()) {
-                // written by an older version: re-saved with the password encrypted
-                Vault.seal(pass).takeIf { it != pass }?.let { prefs.edit().putString("settings", JSONObject(j.toString()).put("proxyPass", it).toString()).apply() }
-            }
-        }).let { s ->
-            // The local proxy's login and password: random on the first use, changed only by «Сбросить логин/пароль».
-            if (s.proxyUser.isNotBlank() && s.proxyPass.isNotBlank()) {
-                s
-            } else {
-                s.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16)).also {
-                    prefs.edit().putString("settings", stored(it)).apply()
+            val pass = json.optString("proxyPass")
+            when {
+                Vault.isSealed(pass) -> try {
+                    json.put("proxyPass", Vault.open(pass))
+                    settingsLocked = false
+                } catch (error: VaultUnavailable) {
+                    lockSettings(error.message ?: "vault")
+                    json.remove("proxyPass")
+                    return Settings.of(json)
                 }
+                pass.isNotBlank() -> try {
+                    // written by an older version: re-saved with the password encrypted, or left as it was
+                    val copy = JSONObject(json.toString()).put("proxyPass", Vault.seal(pass))
+                    prefs.edit().putString("settings", copy.toString()).apply()
+                    settingsLocked = false
+                } catch (error: VaultUnavailable) {
+                    vaultMessage = error.message
+                    settingsLocked = false
+                }
+                else -> settingsLocked = false
             }
+            return Settings.of(json)
         }
         set(value) {
+            if (settingsLocked) throw VaultUnavailable("settings unreadable; refusing to overwrite")
+            val existingPass = prefs.getString("settings", null)?.let { raw ->
+                runCatching { JSONObject(raw).optString("proxyPass") }.getOrNull().orEmpty()
+            }.orEmpty()
+            if (existingPass.isNotBlank() && value.proxyPass.isBlank()) {
+                throw VaultUnavailable("refusing to replace a stored proxy password with an empty one")
+            }
             prefs.edit().putString("settings", stored(value)).apply()
         }
 
-    /** The settings as they are written: the local proxy's password encrypted. */
+    /** The settings as they are written: the local proxy's password encrypted. A failed seal throws and writes nothing. */
     private fun stored(value: Settings): String =
-        value.toJson().also { j -> if (value.proxyPass.isNotBlank()) j.put("proxyPass", Vault.seal(value.proxyPass)) }.toString()
+        value.toJson().also { json -> if (value.proxyPass.isNotBlank()) json.put("proxyPass", Vault.seal(value.proxyPass)) }.toString()
+
+    /** First launch only: there is no settings record yet, so new credentials cannot overwrite a sealed password. */
+    private fun firstSettings(): Settings {
+        val fresh = Settings().copy(proxyUser = "corgi_" + random(8), proxyPass = random(16))
+        return try {
+            prefs.edit().putString("settings", stored(fresh)).apply()
+            settingsLocked = false
+            fresh
+        } catch (error: VaultUnavailable) {
+            vaultMessage = error.message
+            settingsLocked = false
+            Settings()
+        }
+    }
 
     /** The active profile id and the server in it: an index or «auto». */
     var activeProfile: String
@@ -79,7 +169,7 @@ class Store(context: Context) {
     fun active(): Profile? = profiles.firstOrNull { it.id == activeProfile } ?: profiles.firstOrNull()
 
     fun add(text: String): Profile {
-        val debuggable = (app.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        val debuggable = app?.let { (it.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 } == true
         require(debuggable || !text.trim().startsWith("http://")) {
             tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://")
         }
@@ -222,21 +312,44 @@ class Store(context: Context) {
         return (1..n).map { chars[rnd.nextInt(chars.length)] }.joinToString("")
     }
 
-    /** Puts a backup in place of the providers and settings; this device keeps its own proxy login and password. */
+    /**
+     * Puts a backup in place of the providers and settings. Both values are sealed before any write.
+     * This device keeps its own proxy login and password when that password can still be opened.
+     */
     fun restore(backup: shop.corgi.client.core.Backup) {
-        val mine = settings
-        profiles = backup.profiles
-        settings = backup.settings.copy(proxyUser = mine.proxyUser, proxyPass = mine.proxyPass)
-        activeProfile =
-            backup.activeProfile.takeIf { id -> backup.profiles.any { it.id == id } } ?: backup.profiles.firstOrNull()?.id.orEmpty()
-        activeServer = backup.activeServer.ifBlank { "auto" }
+        val keep = if (!settingsLocked) runCatching { settings }.getOrNull()?.takeIf { !settingsLocked } else null
+        val next = if (keep != null && keep.proxyUser.isNotBlank() && keep.proxyPass.isNotBlank()) {
+            backup.settings.copy(proxyUser = keep.proxyUser, proxyPass = keep.proxyPass)
+        } else {
+            backup.settings
+        }
+        val profileBytes = Vault.seal(JSONArray(backup.profiles.map { it.toJson() }).toString())
+        val settingsBytes = stored(next)
+        val activeId = backup.activeProfile.takeIf { id -> backup.profiles.any { it.id == id } }
+            ?: backup.profiles.firstOrNull()?.id.orEmpty()
+        prefs.edit()
+            .putString("profiles", profileBytes)
+            .putString("settings", settingsBytes)
+            .putString("active_profile", activeId)
+            .putString("active_server", backup.activeServer.ifBlank { "auto" })
+            .apply()
+        profilesLocked = false
+        settingsLocked = false
+        vaultMessage = null
     }
 
-    fun backup(): shop.corgi.client.core.Backup =
-        shop.corgi.client.core.Backup(profiles, settings, activeProfile, activeServer, System.currentTimeMillis())
+    fun backup(): shop.corgi.client.core.Backup {
+        val savedProfiles = profiles
+        val savedSettings = settings
+        if (profilesLocked || settingsLocked) throw VaultUnavailable("vault unreadable; refusing an empty backup")
+        return shop.corgi.client.core.Backup(savedProfiles, savedSettings, activeProfile, activeServer, System.currentTimeMillis())
+    }
 
     fun newProxyCredentials() {
-        settings = settings.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16))
+        if (settingsLocked) throw VaultUnavailable("settings unreadable; refusing to replace credentials")
+        val current = settings
+        if (settingsLocked) throw VaultUnavailable("settings unreadable; refusing to replace credentials")
+        settings = current.copy(proxyUser = "corgi_" + random(8), proxyPass = random(16))
     }
 
     /** Everything back to a fresh install, except the profiles and this install's id. */
@@ -244,7 +357,7 @@ class Store(context: Context) {
         prefs.edit().remove("settings").remove("pings").apply()
     }
 
-    fun geoReady(): Boolean = File(app.filesDir, "geoip.dat").length() > 0 && File(app.filesDir, "geosite.dat").length() > 0
+    fun geoReady(): Boolean = File(device().filesDir, "geoip.dat").length() > 0 && File(device().filesDir, "geosite.dat").length() > 0
 
     /** geoip.dat and geosite.dat from the URLs in the settings (https only), written atomically. */
     fun downloadGeo(onProgress: (Float) -> Unit = {}) {
@@ -255,11 +368,11 @@ class Store(context: Context) {
             val (name, url) = pair
             require(url.startsWith("https://")) { tr("Только https://", "https:// only", "Лише https://") }
             progress.start(i)
-            val tmp = File(app.filesDir, "$name.part")
+            val tmp = File(device().filesDir, "$name.part")
             val connection = open(url)
             connection.inputStream.use { input -> tmp.outputStream().use { progress.copy(input, it, connection.contentLengthLong) } }
             require(tmp.length() > 1024) { "$name: " + tr("пустой файл", "empty file", "порожній файл") }
-            tmp.renameTo(File(app.filesDir, name))
+            tmp.renameTo(File(device().filesDir, name))
         }
         progress.finish()
     }
@@ -277,7 +390,7 @@ class Store(context: Context) {
         return found
     }
 
-    fun currentVersion(): Int = app.packageManager.getPackageInfo(app.packageName, 0)
+    fun currentVersion(): Int = device().packageManager.getPackageInfo(device().packageName, 0)
         .let {
             if (android.os.Build.VERSION.SDK_INT >= 28) {
                 it.longVersionCode.toInt()
@@ -290,7 +403,7 @@ class Store(context: Context) {
     /** v1.6.1 (N11): the APK of [update] in the app's cache, checked by its SHA-256 (call off the main thread). */
     fun downloadUpdate(update: Update): File {
         require(update.apk.startsWith("https://github.com/booarkz-cpu/shop-by-boo/releases/")) { "apk url" }
-        val dir = File(app.cacheDir, "updates").apply { mkdirs() }
+        val dir = File(device().cacheDir, "updates").apply { mkdirs() }
         val apk = File(dir, "corgi-lusi-client-${update.versionCode}.apk")
         if (shop.corgi.client.core.ApkCheck.matches(apk, update.sha256)) return apk
         dir.listFiles()?.forEach { it.delete() }
@@ -305,7 +418,7 @@ class Store(context: Context) {
 
     /** The downloaded APK of the newer version, if it is there and intact. */
     fun readyUpdate(): File? = cachedUpdate()?.let { u ->
-        File(File(app.cacheDir, "updates"), "corgi-lusi-client-${u.versionCode}.apk").takeIf {
+        File(File(device().cacheDir, "updates"), "corgi-lusi-client-${u.versionCode}.apk").takeIf {
             shop.corgi.client.core.ApkCheck.matches(it, u.sha256)
         }
     }
@@ -340,7 +453,7 @@ class Store(context: Context) {
 
     fun trafficHistory(): String = prefs.getString("traffic_history", "{}") ?: "{}"
 
-    fun geoUpdatedAt(): Long = File(app.filesDir, "geosite.dat").lastModified()
+    fun geoUpdatedAt(): Long = File(device().filesDir, "geosite.dat").lastModified()
 
     fun cachedUpdate(): Update? = prefs.getString("update", "").orEmpty().split("|").takeIf { it.size == 4 }
         ?.let { runCatching { Update(it[0].toInt(), it[1], it[2], it[3]) }.getOrNull() }

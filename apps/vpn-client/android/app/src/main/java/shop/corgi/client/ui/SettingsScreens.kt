@@ -78,7 +78,7 @@ import kotlin.concurrent.thread
 fun SettingsScreen(store: Store, page: String?, open: (String?) -> Unit, refresh: () -> Unit) {
     val s = store.settings
     val context = LocalContext.current
-    val save: (Settings) -> Unit = { store.settings = it; refresh() }
+    val save: (Settings) -> Unit = { runCatching { store.settings = it }; refresh() }
     if (page == null) { SettingsMenu(store, open, refresh); return }
     val title = PAGES.firstOrNull { it.first == page }?.second?.invoke() ?: ""
     Column(Modifier.fillMaxSize()) {
@@ -569,10 +569,10 @@ private fun AboutPage(store: Store) {
                 tr("Каждые 6 часов новая версия с GitHub скачивается, проверяется и ставится сама — по любой сети и при включённом VPN (он включится снова). Android 11 и старше просят подтвердить",
                     "Every 6 hours a new version from GitHub is downloaded, checked and installed by itself — on any network and with the VPN on (it comes back). Android 11 and older ask to confirm",
                     "Кожні 6 годин нова версія з GitHub завантажується, перевіряється і встановлюється сама — через будь-яку мережу і з увімкненим VPN (він увімкнеться знову). Android 11 і старші просять підтвердити"), s.autoUpdateApp) {
-                s = s.copy(autoUpdateApp = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+                s = s.copy(autoUpdateApp = it); runCatching { store.settings = s }; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
             ToggleRow(tr("Обновлять geo-файлы", "Update the geo files", "Оновлювати geo-файли"),
                 tr("Раз в сутки, если они скачаны", "Once a day, when they are downloaded", "Раз на добу, якщо вони завантажені"), s.autoUpdateGeo) {
-                s = s.copy(autoUpdateGeo = it); store.settings = s; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
+                s = s.copy(autoUpdateGeo = it); runCatching { store.settings = s }; shop.corgi.client.vpn.AppUpdateJob.schedule(context) }
             store.readyUpdate()?.let { apk ->
                 NavRow(Icons.Filled.Settings, tr("Установить ", "Install ", "Встановити ") + (store.cachedUpdate()?.versionName ?: ""),
                     hint = tr("Скачано и проверено по SHA-256", "Downloaded and checked by SHA-256", "Завантажено й перевірено SHA-256")) {

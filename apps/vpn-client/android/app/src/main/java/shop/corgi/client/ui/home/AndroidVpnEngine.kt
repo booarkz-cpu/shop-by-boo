@@ -28,7 +28,7 @@ class AndroidVpnEngine(context: Context) : VpnEngine {
     override fun adBlock(): Boolean = store.settings.adBlock
 
     override fun setAdBlock(on: Boolean) {
-        store.settings = store.settings.copy(adBlock = on)
+        runCatching { store.settings = store.settings.copy(adBlock = on) }
     }
 
     override fun geoReady(): Boolean = store.geoReady()

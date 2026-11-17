@@ -132,6 +132,17 @@ fun ClientApp(store: Store, incoming: MutableState<String?>, connect: () -> Unit
                 },
             ) { padding ->
                 Box(Modifier.padding(padding).fillMaxSize()) {
+                    if (store.profilesLocked || store.settingsLocked) {
+                        Text(
+                            tr(
+                                "Хранилище устройства недоступно. Сохранённые профили и пароль не изменены.",
+                                "Device storage is unavailable. Saved profiles and the password were not changed.",
+                                "Сховище пристрою недоступне. Збережені профілі й пароль не змінено.",
+                            ),
+                            Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                     androidx.compose.runtime.key(revision) {
                         when (tab) {
                             0 -> HomeScreen(store, connect, refresh, add = { adding = it }) { tab = 1 }
@@ -190,7 +201,11 @@ private fun HomeScreen(store: Store, connect: () -> Unit, refresh: () -> Unit, a
         server = { if (profile != null) ServerPicker(store, profile, refresh, openServers) },
         below = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (profile == null) {
+                if (store.profilesLocked) {
+                    Text(tr("Профили недоступны, пока хранилище не откроется. Они не удалены.",
+                        "Profiles stay unavailable until storage opens. They were not deleted.",
+                        "Профілі недоступні, доки сховище не відкриється. Їх не видалено."), color = MaterialTheme.colorScheme.error)
+                } else if (profile == null) {
                     Text(tr("Добавьте подписку, ссылку на сервер или конфигурацию Xray.", "Add a subscription, a server link or an Xray config.",
                         "Додайте підписку, посилання на сервер або конфігурацію Xray."), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
@@ -323,7 +338,8 @@ internal fun ProviderCard(store: Store, profile: Profile, expanded: Boolean?, on
                             onClick = {
                                 menu = false
                                 // v1.6.0 (N10): the active provider gone — the tunnel goes down, the button waits for another server.
-                                if (store.remove(profile.id) && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
+                                val removed = runCatching { store.remove(profile.id) }.getOrDefault(false)
+                                if (removed && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
                                 refresh()
                             })
                     }
@@ -390,7 +406,8 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
         title = { Text(tr("Удалить выбранные?", "Delete the chosen ones?", "Видалити вибрані?")) },
         text = { Text(tr("Провайдеров: ", "Providers: ", "Провайдерів: ") + chosen.size) },
         confirmButton = { Button(onClick = {
-            if (store.removeAll(chosen) && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
+            val removed = runCatching { store.removeAll(chosen) }.getOrDefault(false)
+            if (removed && ClientVpnService.current(context) != "off") ClientVpnService.stop(context)
             chosen = emptySet(); confirm = false; refresh()
         }, modifier = Modifier.testTag("delete-chosen-confirm")) { Text(tr("Удалить", "Delete", "Видалити")) } },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text(tr("Отмена", "Cancel", "Скасувати")) } })
@@ -412,7 +429,7 @@ private fun ServersScreen(store: Store, refresh: () -> Unit, add: () -> Unit) {
                 }
                 FilledTonalIconButton(onClick = {
                     val next = Settings.SORTS[(Settings.SORTS.indexOf(s.sort) + 1) % Settings.SORTS.size]
-                    store.settings = s.copy(sort = next); refresh()
+                    runCatching { store.settings = s.copy(sort = next) }; refresh()
                 }) { Icon(Icons.Filled.Sort, tr("Сортировка", "Sort", "Сортування")) }
                 FilledTonalIconButton(onClick = { busy = true; updateProfiles(context, store, profiles) { busy = false; refresh() } }, enabled = !busy) {
                     Icon(Icons.Filled.Refresh, tr("Обновить все", "Update all", "Оновити всі"))

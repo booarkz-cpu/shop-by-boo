@@ -48,6 +48,10 @@ mobile/**/build/
 mobile/**/.gradle/
 mobile/**/local.properties
 mobile/**/.cxx/
+apps/vpn-client/android/.gradle/
+apps/vpn-client/android/build/
+apps/vpn-client/android/app/build/
+apps/vpn-client/android/local.properties
 
 # OS
 Thumbs.db

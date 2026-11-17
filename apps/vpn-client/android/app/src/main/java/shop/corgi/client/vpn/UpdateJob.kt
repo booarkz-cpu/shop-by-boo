@@ -27,6 +27,10 @@ class UpdateJob : JobService() {
         thread {
             val store = Store(this)
             val before = store.profiles.associate { it.id to it.servers().size }
+            if (store.profilesLocked) {
+                jobFinished(params, false)
+                return@thread
+            }
             val updated = runCatching { store.updateDue() }.getOrDefault(emptyList())
             if (store.settings.notifyUpdates && updated.isNotEmpty()) notify(this, updated.joinToString(", ") { p ->
                 val was = before[p.id] ?: 0

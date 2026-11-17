@@ -18,6 +18,7 @@ import shop.corgi.client.core.Settings
 import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.tr
 import shop.corgi.client.data.Store
+import shop.corgi.client.data.VaultUnavailable
 import shop.corgi.client.engine.Xray
 import shop.corgi.client.ui.MainActivity
 import kotlin.concurrent.thread
@@ -42,8 +43,16 @@ class ClientVpnService : VpnService() {
         thread {
             try {
                 val store = Store(this)
-                val profile = store.active() ?: throw IllegalStateException(tr("Добавьте подписку или сервер", "Add a subscription or a server", "Додайте підписку або сервер"))
                 val s = store.settings
+                val profile = store.active()
+                if (store.profilesLocked || store.settingsLocked) {
+                    throw VaultUnavailable(tr(
+                        "Хранилище недоступно, профили не изменены",
+                        "Storage is unavailable, profiles were not changed",
+                        "Сховище недоступне, профілі не змінено",
+                    ))
+                }
+                if (profile == null) throw IllegalStateException(tr("Добавьте подписку или сервер", "Add a subscription or a server", "Додайте підписку або сервер"))
                 val logs = Logs(filesDir)
                 logs.rotate(s.logHours)
                 // v1.8.1 (N12): Geek Mode — the hand-edited JSON, only when it still passes the checks.
@@ -92,7 +101,8 @@ class ClientVpnService : VpnService() {
             } catch (exc: Exception) {
                 error(this, exc.message ?: exc.javaClass.simpleName)
                 Logs(filesDir).app("[VPN] error ${exc.message ?: exc.javaClass.simpleName}")
-                shutdown()
+                // A vault failure must not tear down a tunnel that is already up; a failed new start still stops.
+                if (exc is VaultUnavailable && Xray.running) state(this, STATE_ON) else shutdown()
             }
         }
         return START_STICKY
@@ -166,8 +176,10 @@ class ClientVpnService : VpnService() {
                 val ok = shop.corgi.client.core.ExternalIp.probe(check, s.pingUrl)
                 if (!failover.record(ok, System.currentTimeMillis())) continue
                 val store = Store(this)
-                val profile = store.active() ?: break
-                if (profile.kind == "json" || profile.configs.isNotEmpty()) break
+                val profile = store.active()
+                // Unreadable profiles are not "no profiles": keep this server and do not stop the tunnel.
+                if (store.profilesLocked) continue
+                if (profile == null || profile.kind == "json" || profile.configs.isNotEmpty()) break
                 val keys = profile.servers().map { shop.corgi.client.core.Ping.key(it) }
                 val next = shop.corgi.client.core.Failover.next(keys, store.activeServer, store.pings) ?: break
                 Logs(filesDir).app("[VPN] failover ${store.activeServer} -> $next: no answer for ${s.failoverSeconds} s")

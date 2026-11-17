@@ -20,7 +20,8 @@ import shop.corgi.client.data.Store
 class NetworkReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val store = Store(context)
-        val s = store.settings
+        val s = runCatching { store.settings }.getOrNull() ?: return
+        if (store.settingsLocked) return
         // v1.7.2 (N12): «Доверенные Wi-Fi» — pause at home, back on any other network (only after its own pause).
         if (s.trustedWifi.isNotEmpty()) {
             val prefs = context.getSharedPreferences("client_vpn", 0)

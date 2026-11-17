@@ -48,8 +48,8 @@ class ClientWidget : AppWidgetProvider() {
                 else -> R.string.vpn_off
             }))
             val store = Store(context)
-            val profile = store.active()
-            val server = when {
+            val profile = runCatching { store.active() }.getOrNull()
+            val server = if (store.profilesLocked) "" else when {
                 profile == null -> ""
                 profile.kind == "json" || store.activeServer == ConfigBuilder.AUTO -> profile.name
                 else -> profile.servers().getOrNull(store.activeServer.toIntOrNull() ?: -1)?.name ?: profile.name
