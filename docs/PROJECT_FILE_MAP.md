@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2709**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2712**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2312,6 +2312,7 @@
 | [services/support-pro/alembic/versions/0006_remote_history.py](../services/support-pro/alembic/versions/0006_remote_history.py) | API, бот, worker и Support Pro |
 | [services/support-pro/alembic/versions/0007_email_channel.py](../services/support-pro/alembic/versions/0007_email_channel.py) | API, бот, worker и Support Pro |
 | [services/support-pro/alembic/versions/0008_helpdesk_bridge.py](../services/support-pro/alembic/versions/0008_helpdesk_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/alembic/versions/0009_totp_secret_storage.py](../services/support-pro/alembic/versions/0009_totp_secret_storage.py) | API, бот, worker и Support Pro |
 | [services/support-pro/app/Dockerfile](../services/support-pro/app/Dockerfile) | API, бот, worker и Support Pro |
 | [services/support-pro/app/__init__.py](../services/support-pro/app/__init__.py) | API, бот, worker и Support Pro |
 | [services/support-pro/app/access.py](../services/support-pro/app/access.py) | API, бот, worker и Support Pro |
@@ -2367,6 +2368,7 @@
 | [services/support-pro/app/templates/twofa.html](../services/support-pro/app/templates/twofa.html) | API, бот, worker и Support Pro |
 | [services/support-pro/app/templates/webhook_secret.html](../services/support-pro/app/templates/webhook_secret.html) | API, бот, worker и Support Pro |
 | [services/support-pro/app/templates/webhooks.html](../services/support-pro/app/templates/webhooks.html) | API, бот, worker и Support Pro |
+| [services/support-pro/app/totp_store.py](../services/support-pro/app/totp_store.py) | API, бот, worker и Support Pro |
 | [services/support-pro/app/worker.py](../services/support-pro/app/worker.py) | API, бот, worker и Support Pro |
 | [services/support-pro/docker-compose.yml](../services/support-pro/docker-compose.yml) | API, бот, worker и Support Pro |
 | [services/support-pro/install.sh](../services/support-pro/install.sh) | API, бот, worker и Support Pro |
@@ -2388,6 +2390,7 @@
 | [services/support-pro/tests/test_remote_history.py](../services/support-pro/tests/test_remote_history.py) | API, бот, worker и Support Pro |
 | [services/support-pro/tests/test_security_audit.py](../services/support-pro/tests/test_security_audit.py) | API, бот, worker и Support Pro |
 | [services/support-pro/tests/test_shop_bridge.py](../services/support-pro/tests/test_shop_bridge.py) | API, бот, worker и Support Pro |
+| [services/support-pro/tests/test_totp_store.py](../services/support-pro/tests/test_totp_store.py) | API, бот, worker и Support Pro |
 | [support-pro/README.txt](../support-pro/README.txt) | Настройки Support Pro на сервере (.env) |
 | [tests/admin-safe.test.mjs](../tests/admin-safe.test.mjs) | Проверки |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |

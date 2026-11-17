@@ -29,7 +29,7 @@ class Operator(Base):
     available: Mapped[bool] = mapped_column(Boolean, default=True)
     capacity: Mapped[int] = mapped_column(Integer, default=20)
     auth_version: Mapped[int] = mapped_column(Integer, default=1)
-    totp_secret: Mapped[str | None] = mapped_column(String(64))
+    totp_secret: Mapped[str | None] = mapped_column(Text)
     last_totp_step: Mapped[int] = mapped_column(BigInteger, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 

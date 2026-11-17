@@ -10,6 +10,7 @@ from sqlalchemy import select
 from .db import Session, ph, engine
 from .models import Operator, Category, Macro, Settings
 from .sla import DEFAULTS
+from .totp_store import TotpUnavailable, open_secret, seal, sealed_for_current
 
 
 def show_secret(login, secret):
@@ -30,12 +31,17 @@ async def run(args):
                 if len(password) < 12:
                     raise SystemExit('Пароль должен содержать минимум 12 символов')
                 secret = pyotp.random_base32()
-                op = Operator(login=login, password_hash=ph.hash(password), role='admin', totp_secret=secret)
+                op = Operator(login=login, password_hash=ph.hash(password), role='admin', totp_secret=seal(secret))
                 s.add(op)
             elif not op.totp_secret:
                 secret = pyotp.random_base32()
-                op.totp_secret = secret
+                op.totp_secret = seal(secret)
                 op.auth_version += 1
+            elif not sealed_for_current(op.totp_secret):
+                try:
+                    op.totp_secret = seal(open_secret(op.totp_secret))
+                except TotpUnavailable:
+                    pass
             if not await s.scalar(select(Category.id).limit(1)):
                 s.add_all([Category(name=x) for x in ['Общее', 'Оплата', 'Техническая проблема', 'Аккаунт', 'Другое']])
             if not await s.scalar(select(Macro.id).limit(1)):
@@ -53,7 +59,7 @@ async def run(args):
             if not op:
                 raise SystemExit('Оператор не найден')
             secret = pyotp.random_base32()
-            op.totp_secret, op.last_totp_step = secret, 0
+            op.totp_secret, op.last_totp_step = seal(secret), 0
             op.auth_version += 1
             await s.commit()
             show_secret(op.login, secret)
