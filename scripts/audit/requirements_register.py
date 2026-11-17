@@ -52,7 +52,7 @@ DEEPER = {
 }
 PART2 = {'II.1': 'QA', 'II.2': 'NODE', 'II.3': 'AUTO', 'II.4': 'BRAND', 'II.5': 'DOC', 'II.6': 'GOV', 'II.7': 'GOV'}
 PART4 = {23: 'GOV', 24: 'ARCH', 25: 'CLIENT', 26: 'SHOP', 27: 'ADMIN', 28: 'PAY', 29: 'RW', 30: 'INFRA', 31: 'INFRA',
-         32: 'SEC', 33: 'UI', 34: 'QA', 35: 'CI', 36: 'PERF', 37: 'DOC', 38: 'GOV', 39: 'GOV', 40: 'GOV'}
+         32: 'SEC', 33: 'UI', 34: 'QA', 35: 'CI', 36: 'PERF', 37: 'DOC', 38: 'GOV', 39: 'GOV', 40: 'GOV', 41: 'UI'}
 PRODUCT = {'CLIENT': 'Клиент', 'SHOP': 'Магазин', 'BRAND': 'Магазин', 'ADMIN': 'Админка'}
 AREA = {
     'GOV': 'Правила работы и приёмка', 'MIG': 'Монорепозиторий и перенос', 'CLIENT': '«Корги Люси: Клиент»',
