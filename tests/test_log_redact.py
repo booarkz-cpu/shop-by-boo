@@ -209,6 +209,12 @@ def test_an_unlabelled_secret_stays_until_it_is_known(secrets):
     assert raw not in log_redact.mask(f"seen {raw}")
 
 
+def test_an_installer_placeholder_is_not_rewritten(secrets):
+    text = "mtproto=on port=9443 domain=www.cloudflare.com secret=[скрыто]"
+    assert log_redact.mask(text) == text
+    assert "eeabcdef" not in log_redact.mask("secret=eeabcdef0123456789")
+
+
 def test_private_keys_and_vpn_uris_are_masked_without_a_field_name(secrets):
     pem = "-----BEGIN PRIVATE KEY-----\nMII" + "A" * 40 + "\n-----END PRIVATE KEY-----"
     link = "vless://11111111-2222-3333-4444-555555555555@node.example:443"

@@ -6,7 +6,7 @@
 
 **Дефект.** REQ-SEC-0012. Значение, которое лежит только в базе и не названо в строке как `token=` или `password=`, проходило в консоль, JSON, traceback и хвост установщика. Шаблоны не видели сам секрет.
 **Исправление.** `decrypt_secret` после открытия вызывает `remember`. Фабрика маскирует это значение дальше: длина от 6 — в любом месте, длина 4–5 — только как отдельный токен. PEM private key и URI vless/vmess/trojan/ss/hysteria2/tuic/wireguard маскируются шаблоном. Короче 4 знаков и `change-me` не регистрируются. Полные персональные данные, `print` и журналы чужих программ не затронуты. Статус остаётся PARTIAL. Версия дистрибутива не менялась.
-**Проверка.** `tests/test_log_redact.py`: 16 passed. `tests/test_rw_installer.py::test_remote_masks_secrets_and_quotes_arguments`: 1 passed. `ruff` по изменённым файлам и `check-runtime-placeholders.py` — OK.
+**Проверка.** `tests/test_log_redact.py`: 17 passed. `tests/test_rw_installer.py::test_remote_masks_secrets_and_quotes_arguments`: 1 passed. `test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes` и `test_psiphon_step_hides_the_entry_and_undoes`: passed. `ruff` по изменённым файлам и `check-runtime-placeholders.py` — OK. Первый CI `44026602014` упал на шардe 2: общий шаблон переписывал уже поставленное `secret=[скрыто]` в `secret=***`. Шаблон больше не трогает этот заполнитель.
 
 ## 2026-11-17 — TOTP Support Pro больше не хранится открытым текстом
 

@@ -30,7 +30,7 @@ import threading
 SCHEME = re.compile(r"(?i)\b(bearer|basic|token)(\s+)([A-Za-z0-9._~+/=-]{6,})")
 SECRET = re.compile(
     r"""(?i)(token|secret|password|passwd|api[_-]?key|authorization|private[_-]?key|privatekey)"""
-    r"""(["']?\s*[=:]\s*["']?)(?!(?:bearer|basic)\s)(?!\*\*\*)([^\s"',;]{4,})"""
+    r"""(["']?\s*[=:]\s*["']?)(?!(?:bearer|basic)\s)(?!(?:\*\*\*|\[скрыто\]))([^\s"',;]{4,})"""
 )
 BOT_TOKEN = re.compile(r"\b\d{6,12}:[A-Za-z0-9_-]{30,}\b")
 PEM = re.compile(r"-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY-----.*?-----END [A-Z0-9 ]{0,40}PRIVATE KEY-----", re.DOTALL)
