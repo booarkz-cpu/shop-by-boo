@@ -5,7 +5,8 @@ itself. With an LLM configured (OpenAI-compatible chat API or Anthropic Messages
 SUPPORT_AI_KEY, SUPPORT_AI_MODEL in .env or «Настройки без перезапуска») the model writes the answer
 from the FAQ, the customer's subscription status and the conversation. Without it, the closest FAQ answers
 are offered by keyword match. Personal data sent to the model is limited to the conversation text and the
-subscription status (no e-mail, phone, payment or Telegram identifiers).
+subscription status. Before transmission, known secrets, credential/VPN patterns and e-mail
+addresses are masked. Other personal data in free text is not guaranteed to be removed.
 """
 from __future__ import annotations
 
@@ -29,6 +30,16 @@ WORD = re.compile(r"[a-zа-яё0-9]{3,}", re.I)
 SYSTEM = ("Ты оператор поддержки VPN-сервиса «Корги Люси». Отвечай кратко, вежливо и по делу, на языке клиента. "
           "Опирайся только на базу знаний и статус подписки. Если ответа в базе нет, предложи уточнить детали "
           "и не выдумывай. Не обещай возвратов и компенсаций — это решает оператор.")
+
+# This is a bounded filter, not a guarantee of anonymisation: names, postal addresses
+# and unknown/unlabelled secrets still require separate controls (REQ-SEC-0012).
+EMAIL = re.compile(r"(?<![\w.+-])[\w.!#$%&'*+/=?^\x60{|}~-]+@[\w-]+(?:\.[\w-]+)+", re.UNICODE)
+
+
+def model_text(value: str) -> str:
+    """Mask registered secrets, credential/VPN patterns and email in model text."""
+    from .log_redact import mask
+    return EMAIL.sub("[email]", mask(value))
 
 
 class FaqItem(BaseModel):
@@ -97,6 +108,10 @@ async def ticket_context(db: AsyncSession, ticket: SupportTicket) -> tuple[list[
 
 async def call_llm(cfg: dict, system: str, convo: list[dict], client=None) -> str:
     import httpx
+    # Apply at the transport boundary so FAQ, subject fallback and both API shapes
+    # use the same filter. New dictionaries leave stored conversation rows untouched.
+    system = model_text(system)
+    convo = [{"role": m["role"], "content": model_text(m["content"])} for m in convo]
     own = client is None
     client = client or httpx.AsyncClient(timeout=40, trust_env=False)
     try:
@@ -104,12 +119,12 @@ async def call_llm(cfg: dict, system: str, convo: list[dict], client=None) -> st
             response = await client.post(cfg["url"], headers={"x-api-key": cfg["key"], "anthropic-version": "2023-06-01"},
                                          json={"model": cfg["model"], "max_tokens": 700, "system": system, "messages": convo})
             response.raise_for_status()
-            return "".join(b.get("text", "") for b in response.json().get("content", []) if b.get("type") == "text").strip()
+            return model_text("".join(b.get("text", "") for b in response.json().get("content", []) if b.get("type") == "text").strip())
         response = await client.post(cfg["url"], headers={"Authorization": f"Bearer {cfg['key']}"},
                                      json={"model": cfg["model"], "temperature": 0.2, "max_tokens": 700,
                                            "messages": [{"role": "system", "content": system}, *convo]})
         response.raise_for_status()
-        return str(response.json()["choices"][0]["message"]["content"]).strip()
+        return model_text(str(response.json()["choices"][0]["message"]["content"]).strip())
     finally:
         if own:
             await client.aclose()
@@ -135,7 +150,7 @@ async def draft(db: AsyncSession, ticket_id: int, client=None) -> dict:
                 return {"draft": text, "source": "llm", "matched": [x["question"] for x in matched]}
         except Exception as exc:  # noqa: BLE001 — fall back to the FAQ
             matched = matched or []
-            fallback_reason = str(exc)[:120]
+            fallback_reason = model_text(str(exc))[:120]
         else:
             fallback_reason = "пустой ответ модели"
     else:

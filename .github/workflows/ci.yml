@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 # A run cancels only an earlier run of the SAME commit. Keying the group on the ref alone made a
 # re-run of an old commit cancel the check of a newer one, and the release gate then found no
@@ -96,6 +97,7 @@ jobs:
           python scripts/generate-architecture-docs.py --check
           python scripts/generate-project-map.py --check
           python scripts/audit/requirements_register.py --check
+          python scripts/audit/check_release_readiness.py
           python scripts/audit/check_payment_provider_registry.py --check
       - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
         env:
@@ -222,6 +224,13 @@ jobs:
           sudo apt-get -o Acquire::Retries=3 update
           sudo apt-get -o Acquire::Retries=3 install -y --no-install-recommends hunspell hunspell-en-us hunspell-en-gb hunspell-ru hunspell-uk
           python scripts/audit/check_spelling.py --self-test
+      - name: At most one active pull request
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const open = await github.paginate(github.rest.pulls.list, {...context.repo, state: 'open', per_page: 100});
+            if (open.length > 1) core.setFailed('Owner policy: consolidate changes into one active PR before merging. Open: ' + open.map(pr => '#' + pr.number).join(', '));
+            else core.info('Single active PR policy: ' + open.length + ' open.');
       - name: Shell scripts parse
         run: |
           status=0

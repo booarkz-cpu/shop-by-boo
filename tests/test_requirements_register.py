@@ -102,3 +102,18 @@ def test_tabular_changelog_requirement_preserves_all_prior_654_requirements():
     assert 'всех изменений' in text and 'табличном виде' in text
     assert 'грамматических' in text and 'орфографических' in text
     assert hashlib.sha256(text.encode()).hexdigest()[:12] == entry['sha']
+
+def test_owner_single_pr_and_release_readiness_keep_all_prior_655_entries():
+    import hashlib
+
+    entries = json.loads((ROOT / 'docs/requirements/register.json').read_text())
+    old = [entry for entry in entries if entry['lines'][1] <= 2507]
+    assert len(old) == 655
+    assert hashlib.sha256((json.dumps(old, ensure_ascii=False, indent=1) + '\n').encode()).hexdigest() == '040873183f0be026c6df7cd68af4081f82cf5b43e68b5482d88598dca89d8d98'
+    source = (ROOT / 'docs/prompts/MASTER_PROMPT_V6.md').read_text()
+    assert hashlib.sha256(''.join(source.splitlines(keepends=True)[:2507]).encode()).hexdigest() == '0976b9b0428538a5953c0a55210f768cff900a0c4476db9a713877c39516e314'
+    for identity in ('REQ-GOV-0124', 'REQ-GOV-0125'):
+        entry = next(item for item in entries if item['id'] == identity)
+        first, last = entry['lines']
+        text = '\n'.join(source.splitlines()[first-1:last])
+        assert hashlib.sha256(text.encode()).hexdigest()[:12] == entry['sha']
