@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {EmptyState, LoadState} from "./components/ui/state";
+import {t} from "./i18n";
 import {sectionInfo} from "./sections";
 
 type Request = (path: string, options?: RequestInit) => Promise<any>;
@@ -84,7 +85,7 @@ export function AuditLog({request}: {request: Request}) {
       onChange={(e) => setFilters({...filters, [key]: e.target.value})} onKeyDown={(e) => { if (e.key === "Enter") load(1); }}/></label>;
   return <div className="card table-card" data-audit-log>
     <h3>Журнал действий</h3>
-    <p className="muted">Каждое изменение администратора: кто, когда, что и над чем. Записи не изменяются и не удаляются.</p>
+    <p className="muted">{t("Каждое изменение администратора: кто, когда, что и над чем. Если действие записало изменения, видны результат и поля «было → стало». Записи не изменяются и не удаляются.")}</p>
     <div className="filters">
       {field("actor", "Администратор", "text", "email или часть")}
       {field("action", "Действие начинается с", "text", "например, payment.")}
@@ -96,8 +97,8 @@ export function AuditLog({request}: {request: Request}) {
     {error && <div role="alert" className="error">{error}</div>}
     <div className="table-wrap">
       <table>
-        <thead><tr><th>Время</th><th>Администратор</th><th>Действие</th><th>Цель</th></tr></thead>
-        <tbody>{rows.map((x: any) => <tr key={x.id}><td>{x.created_at}</td><td>{x.actor}</td><td><code>{x.action}</code></td><td>{x.target || "—"}</td></tr>)}</tbody>
+        <thead><tr><th>Время</th><th>Администратор</th><th>Действие</th><th>Цель</th><th>{t("Результат")}</th><th>{t("Изменения")}</th><th>{t("Запрос")}</th></tr></thead>
+        <tbody>{rows.map((x: any) => <tr key={x.id}><td>{x.created_at}</td><td>{x.actor}</td><td><code>{x.action}</code></td><td>{x.target || "—"}</td><td>{x.result === "ok" ? t("выполнено") : x.result === "failed" ? t("не выполнено") : "—"}</td><td>{Array.isArray(x.changes) && x.changes.length ? x.changes.map((c: any) => `${c.field}: ${c.before ?? "—"} → ${c.after ?? "—"}`).join("; ") : "—"}</td><td>{x.request_id || "—"}</td></tr>)}</tbody>
       </table>
     </div>
     {!rows.length && !error && <EmptyState title="Ничего не найдено." hint="Измените условия поиска или очистите поля."/>}

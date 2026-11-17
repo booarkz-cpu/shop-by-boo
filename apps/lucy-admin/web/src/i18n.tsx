@@ -997,7 +997,13 @@ Object.assign(EN, {
   "Повторить загрузку": "Retry",
   "Клиент": "Customer",
   "Статус": "Status",
-  "Показать": "Show"
+  "Показать": "Show",
+  "Результат": "Result",
+  "Изменения": "Changes",
+  "Запрос": "Request",
+  "выполнено": "done",
+  "не выполнено": "not done",
+  "Каждое изменение администратора: кто, когда, что и над чем. Если действие записало изменения, видны результат и поля «было → стало». Записи не изменяются и не удаляются.": "Every administrator change: who, when, what and on which object. When an action records changes, the result and the before → after fields are shown. Records are not edited or deleted."
 });
 
 export function translate(lang: Lang, value: string): string {

@@ -185,3 +185,110 @@ async def test_privacy_download_cannot_be_stored_in_http_caches(database, monkey
         assert 'email' in response.json()['user']
     else:
         assert response.json() == {'detail': 'Authentication required'}
+
+
+@pytest.mark.asyncio
+async def test_privacy_export_includes_owned_session_metadata_without_authentication_hashes(database):
+    from app import operations_api
+    from app.models import UserSession
+
+    stamp = datetime(2026, 11, 1, 12, 30)
+    rows = [
+        UserSession(user_id=1, jti_hash='a'*64, ip='192.0.2.1', user_agent='Owner browser',
+                    created_at=stamp, last_seen_at=stamp, expires_at=stamp+timedelta(days=1)),
+        UserSession(user_id=1, jti_hash='b'*64, ip='2001:db8::1', user_agent='Revoked browser',
+                    created_at=stamp, last_seen_at=stamp, expires_at=stamp+timedelta(days=1),
+                    revoked_at=stamp+timedelta(hours=1)),
+        UserSession(user_id=2, jti_hash='c'*64, ip='192.0.2.99', user_agent='Foreign browser',
+                    created_at=stamp, last_seen_at=stamp, expires_at=stamp+timedelta(days=1)),
+    ]
+    database.add_all(rows)
+    await database.commit()
+
+    exported = await operations_api.privacy_export(request(), database)
+
+    assert exported['sessions'] == [
+        {'id': row.id, 'ip': row.ip, 'user_agent': row.user_agent, 'created_at': stamp,
+         'last_seen_at': stamp, 'expires_at': row.expires_at, 'revoked_at': row.revoked_at}
+        for row in rows[:2]
+    ]
+    assert 'jti_hash' not in repr(exported['sessions'])
+    for private in ('a'*64, 'b'*64, 'c'*64, '192.0.2.99', 'Foreign browser'):
+        assert private not in repr(exported)
+
+
+@pytest.mark.asyncio
+async def test_privacy_attachment_index_matches_private_download_permissions(database, monkeypatch):
+    import base64
+    import hashlib
+
+    from fastapi import FastAPI
+    from httpx import ASGITransport, AsyncClient
+    from app import operations_api, support_attachments
+    from app.db import get_db
+    from app.models import SupportAttachment, SupportMessage, SupportTicket
+
+    database.add_all([
+        SupportTicket(id=1, user_id=1, subject='Owner ticket', message='Help'),
+        SupportTicket(id=2, user_id=2, subject='Foreign ticket', message='Private'),
+    ])
+    await database.flush()
+    sent = SupportMessage(ticket_id=1, role='customer', body='Sent file')
+    foreign_message = SupportMessage(ticket_id=2, role='customer', body='Other file')
+    database.add_all([sent, foreign_message])
+    await database.flush()
+
+    def attachment(name, ticket_id, actor, message_id=None):
+        data = name.encode()
+        return SupportAttachment(ticket_id=ticket_id, message_id=message_id, actor=actor,
+            idempotency_key=name, name=name, mime='text/plain', data=data, size=len(data),
+            sha256=hashlib.sha256(data).hexdigest())
+
+    visible = [
+        attachment('sent.txt', 1, 'customer:1', sent.id),
+        attachment('reply.txt', 1, 'admin:operator@example.test', sent.id),
+        attachment('draft.txt', 1, 'customer:1'),
+    ]
+    staff_draft = attachment('staff-private.txt', 1, 'admin:operator@example.test')
+    foreign = attachment('foreign-private.txt', 2, 'customer:2', foreign_message.id)
+    database.add_all([*visible, staff_draft, foreign])
+    await database.commit()
+
+    application = FastAPI()
+    application.add_middleware(shop.SecurityHeadersMiddleware)
+    application.get('/api/me/privacy/export')(operations_api.privacy_export)
+    application.include_router(support_attachments.router)
+
+    async def session():
+        yield database
+    application.dependency_overrides[get_db] = session
+
+    async with AsyncClient(transport=ASGITransport(app=application), base_url='https://shop.example.test') as client:
+        response = await client.get('/api/me/privacy/export')
+        assert response.status_code == 200
+        assert response.headers['cache-control'] == 'no-store'
+        exported = response.json()
+        assert [item['id'] for item in exported['support_attachments']] == [item.id for item in visible]
+        assert exported['support_messages'][0]['id'] == sent.id
+        for item, row in zip(exported['support_attachments'], visible):
+            assert item == {
+                'id': row.id, 'ticket_id': row.ticket_id, 'message_id': row.message_id,
+                'name': row.name, 'mime': row.mime, 'size': row.size, 'sha256': row.sha256,
+                'created_at': row.created_at.isoformat(),
+                'download_path': f'/api/me/support/attachments/{row.id}',
+            }
+            downloaded = await client.get(item['download_path'])
+            assert downloaded.status_code == 200
+            assert 'no-store' in downloaded.headers['cache-control']
+            assert base64.b64decode(downloaded.json()['content_base64']) == row.data
+        assert 'content_base64' not in response.text and 'idempotency_key' not in response.text
+        assert 'staff-private' not in response.text and 'foreign-private' not in response.text
+
+        async def other_owner(request, db):
+            return await db.get(User, 2)
+        monkeypatch.setattr(shop, 'user_from_token', other_owner)
+        for row in visible:
+            denied = await client.get(f'/api/me/support/attachments/{row.id}')
+            assert denied.status_code == 404
+        other = (await client.get('/api/me/privacy/export')).json()
+        assert [item['id'] for item in other['support_attachments']] == [foreign.id]

@@ -136,8 +136,9 @@ async def admin_set_plan_enabled(plan_id:int,payload:PlanEnabledIn,db:AsyncSessi
 async def admin_update_plan(plan_id:int,payload:shop.PlanIn,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_plans"))):
     p=await db.get(shop.Plan,plan_id)
     if not p: raise shop.HTTPException(404,"Plan not found")
-    for k,v in payload.model_dump().items(): setattr(p,k,v)
-    await shop.audit(db,"plan.updated",admin.email,str(plan_id),payload.model_dump()); await db.commit(); return {"ok":True,"id":plan_id}
+    data=payload.model_dump(); before={k:getattr(p,k) for k in data}
+    for k,v in data.items(): setattr(p,k,v)
+    await shop.audit(db,"plan.updated",admin.email,str(plan_id),result="ok",before=before,after=data); await db.commit(); return {"ok":True,"id":plan_id}
 
 @shop.app.delete("/api/admin/plans/{plan_id}")
 async def admin_delete_plan(plan_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("manage_plans"))):
@@ -229,7 +230,8 @@ async def admin_audit(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db
     if response is not None:  # also called directly by older code and tests with (page, page_size, db, admin)
         response.headers["X-Total-Count"]=str(await db.scalar(shop.select(shop.func.count()).select_from(log).where(*where)) or 0)
     rows=(await db.execute(shop.select(log).where(*where).order_by(log.id.desc()).offset(offset).limit(page_size))).scalars().all()
-    return [{"id":x.id,"action":x.action,"actor":x.actor,"target":x.target,"details":shop._public_audit_details(x.details),"created_at":str(x.created_at)} for x in rows]
+    from .audit_entry import audit_public
+    return [audit_public(x, shop._public_audit_details) for x in rows]
 
 @shop.app.get("/api/admin/remnawave/users")
 async def rw_users(start:int=0,size:int=25,admin=Depends(require_permission("read"))):

@@ -56,6 +56,18 @@ function workspace(clientVersion) {
   fs.mkdirSync(path.join(dir, 'apps/vpn-shop/android/app'), {recursive: true});
   fs.writeFileSync(path.join(dir, 'release-manifest.template.json'), JSON.stringify({distribution_tag: 'v28.89.0'}));
   fs.writeFileSync(path.join(dir, 'apps/vpn-shop/android/app/build.gradle.kts'), 'versionName = "3.7.0"\n');
+  fs.mkdirSync(path.join(dir, 'scripts/audit'), {recursive: true});
+  fs.copyFileSync(path.join(ROOT, 'scripts/audit/check_release_changelog.py'),
+    path.join(dir, 'scripts/audit/check_release_changelog.py'));
+  fs.mkdirSync(path.join(dir, 'docs/releases'), {recursive: true});
+  const heading = '| Область | Изменение и причина | Подробности | Влияние и действия | Проверка | PR / коммит |\n' +
+    '| --- | --- | --- | --- | --- | --- |\n';
+  const row = '| Клиент | Изменена проверка соединения | Ранее статус зависел от запуска службы. Теперь он подтверждается ответом через туннель. | Пользователь видит подтверждённое соединение. | Регрессии состояний проверяются в CI. | https://github.com/booarkz-cpu/shop-by-boo/pull/372 |\n';
+  const notes = '# client-v' + clientVersion + '\n\n' + heading + row + '\n' +
+    ['Ломающие изменения', 'Миграции', 'Откат', 'Известные ограничения', 'Чем проверено']
+      .map(title => '## ' + title + '\n\nУказано в отдельном разделе.\n').join('\n');
+  fs.writeFileSync(path.join(dir, 'docs/releases', 'client-v' + clientVersion + '.md'), notes);
+  fs.writeFileSync(path.join(dir, 'CHANGELOG.md'), '# client-v' + clientVersion + '\n\n' + heading + row);
   const put = (name, data) => fs.writeFileSync(path.join(dir, 'dist/mobile', name), data);
   put('android-status.txt', 'signed\n');
   put('ios-status.txt', 'unsigned\n');
@@ -157,4 +169,23 @@ test('a client package that differs from the attached one still stops the job', 
   state.assets[1] = [{id: 9, name: 'corgi-lusi-client.apk', size: 3, digest: digest(Buffer.from('another client build'))}];
   await assert.rejects(run(workspace('1.4.0'), state), /Asset differs; refusing to replace corgi-lusi-client\.apk/);
   assert.deepEqual(state.uploads.filter(u => u.startsWith('1/')), [], 'nothing is attached next to a foreign client package');
+});
+
+
+test('a new client release preserves its detailed change table in the body', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+  await run(workspace('1.11.0'), state);
+  const body = state.releases.find(r => r.tag_name === 'client-v1.11.0').created.body;
+  assert.ok(body.includes('| Область | Изменение и причина | Подробности |'));
+  assert.ok(body.includes('Ранее статус зависел от запуска службы.'));
+});
+
+test('a new client release without detailed notes is refused before creating it', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+  const dir = workspace('1.11.0');
+  fs.writeFileSync(path.join(dir, 'docs/releases/client-v1.11.0.md'),
+    '# client-v1.11.0\n\n' + ['Ломающие изменения', 'Миграции', 'Откат', 'Известные ограничения', 'Чем проверено']
+      .map(title => '## ' + title + '\n\nОписано.\n').join('\n'));
+  await assert.rejects(run(dir, state), /detailed change table is required/);
+  assert.equal(state.releases.filter(r => r.tag_name.startsWith('client-v')).length, 0);
 });

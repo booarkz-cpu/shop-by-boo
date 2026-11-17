@@ -282,9 +282,13 @@ jobs:
               try { own = (await github.rest.repos.getReleaseByTag({...args, tag: clientTag})).data; }
               catch (e) { if (e.status !== 404) throw e; }
               if (!own) {
+                // A new client release has the same editorial/table contract as a distribution release.
+                require('child_process').execFileSync('python3',
+                  ['scripts/audit/check_release_changelog.py', '--client-version', client.versionName], {encoding: 'utf8'});
+                const clientNotes = fs.readFileSync(`docs/releases/${clientTag}.md`, 'utf8');
                 own = (await github.rest.repos.createRelease({...args, tag_name: clientTag, target_commitish: context.sha,
                   name: `Корги Люси: клиент ${client.versionName}`, make_latest: 'false',
-                  body: `«Корги Люси: клиент» ${client.versionName} (versionCode ${client.versionCode}), собран вместе с ${tag}.\n\n` +
+                  body: clientNotes + '\n\n' + `«Корги Люси: клиент» ${client.versionName} (versionCode ${client.versionCode}), собран вместе с ${tag}.\n\n` +
                     `APK: \`corgi-lusi-client.apk\` (SHA-256 \`${client.sha256}\`). Obtainium: этот репозиторий, фильтр выпусков \`^client-v\`, фильтр APK \`^corgi-lusi-client\\.apk$\`.`})).data;
               }
               const ownAssets = (await github.rest.repos.listReleaseAssets({...args, release_id: own.id, per_page: 100})).data;
