@@ -2,6 +2,7 @@
 """Validate the table contract of new release notes; this is not a grammar or completeness proof."""
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -66,7 +67,11 @@ def validate(root: Path) -> str:
         raise ValueError("Invalid distribution tag")
     if tag == LEGACY_TAG:
         return f"{tag}: published legacy notes preserved; table contract applies to future releases"
-    notes_path = (root / manifest["release_notes"]).resolve()
+    return validate_notes(root, tag, manifest["release_notes"])
+
+
+def validate_notes(root: Path, tag: str, relative: str) -> str:
+    notes_path = (root / relative).resolve()
     if not notes_path.is_relative_to(root.resolve()):
         raise ValueError("Release notes path escapes checkout")
     notes = notes_path.read_text(encoding="utf-8")
@@ -81,9 +86,34 @@ def validate(root: Path) -> str:
     return f"{tag}: release table structure OK; editorial review and diff coverage remain required"
 
 
+
+def validate_client(root: Path, version: str) -> str:
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        raise ValueError("Invalid client version")
+    return validate_notes(root, f"client-v{version}", f"docs/releases/client-v{version}.md")
+
+
+def validate_current_client(root: Path) -> str:
+    gradle = (root / "apps/vpn-client/android/app/build.gradle.kts").read_text(encoding="utf-8")
+    match = re.search(r'versionName\s*=\s*"(\d+\.\d+\.\d+)"', gradle)
+    if not match:
+        raise ValueError("Client version was not found")
+    # This exact version was already published before the new owner requirement.
+    if match.group(1) == "1.10.1":
+        return "client-v1.10.1: published legacy notes preserved"
+    return validate_client(root, match.group(1))
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--client-version")
+    args = parser.parse_args()
     try:
-        print(validate(ROOT))
+        if args.client_version is not None:
+            print(validate_client(ROOT, args.client_version))
+        else:
+            print(validate(ROOT))
+            print(validate_current_client(ROOT))
         return 0
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print(f"Release changelog check failed: {exc}", file=sys.stderr)

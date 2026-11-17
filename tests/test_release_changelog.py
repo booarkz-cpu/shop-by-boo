@@ -80,3 +80,21 @@ def test_rejects_release_notes_path_outside_checkout(tmp_path):
         json.dumps({"distribution_tag": "v28.162.0", "release_notes": "../outside.md"}), encoding="utf-8")
     with pytest.raises(ValueError, match="escapes"):
         validate(tmp_path)
+
+
+
+def test_new_client_version_requires_its_own_release_table(tmp_path):
+    from scripts.audit.check_release_changelog import validate_current_client
+
+    path = tmp_path / "apps/vpn-client/android/app/build.gradle.kts"
+    path.parent.mkdir(parents=True)
+    path.write_text('versionName = "1.10.1"\n', encoding="utf-8")
+    assert "preserved" in validate_current_client(tmp_path)
+    path.write_text('versionName = "1.10.2"\n', encoding="utf-8")
+    with pytest.raises(FileNotFoundError):
+        validate_current_client(tmp_path)
+    write_release(tmp_path, tag="client-v1.10.2")
+    notes = tmp_path / "docs/releases/client-v1.10.2.md"
+    notes.parent.mkdir(parents=True)
+    notes.write_text((tmp_path / "notes.md").read_text(), encoding="utf-8")
+    assert "structure OK" in validate_current_client(tmp_path)
