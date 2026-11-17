@@ -41,7 +41,7 @@ async def run(args):
                 try:
                     op.totp_secret = seal(open_secret(op.totp_secret))
                 except TotpUnavailable:
-                    pass
+                    print('Существующий TOTP не перезаписан: текущий ключ сессии его не открывает.')
             if not await s.scalar(select(Category.id).limit(1)):
                 s.add_all([Category(name=x) for x in ['Общее', 'Оплата', 'Техническая проблема', 'Аккаунт', 'Другое']])
             if not await s.scalar(select(Macro.id).limit(1)):
