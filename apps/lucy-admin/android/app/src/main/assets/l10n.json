@@ -276,7 +276,7 @@
     "version": "Версія",
     "refresh": "Оновити",
     "stale": "Неактивний",
-    "heartbeat": "Heartbeat",
+    "heartbeat": "Контрольний сигнал",
     "disable_plan": "Вимкнути тариф",
     "enable_plan": "Увімкнути тариф",
     "plan_saved": "Тариф збережено",
