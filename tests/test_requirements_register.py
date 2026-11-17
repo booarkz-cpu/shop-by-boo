@@ -66,3 +66,20 @@ def test_the_payment_inventory_matches_the_code_and_names_what_is_missing():
     assert '| YooKassa | `yookassa` | `IMPLEMENTED` |' in text
     assert '| Heleket | `heleket` | — | **Нет в коде** |' in text
     assert 'настоящими деньгами не проверена ни для одной кассы' in text
+
+
+def test_spelling_requirement_is_added_without_changing_the_legacy_653_entries():
+    import hashlib
+
+    entries = json.loads((ROOT / 'docs/requirements/register.json').read_text())
+    legacy = [entry for entry in entries if entry['lines'][1] <= 2499]
+    serialized = json.dumps(legacy, ensure_ascii=False, indent=1) + '\n'
+    assert len(legacy) == 653
+    assert hashlib.sha256(serialized.encode()).hexdigest() == 'bc5acb91ac449d994313958ec80d5e8fb8251e43f0d55a89a484e0e2708d9b46'
+    spelling = next(entry for entry in entries if entry['id'] == 'REQ-UI-0011')
+    source = (ROOT / 'docs/prompts/MASTER_PROMPT_V6.md').read_text().splitlines()
+    first, last = spelling['lines']
+    requirement = '\n'.join(source[first-1:last])
+    assert spelling['path'] == 'Часть IV → 41. Орфография во всех продуктах и документации'
+    assert 'орфографических ошибок' in requirement and 'RU/EN/UK' in requirement
+    assert hashlib.sha256(requirement.encode()).hexdigest()[:12] == spelling['sha']
