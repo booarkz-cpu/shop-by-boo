@@ -1656,3 +1656,8 @@ CI43848153471/job133233513369:70 of71 Chromium E2E passed; the new modal focus r
 ## 2026-11-16 — Prepare combined distribution160
 
 Combine docs360/b240 and accessibility361/873 as ordinary two-parent ancestry; prepare160 current identities without changing159 notes/history/assets. Fix stale handoff and current README client version. Preserve653requirements, UI0007PARTIAL with71/74 profile evidence from873febf0. Combinedhead requires freshCI; no old gate reused. Hourly autonomous continuation already exists; no duplicates. GitHub operations without terminal.
+
+## 2026-11-17 — словарная проверка RU/EN/UK, REQ-UI-0011
+
+- PR #373: Hunspell, положительные и отрицательные контроли, извлечение локализации JSON и Android XML, регрессии и обязательный Lint. На cb72dd36f310814c5249b96f7308c321512726c4 CI44060625876 завершён: 20/20 success, backend 3355 passed / 98 skipped; орфография 1075 строк / 9 файлов / 0 замечаний.
+- REQ-UI-0011 — PARTIAL: остальные источники, грамматика и визуальная приёмка остаются. После обновления записей нужен CI новой головы. Слияния, публикации и изменения опубликованного v28.161.0 не выполнялись.
