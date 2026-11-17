@@ -24,7 +24,7 @@
 | YooKassa | `yookassa` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · автопродление, возврат | card; sbp | `test_admin_coverage_payments.py`, `test_admin_customer_operations.py`, `test_app_config.py` и ещё 68 |
 | MulenPay | `mulenpay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_pal24_mulenpay.py` |
 | Pal24 | `pal24` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_pal24_mulenpay.py` |
-| Platega | `platega` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · возврат | динамические — проверить | `test_app_config.py`, `test_audit_v2009_runtime.py`, `test_behaviour_payments_v2.py` и ещё 16 |
+| Platega | `platega` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · возврат | динамические — проверить | `test_app_config.py`, `test_audit_v2009_runtime.py`, `test_behaviour_payment_guards.py` и ещё 17 |
 | WATA | `wata` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
 | FreeKassa | `freekassa` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card | `test_freekassa.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
 | FreeKassa SBP | `freekassa_sbp` | `IMPLEMENTED` | Способ оплаты кассы `freekassa` | sbp | — | `test_freekassa.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |

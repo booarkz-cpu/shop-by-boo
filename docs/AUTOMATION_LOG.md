@@ -6,7 +6,7 @@
 
 **Дефект.** REQ-PAY-0037. Цикл сверки уже спрашивал кассу, но интервал и границы выборки не были названы и не отделяли оплаченные и старые заказы.
 **Исправление.** `run_reconciliation_pass` раз в 600 секунд берёт не больше 50 платежей `pending` и `creation_unknown` за последние 24 часа и спрашивает API кассы. Оплаченные и более старые строки не трогает. Статус остаётся PARTIAL. Дистрибутив не менялся.
-**Проверка.** `tests/test_behaviour_payment_guards.py::test_reconciliation_asks_about_the_stored_order`: 1 passed, 1 skipped (другой тест файла не входил в выборку). `ruff` и `check-runtime-placeholders.py` — OK.
+**Проверка.** `tests/test_behaviour_payment_guards.py::test_reconciliation_asks_about_the_stored_order`: 1 passed, 1 skipped (другой тест файла не входил в выборку). `ruff` и `check-runtime-placeholders.py` — OK. CI `44042066986` упал до pytest: инвентарь касс не знал, что тест сверки упоминает Platega. Документ пересобран тем же скриптом.
 
 ## 2026-11-17 — план удаления называет ресурсы и сначала копирует панель
 
