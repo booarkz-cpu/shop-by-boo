@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2712**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2715**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -802,6 +802,7 @@
 | [docs/SECURITY_BASELINE.md](../docs/SECURITY_BASELINE.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
+| [docs/SPELLING_AUDIT.md](../docs/SPELLING_AUDIT.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/THREAT_MODEL.md](../docs/THREAT_MODEL.md) | Документация |
@@ -1792,6 +1793,7 @@
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
 | [scripts/audit/check_payment_provider_registry.py](../scripts/audit/check_payment_provider_registry.py) | Эксплуатация и релиз |
+| [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
@@ -2623,6 +2625,7 @@
 | [tests/test_selfsteal_sites.py](../tests/test_selfsteal_sites.py) | Проверки |
 | [tests/test_single_business_logic.py](../tests/test_single_business_logic.py) | Проверки |
 | [tests/test_speed_forecast.py](../tests/test_speed_forecast.py) | Проверки |
+| [tests/test_spelling.py](../tests/test_spelling.py) | Проверки |
 | [tests/test_stage15_install.py](../tests/test_stage15_install.py) | Проверки |
 | [tests/test_starter_plans.py](../tests/test_starter_plans.py) | Проверки |
 | [tests/test_status_and_regional_pricing.py](../tests/test_status_and_regional_pricing.py) | Проверки |
