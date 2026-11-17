@@ -17,7 +17,7 @@ def test_fresh_database_and_upgrade_preserves_history(tmp_path):
     fresh = tmp_path/'fresh.db'
     migrate(fresh, 'head')
     with sqlite3.connect(fresh) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0008'
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0009'
         tables = {x[0] for x in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         assert {'notifications', 'helpdesk_state', 'helpdesk_links'} <= tables
     old = tmp_path/'old.db'
@@ -51,7 +51,7 @@ def test_unversioned_legacy_is_verified_and_upgraded(tmp_path):
     result = run_guard(path)
     assert result.returncode == 0, result.stdout + result.stderr
     with sqlite3.connect(path) as c:
-        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0008'
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0009'
         assert c.execute('SELECT subject FROM tickets').fetchone()[0] == 'Keep me'
 
 
@@ -115,3 +115,20 @@ def test_helpdesk_migration_roundtrip_and_downgrade_guard(tmp_path):
     blocked = subprocess.run([sys.executable, '-m', 'alembic', 'downgrade', '0007'], cwd=ROOT,
         env={**os.environ, 'DATABASE_URL':'sqlite+aiosqlite:///'+str(db)}, text=True, capture_output=True)
     assert blocked.returncode != 0 and 'Helpdesk tickets exist' in blocked.stdout + blocked.stderr
+
+
+def test_totp_column_keeps_plaintext_and_refuses_to_truncate_ciphertext(tmp_path):
+    path = tmp_path / 'totp.db'
+    migrate(path, '0008')
+    with sqlite3.connect(path) as c:
+        c.execute("INSERT INTO operators(id,login,password_hash,role,totp_secret) VALUES(1,'old','hash','admin','JBSWY3DPEHPK3PXP')")
+    migrate(path, 'head')
+    with sqlite3.connect(path) as c:
+        assert c.execute('SELECT version_num FROM alembic_version').fetchone()[0] == '0009'
+        assert c.execute('SELECT totp_secret FROM operators').fetchone()[0] == 'JBSWY3DPEHPK3PXP'
+        c.execute("UPDATE operators SET totp_secret=?", ('sp1:' + ('A' * 80),))
+    blocked = subprocess.run([sys.executable, '-m', 'alembic', 'downgrade', '0008'], cwd=ROOT,
+        env={**os.environ, 'DATABASE_URL': 'sqlite+aiosqlite:///' + str(path)}, text=True, capture_output=True)
+    assert blocked.returncode != 0 and 'Encrypted TOTP seeds exist' in blocked.stdout + blocked.stderr
+    with sqlite3.connect(path) as c:
+        assert c.execute('SELECT totp_secret FROM operators').fetchone()[0].startswith('sp1:')

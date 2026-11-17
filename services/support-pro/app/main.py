@@ -32,6 +32,7 @@ from .db import Session, ph, engine
 from .models import Operator, Category, Macro, Client, Ticket, Message, Attachment, TicketRead, Notification, AuditLog, Settings, now
 from .realtime import r, publish
 from .security import csrf, valid_csrf, new_totp, session_secret
+from .totp_store import TotpUnavailable, open_secret, seal, sealed_for_current
 from .services import STATUSES, PRIORITIES, DELIVERY, settings, notify, assign, create_ticket, close_ticket
 from .sla import validate, set_deadlines, utc
 
@@ -225,20 +226,29 @@ async def login_post(request: Request):
     async with Session() as s:
         op = await s.scalar(select(Operator).where(Operator.login == login).with_for_update())
         valid = False
+        secret = None
         if op and op.active and op.totp_secret:
             try:
+                secret = open_secret(op.totp_secret)
                 valid = ph.verify(op.password_hash, text_field(data, 'password', 256, True, trim=False))
+            except TotpUnavailable:
+                secret = None
             except Exception as exc:
                 logger.info('Operator password verification rejected: %s', type(exc).__name__)
-        if not valid:
+        if not valid or not secret:
             raise HTTPException(401, 'Неверный логин, пароль или код 2FA')
         code = text_field(data, 'code', 6, True)
         step = int(time.time()) // 30
         accepted = next((n for n in (step - 1, step, step + 1)
-                         if n > op.last_totp_step and pyotp.TOTP(op.totp_secret).at(n * 30) == code), None)
+                         if n > op.last_totp_step and pyotp.TOTP(secret).at(n * 30) == code), None)
         if accepted is None:
             raise HTTPException(401, 'Неверный или уже использованный код 2FA')
         op.last_totp_step = accepted
+        if not sealed_for_current(op.totp_secret):
+            try:
+                op.totp_secret = seal(secret)
+            except TotpUnavailable:
+                logger.info('TOTP seed left unchanged: seal unavailable')
         sid = secrets.token_urlsafe(32)
         s.add(LoginSession(id=sid,operator_id=op.id,device=request.headers.get('user-agent','')[:300]))
         audit(s, op, 'login')
@@ -647,7 +657,7 @@ async def add_operator(request: Request, op=Depends(admin)):
     login = text_field(data, 'login', 120, True)
     try:
         async with Session() as s:
-            s.add(Operator(login=login, password_hash=ph.hash(password), role=role, totp_secret=secret))
+            s.add(Operator(login=login, password_hash=ph.hash(password), role=role, totp_secret=seal(secret)))
             audit(s, op, f'operator {login} created')
             await s.commit()
     except IntegrityError:
