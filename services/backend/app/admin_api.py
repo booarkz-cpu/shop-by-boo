@@ -13,7 +13,6 @@ from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import main as shop
-from .audit_entry import audit_public
 
 # ---------- Admin API ----------
 @shop.app.get("/api/admin/customers/{user_id}/360")
@@ -231,6 +230,7 @@ async def admin_audit(page:int=1,page_size:int=50,db:AsyncSession=Depends(get_db
     if response is not None:  # also called directly by older code and tests with (page, page_size, db, admin)
         response.headers["X-Total-Count"]=str(await db.scalar(shop.select(shop.func.count()).select_from(log).where(*where)) or 0)
     rows=(await db.execute(shop.select(log).where(*where).order_by(log.id.desc()).offset(offset).limit(page_size))).scalars().all()
+    from .audit_entry import audit_public
     return [audit_public(x, shop._public_audit_details) for x in rows]
 
 @shop.app.get("/api/admin/remnawave/users")
