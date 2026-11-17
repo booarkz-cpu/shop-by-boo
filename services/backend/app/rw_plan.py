@@ -1172,7 +1172,29 @@ def build_action(action: str, plan: PlanIn, servers: dict[int, dict]) -> dict:
                         steps.append(step("wait_panel", sid, f"{name}: панель отвечает (/health)"))
         if action in ("update", "reinstall"):
             steps.append(step("verify", None, "Проверка: HTTPS панели, связь нод, страница подписки"))
-    return {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {MODE_TITLES[plan.mode]}", "images": IMAGES,
-            "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs, "changes": []}
+    resources: list[dict] = []
+    if action == "remove":
+        # REQ-NODE-0023: the plan names every resource before anything is stopped. A panel copy is taken
+        # and stored encrypted before the first compose_down. Volumes and files stay on the server.
+        if p:
+            resources.append({"server_id": p, "server": servers[p]["name"], "component": "panel_database",
+                              "path": "база панели",
+                              "effect": "копия снимается и шифруется в магазине до остановки контейнеров",
+                              "kept": "зашифрованная копия остаётся в хранилище магазина"})
+        for sid in roles:
+            for comp in components(sid):
+                resources.append({"server_id": sid, "server": servers[sid]["name"], "component": comp,
+                                  "path": DIRS[comp], "effect": "контейнеры остановлены и удалены",
+                                  "kept": "тома и файлы остаются на сервере"})
+    changes_by: dict[int, list[str]] = {}
+    for item in resources:
+        changes_by.setdefault(item["server_id"], []).append(f"{item['path']}: {item['effect']}. {item['kept']}.")
+    body = {"mode": plan.mode, "action": action, "title": f"{ACTION_TITLES[action]}: {MODE_TITLES[plan.mode]}", "images": IMAGES,
+            "servers": {str(sid): {"name": servers[sid]["name"], "host": servers[sid]["host"], "roles": rs,
+                                   "changes": changes_by.get(sid, [])}
                         for sid, rs in roles.items()},
             "steps": [{**st, "position": i + 1} for i, st in enumerate(steps)]}
+    if action == "remove":
+        body["resources"] = resources
+        body["backup_before_delete"] = bool(p)
+    return body
