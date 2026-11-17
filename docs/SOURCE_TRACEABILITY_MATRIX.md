@@ -205,10 +205,10 @@
 | `REQ-GOV-0009` | Часть I → Acceptance Checklist → Statuses; L870; `5ce1f8e8e6fd` | `PASS` | Не сопоставлено | `scripts/audit/requirements_register.py` | Не сопоставлено | Не сопоставлен |
 | `REQ-GOV-0010` | Часть I → Acceptance Checklist → Rules; L874; `7abb52b89462` | `PASS` | Не сопоставлено | `scripts/audit/requirements_register.py`; `tests/test_requirements_register.py` | Не сопоставлено | Не сопоставлен |
 | `REQ-QA-0023` | Часть I → Audit Automation → Directory; L881; `bd36b553637f` | `PARTIAL` | Не сопоставлено | `scripts/audit/requirements_register.py`; `scripts/audit/check_payment_provider_registry.py` | Не сопоставлено | Не сопоставлен |
-| `REQ-QA-0024` | Часть I → Audit Automation → Scripts; L885; `5700c45291f3` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-QA-0025` | Часть I → Audit Automation → Workflow; L889; `6643f12075c3` | `NOT_IMPLEMENTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-QA-0026` | Часть I → Audit Automation → Artifacts; L893; `793816473683` | `NOT_IMPLEMENTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-QA-0027` | Часть I → Audit Automation → Rule; L897; `9aa4ca277d12` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
+| `REQ-QA-0024` | Часть I → Audit Automation → Scripts; L885; `5700c45291f3` | `PARTIAL` | Не сопоставлено | `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py` | `docs/AUTONOMOUS_AUDIT.md` | Не сопоставлен |
+| `REQ-QA-0025` | Часть I → Audit Automation → Workflow; L889; `6643f12075c3` | `PARTIAL` | Не сопоставлено | `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py` | `docs/AUTONOMOUS_AUDIT.md` | Не сопоставлен |
+| `REQ-QA-0026` | Часть I → Audit Automation → Artifacts; L893; `793816473683` | `PARTIAL` | Не сопоставлено | `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py` | `docs/AUTONOMOUS_AUDIT.md` | Не сопоставлен |
+| `REQ-QA-0027` | Часть I → Audit Automation → Rule; L897; `9aa4ca277d12` | `PARTIAL` | Не сопоставлено | `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py` | `docs/AUTONOMOUS_AUDIT.md` | Не сопоставлен |
 | `REQ-GOV-0011` | Часть I → Autonomous Cycle; L902; `92727a14ce00` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-GOV-0012` | Часть I → State Tracking → Files; L908; `5e479235d0c2` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-GOV-0013` | Часть I → State Tracking → Interim; L912; `b8252f9773a4` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |

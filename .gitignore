@@ -88,3 +88,6 @@ screenshots/mobile/maestro/
 .control/
 docker-compose.override.yml
 apps/vpn-client/android/app/libs/
+
+# Generated autonomous audit reports and command logs
+/artifacts/audit/

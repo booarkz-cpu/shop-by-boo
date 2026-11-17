@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2726**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2730**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -60,6 +60,7 @@
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
 | [.github/workflows/android-client.yml](../.github/workflows/android-client.yml) | GitHub CI/CD |
 | [.github/workflows/android-vpn-e2e.yml](../.github/workflows/android-vpn-e2e.yml) | GitHub CI/CD |
+| [.github/workflows/autonomous-audit.yml](../.github/workflows/autonomous-audit.yml) | GitHub CI/CD |
 | [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/claude-roadmap.yml](../.github/workflows/claude-roadmap.yml) | GitHub CI/CD |
@@ -753,6 +754,7 @@
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
+| [docs/AUTONOMOUS_AUDIT.md](../docs/AUTONOMOUS_AUDIT.md) | Документация |
 | [docs/AUTO_SELECTION.md](../docs/AUTO_SELECTION.md) | Документация |
 | [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
 | [docs/AUTO_UPDATE_SECURITY.md](../docs/AUTO_UPDATE_SECURITY.md) | Документация |
@@ -1801,6 +1803,7 @@
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
+| [scripts/audit/run_full_audit.py](../scripts/audit/run_full_audit.py) | Эксплуатация и релиз |
 | [scripts/audit/source_traceability.py](../scripts/audit/source_traceability.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
@@ -2521,6 +2524,7 @@
 | [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |
 | [tests/test_freeze_dunning.py](../tests/test_freeze_dunning.py) | Проверки |
 | [tests/test_frontend_regressions.py](../tests/test_frontend_regressions.py) | Проверки |
+| [tests/test_full_audit.py](../tests/test_full_audit.py) | Проверки |
 | [tests/test_gateway_ops.py](../tests/test_gateway_ops.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
