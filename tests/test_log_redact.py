@@ -22,6 +22,8 @@ def secrets(monkeypatch):
     configured = Settings(BOT_TOKEN=BOT, REMNAWAVE_TOKEN=REMNAWAVE, METRICS_TOKEN=METRICS,
                           DATABASE_URL=f"postgresql+asyncpg://shop:{DB_PASSWORD}@db:5432/shop",
                           APP_SECRET="app-secret-" + "s" * 30, ANTILOPAY_PUBLIC_KEY="public-key-value-1234")
+    # An earlier test may have opened a database value such as "secret". That must not leak into this case.
+    log_redact.restore(set())
     log_redact.install(configured)
     yield configured
     log_redact.restore(before)
