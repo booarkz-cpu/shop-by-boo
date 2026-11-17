@@ -81,10 +81,16 @@ def encrypt_secret(value: str) -> str:
 def decrypt_secret(value: str) -> str:
     raw = base64.urlsafe_b64decode(value.encode())
     for secret in (settings.app_secret, settings.app_secret_previous):
-        if not secret: continue
-        try: return AESGCM(_key(secret)).decrypt(raw[:12], raw[12:], None).decode()
+        if not secret:
+            continue
+        try:
+            plain = AESGCM(_key(secret)).decrypt(raw[:12], raw[12:], None).decode()
         except Exception as exc:
             logger.warning("Non-critical operation failed: %s", exc)
+            continue
+        from .log_redact import remember
+        remember(plain)
+        return plain
     raise ValueError("Unable to decrypt secret")
 
 

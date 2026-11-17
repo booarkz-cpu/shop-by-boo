@@ -123,7 +123,8 @@ class Remote:
 
 
 def tail(text: str, secrets: list[str] | tuple[str, ...] = ()) -> str:
+    from .log_redact import mask, remember
     for secret in secrets:
-        if secret and len(secret) >= 6:
-            text = text.replace(secret, "***")
-    return text[-TAIL:]
+        if isinstance(secret, str):
+            remember(secret)
+    return mask(text or "")[-TAIL:]
