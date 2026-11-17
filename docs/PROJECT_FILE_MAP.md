@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2724**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2726**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -804,6 +804,7 @@
 | [docs/SECURITY_BASELINE.md](../docs/SECURITY_BASELINE.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
+| [docs/SOURCE_TRACEABILITY_MATRIX.md](../docs/SOURCE_TRACEABILITY_MATRIX.md) | Документация |
 | [docs/SPELLING_AUDIT.md](../docs/SPELLING_AUDIT.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
 | [docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md](../docs/TESTING_GUIDE_EXTERNAL_DEPENDENCIES.md) | Документация |
@@ -1800,6 +1801,7 @@
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
+| [scripts/audit/source_traceability.py](../scripts/audit/source_traceability.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
 | [scripts/auto_update.py](../scripts/auto_update.py) | Эксплуатация и релиз |
