@@ -338,37 +338,52 @@ async def cleanup_expired_promo_reservations(db,now):
     return len(stale)
 
 
+# REQ-PAY-0037: one pass every ten minutes. Only open payments from the last day are asked;
+# paid, refunded and older rows are left for their own paths.
+RECONCILE_INTERVAL = 600
+RECONCILE_LOOKBACK_HOURS = 24
+RECONCILE_BATCH = 50
+
+
+async def run_reconciliation_pass(db, now=None) -> int:
+    """Ask each open payment's provider whether that stored order succeeded. Returns how many were confirmed."""
+    now=now or shop.datetime.utcnow()
+    await shop.cleanup_expired_promo_reservations(db,now)
+    cutoff=now-shop.timedelta(hours=RECONCILE_LOOKBACK_HOURS)
+    rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,shop.Payment.status.in_(["pending","creation_unknown"])).order_by(shop.Payment.id).limit(RECONCILE_BATCH))).scalars().all()
+    providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),**extra_gateways(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
+    confirmed=0
+    for p in rows:
+        provider=providers.get(p.provider)
+        if not provider or not hasattr(provider,"verify_succeeded"): continue
+        try:
+            if p.status=="creation_unknown" and p.provider=="yookassa" and not p.provider_payment_id:
+                found=await provider.find_by_order_id(p.order_id, p.created_at)
+                if not found or not found.get("id"):
+                    continue
+                p.provider_payment_id=str(found["id"]); p.checkout_url=(found.get("confirmation") or {}).get("confirmation_url") or p.checkout_url; p.status="pending"; p.fulfillment_terminal=False
+            if not p.provider_payment_id:
+                continue
+            if await provider.verify_succeeded(p.provider_payment_id,shop.Decimal(str(p.amount)),p.currency,p.order_id):
+                try:
+                    result=await shop._confirm_and_fulfill_payment(p.id,db)
+                    if not result.get("ignored"):
+                        shop._METRICS["payment_fulfillment_total"] += 1
+                        confirmed+=1
+                except Exception as exc:
+                    shop.logger.warning("Non-critical operation failed: %s", exc)
+        except Exception as exc:
+            shop.logger.warning("Non-critical operation failed: %s", exc)
+    await db.commit()
+    return confirmed
+
+
 async def reconciliation_scheduler():
     while True:
         try:
-            await shop.asyncio.sleep(600)
+            await shop.asyncio.sleep(RECONCILE_INTERVAL)
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                now=shop.datetime.utcnow()
-                await shop.cleanup_expired_promo_reservations(db,now)
-                cutoff=now-shop.timedelta(hours=24)
-                rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,shop.Payment.status.in_(["pending","creation_unknown"])).order_by(shop.Payment.id).limit(50))).scalars().all()
-                providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),**extra_gateways(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
-                for p in rows:
-                    provider=providers.get(p.provider)
-                    if not provider or not hasattr(provider,"verify_succeeded"): continue
-                    try:
-                        if p.status=="creation_unknown" and p.provider=="yookassa" and not p.provider_payment_id:
-                            found=await provider.find_by_order_id(p.order_id, p.created_at)
-                            if not found or not found.get("id"):
-                                continue
-                            p.provider_payment_id=str(found["id"]); p.checkout_url=(found.get("confirmation") or {}).get("confirmation_url") or p.checkout_url; p.status="pending"; p.fulfillment_terminal=False
-                        if not p.provider_payment_id:
-                            continue
-                        if await provider.verify_succeeded(p.provider_payment_id,shop.Decimal(str(p.amount)),p.currency,p.order_id):
-                            try:
-                                result=await shop._confirm_and_fulfill_payment(p.id,db)
-                                if not result.get("ignored"):
-                                    shop._METRICS["payment_fulfillment_total"] += 1
-                            except Exception as exc:
-                                shop.logger.warning("Non-critical operation failed: %s", exc)
-                    except Exception as exc:
-                        shop.logger.warning("Non-critical operation failed: %s", exc)
-                await db.commit()
+                await run_reconciliation_pass(db)
         except Exception: await shop.asyncio.sleep(30)
 
 async def run_lifecycle_pass(db, now=None) -> None:
@@ -482,7 +497,7 @@ async def expiry_notification_scheduler():
         except Exception: await shop.asyncio.sleep(3600)
 
 
-__all__ = ['RECURRING_IDEMPOTENCE_WINDOW', '_record_paid', 'adopt_or_retry_recurring', 'auto_renew_chargeable', 'auto_renew_scheduler', 'cleanup_expired_promo_reservations', 'expiry_notification_scheduler', 'fulfillment_retry_scheduler', 'notify_user_telegram', 'reconciliation_scheduler', 'refund_revoke_scheduler', 'subscription_lifecycle_scheduler', 'run_lifecycle_pass', 'run_auto_renew_pass', 'send_expiry_reminders']
+__all__ = ['RECONCILE_BATCH', 'RECONCILE_INTERVAL', 'RECONCILE_LOOKBACK_HOURS', 'RECURRING_IDEMPOTENCE_WINDOW', '_record_paid', 'adopt_or_retry_recurring', 'auto_renew_chargeable', 'auto_renew_scheduler', 'cleanup_expired_promo_reservations', 'expiry_notification_scheduler', 'fulfillment_retry_scheduler', 'notify_user_telegram', 'reconciliation_scheduler', 'refund_revoke_scheduler', 'run_reconciliation_pass', 'subscription_lifecycle_scheduler', 'run_lifecycle_pass', 'run_auto_renew_pass', 'send_expiry_reminders']
 # Imported before main finished (``from app import schedulers`` first)? Then main's star
 # import saw a half-loaded module; hand the names over now that they exist.
 shop.__dict__.update({_n: globals()[_n] for _n in __all__})
