@@ -417,9 +417,10 @@
  "REQ-PAY-0037": {
   "status": "PARTIAL",
   "evidence": [
-   "tests/test_behaviour_payment_guards.py"
+   "tests/test_behaviour_payment_guards.py",
+   "services/backend/app/schedulers.py"
   ],
-  "note": "Сверка спрашивает кассу о сохранённом заказе — проверено тестом. Расписание периодической сверки ещё не сверено."
+  "note": "Каждые 10 минут (RECONCILE_INTERVAL=600) сверка спрашивает API кассы об открытых платежах за последние 24 часа, не больше 50 за проход: pending и creation_unknown. Подтверждённый заказ проводится. Тест tests/test_behaviour_payment_guards.py проверяет интервал, ЮKassa и Platega, и то, что оплаченный и более старый платёж не спрашиваются. Оплаченные, возвращённые и более старые статусы повторно у кассы не сверяются. Статус остаётся PARTIAL."
  },
  "REQ-PAY-0044": {
   "status": "PARTIAL",

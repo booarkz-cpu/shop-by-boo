@@ -15,6 +15,8 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from starlette.requests import Request
 
+from datetime import datetime, timedelta
+
 from app import main as shop
 from app.models import Payment
 from test_subscription_commerce import database  # noqa: F401
@@ -163,6 +165,10 @@ async def test_reconciliation_asks_about_the_stored_order(database, monkeypatch)
     paid = await add_payment(database, order_id="order-a", provider_payment_id="yk-a")
     unpaid = await add_payment(database, order_id="order-b", provider_payment_id="yk-b")
     unknown = await add_payment(database, order_id="order-c", status="creation_unknown")  # no provider ID yet: skipped
+    other = await add_payment(database, order_id="order-d", provider="platega", provider_payment_id="pl-d")
+    settled = await add_payment(database, order_id="order-e", provider_payment_id="yk-paid", status="paid")
+    stale = await add_payment(database, order_id="order-f", provider_payment_id="yk-old",
+                              created_at=datetime.utcnow() - timedelta(hours=shop.RECONCILE_LOOKBACK_HOURS + 1))
     monkeypatch.setattr(shop, "engine", database.bind)
     asked, confirmed = [], []
 
@@ -180,6 +186,7 @@ async def test_reconciliation_asks_about_the_stored_order(database, monkeypatch)
     async def no_cleanup(db, now):
         return 0
     monkeypatch.setattr(shop.YooKassaProvider, "verify_succeeded", verify)
+    monkeypatch.setattr(shop.PlategaProvider, "verify_succeeded", verify)
     monkeypatch.setattr(shop.YooKassaProvider, "find_by_order_id", find)
     monkeypatch.setattr(shop, "_confirm_and_fulfill_payment", confirm)
     monkeypatch.setattr(shop, "cleanup_expired_promo_reservations", no_cleanup)
@@ -192,8 +199,11 @@ async def test_reconciliation_asks_about_the_stored_order(database, monkeypatch)
     monkeypatch.setattr(shop, "asyncio", SimpleNamespace(**{**vars(asyncio), "sleep": sleep}))
     with pytest.raises(asyncio.CancelledError):
         await shop.reconciliation_scheduler()
-    assert sleeps == [600, 600]
-    assert sorted(asked) == [("yk-a", "order-a"), ("yk-b", "order-b")]
+    assert shop.RECONCILE_INTERVAL == 600
+    assert sleeps == [shop.RECONCILE_INTERVAL, shop.RECONCILE_INTERVAL]
+    assert sorted(asked) == [("pl-d", "order-d"), ("yk-a", "order-a"), ("yk-b", "order-b")]
+    assert ("yk-paid", "order-e") not in asked and ("yk-old", "order-f") not in asked
     assert confirmed == [paid.id]
     rows = {p.order_id: p.status for p in (await database.execute(select(Payment))).scalars()}
     assert rows[unpaid.order_id] == "pending" and rows[unknown.order_id] == "creation_unknown"
+    assert rows[other.order_id] == "pending" and rows[settled.order_id] == "paid" and rows[stale.order_id] == "pending"
