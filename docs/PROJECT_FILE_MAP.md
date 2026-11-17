@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2712**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2714**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2069,6 +2069,7 @@
 | [services/backend/app/assets/bot_banners/trial.jpg](../services/backend/app/assets/bot_banners/trial.jpg) | API, бот, worker и Support Pro |
 | [services/backend/app/assets/cabinet_strings.json](../services/backend/app/assets/cabinet_strings.json) | API, бот, worker и Support Pro |
 | [services/backend/app/assets/mobile_strings.json](../services/backend/app/assets/mobile_strings.json) | API, бот, worker и Support Pro |
+| [services/backend/app/audit_entry.py](../services/backend/app/audit_entry.py) | API, бот, worker и Support Pro |
 | [services/backend/app/audit_seal.py](../services/backend/app/audit_seal.py) | API, бот, worker и Support Pro |
 | [services/backend/app/auth_api.py](../services/backend/app/auth_api.py) | API, бот, worker и Support Pro |
 | [services/backend/app/auto_update_api.py](../services/backend/app/auto_update_api.py) | API, бот, worker и Support Pro |
@@ -2434,6 +2435,7 @@
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
 | [tests/test_app_login.py](../tests/test_app_login.py) | Проверки |
 | [tests/test_architecture_docs.py](../tests/test_architecture_docs.py) | Проверки |
+| [tests/test_audit_changes.py](../tests/test_audit_changes.py) | Проверки |
 | [tests/test_audit_seal.py](../tests/test_audit_seal.py) | Проверки |
 | [tests/test_audit_v2009_runtime.py](../tests/test_audit_v2009_runtime.py) | Проверки |
 | [tests/test_auto_update_agent.py](../tests/test_auto_update_agent.py) | Проверки |

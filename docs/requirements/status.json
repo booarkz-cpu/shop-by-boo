@@ -1628,12 +1628,13 @@
  "REQ-ADMIN-0011": {
   "status": "PARTIAL",
   "evidence": [
-   "services/backend/app/models.py",
+   "services/backend/app/audit_entry.py",
    "services/backend/app/main.py",
    "services/backend/app/admin_api.py",
-   "apps/lucy-admin/web/src/control-center.tsx"
+   "apps/lucy-admin/web/src/control-center.tsx",
+   "tests/test_audit_changes.py"
   ],
-  "note": "В записи есть администратор, действие, объект, время, идентификатор запроса и подробности без секретов. Отдельного поля результата и единого формата «было — стало» нет."
+  "note": "Смена тарифа пишет result и только изменившиеся поля в виде «было → стало». Ключи password, token, secret и похожие сохраняются как unavailable. Список журнала отдаёт result, changes и request_id, панель их показывает. Остальные действия по-прежнему пишут свободные подробности без этих полей. Отдельных столбцов в базе нет: голова миграции магазина остаётся 0094."
  },
  "REQ-ADMIN-0013": {
   "status": "PARTIAL",

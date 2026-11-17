@@ -486,8 +486,8 @@ def _json_ready(value):
         return value.isoformat()
     raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
-async def audit(db, action, actor, target=None, details=None):
-    db.add(AuditLog(action=action, actor=actor, target=target, request_id=_REQUEST_ID.get(), details=json.dumps(details, ensure_ascii=False, default=_json_ready) if isinstance(details,dict) else details))
+async def audit(db, action, actor, target=None, details=None, *, result=None, before=None, after=None):
+    from .audit_entry import write; write(db, AuditLog, action, actor, target, details, result, before, after, _REQUEST_ID.get(), json.dumps, _json_ready)
 
 async def record_financial_event(db: AsyncSession, *, operation_key: str, user_id: int|None, payment_id: int|None, kind: str, direction: str, amount: Decimal, currency: str, metadata: dict|None = None):
     """Append an immutable financial event exactly once."""
