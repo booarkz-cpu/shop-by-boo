@@ -2,9 +2,15 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-17 — блокирующий аудит picomatch без upstream-исправления
+
+- Новый security job 134320888647 обнаружил GHSA-fc5q-39xc-vjpf в dev-цепочке кабинета. Lockfile не менялся относительно main; advisory прошёл GitHub Review 17.11.2026. Последний upstream 4.0.7 уязвим, исправленная версия в advisory не указана. Это содержательный FAIL, а не повод для повтора job.
+- F-006 в SECURITY_FINDINGS содержит severity, exploitability, impact, affected version, remediation и retest evidence. RELEASE_READINESS отражает блокировку. npm audit, обязательный gate и все тесты сохранены; ignore/исключений и downgrade --force нет. Новую голову нельзя сливать до устранения или проверенной совместимой замены цепочки.
+- Автономный аудит на 0a787b55 прошёл: 657 требований, девять сохранённых файлов, readiness False. Полный CI 44162817881 ещё выполняется; backend/iOS не выдаются за завершённые. Все 657 требований и весь незавершённый остаток сохранены; production-флаги не повышены.
+
 ## 2026-11-17 — iOS UI и доступность hosted runners
 
-- В аннотациях собственного CI44133849510 job134217903123 GitHub сообщил, что hosted runner не получил задание после нескольких попыток, и отдельно указал ограничения доступности macOS arm64. API подтверждает runner_id=0 и отсутствие шагов; это не падение XCUITest. Повтор только собственного job ожидает ресурс.
+- В аннотациях собственного CI 44133849510 job 134217903123 GitHub сообщил, что hosted runner не получил задание после нескольких попыток, и отдельно указал ограничения доступности macOS arm64. API подтверждает runner_id=0 и отсутствие шагов; это не падение XCUITest. Повтор только собственного job ожидает ресурс.
 - iOS UI переведён на стандартный macos-26-intel: [поддерживаемые runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners), [состав образа](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md). Сценарии и assertions не меняются; arm64-сборки приложений и расширений остаются отдельными проверками. Лог фиксирует архитектуру, ОС и Xcode. Совместимость Intel должна подтвердиться реальным выполнением новой головы; результат старой головы не переносится.
 - Источник отмены: https://github.com/booarkz-cpu/shop-by-boo/actions/runs/44133849510/job/134217903123. Платных larger runners, пропуска тестов и обхода CI gate нет. Версии, миграции, production-флаги и опубликованный выпуск сохранены.
 
@@ -18,7 +24,7 @@
 
 - После слияния общего #374 в af96c104 продолжена работа по REQ-GOV-0088/REQ-DOC-0015. SOURCE_TRACEABILITY_MATRIX содержит все 657 требований с диапазонами и SHA источника, статусами и объявленными путями кода/проверок/evidence. Генератор использует тот же канонический парсер, включая нормализацию исходных XML-блоков; самодельная нормализация не подменяет источник. Отсутствующие связи с выполнением и релизами не выдуманы.
 - Все 657 исходных диапазонов/SHA и наличие объявленных путей сверены с деревом af96c104 и добавленными файлами; CI --check подтверждает актуальность. Новая голова требует собственного CI. REQ-DOC-0015 — PASS по фактическому содержимому документа; GOV0088 — PARTIAL до полной связи с выполнением и проверенными кандидатами/релизами.
-- GOV0124 — PASS по уже исполненному объединению, сохранности источников, успешному CI44107570409 attempt2 и фактическому контролю одного PR. Новых версий, миграций, production-флагов и опубликованных артефактов нет.
+- GOV0124 — PASS по уже исполненному объединению, сохранности источников, успешному CI 44107570409 attempt2 и фактическому контролю одного PR. Новых версий, миграций, production-флагов и опубликованных артефактов нет.
 
 ## 2026-11-17 — объединение всех PR и полная релизная приёмка
 
@@ -94,20 +100,20 @@
 
 ## 2026-11-16 — восстановлено право исполнения установщика кандидата161
 
-**Причина.** На релизной голове c714c32d backend CI остановился на test_release_scripts_are_executable: install.sh имел Git mode100644. Лог job133412262182:1failed/1374passed/54skipped до остановки; этот прогон не PASS.
-**Исправление.** Коммит ab7a62df восстановил100755 с тем же blob c0f17e3dd13b40eef66fd1b5bbd1f75f4ef1c558. API diff подтверждает единственный install.sh и0изменённых строк. Тесты и содержимое установщика не ослаблены. Отменённая iOS PKCE job133399148057 отдельно перезапущена; её результат не заменяет CI новой головы.
+**Причина.** На релизной голове c714c32d backend CI остановился на test_release_scripts_are_executable: install.sh имел Git mode100644. Лог job 133412262182:1failed/1374passed/54skipped до остановки; этот прогон не PASS.
+**Исправление.** Коммит ab7a62df восстановил100755 с тем же blob c0f17e3dd13b40eef66fd1b5bbd1f75f4ef1c558. API diff подтверждает единственный install.sh и0изменённых строк. Тесты и содержимое установщика не ослаблены. Отменённая iOS PKCE job 133399148057 отдельно перезапущена; её результат не заменяет CI новой головы.
 **Граница.** Main337 и опубликованный160/33assets не менялись. После mode-only обновления Actions ещё не появились; текущая запись требует свежего полного CI конечногоhead, включая iOS/gate/register/map/links, и повторной проверки отзывов до squash. Все653статуса сохранены.
 
 ## 2026-11-16 — кандидат v28.161.0 после проверки privacy362
 
-**Доказательство.** На9b49 полныйCI43862385661SUCCESS20jobs,3345backendpassed/98skipped;baseline43862385660SUCCESS. Новаяверсия требует собственныхActions.
+**Доказательство.** На9b49 полныйCI 43862385661SUCCESS20jobs,3345backendpassed/98skipped;baseline43862385660SUCCESS. Новаяверсия требует собственныхActions.
 **Подготовка.** Согласованы текущие161идентичности, манифест/installer/README/заметки/документационныйконтракт/картафайлов. ИсторическиеCHANGELOG/159/160notes, даты/результаты и утверждения о первом появлении функций не перенумерованы. В EN/UK текущая версия клиента исправлена на фактическую1.10.1.
 **Граница.** Все653статуса сохранены; runtime/API/SQL/mobile и production-флаги не меняются. Main337 и полный160/33assets не изменяются. Следующее:CIновойголовы,отзывы,обычныйsquash,свежийmainCI/полный161 перед следующимслиянием. Терминал не использовался.
 
 
 ## 2026-11-16 — интеграция privacy362 после полного выпуска160
 
-**Предусловие.** Main337f73e4 имеет полныйCI43858518704SUCCESS;160опубликован с33uploaded ненулевымиassets, тег соответствуетmain. Mainне меняется этойинтеграцией.
+**Предусловие.** Main337f73e4 имеет полныйCI 43858518704SUCCESS;160опубликован с33uploaded ненулевымиassets, тег соответствуетmain. Mainне меняется этойинтеграцией.
 **Объединение.** Сохранены весьmain160, две privacy-регрессии362, no-store и документы360/361. Конкурирующие записи AUTOMATION_LOG/REQUIREMENTS_CHANGELOG объединены; SHOP0017 остаётсяPARTIAL собеимиevidence иPRIVACY_DATA_MAP. Generatedregister обновлён поnote/evidence,653ID и215PASS/241PARTIAL/29NOT_IMPLEMENTED/166NOT_TESTED+2BLOCKED сохранены. Картаданных актуализирована поemail/VK/cache, прошлыеrelease notes не переписаны.
 **Проверка.** ПредварительнаясверкаID/путей/evidence иточных runtime-изменений выполнена черезGitHubбезтерминала. Новаясовмещённаяголова требует полногоActions иканоническогоregister/map/links check. Старыйce9SUCCESS не подтверждаетno-store/интеграцию.
 **Следующее.** Согласовать следующийвыпуск/версию передслиянием, разобратьCI/отзывы и сохранитьточныйhead. VPS/полныйprivacy/политика иостальные653требования не закрыты.
@@ -1648,7 +1654,7 @@ Run 43806437911 still failed at the initial focus wait (18/19 device tests passe
 
 ### 2026-11-16 — Verified Android export and Python3.15 integration
 
-PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 CI jobs, including gate/iOS, passed. Standalone Android client run43807885310/job133102823342 on dda67a16 passed real links/JSON tunnel probes and connectedDebugAndroidTest on AOSP/API34. Restore REQ-CLIENT-0019 to PASS with exact evidence; no physical-device claim. Merge current main into #355 without conflicts and preserve new pinned Actions/Gradle/npm/Python3.15. New full CI is required for the integrated head. #345 was closed unmerged by Dependabot and replaced with #359 (user-event14.6.10); #357 has a new head, so old results do not prove it.
+PR #354 merged normally as 4a7cb78d5fff582093aa4836aee95c4dc9da31cf after all20 CI jobs, including gate/iOS, passed. Standalone Android client run43807885310/job 133102823342 on dda67a16 passed real links/JSON tunnel probes and connectedDebugAndroidTest on AOSP/API34. Restore REQ-CLIENT-0019 to PASS with exact evidence; no physical-device claim. Merge current main into #355 without conflicts and preserve new pinned Actions/Gradle/npm/Python3.15. New full CI is required for the integrated head. #345 was closed unmerged by Dependabot and replaced with #359 (user-event14.6.10); #357 has a new head, so old results do not prove it.
 
 ### 2026-11-16 — Privacy source verification
 
@@ -1676,11 +1682,11 @@ Documented the actual Mobile packages and build-mobile paths, product/version se
 
 ### 2026-11-16 — Verified rollback documentation and measured CI baseline
 
-Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shopSQL rollback from bothDB encrypted DR and retaining unknown live RPO/RTO. Write PERFORMANCE_BASELINE from actual e4df01b6 k6 run43820979540/job133143742123, including expected409/429 and inability to infer useful200 capacity. Upgrade only DOC0031/0035 document requirements. CI43819452995 promtool3.5 check and rule tests actually succeeded; Android UI failed before tests at Maven Central HTTP429 for JUnit, not an assertion. Further commits need fresh CI.
+Write UPGRADE_ROLLBACK from main4a7 sources, explicitly distinguishing code/shopSQL rollback from bothDB encrypted DR and retaining unknown live RPO/RTO. Write PERFORMANCE_BASELINE from actual e4df01b6 k6 run43820979540/job 133143742123, including expected409/429 and inability to infer useful200 capacity. Upgrade only DOC0031/0035 document requirements. CI 43819452995 promtool3.5 check and rule tests actually succeeded; Android UI failed before tests at Maven Central HTTP429 for JUnit, not an assertion. Further commits need fresh CI.
 
 ## 2026-11-16 — Accessibility source audit (PR360)
 
-Added ACCESSIBILITY_AUDIT from exact92363652 sources: dark button text contrast3.678/hover2.542, missing modal focus containment/return, incomplete auth tabs, unknown Meter value semantics. Six opaque token pairs calculated with sRGB relative luminance. Distinguish source findings from browser/device proof; document native checks as NOT_RUN. DOC0034 documents only; UI0007 stays PARTIAL. No runtime/UI or live systems changed. Current PR355 head da012b79 has six successful workflow runs, including full CI43840760256 with20 successful jobs and empty review/thread lists. Landing helper cannot run authenticated here (gh auth status: not logged in); no merge claimed.
+Added ACCESSIBILITY_AUDIT from exact92363652 sources: dark button text contrast3.678/hover2.542, missing modal focus containment/return, incomplete auth tabs, unknown Meter value semantics. Six opaque token pairs calculated with sRGB relative luminance. Distinguish source findings from browser/device proof; document native checks as NOT_RUN. DOC0034 documents only; UI0007 stays PARTIAL. No runtime/UI or live systems changed. Current PR355 head da012b79 has six successful workflow runs, including full CI 43840760256 with20 successful jobs and empty review/thread lists. Landing helper cannot run authenticated here (gh auth status: not logged in); no merge claimed.
 
 ## 2026-11-16 — Integrate main after355 into documentation
 
@@ -1694,7 +1700,7 @@ Prepared A11Y-01..04 corrections on a separate branch from main2a204cd3: dark pr
 
 ### Browser regression follow-up
 
-CI43848153471/job133233513369:70 of71 Chromium E2E passed; the new modal focus regression failed at remna-design.spec.ts:257 after Tab from the last close button in an empty search. Native showModal isolates the background but did not guarantee the APG boundary wrap in this browser. Add explicit Tab/Shift+Tab first/last-control wrap without weakening the regression or removing native isolation. Cabinet tabs and computed primary contrast regressions passed in this run. Unit tests74/74 and web typecheck/build passed on7765b725; all those checks must run anew after this fix.
+CI 43848153471/job 133233513369:70 of71 Chromium E2E passed; the new modal focus regression failed at remna-design.spec.ts:257 after Tab from the last close button in an empty search. Native showModal isolates the background but did not guarantee the APG boundary wrap in this browser. Add explicit Tab/Shift+Tab first/last-control wrap without weakening the regression or removing native isolation. Cabinet tabs and computed primary contrast regressions passed in this run. Unit tests74/74 and web typecheck/build passed on7765b725; all those checks must run anew after this fix.
 
 ## 2026-11-16 — Prepare combined distribution160
 
@@ -1702,7 +1708,7 @@ Combine docs360/b240 and accessibility361/873 as ordinary two-parent ancestry; p
 
 ## 2026-11-17 — словарная проверка RU/EN/UK, REQ-UI-0011
 
-- PR #373: Hunspell, положительные и отрицательные контроли, извлечение локализации JSON и Android XML, регрессии и обязательный Lint. На cb72dd36f310814c5249b96f7308c321512726c4 CI44060625876 завершён: 20/20 success, backend 3355 passed / 98 skipped; орфография 1075 строк / 9 файлов / 0 замечаний.
+- PR #373: Hunspell, положительные и отрицательные контроли, извлечение локализации JSON и Android XML, регрессии и обязательный Lint. На cb72dd36f310814c5249b96f7308c321512726c4 CI 44060625876 завершён: 20/20 success, backend 3355 passed / 98 skipped; орфография 1075 строк / 9 файлов / 0 замечаний.
 - REQ-UI-0011 — PARTIAL: остальные источники, грамматика и визуальная приёмка остаются. После обновления записей нужен CI новой головы. Слияния, публикации и изменения опубликованного v28.161.0 не выполнялись.
 
 ## 2026-11-17 — обязательный табличный changelog, REQ-DOC-0038
