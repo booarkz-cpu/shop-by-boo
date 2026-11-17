@@ -83,3 +83,22 @@ def test_spelling_requirement_is_added_without_changing_the_legacy_653_entries()
     assert spelling['path'] == 'Часть IV → 41. Орфография во всех продуктах и документации'
     assert 'орфографических ошибок' in requirement and 'RU/EN/UK' in requirement
     assert hashlib.sha256(requirement.encode()).hexdigest()[:12] == spelling['sha']
+
+
+def test_tabular_changelog_requirement_preserves_all_prior_654_requirements():
+    import hashlib
+
+    entries = json.loads((ROOT / 'docs/requirements/register.json').read_text())
+    legacy = [entry for entry in entries if entry['lines'][1] <= 2503]
+    assert len(legacy) == 654
+    assert hashlib.sha256((json.dumps(legacy, ensure_ascii=False, indent=1) + '\n').encode()).hexdigest() == 'f6ba5f4d80f709d8566dbff4b0e4f4450c6828774b5151e9b2b1bb8b190b6806'
+    source = (ROOT / 'docs/prompts/MASTER_PROMPT_V6.md').read_text()
+    prior_source = ''.join(source.splitlines(keepends=True)[:2503])
+    assert hashlib.sha256(prior_source.encode()).hexdigest() == '78ff6abc6cacbc7e6ab0b13c2cd79a6e40f4ebbe6b6b38c58a411f7beb5c540e'
+    entry = next(item for item in entries if item['id'] == 'REQ-DOC-0038')
+    first, last = entry['lines']
+    text = '\n'.join(source.splitlines()[first-1:last])
+    assert 'каждого нового релиза' in entry['path']
+    assert 'всех изменений' in text and 'табличном виде' in text
+    assert 'грамматических' in text and 'орфографических' in text
+    assert hashlib.sha256(text.encode()).hexdigest()[:12] == entry['sha']

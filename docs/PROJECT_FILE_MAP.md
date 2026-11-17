@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2715**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2719**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -790,6 +790,7 @@
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
 | [docs/PROTOCOL_SWITCH.md](../docs/PROTOCOL_SWITCH.md) | Документация |
 | [docs/REFERENCE_REPOSITORIES.md](../docs/REFERENCE_REPOSITORIES.md) | Документация |
+| [docs/RELEASE_CHANGELOG_POLICY.md](../docs/RELEASE_CHANGELOG_POLICY.md) | Документация |
 | [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md) | Документация |
 | [docs/RELEASE_LIMITATIONS.md](../docs/RELEASE_LIMITATIONS.md) | Документация |
 | [docs/RELEASE_PROCESS.md](../docs/RELEASE_PROCESS.md) | Документация |
@@ -1464,6 +1465,7 @@
 | [docs/ru/steps/04-payments.md](../docs/ru/steps/04-payments.md) | Документация |
 | [docs/ru/steps/05-operations.md](../docs/ru/steps/05-operations.md) | Документация |
 | [docs/ru/steps/README.md](../docs/ru/steps/README.md) | Документация |
+| [docs/templates/RELEASE_CHANGELOG_TEMPLATE.md](../docs/templates/RELEASE_CHANGELOG_TEMPLATE.md) | Документация |
 | [docs/uk/DEPLOYMENT.md](../docs/uk/DEPLOYMENT.md) | Документация |
 | [docs/uk/DOCUMENTATION.md](../docs/uk/DOCUMENTATION.md) | Документация |
 | [docs/uk/NEW_IN_V28_36.md](../docs/uk/NEW_IN_V28_36.md) | Документация |
@@ -1793,6 +1795,7 @@
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
 | [scripts/audit/check_payment_provider_registry.py](../scripts/audit/check_payment_provider_registry.py) | Эксплуатация и релиз |
+| [scripts/audit/check_release_changelog.py](../scripts/audit/check_release_changelog.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
@@ -2591,6 +2594,7 @@
 | [tests/test_referral_bonus_days.py](../tests/test_referral_bonus_days.py) | Проверки |
 | [tests/test_referral_program.py](../tests/test_referral_program.py) | Проверки |
 | [tests/test_release_archive_compatibility.py](../tests/test_release_archive_compatibility.py) | Проверки |
+| [tests/test_release_changelog.py](../tests/test_release_changelog.py) | Проверки |
 | [tests/test_release_quality_v2_2.py](../tests/test_release_quality_v2_2.py) | Проверки |
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |

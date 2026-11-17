@@ -91,6 +91,7 @@ jobs:
       - name: Current release documentation contract
         run: |
           python scripts/check-current-docs.py
+          python scripts/audit/check_release_changelog.py
           python scripts/check-runtime-placeholders.py
           python scripts/generate-architecture-docs.py --check
           python scripts/generate-project-map.py --check

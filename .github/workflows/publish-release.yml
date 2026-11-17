@@ -41,6 +41,7 @@ jobs:
         if: steps.gate.outputs.ready == 'true'
         run: |
           python3 scripts/check-current-docs.py
+          python3 scripts/audit/check_release_changelog.py
           python3 scripts/package-distribution.py --ci-run '${{ steps.gate.outputs.ci_run }}'
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'

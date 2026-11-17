@@ -4491,5 +4491,17 @@
       ".github/workflows/ci.yml"
     ],
     "note": "Первый этап проверяет 1 075 строк двух JSON-файлов локализации и семи Android XML на RU/EN/UK. Реальные словари, положительные и отрицательные контроли и CI44060625876 на cb72dd36 прошли; весь CI — 20/20 success. Пока не охвачены остальные строки Kotlin/Swift/TypeScript/Python, серверные шаблоны, бот, письма, установщик и документация; грамматика и визуальная проверка всех экранов не выполнены. Полный PASS не подтверждён."
+  },
+  "REQ-DOC-0038": {
+    "status": "PARTIAL",
+    "evidence": [
+      "docs/RELEASE_CHANGELOG_POLICY.md",
+      "docs/templates/RELEASE_CHANGELOG_TEMPLATE.md",
+      "scripts/audit/check_release_changelog.py",
+      "tests/test_release_changelog.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/publish-release.yml"
+    ],
+    "note": "Добавлены обязательная таблица всех изменений, правила вычитки и сверки с diff, шаблон, структурная проверка согласованности CHANGELOG и заметок нового релиза в CI и перед публикацией. CI новой головы ещё не подтверждён. Реальный следующий релиз, полнота описания его diff, грамматика, орфография и отображение таблицы ещё не приняты; автоматическая проверка структуры не означает полного PASS."
   }
 }
