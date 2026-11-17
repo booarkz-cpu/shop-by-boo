@@ -1899,7 +1899,7 @@
 
 - Источник: Часть IV → 27. Lucy Admin — расширение требований → 27.1. RBAC и аудит (строка 2233). Продукт: Админка.
 - Доказательство: `services/backend/app/audit_entry.py`; `services/backend/app/main.py`; `services/backend/app/admin_api.py`; `apps/lucy-admin/web/src/control-center.tsx`; `tests/test_audit_changes.py`.
-- Примечание: Смена тарифа пишет result и только изменившиеся поля в виде «было → стало». Ключи password, token, secret и похожие сохраняются как unavailable. Список журнала отдаёт result, changes и request_id, панель их показывает. Остальные действия по-прежнему пишут свободные подробности без этих полей. Отдельных столбцов в базе нет: голова миграции магазина остаётся 0094.
+- Примечание: Смена тарифа пишет result и только изменившиеся поля в виде «было → стало». Ключи password, token, secret и похожие сохраняются как unavailable. Список журнала отдаёт result, changes и request_id, панель их показывает. Остальные действия по-прежнему пишут свободные подробности без этих полей. Отдельных столбцов в базе нет: голова миграции магазина остаётся 0094. Дополнение review 17.11.2026: составные/camelCase имена секретов (refresh_token, clientSecret, apiKey), credentials, subscription_url и access_key скрываются при записи; чтение старого структурированного diff повторяет фильтрацию и отдаёт один очищенный набор в details/changes, не переписывая запечатанную строку БД. Добавлены регрессии записи и чтения старых строк; свежий CI требуется отдельно.
 
 > - Audit log должен содержать actor, action, resource, timestamp, result, correlation ID и безопасный diff без секретов.
 

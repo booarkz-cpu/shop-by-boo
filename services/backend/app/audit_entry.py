@@ -24,7 +24,9 @@ def _plain(value):
 
 
 def _secret(key) -> bool:
-    return str(key).lower().replace("-", "_") in SECRET_KEYS
+    normalized = "".join(char for char in str(key).lower() if char.isalnum())
+    return any("".join(char for char in name if char.isalnum()) in normalized for name in SECRET_KEYS) or \
+        any(name in normalized for name in ("credential", "subscriptionurl", "accesskey"))
 
 
 def redact(value):
@@ -70,17 +72,30 @@ def write(db, model, action, actor, target, details, result, before, after, requ
 
 def audit_public(row, public_details):
     result, listed = None, []
-    raw = row.details
-    if isinstance(raw, str) and raw.startswith("{"):
+    # Parse the public representation, then enforce the diff field's classification
+    # again: legacy rows may have been written without the current write filter.
+    shown = public_details(row.details)
+    if isinstance(shown, str) and shown.startswith("{"):
         try:
-            parsed = json.loads(raw)
+            parsed = json.loads(shown)
         except ValueError:
             parsed = None
         if isinstance(parsed, dict) and "result" in parsed and isinstance(parsed.get("changes"), list):
+            parsed = redact(parsed)
+            for change in parsed["changes"]:
+                if not isinstance(change, dict):
+                    continue
+                field = str(change.get("field", ""))
+                listed.append({
+                    "field": field,
+                    "before": "unavailable" if _secret(field) else redact(change.get("before")),
+                    "after": "unavailable" if _secret(field) else redact(change.get("after")),
+                })
+            parsed["changes"] = listed
             result = parsed.get("result")
-            listed = parsed["changes"]
+            shown = json.dumps(parsed, ensure_ascii=False)
     return {
         "id": row.id, "action": row.action, "actor": row.actor, "target": row.target,
-        "details": public_details(raw), "result": result, "changes": listed,
+        "details": shown, "result": result, "changes": listed,
         "request_id": row.request_id, "created_at": str(row.created_at),
     }

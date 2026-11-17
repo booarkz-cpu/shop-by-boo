@@ -58,3 +58,55 @@ async def test_audit_without_a_diff_keeps_the_old_details(database):
     await database.commit()
     row = await database.scalar(select(AuditLog).where(AuditLog.action == "plan.created"))
     assert json.loads(row.details) == {"price": "10.00"}
+
+
+@pytest.mark.asyncio
+async def test_compound_and_nested_secret_fields_are_not_stored(database):
+    before = {
+        "refresh_token": "refresh-before-value",
+        "credentials": {"apiKey": "key-before-value"},
+        "configuration": {"clientSecret": "nested-before-value"},
+        "subscription_url": "https://vpn.example/private-before",
+    }
+    after = {
+        "refresh_token": "refresh-after-value",
+        "credentials": {"apiKey": "key-after-value"},
+        "configuration": {"clientSecret": "nested-after-value"},
+        "subscription_url": "https://vpn.example/private-after",
+    }
+    await shop.audit(database, "admin.updated", ADMIN.email, "9", result="ok", before=before, after=after)
+    await database.commit()
+    row = await database.scalar(select(AuditLog).where(AuditLog.action == "admin.updated"))
+    for value in ("refresh-before-value", "refresh-after-value", "key-before-value", "key-after-value",
+                  "nested-before-value", "nested-after-value", "private-before", "private-after"):
+        assert value not in row.details
+    listed = json.loads(row.details)["changes"]
+    assert listed[0] == {"field": "refresh_token", "before": "unavailable", "after": "unavailable"}
+    assert listed[2] == {"field": "configuration", "before": {"clientSecret": "unavailable"},
+                         "after": {"clientSecret": "unavailable"}}
+
+
+@pytest.mark.asyncio
+async def test_legacy_diff_is_filtered_in_details_and_public_changes(database):
+    old = {
+        "result": "ok",
+        "changes": [
+            {"field": "refresh_token", "before": "legacy-token-before", "after": "legacy-token-after"},
+            {"field": "configuration", "before": {"clientSecret": "legacy-client-before"},
+             "after": {"clientSecret": "legacy-client-after"}},
+            {"field": "role", "before": "operator", "after": "admin"},
+        ],
+    }
+    row = AuditLog(action="admin.updated", actor=ADMIN.email, target="9", details=json.dumps(old))
+    database.add(row)
+    await database.commit()
+    shown = (await admin_api.admin_audit(1, 50, database, ADMIN))[0]
+    assert shown["result"] == "ok"
+    assert shown["changes"][0] == {"field": "refresh_token", "before": "unavailable", "after": "unavailable"}
+    assert shown["changes"][1]["before"] == {"clientSecret": "unavailable"}
+    assert shown["changes"][2] == {"field": "role", "before": "operator", "after": "admin"}
+    assert json.loads(shown["details"])["changes"] == shown["changes"]
+    for secret in ("legacy-token-before", "legacy-token-after", "legacy-client-before", "legacy-client-after"):
+        assert secret not in str(shown)
+    await database.refresh(row)
+    assert json.loads(row.details) == old, "reading must not rewrite a sealed legacy audit row"
