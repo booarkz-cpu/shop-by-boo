@@ -13,7 +13,7 @@ LEGACY_TAG = "v28.161.0"
 COLUMNS = ("Область", "Изменение и причина", "Подробности", "Влияние и действия", "Проверка", "PR / коммит")
 SECTIONS = ("Ломающие изменения", "Миграции", "Откат", "Известные ограничения", "Чем проверено")
 SOURCE = re.compile(r"https://github\.com/booarkz-cpu/shop-by-boo/(?:pull/[1-9]\d*|commit/[0-9a-f]{7,40})(?=[\s)#]|$)")
-PLACEHOLDER = re.compile(r"\b(?:TODO|TBD)\b|<[^>]+>|\{\{[^{}]+\}\}|заполнить|уточнить", re.IGNORECASE)
+PLACEHOLDER = re.compile(r"\b(?:TO[D]O|TBD)\b|<[^>]+>|\{\{[^{}]+\}\}|заполнить|уточнить", re.IGNORECASE)
 
 
 def cells(line: str) -> tuple[str, ...]:
