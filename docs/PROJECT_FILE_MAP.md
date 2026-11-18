@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2733**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2735**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -381,6 +381,8 @@
 | [apps/user-cabinet/public/assets/stickers/waiting.webp](../apps/user-cabinet/public/assets/stickers/waiting.webp) | Приложения |
 | [apps/user-cabinet/public/manifest.webmanifest](../apps/user-cabinet/public/manifest.webmanifest) | Приложения |
 | [apps/user-cabinet/scripts/csp-externalize.mjs](../apps/user-cabinet/scripts/csp-externalize.mjs) | Приложения |
+| [apps/user-cabinet/scripts/test-cabinet.mjs](../apps/user-cabinet/scripts/test-cabinet.mjs) | Приложения |
+| [apps/user-cabinet/scripts/test-dom.cjs](../apps/user-cabinet/scripts/test-dom.cjs) | Приложения |
 | [apps/user-cabinet/src/account-merge.test.tsx](../apps/user-cabinet/src/account-merge.test.tsx) | Приложения |
 | [apps/user-cabinet/src/account-merge.tsx](../apps/user-cabinet/src/account-merge.tsx) | Приложения |
 | [apps/user-cabinet/src/account-recovery.test.tsx](../apps/user-cabinet/src/account-recovery.test.tsx) | Приложения |
@@ -452,7 +454,7 @@
 | [apps/user-cabinet/src/workspace.test.tsx](../apps/user-cabinet/src/workspace.test.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.tsx](../apps/user-cabinet/src/workspace.tsx) | Приложения |
 | [apps/user-cabinet/tsconfig.json](../apps/user-cabinet/tsconfig.json) | Приложения |
-| [apps/user-cabinet/vitest.config.mts](../apps/user-cabinet/vitest.config.mts) | Приложения |
+| [apps/user-cabinet/tsconfig.tests.json](../apps/user-cabinet/tsconfig.tests.json) | Приложения |
 | [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
 | [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
 | [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
