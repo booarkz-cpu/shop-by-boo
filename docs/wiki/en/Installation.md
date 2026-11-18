@@ -1,108 +1,46 @@
-# Installation
+# Install the shop
 
-From a bare server to the first customer. Every step says what to do, why, and how to check the result.
+## Prepare the server and DNS
 
-## 1. Prepare the server
+Connect to an Ubuntu or Debian server over SSH as root. For each hostname you plan to enter during installation, create an A record pointing to the server’s IPv4 address. If you use IPv6, check the AAAA record as well.
 
-You need a VDS on Ubuntu 22.04+ (verified on 24.04): 2 cores, 4 GB RAM, 20 GB SSD.
-
-```bash
-ssh root@YOUR_IP
-apt update && apt upgrade -y
-```
-
-**Why:** the installer pulls Docker and packages from `apt`; on an outdated system the repositories may fail.
-
-## 2. Point the domain at the server
-
-Create records at your DNS provider:
-
-| Type | Name | Value |
-| --- | --- | --- |
-| A | `admin` | server IP |
-| A | `lk` | server IP |
-| A | `app` | server IP |
-
-**Why:** Caddy issues a TLS certificate only when the domain already points at the server.
-
-Check it (it must return your IP):
+The installer suggests `api`, `admin`, `app`, `cabinet` and `support` under your base domain. Check DNS for each name you choose, including any additional names you use for the bot, Mini App and panel.
 
 ```bash
-dig +short admin.your-domain.com
+dig +short api.example.com
 ```
 
-## 3. Install the shop
-
-One command:
+## Install the published version
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.161.0/install.sh -o /root/shop-install.sh
-BRANCH=v28.161.0 bash /root/shop-install.sh
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.161.0/install.sh -o /root/shop-install.sh &&
+  BRANCH=v28.161.0 bash /root/shop-install.sh
 ```
 
-The installer asks for domains, prices and the administrator password, installs Docker, builds images, applies
-migrations and starts the services. It does **not** report success if any service failed to start.
+Run the commands in your SSH session. The installer prompts for domains and credentials, creates `.env` and starts the services. The default installation directory is `/opt/vpn-shop`. When configuring UFW, the installer accounts for the SSH port and adds rules for TCP 80/443 and UDP 443.
 
-**Why this way:** the installer opens only 22, 80 and 443 — the database, Redis and the API stay closed.
+## Settings and first sign-in
 
-## 4. Fill in `.env`
+The installer generates `APP_SECRET` and `DB_PASSWORD`. Keep the generated `.env` with your backup. Open the admin address printed at the end of the installation and sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Leaving the password blank at the prompt generates one.
 
-The installer creates the file. Required fields:
+`PUBLIC_BASE_URL` contains the public HTTPS address of the API. The customer account uses a separate domain. To provision access through Remnawave, supply its panel address and token. The Telegram bot requires `BOT_TOKEN`. Open Security to configure 2FA and Plans to select the Internal Squad.
 
-| Variable | Purpose | Where to get it |
-| --- | --- | --- |
-| `APP_SECRET` | signs sessions and tokens | `openssl rand -hex 32` |
-| `DB_PASSWORD` | PostgreSQL password | choose a long one |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | admin panel sign-in | choose your own |
-| `REMNAWAVE_URL`, `REMNAWAVE_TOKEN` | access delivery | Remnawave panel → API |
-| `BOT_TOKEN` | Telegram bot | [@BotFather](https://t.me/BotFather) |
-| `PUBLIC_BASE_URL` | shop address | your domain |
+## Verify the installation
 
-Apply the changes:
+Run the diagnostic script from the installation directory. It checks the Compose configuration, calls the backend’s `/health/ready` endpoint inside its container, then checks HTTP responses from the admin panel, Mini App and customer account.
 
 ```bash
-docker compose up -d
+cd /opt/vpn-shop && bash scripts/doctor.sh
 ```
 
-## 5. Verify everything is alive
+On success, the output includes `API health: OK`, `admin HTTP: OK`, `miniapp HTTP: OK` and `cabinet HTTP: OK`. For the external check, replace `api.example.com` with your API hostname.
 
 ```bash
-bash scripts/doctor.sh
+curl -fsS https://api.example.com/health/ready
 ```
 
-It checks the Compose configuration, the containers and whether `/health` answers. Expected: `API health: OK`.
+If the internal check passes but the public address is unreachable, check DNS and the Caddy logs. For a backend failure, start with `docker compose logs --tail=100 backend` in the installation directory.
 
-```bash
-curl -s localhost:8000/health
-# {"ok":true,"version":"21.5.1","redis":true,"database":true,...}
-```
+## Related guides
 
-## 6. First sign-in
-
-1. Open `https://admin.your-domain.com`.
-2. Sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`.
-3. Change the password and enable 2FA under "Security".
-4. Create plans under "Plans" and pick the Remnawave Internal Squad.
-5. Connect a payment provider — see [Payments](Payments.md).
-
-## If something is off
-
-| Symptom | What to check |
-| --- | --- |
-| `doctor.sh` says API health: FAILED | `docker compose logs backend` |
-| A container keeps restarting | `docker compose logs <service>`, `free -h` |
-| No certificate | DNS record, ports 80 and 443, `docker compose logs caddy` |
-| The panel opens but is empty | `curl -s localhost:8000/health`, then the browser console |
-
-Full table: [Troubleshooting](Troubleshooting.md).
-
-## Updating an installed shop
-
-```bash
-bash scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.161.0 bash /opt/vpn-shop/scripts/update-from-github.sh
-```
-
-Details: [Updates](Updates.md).
-
-[← Back to home](Home.md)
+[Payments](Payments.md) · [Troubleshooting](Troubleshooting.md) · [Updates](Updates.md) · [Home](Home.md)
