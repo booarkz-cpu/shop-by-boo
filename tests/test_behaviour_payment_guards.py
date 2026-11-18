@@ -18,6 +18,7 @@ from starlette.requests import Request
 from datetime import datetime, timedelta
 
 from app import main as shop
+from app import schedulers
 from app.models import Payment
 from test_subscription_commerce import database  # noqa: F401
 
@@ -262,10 +263,10 @@ async def test_reconciliation_keeps_the_original_lookback_boundary_across_pages(
     monkeypatch.setattr(shop.YooKassaProvider, "verify_succeeded", still_pending)
     monkeypatch.setattr(shop, "cleanup_expired_promo_reservations", no_cleanup)
 
-    _, cursor = await shop._reconcile_page(database, started, cursor=None)
+    _, cursor = await schedulers._reconcile_page(database, started, cursor=None)
     assert cursor is not None and len(cursor) == 3
     assert asked == [f"fresh-{i}" for i in range(shop.RECONCILE_BATCH)]
 
-    _, cursor = await shop._reconcile_page(database, started + timedelta(minutes=10), cursor=cursor)
+    _, cursor = await schedulers._reconcile_page(database, started + timedelta(minutes=10), cursor=cursor)
     assert cursor is None
     assert asked[-1] == boundary.order_id

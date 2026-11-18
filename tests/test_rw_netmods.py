@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 from pydantic import ValidationError
 
-from app import rw_netmods, rw_plan, rw_steps
+from app import log_redact, rw_netmods, rw_plan, rw_steps
 
 SERVERS = {2: {"name": "n2", "host": "93.184.216.40"}, 3: {"name": "p3", "host": "93.184.216.41"}}
 
@@ -145,8 +145,20 @@ def test_mtproto_link():
     assert rw_netmods.mtproto_link("h", "mtproto=off") == {} and rw_netmods.mtproto_link("h", "") == {}
 
 
+@pytest.fixture(params=[False, True], ids=["plain-field", "field-is-also-a-secret"])
+def mtproto_log_field(request):
+    # A different test may have decrypted the literal "secret". Exercise both
+    # registries in isolation and restore this process's original state.
+    previous = log_redact.snapshot()
+    try:
+        log_redact.restore({"secret"} if request.param else set())
+        yield "***" if request.param else "secret"
+    finally:
+        log_redact.restore(previous)
+
+
 @pytest.mark.asyncio
-async def test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes(monkeypatch):
+async def test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes(monkeypatch, mtproto_log_field):
     calls = []
     answer = SimpleNamespace(code=0, out="pulled\nmtproto=on port=9443 domain=www.cloudflare.com secret=eeabcdef0123456789\n", err="")
 
@@ -160,7 +172,9 @@ async def test_mtproto_step_keeps_the_secret_out_of_the_log_and_undoes(monkeypat
     assert calls[-1] == (rw_netmods.MTPROTO, ("on", "9443", "www.cloudflare.com", rw_netmods.MTPROTO_IMAGE))
     assert ctx.state["mtproto"]["2"]["tg"] == "tg://proxy?server=93.184.216.40&port=9443&secret=eeabcdef0123456789"
     assert ctx.state["modules"]["2"]["mtproto"] == "TCP 9443, www.cloudflare.com"
-    assert "eeabcdef" not in "\n".join(ctx.log) and "secret=[скрыто]" in "\n".join(ctx.log)
+    logged = "\n".join(ctx.log)
+    assert "eeabcdef" not in logged
+    assert f"{mtproto_log_field}=[скрыто]" in logged
     await rw_steps.undo_node_module(ctx, st)
     assert calls[-1] == (rw_netmods.MTPROTO, ("off",))
     answer = SimpleNamespace(code=5, out="busy\n", err="")
