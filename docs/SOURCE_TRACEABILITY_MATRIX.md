@@ -181,7 +181,7 @@
 | `REQ-CI-0004` | Часть I → Github Cicd → Runner Rule; L759; `3de990a1d56d` | `PASS` | `services/backend/app/ecosystem_updates.py`; `services/backend/app/auto_update_api.py` | `tests/test_ecosystem_updates.py` | `docs/AUTO_UPDATE.md` | Не сопоставлен |
 | `REQ-CI-0005` | Часть I → Github Cicd → Admin Control; L763; `a49c8a9ca112` | `PARTIAL` | `apps/lucy-admin/web/src/autoUpdate.tsx`; `apps/lucy-admin/web/src/ecosystem-updates.tsx`; `services/backend/app/auto_update_api.py`; `services/backend/app/ecosystem_updates.py` | `tests/test_auto_update_api.py` | Не сопоставлено | Не сопоставлен |
 | `REQ-DOC-0001` | Часть I → Documentation → Readme; L770; `b005873cd4cb` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-DOC-0002` | Часть I → Documentation → Wiki Languages; L774; `4213ddb0591a` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
+| `REQ-DOC-0002` | Часть I → Documentation → Wiki Languages; L774; `4213ddb0591a` | `PARTIAL` | Не сопоставлено | Не сопоставлено | `docs/wiki/README.md`; `docs/wiki/ru/Home.md`; `docs/wiki/en/Home.md`; `docs/wiki/uk/Home.md` | Не сопоставлен |
 | `REQ-DOC-0003` | Часть I → Documentation → Guides; L778; `de862eafb316` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-DOC-0004` | Часть I → Documentation → Rule; L782; `c35b2610b7f6` | `PARTIAL` | `scripts/check-doc-links.py` | Не сопоставлено | `docs/OBSERVABILITY.md`; `docs/ru/OPERATIONS_MONITORING.md`; `docs/ru/new/REMNAWAVE_MONITORING.md` | Не сопоставлен |
 | `REQ-QA-0009` | Часть I → Screenshot Coverage → Purpose; L789; `d43cb6660a3a` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
@@ -391,7 +391,7 @@
 | `REQ-DOC-0006` | Часть II → II.5. VPS, Termux, GitHub и документация; L1607; `175740b39104` | `PASS` | Не сопоставлено | Не сопоставлено | `docs/ru/new/TERMUX_GUIDE.md` | Не сопоставлен |
 | `REQ-DOC-0007` | Часть II → II.5. VPS, Termux, GitHub и документация; L1608; `8ba3ca6c7440` | `PASS` | Не сопоставлено | Не сопоставлено | `docs/ru/new/TERMUX_GUIDE.md` | Не сопоставлен |
 | `REQ-DOC-0008` | Часть II → II.5. VPS, Termux, GitHub и документация; L1609; `a17574e42101` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-DOC-0009` | Часть II → II.5. VPS, Termux, GitHub и документация; L1610; `18f2a569e42d` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
+| `REQ-DOC-0009` | Часть II → II.5. VPS, Termux, GitHub и документация; L1610; `18f2a569e42d` | `PARTIAL` | Не сопоставлено | Не сопоставлено | `docs/wiki/README.md`; `docs/wiki/ru/Troubleshooting.md`; `docs/wiki/en/Troubleshooting.md`; `docs/wiki/uk/Troubleshooting.md` | Не сопоставлен |
 | `REQ-DOC-0010` | Часть II → II.5. VPS, Termux, GitHub и документация; L1611; `f022a500910a` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-DOC-0011` | Часть II → II.5. VPS, Termux, GitHub и документация; L1612; `e5f1b3e797b3` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-GOV-0074` | Часть II → II.6. Восстановление недоступных task groups; L1615; `d53339732d3c` | `PARTIAL` | Не сопоставлено | Не сопоставлено | `docs/ru/new/BACKLOG.md`; `docs/ru/new/IMPLEMENTATION_STATUS.md` | Не сопоставлен |
