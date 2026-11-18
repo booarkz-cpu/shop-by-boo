@@ -10,11 +10,7 @@ Symptom → cause → how to check → how to fix.
 
 **Check:** open the browser console (F12 → Console), find the failed request and inspect the field shape.
 
-**Fix:** as of v28.159.0 the shape is enforced by a server-side test. On an older build, update:
-
-```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.161.0 bash scripts/update-from-github.sh
-```
+**Fix:** as of v28.159.0 the shape is enforced by a server-side test. For older versions, follow the [backup and update instructions](Updates.md).
 
 ### `(s || []).map is not a function`
 
@@ -47,10 +43,12 @@ retry appears instead of an empty page.
 
 ## Services
 
+Run Docker Compose commands from the shop installation directory, usually `/opt/vpn-shop`. For a custom installation, pass the actual directory to the scripts through `APP_DIR`.
+
 ### Docker Compose does not start
 
 ```bash
-docker compose config          # prints syntax errors and unset variables
+docker compose config --quiet
 ls -la .env                    # the file must exist
 ```
 
@@ -64,17 +62,24 @@ free -h                                 # is memory enough
 
 ### API is unreachable
 
+Start on the shop server. `API health: OK` means the API answered `/health/ready` inside the backend container.
+
 ```bash
-curl -s localhost:8000/health
-docker compose logs backend | tail -50
+bash scripts/doctor.sh
 ```
 
-Expected: `{"ok":true,"version":"21.5.1","redis":true,"database":true}`.
+Then test the public endpoint from another computer. Replace `api.example.com` with your API hostname. If the internal check passes and the public request fails, check DNS, the certificate and the Caddy logs.
+
+```bash
+curl -fsS https://api.example.com/health/ready
+```
 
 ### No HTTPS certificate
 
+Replace `admin.example.com` with your admin hostname.
+
 ```bash
-dig +short admin.your-domain.com     # must return the server IP
+dig +short admin.example.com     # must return the server IP
 docker compose logs caddy | tail -30
 ```
 
@@ -104,8 +109,8 @@ Check `REMNAWAVE_URL`, `REMNAWAVE_TOKEN`, and that the plan has an Internal Squa
 
 ### The webhook never arrives
 
-1. In the provider dashboard check the address: `https://your-domain/api/webhooks/<provider>`.
-2. Check the domain is reachable from outside: `curl -I https://your-domain/health`.
+1. Check the notification hostname and path configured for your provider. For example, YooKassa uses `/api/webhooks/yookassa`. [Provider setup](Payments.md).
+2. Check the API domain from outside the server using the command under “API is unreachable”. A successful response confirms API reachability. Check the provider’s delivery log for the notification itself.
 3. Read the incoming event log under "Payments".
 
 ### A payment is not confirmed
@@ -128,9 +133,11 @@ Causes: no root rights, little free space, checksum mismatch, an incompatible mi
 
 ### A backup is not created
 
+`scripts/backup.sh` writes encrypted `.vpb` files and `.vpb.sha256` checksums to `/var/backups/vpn-shop`. If the backup ran with `BACKUP_DEST` set, check that directory.
+
 ```bash
 df -h
-ls -la "$BACKUP_DIR" 2>/dev/null || grep BACKUP_DIR .env
+ls -ld -- "${BACKUP_DEST:-/var/backups/vpn-shop}"
 ```
 
 ## Quick full check
@@ -139,6 +146,6 @@ ls -la "$BACKUP_DIR" 2>/dev/null || grep BACKUP_DIR .env
 bash scripts/doctor.sh
 ```
 
-It checks the Compose configuration, the containers and `/health`. This is the first command for any problem.
+The script validates the Compose configuration, lists containers and checks `/health/ready` inside the backend. It also checks HTTP responses from the admin panel, Mini App and customer account.
 
 [← Back to home](Home.md)

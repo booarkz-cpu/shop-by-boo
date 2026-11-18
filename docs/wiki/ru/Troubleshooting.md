@@ -12,11 +12,7 @@
 **Проверка:** откройте консоль браузера (F12 → Console), найдите упавший запрос, посмотрите форму поля в
 ответе.
 
-**Исправление:** в v28.159.0 форма закреплена тестом на сервере. На более старой сборке — обновитесь:
-
-```bash
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.161.0 bash scripts/update-from-github.sh
-```
+**Исправление:** в v28.159.0 форма закреплена тестом на сервере. Для старой версии следуйте [инструкции обновления с резервной копией](Updates.md).
 
 ### `(s || []).map is not a function`
 
@@ -49,10 +45,12 @@ sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.161.0 bash scripts/update-from-gi
 
 ## Сервисы
 
+Выполняйте команды Docker Compose из каталога установки магазина. По умолчанию это `/opt/vpn-shop`. Для нестандартной установки передайте скриптам фактический путь через `APP_DIR`.
+
 ### Docker Compose не запускается
 
 ```bash
-docker compose config          # покажет синтаксическую ошибку и незаполненные переменные
+docker compose config --quiet
 ls -la .env                    # файл должен существовать
 ```
 
@@ -66,17 +64,24 @@ free -h                                 # хватило ли памяти
 
 ### API недоступен
 
+Сначала выполните проверку на сервере магазина. Строка `API health: OK` означает, что API ответил на `/health/ready` внутри контейнера backend.
+
 ```bash
-curl -s localhost:8000/health
-docker compose logs backend | tail -50
+bash scripts/doctor.sh
 ```
 
-Ожидаемый ответ: `{"ok":true,"version":"21.5.1","redis":true,"database":true}`.
+Затем с другого компьютера проверьте публичный адрес. Замените `api.example.com` своим доменом API. Если внутренняя проверка прошла, а публичная завершилась ошибкой, проверьте DNS, сертификат и журнал Caddy.
+
+```bash
+curl -fsS https://api.example.com/health/ready
+```
 
 ### Нет HTTPS-сертификата
 
+Подставьте свой домен админки.
+
 ```bash
-dig +short admin.ваш-домен.ru     # должен вернуть IP сервера
+dig +short admin.example.com     # должен вернуть IP сервера
 docker compose logs caddy | tail -30
 ```
 
@@ -105,8 +110,8 @@ docker compose logs backend | grep -i remnawave | tail -20
 
 ### Webhook не приходит
 
-1. В панели кассы проверьте адрес: `https://ваш-домен/api/webhooks/<провайдер>`.
-2. Проверьте, что домен доступен снаружи: `curl -I https://ваш-домен/health`.
+1. Сверьте домен и путь уведомлений с настройками конкретной кассы. Например, ЮKassa использует `/api/webhooks/yookassa`. [Подключение касс](Payments.md).
+2. Проверьте доступность домена API извне командой из раздела «API недоступен». Успешный ответ подтверждает доступность API. Доставку самого уведомления проверьте в журнале кассы.
 3. Посмотрите журнал входящих в разделе «Платежи».
 
 ### Платёж не подтверждается
@@ -129,9 +134,11 @@ df -h                                       # свободное место
 
 ### Резервная копия не создаётся
 
+Скрипт `scripts/backup.sh` сохраняет зашифрованные файлы `.vpb` и контрольные суммы `.vpb.sha256` в `/var/backups/vpn-shop`. Если при запуске задан `BACKUP_DEST`, проверьте тот каталог.
+
 ```bash
 df -h
-ls -la "$BACKUP_DIR" 2>/dev/null || grep BACKUP_DIR .env
+ls -ld -- "${BACKUP_DEST:-/var/backups/vpn-shop}"
 ```
 
 ## Быстрая проверка всего
@@ -140,6 +147,6 @@ ls -la "$BACKUP_DIR" 2>/dev/null || grep BACKUP_DIR .env
 bash scripts/doctor.sh
 ```
 
-Проверяет конфигурацию Compose, состояние контейнеров и `/health`. Это первая команда при любой проблеме.
+Скрипт проверяет конфигурацию Compose, выводит состояние контейнеров и проверяет `/health/ready` внутри backend, а также HTTP-ответы админки, Mini App и кабинета.
 
 [← На главную](Home.md)
