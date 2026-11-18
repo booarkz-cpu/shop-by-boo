@@ -8,7 +8,7 @@ Symptom → cause → how to check → how to fix.
 
 **Cause:** a field the editor expects as a label object `{ru, en, uk}` arrived as a string or `undefined`.
 
-**Check:** open the browser console (F12 → Console), find the failed request and inspect the field shape.
+**Check:** open the browser console (F12 → Console), find the request that failed and inspect the field's structure.
 
 **Fix:** as of v28.159.0 the shape is enforced by a server-side test. For older versions, follow the [backup and update instructions](Updates.md).
 
@@ -25,7 +25,7 @@ backend: check `NEXT_PUBLIC_API_URL` and `PUBLIC_BASE_URL`.
 
 **Cause:** a React render failure without an error boundary unmounted the whole tree.
 
-**Check:** the browser console shows the message before the fall.
+**Check:** the browser console shows the error message before the page fails.
 
 **Fix:** as of v28.159.0 `app/error.tsx` and root boundaries are in place — an error screen with the reason and a
 retry appears instead of an empty page.
@@ -57,7 +57,7 @@ ls -la .env                    # the file must exist
 ```bash
 docker compose ps                       # STATUS shows Restarting
 docker compose logs --tail=100 backend  # the reason
-free -h                                 # is memory enough
+free -h                                 # is there enough memory
 ```
 
 ### API is unreachable
@@ -127,7 +127,7 @@ sudo bash scripts/auto-update.sh status     # stage, result, log
 df -h                                       # free space
 ```
 
-Causes: no root rights, little free space, checksum mismatch, an incompatible migration.
+Causes: insufficient root permissions, insufficient disk space, a checksum mismatch, or an incompatible migration.
 
 ## Backups
 
