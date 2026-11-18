@@ -7,7 +7,7 @@ const {window} = new JSDOM("<!doctype html><html><body></body></html>", {
 
 // Events, files and DOM elements must come from the same window as the document.
 const useWindow = new Set([
-  "window", "document", "navigator", "Event", "EventTarget", "Blob", "File",
+  "window", "document", "navigator", "localStorage", "sessionStorage", "Event", "EventTarget", "Blob", "File",
   "FormData", "DOMException", "URL", "MouseEvent", "CustomEvent",
 ]);
 for (const name of Object.getOwnPropertyNames(window)) {
