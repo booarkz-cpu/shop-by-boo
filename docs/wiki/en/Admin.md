@@ -7,12 +7,12 @@ the browser is not enough.
 
 | Section | What it does |
 | --- | --- |
-| Dashboard | customers, money, subscriptions, service state |
+| Dashboard | customers, money, subscriptions, service status |
 | Users | customer card: subscriptions, payments, devices, traffic, sessions |
-| Subscriptions | all subscriptions, term, plan, status, extension and disable |
+| Subscriptions | all subscriptions, term, plan, status, renewal and deactivation |
 | Plans | create and edit plans, Remnawave Internal Squad, prices and duration |
-| Devices | bound devices and limits |
-| Payments | orders, statuses, re-reconciliation, refunds |
+| Devices | registered devices and limits |
+| Payments | orders, statuses, reconciliation retries, refunds |
 | Promo codes | discounts, limits, expiry |
 | Finance | operations ledger, P&L, provider reconciliation |
 | Analytics | revenue, conversion, cohorts, retention |
@@ -24,7 +24,7 @@ the browser is not enough.
 | System state | health checks, workers, queues |
 | Background jobs | schedules, last runs, errors |
 | Logs | error log and administrator action log |
-| Integrations | state of external services |
+| Integrations | status of external services |
 | Automation | rules and campaigns: event → action |
 | GitHub | versions, releases, update check |
 | Updates | current and available version, nightly update, history |
@@ -34,7 +34,7 @@ the browser is not enough.
 
 ## How access works
 
-Roles: `admin`, `operator`, `support`, `viewer`. The permission is enforced by `require_permission(...)` on every
+Roles: `admin`, `operator`, `support`, `viewer`. Permissions are enforced by `require_permission(...)` on every
 administrative route. A refund requires `payments.refund`, viewing a customer requires `users.read`, replying in
 support requires `support.write`.
 
@@ -52,7 +52,7 @@ If a button does nothing, read the server response first: `403` means "no permis
 2. The card shows subscriptions, payments, devices, traffic per day and sessions.
 3. Actions: extend, change plan, disable, refund, send a message.
 
-Traffic per day comes from Remnawave statistics. If the panel does not serve them, the section shows an empty
+Traffic per day comes from Remnawave statistics. If the panel does not provide them, the section shows an empty
 chart instead of an error.
 
 [← Back to home](Home.md)

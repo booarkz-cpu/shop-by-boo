@@ -19,7 +19,7 @@ docker compose restart bot
 
 4. Open your bot and send `/start` — the menu must appear.
 
-**Check:** `docker compose logs -f bot` shows incoming updates. If it stays empty, the token is wrong.
+**Check:** `docker compose logs -f bot` shows incoming updates. If it stays empty, verify the token.
 
 ### Bot commands
 
@@ -55,7 +55,7 @@ So a forged sign-in cannot pass, even if a client sends its own data directly. T
 
 ## Notifications
 
-The shop messages a customer on payment, renewal, expiry, a support reply, a failure and a block.
+The shop messages a customer after payment or renewal, before subscription expiry, and on a support reply, failure or block.
 
 ```env
 REQUIRED_TELEGRAM_CHANNEL=      # mandatory channel subscription, empty means not required
