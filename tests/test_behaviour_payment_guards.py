@@ -207,3 +207,33 @@ async def test_reconciliation_asks_about_the_stored_order(database, monkeypatch)
     rows = {p.order_id: p.status for p in (await database.execute(select(Payment))).scalars()}
     assert rows[unpaid.order_id] == "pending" and rows[unknown.order_id] == "creation_unknown"
     assert rows[other.order_id] == "pending" and rows[settled.order_id] == "paid" and rows[stale.order_id] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_visits_later_orders_and_restarts_a_bounded_sweep(database, monkeypatch):
+    batch = shop.RECONCILE_BATCH
+    original = [f"pending-{i}" for i in range(batch + 1)]
+    for order in original:
+        await add_payment(database, order_id=order, provider_payment_id=order)
+
+    ticks = []
+
+    async def sleep(seconds):
+        assert seconds == shop.RECONCILE_INTERVAL
+        if len(ticks) == 4:
+            raise asyncio.CancelledError
+        if len(ticks) == 1:
+            await add_payment(database, order_id="new-arrival", provider_payment_id="new-arrival")
+        ticks.append([])
+
+    async def still_pending(self, pid, amount, currency, order_id):
+        ticks[-1].append(order_id)
+        return False
+
+    monkeypatch.setattr(shop, "engine", database.bind)
+    monkeypatch.setattr(shop, "asyncio", SimpleNamespace(**{**vars(asyncio), "sleep": sleep}))
+    monkeypatch.setattr(shop.YooKassaProvider, "verify_succeeded", still_pending)
+    with pytest.raises(asyncio.CancelledError):
+        await shop.reconciliation_scheduler()
+
+    assert ticks == [original[:batch], original[batch:], original[:batch], [original[-1], "new-arrival"]]
