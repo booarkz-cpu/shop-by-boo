@@ -351,17 +351,18 @@ async def run_reconciliation_pass(db, now=None) -> int:
     return confirmed
 
 
-async def _reconcile_page(db, now, cursor: tuple[int, int] | None):
+async def _reconcile_page(db, now, cursor: tuple[int, int, shop.datetime] | None):
     now = now or shop.datetime.utcnow()
     await shop.cleanup_expired_promo_reservations(db, now)
-    cutoff = now - shop.timedelta(hours=RECONCILE_LOOKBACK_HOURS)
     payment = shop.Payment
-    eligible = shop.select(payment).where(
-        payment.created_at >= cutoff,
-        payment.status.in_(["pending", "creation_unknown"]),
-    )
     if cursor is None:
-        # Freeze the end of this sweep so newly arriving orders cannot postpone retries forever.
+        # Freeze both ends of the sweep. Otherwise a payment near the 24-hour
+        # boundary could age out while an earlier full page is being checked.
+        cutoff = now - shop.timedelta(hours=RECONCILE_LOOKBACK_HOURS)
+        eligible = shop.select(payment).where(
+            payment.created_at >= cutoff,
+            payment.status.in_(["pending", "creation_unknown"]),
+        )
         through_id = await db.scalar(
             eligible.with_only_columns(payment.id).order_by(payment.id.desc()).limit(1)
         )
@@ -369,14 +370,18 @@ async def _reconcile_page(db, now, cursor: tuple[int, int] | None):
             await db.commit()
             return 0, None
     else:
-        after_id, through_id = cursor
-        eligible = eligible.where(payment.id > after_id)
+        after_id, through_id, cutoff = cursor
+        eligible = shop.select(payment).where(
+            payment.created_at >= cutoff,
+            payment.status.in_(["pending", "creation_unknown"]),
+            payment.id > after_id,
+        )
 
     page = eligible.where(payment.id <= through_id).order_by(payment.id).limit(RECONCILE_BATCH)
     rows = (await db.execute(page)).scalars().all()
     next_cursor = None
     if len(rows) == RECONCILE_BATCH and rows[-1].id < through_id:
-        next_cursor = (rows[-1].id, through_id)
+        next_cursor = (rows[-1].id, through_id, cutoff)
     providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),**extra_gateways(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
     confirmed=0
     for p in rows:
