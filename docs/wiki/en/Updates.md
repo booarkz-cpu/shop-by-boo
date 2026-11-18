@@ -1,87 +1,46 @@
-# Updates
-
-The shop updates to published GitHub Releases. There is a manual run and a nightly automatic check.
-
-## Architecture
-
-There is no separate scheduler server. The scheduler is **systemd on the same host** that runs the shop. GitHub
-is only the source of verified releases and has no access to the server filesystem.
-
-| Where | What | File |
-| --- | --- | --- |
-| Host (root, systemd) | nightly timer and agent | `scripts/auto_update.py`, `scripts/auto-update.sh` |
-| Host | fetch and verify the release (SHA-256, manifest) | `scripts/update-from-github.sh` |
-| Backend | only writes a request and reads state | `services/backend/app/auto_update_api.py` |
-| Panel | buttons and status | "Updates" section |
-
-The exchange goes through two JSON files in `.control`: the panel writes a request, the agent writes state. The
-agent accepts exactly three fields (`enabled`, `time`, `check_now`) and validates their format — the panel cannot
-make the server do anything else.
-
-## Schedule
-
-Default **03:00 Europe/Moscow**, random delay up to 15 minutes (`RandomizedDelaySec=900`), `Persistent=true` — a
-missed run executes once the host is back.
-
-The time is changed in the "Updates" section: the agent rewrites the timer unit file.
-
-```bash
-sudo bash scripts/auto-update.sh status     # state and schedule
-sudo bash scripts/auto-update.sh install    # enable the nightly check
-sudo bash scripts/auto-update.sh disable    # disable
-```
-
-## What happens during an update
-
-1. Source check — stable GitHub releases only.
-2. Fetch version metadata and the manifest.
-3. Check version and channel.
-4. Check compatibility and required configuration.
-5. Check migrations: an irreversible migration stops automatic installation.
-6. Back up the database and snapshot the files.
-7. Download the artefact and verify SHA-256.
-8. Unpack, migrate, build.
-9. Restart services.
-10. Check `/health`, key APIs, the panel and the database.
-11. Record the result and notify the administrator.
-
-If any critical check fails, the artefact is **not** installed.
-
-## Rollback
-
-On a post-install failure a verified rollback to the snapshot taken before the update is triggered:
-
-```bash
-bash scripts/rollback.sh
-```
-
-If a safe rollback is impossible, the update stops, diagnostics are preserved and the administrator is notified.
+# Update the shop
 
 ## Manual update
 
+Schedule a maintenance window. For a standard installation, run these commands as root from `/opt/vpn-shop`. If you installed elsewhere, set `APP_DIR` to that directory and use it in the commands below.
+
+Create an encrypted backup before updating. The script prompts for a password and briefly stops the running services that write data. Keep the `.vpb` file, its checksum and the recovery password. Backups go to `/var/backups/vpn-shop` by default.
+
 ```bash
-bash scripts/backup.sh
-sudo env APP_DIR=/opt/vpn-shop RELEASE_TAG=v28.161.0 bash /opt/vpn-shop/scripts/update-from-github.sh
+cd /opt/vpn-shop &&
+  bash scripts/backup.sh &&
+  RELEASE_TAG=v28.161.0 bash scripts/update-from-github.sh
 ```
 
-## What the "Updates" section shows
+This command selects the published `v28.161.0`. To install a later stable release, specify its exact tag. Omitting `RELEASE_TAG` selects the latest stable release. If the installed version is the same or newer, the script exits without replacing files.
 
-Current and available version, source and channel, last check and last update time, schedule, automatic mode,
-operation history, compatibility result, backup status, migration status, health checks and a GitHub Release link.
+## What the updater checks
 
-Buttons: "Check for updates", "Update now", "Enable auto-update", "Disable auto-update", "View log", "Check
-system state", "Restore previous version".
+The downloader checks the tag and archive SHA-256, extracts the archive to a temporary directory and verifies the version. It also checks the minimum starting version when the distribution specifies one. The distribution and API version numbers differ for `v28.161.0`, so the downloader also checks the manifest against the archive and the commit referenced by the tag.
 
-## Documentation
+Once the archive passes these checks, `update.sh` saves a file snapshot and a SQL dump of the shop database in `.rollback`, applies the update and runs `doctor.sh`.
 
-- [AUTO_UPDATE.md](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/AUTO_UPDATE.md) — architecture and cycle
-- [AUTO_UPDATE_SECURITY.md](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/AUTO_UPDATE_SECURITY.md) — threat model
-- [AUTO_UPDATE_TROUBLESHOOTING.md](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/AUTO_UPDATE_TROUBLESHOOTING.md) — failures
-- [AUTO_UPDATE_TESTING.md](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/AUTO_UPDATE_TESTING.md) — 19 scenarios
+## Nightly updates
 
-## Status
+The systemd timer runs on the shop server. The default time is 03:00 Moscow time, with a random delay of up to 15 minutes. `Persistent=true` allows a missed run to start after the server comes back online. Use the following command to check the schedule and the last result.
 
-The mechanism is implemented and documented, local tests pass. The timer firing and a real install on a VPS have
-not been verified: the project has no host with a deployed shop. That limit is recorded, not hidden.
+```bash
+cd /opt/vpn-shop && sudo bash scripts/auto-update.sh status
+```
 
-[← Back to home](Home.md)
+Use `install` or `disable` in place of `status` to enable or disable the timer. The `run` command checks for an update and can install it immediately.
+
+## If an update stops
+
+A failure after file replacement begins can trigger an automatic rollback. Check the logs, service status and `.rollback/RECOVERY_MODE`. A manual `scripts/rollback.sh` restores files from `.rollback/latest.tar.gz` and the shop database from `.rollback/latest.sql` by default. Records written after the dump may be lost. To recover both databases and secrets, use the full encrypted backup.
+
+These commands were checked against the v28.161.0 source. Verify installation and recovery on your VPS using that server’s own results.
+
+## Related guides
+
+- [AUTO_UPDATE.md](https://github.com/booarkz-cpu/shop-by-boo/blob/v28.161.0/docs/AUTO_UPDATE.md) — architecture and cycle
+- [AUTO_UPDATE_SECURITY.md](https://github.com/booarkz-cpu/shop-by-boo/blob/v28.161.0/docs/AUTO_UPDATE_SECURITY.md) — threat model
+- [AUTO_UPDATE_TROUBLESHOOTING.md](https://github.com/booarkz-cpu/shop-by-boo/blob/v28.161.0/docs/AUTO_UPDATE_TROUBLESHOOTING.md) — failures
+- [AUTO_UPDATE_TESTING.md](https://github.com/booarkz-cpu/shop-by-boo/blob/v28.161.0/docs/AUTO_UPDATE_TESTING.md) — 19 scenarios
+
+[Troubleshooting](Troubleshooting.md) · [Home](Home.md)

@@ -4578,5 +4578,27 @@
     ],
     "platforms": "iOS shop demo simulator",
     "note": "18.11.2026: iOS UI сохраняет отдельный xcresult каждой разрешённой попытки, извлекает summary и принимает только четыре passed-теста без failed/skipped/expected failures. JSON verdict содержит commit/head SHA, branch и run ID/attempt; summary и логи сохраняются как artifact на 14 дней. Счётчики проверяются как целые числа верхнего уровня; неполный отчёт и прежний success proof не принимаются. Реальное выполнение новой проверки требует CI точной головы. Полный контракт evidence всех остальных отчётов, screenshots и внешних сценариев не подтверждён; статус PARTIAL."
+  },
+  "REQ-DOC-0002": {
+    "status": "PARTIAL",
+    "platforms": "all products",
+    "evidence": [
+      "docs/wiki/README.md",
+      "docs/wiki/ru/Home.md",
+      "docs/wiki/en/Home.md",
+      "docs/wiki/uk/Home.md"
+    ],
+    "note": "В исходниках Wiki для русского, английского и украинского языков проверены одинаковые наборы из 12 страниц и одного меню. Для 119 относительных ссылок найдены файлы назначения. Открытие опубликованных страниц отдельной GitHub Wiki и полнота перевода всех текстов ещё не подтверждены."
+  },
+  "REQ-DOC-0009": {
+    "status": "PARTIAL",
+    "platforms": "all products",
+    "evidence": [
+      "docs/wiki/README.md",
+      "docs/wiki/ru/Troubleshooting.md",
+      "docs/wiki/en/Troubleshooting.md",
+      "docs/wiki/uk/Troubleshooting.md"
+    ],
+    "note": "В репозитории есть инструкция по первому созданию и наполнению GitHub Wiki и диагностические страницы на трёх языках. Сверены файлы и пути ссылок. Создание, публикация и навигация в отдельной GitHub Wiki требуют самостоятельного подтверждения."
   }
 }
