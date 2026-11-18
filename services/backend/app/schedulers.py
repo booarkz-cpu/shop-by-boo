@@ -346,11 +346,42 @@ RECONCILE_BATCH = 50
 
 
 async def run_reconciliation_pass(db, now=None) -> int:
-    """Ask each open payment's provider whether that stored order succeeded. Returns how many were confirmed."""
-    now=now or shop.datetime.utcnow()
-    await shop.cleanup_expired_promo_reservations(db,now)
-    cutoff=now-shop.timedelta(hours=RECONCILE_LOOKBACK_HOURS)
-    rows=(await db.execute(shop.select(shop.Payment).where(shop.Payment.created_at>=cutoff,shop.Payment.status.in_(["pending","creation_unknown"])).order_by(shop.Payment.id).limit(RECONCILE_BATCH))).scalars().all()
+    """Run one standalone batch and return the number of confirmed payments."""
+    confirmed, _ = await _reconcile_page(db, now, cursor=None)
+    return confirmed
+
+
+async def _reconcile_page(db, now, cursor: tuple[int, int, shop.datetime] | None):
+    now = now or shop.datetime.utcnow()
+    await shop.cleanup_expired_promo_reservations(db, now)
+    payment = shop.Payment
+    if cursor is None:
+        # Freeze both ends of the sweep. Otherwise a payment near the 24-hour
+        # boundary could age out while an earlier full page is being checked.
+        cutoff = now - shop.timedelta(hours=RECONCILE_LOOKBACK_HOURS)
+        eligible = shop.select(payment).where(
+            payment.created_at >= cutoff,
+            payment.status.in_(["pending", "creation_unknown"]),
+        )
+        through_id = await db.scalar(
+            eligible.with_only_columns(payment.id).order_by(payment.id.desc()).limit(1)
+        )
+        if through_id is None:
+            await db.commit()
+            return 0, None
+    else:
+        after_id, through_id, cutoff = cursor
+        eligible = shop.select(payment).where(
+            payment.created_at >= cutoff,
+            payment.status.in_(["pending", "creation_unknown"]),
+            payment.id > after_id,
+        )
+
+    page = eligible.where(payment.id <= through_id).order_by(payment.id).limit(RECONCILE_BATCH)
+    rows = (await db.execute(page)).scalars().all()
+    next_cursor = None
+    if len(rows) == RECONCILE_BATCH and rows[-1].id < through_id:
+        next_cursor = (rows[-1].id, through_id, cutoff)
     providers={"yookassa":shop.YooKassaProvider(),"platega":shop.PlategaProvider(),"rollypay":shop.RollyPayProvider(),"cryptobot":shop.CryptoBotProvider(),"freekassa":shop.FreekassaProvider(),**extra_gateways(),"stripe":shop.StripePlatform(),"paypal":shop.PayPalPlatform(),"crypto":shop.CryptoGatewayPlatform()}
     confirmed=0
     for p in rows:
@@ -375,15 +406,16 @@ async def run_reconciliation_pass(db, now=None) -> int:
         except Exception as exc:
             shop.logger.warning("Non-critical operation failed: %s", exc)
     await db.commit()
-    return confirmed
+    return confirmed, next_cursor
 
 
 async def reconciliation_scheduler():
+    cursor = None
     while True:
         try:
             await shop.asyncio.sleep(RECONCILE_INTERVAL)
             async with shop.AsyncSession(shop.engine,expire_on_commit=False) as db:
-                await run_reconciliation_pass(db)
+                _, cursor = await _reconcile_page(db, now=None, cursor=cursor)
         except Exception: await shop.asyncio.sleep(30)
 
 async def run_lifecycle_pass(db, now=None) -> None:

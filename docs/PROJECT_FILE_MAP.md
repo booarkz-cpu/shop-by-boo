@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2726**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2735**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -60,6 +60,7 @@
 | [.github/release-v21.5.1.md](../.github/release-v21.5.1.md) | GitHub CI/CD |
 | [.github/workflows/android-client.yml](../.github/workflows/android-client.yml) | GitHub CI/CD |
 | [.github/workflows/android-vpn-e2e.yml](../.github/workflows/android-vpn-e2e.yml) | GitHub CI/CD |
+| [.github/workflows/autonomous-audit.yml](../.github/workflows/autonomous-audit.yml) | GitHub CI/CD |
 | [.github/workflows/build-mobile.yml](../.github/workflows/build-mobile.yml) | GitHub CI/CD |
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/claude-roadmap.yml](../.github/workflows/claude-roadmap.yml) | GitHub CI/CD |
@@ -380,6 +381,8 @@
 | [apps/user-cabinet/public/assets/stickers/waiting.webp](../apps/user-cabinet/public/assets/stickers/waiting.webp) | Приложения |
 | [apps/user-cabinet/public/manifest.webmanifest](../apps/user-cabinet/public/manifest.webmanifest) | Приложения |
 | [apps/user-cabinet/scripts/csp-externalize.mjs](../apps/user-cabinet/scripts/csp-externalize.mjs) | Приложения |
+| [apps/user-cabinet/scripts/test-cabinet.mjs](../apps/user-cabinet/scripts/test-cabinet.mjs) | Приложения |
+| [apps/user-cabinet/scripts/test-dom.cjs](../apps/user-cabinet/scripts/test-dom.cjs) | Приложения |
 | [apps/user-cabinet/src/account-merge.test.tsx](../apps/user-cabinet/src/account-merge.test.tsx) | Приложения |
 | [apps/user-cabinet/src/account-merge.tsx](../apps/user-cabinet/src/account-merge.tsx) | Приложения |
 | [apps/user-cabinet/src/account-recovery.test.tsx](../apps/user-cabinet/src/account-recovery.test.tsx) | Приложения |
@@ -451,7 +454,7 @@
 | [apps/user-cabinet/src/workspace.test.tsx](../apps/user-cabinet/src/workspace.test.tsx) | Приложения |
 | [apps/user-cabinet/src/workspace.tsx](../apps/user-cabinet/src/workspace.tsx) | Приложения |
 | [apps/user-cabinet/tsconfig.json](../apps/user-cabinet/tsconfig.json) | Приложения |
-| [apps/user-cabinet/vitest.config.mts](../apps/user-cabinet/vitest.config.mts) | Приложения |
+| [apps/user-cabinet/tsconfig.tests.json](../apps/user-cabinet/tsconfig.tests.json) | Приложения |
 | [apps/vpn-client/android/.editorconfig](../apps/vpn-client/android/.editorconfig) | Приложения |
 | [apps/vpn-client/android/app/build.gradle.kts](../apps/vpn-client/android/app/build.gradle.kts) | Приложения |
 | [apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt](../apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/ClientScreensTest.kt) | Приложения |
@@ -753,6 +756,7 @@
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
+| [docs/AUTONOMOUS_AUDIT.md](../docs/AUTONOMOUS_AUDIT.md) | Документация |
 | [docs/AUTO_SELECTION.md](../docs/AUTO_SELECTION.md) | Документация |
 | [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
 | [docs/AUTO_UPDATE_SECURITY.md](../docs/AUTO_UPDATE_SECURITY.md) | Документация |
@@ -767,6 +771,7 @@
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
+| [docs/IOS_UI_VERIFICATION.md](../docs/IOS_UI_VERIFICATION.md) | Документация |
 | [docs/MASQUE_IMPLEMENTATION_REPORT.md](../docs/MASQUE_IMPLEMENTATION_REPORT.md) | Документация |
 | [docs/MASQUE_PANEL.md](../docs/MASQUE_PANEL.md) | Документация |
 | [docs/MASTER_EXECUTION_BLOCKERS.md](../docs/MASTER_EXECUTION_BLOCKERS.md) | Документация |
@@ -1801,6 +1806,7 @@
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
+| [scripts/audit/run_full_audit.py](../scripts/audit/run_full_audit.py) | Эксплуатация и релиз |
 | [scripts/audit/source_traceability.py](../scripts/audit/source_traceability.py) | Эксплуатация и релиз |
 | [scripts/audit_support_pro.py](../scripts/audit_support_pro.py) | Эксплуатация и релиз |
 | [scripts/auto-update.sh](../scripts/auto-update.sh) | Эксплуатация и релиз |
@@ -1845,6 +1851,7 @@
 | [scripts/ci/secret-leak-check.py](../scripts/ci/secret-leak-check.py) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/verify_xcuitest_results.py](../scripts/ci/verify_xcuitest_results.py) | Эксплуатация и релиз |
 | [scripts/ci/wizard-caddy-check.sh](../scripts/ci/wizard-caddy-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
@@ -2521,6 +2528,7 @@
 | [tests/test_freekassa.py](../tests/test_freekassa.py) | Проверки |
 | [tests/test_freeze_dunning.py](../tests/test_freeze_dunning.py) | Проверки |
 | [tests/test_frontend_regressions.py](../tests/test_frontend_regressions.py) | Проверки |
+| [tests/test_full_audit.py](../tests/test_full_audit.py) | Проверки |
 | [tests/test_gateway_ops.py](../tests/test_gateway_ops.py) | Проверки |
 | [tests/test_giveaways.py](../tests/test_giveaways.py) | Проверки |
 | [tests/test_growth.py](../tests/test_growth.py) | Проверки |
@@ -2732,5 +2740,6 @@
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
 | [tests/test_workflows_parse.py](../tests/test_workflows_parse.py) | Проверки |
+| [tests/test_xcuitest_results.py](../tests/test_xcuitest_results.py) | Проверки |
 | [tests/test_xray_core_watch.py](../tests/test_xray_core_watch.py) | Проверки |
 | [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |

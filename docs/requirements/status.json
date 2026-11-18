@@ -3381,16 +3381,26 @@
     "note": "docs/SCREENSHOT_COVERAGE.md ещё нет."
   },
   "REQ-QA-0025": {
-    "status": "NOT_IMPLEMENTED",
-    "evidence": [],
+    "status": "PARTIAL",
+    "evidence": [
+      "scripts/audit/run_full_audit.py",
+      ".github/workflows/autonomous-audit.yml",
+      "tests/test_full_audit.py",
+      "docs/AUTONOMOUS_AUDIT.md"
+    ],
     "platforms": "all products",
-    "note": ".github/workflows/autonomous-audit.yml нет; проверки идут в ci.yml и ночном docs-links.yml."
+    "note": "Добавлен autonomous-audit.yml для PR, main, ручного и ежедневного запуска с read-only permissions и сохранением результатов при сбое. Область пока ограничена согласованностью исходников и документов; сборки, платежи, устройства и VPS проверяются отдельно."
   },
   "REQ-QA-0026": {
-    "status": "NOT_IMPLEMENTED",
-    "evidence": [],
+    "status": "PARTIAL",
+    "evidence": [
+      "scripts/audit/run_full_audit.py",
+      ".github/workflows/autonomous-audit.yml",
+      "tests/test_full_audit.py",
+      "docs/AUTONOMOUS_AUDIT.md"
+    ],
     "platforms": "all products",
-    "note": "artifacts/audit/* не формируются."
+    "note": "Во время аудита формируются checklist-results.json, FULL_AUDIT_REPORT.md и отфильтрованные логи. Содержат все требования и настоящие результаты семи команд; полные продуктовые доказательства, скриншоты и все внешние связи ещё не собраны."
   },
   "REQ-GOV-0002": {
     "status": "PASS",
@@ -4535,5 +4545,38 @@
       "release-manifest.template.json"
     ],
     "note": "Введены полный отчёт по всем требованиям и барьер готовности нового релиза. Полная готовность не подтверждена: остаются PARTIAL, NOT_IMPLEMENTED, NOT_TESTED и внешние блокировки; production-ready, full_function_transfer, production_e2e_verified и signed не поднимаются без фактических доказательств. Все исходные задачи сохраняются."
+  },
+  "REQ-QA-0024": {
+    "status": "PARTIAL",
+    "evidence": [
+      "scripts/audit/run_full_audit.py",
+      ".github/workflows/autonomous-audit.yml",
+      "tests/test_full_audit.py",
+      "docs/AUTONOMOUS_AUDIT.md"
+    ],
+    "platforms": "all products",
+    "note": "Добавлен run_full_audit.py: выполняет семь существующих проверок реальных условий и собирает полный перечень требований. Остальные специализированные проверки исходного списка не подменены; полный продуктовый аудит не завершён."
+  },
+  "REQ-QA-0027": {
+    "status": "PARTIAL",
+    "evidence": [
+      "scripts/audit/run_full_audit.py",
+      ".github/workflows/autonomous-audit.yml",
+      "tests/test_full_audit.py",
+      "docs/AUTONOMOUS_AUDIT.md"
+    ],
+    "platforms": "all products",
+    "note": "Аудит выполняет канонические проверки, валидаторы ссылок, заглушек и секретов; фиксирует ненулевые коды и тайм-ауты. Это реальные условия, но они не охватывают все обязательные сценарии из исходного промпта."
+  },
+  "REQ-QA-0069": {
+    "status": "PARTIAL",
+    "evidence": [
+      ".github/workflows/ci.yml",
+      "scripts/ci/verify_xcuitest_results.py",
+      "tests/test_xcuitest_results.py",
+      "docs/IOS_UI_VERIFICATION.md"
+    ],
+    "platforms": "iOS shop demo simulator",
+    "note": "18.11.2026: iOS UI сохраняет отдельный xcresult каждой разрешённой попытки, извлекает summary и принимает только четыре passed-теста без failed/skipped/expected failures. JSON verdict содержит commit/head SHA, branch и run ID/attempt; summary и логи сохраняются как artifact на 14 дней. Счётчики проверяются как целые числа верхнего уровня; неполный отчёт и прежний success proof не принимаются. Реальное выполнение новой проверки требует CI точной головы. Полный контракт evidence всех остальных отчётов, screenshots и внешних сценариев не подтверждён; статус PARTIAL."
   }
 }

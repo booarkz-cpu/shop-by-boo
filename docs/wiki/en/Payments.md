@@ -1,7 +1,6 @@
 # Payments
 
-The shop takes money through 16 external providers and Telegram Stars. All of them are implemented in code; a
-method appears for a customer only after you fill in its variables in `.env`.
+The shop can route checkout orders to 15 external payment providers. Availability depends on the provider’s settings, credentials and current status. Tribute handles wallet top-ups separately. Telegram Stars payments and subscriptions use Telegram invoices.
 
 ## How a payment flows
 
@@ -22,61 +21,57 @@ sequenceDiagram
     S-->>C: subscription is ready
 ```
 
-A repeated webhook never repeats the grant: the event is marked as processed and delivery is guarded by a
-per-customer lock. A subscription is **never** granted from a customer message — only after the provider
-confirms the status.
+When the shop receives a notification, it verifies the payment and checks whether it has already processed the event. Customers can check the result in their account.
 
 ## Connecting a provider
 
-1. Register with the provider and get the keys.
-2. Fill in the variables in `.env` (table below).
-3. In the provider dashboard set the webhook address:
-   `https://your-domain/api/webhooks/<provider>` — the exact path is listed with the provider.
-4. Restart the backend: `docker compose restart backend`.
-5. Check: under "Payments" in the admin panel the provider must show "configured".
+1. Obtain credentials from the provider and set the corresponding variables in the server’s `.env` file.
+2. Enter the HTTPS notification URL in the provider’s dashboard. For example, YooKassa uses `/api/webhooks/yookassa` on your API domain.
+3. In a standard Compose installation, run `docker compose up -d backend worker` to apply the `.env` changes. If you changed `BOT_TOKEN`, also update the `bot` service.
+4. In the admin panel, check that the provider is configured, enabled and available for the selected payment method.
 
 ## Providers and variables
 
 | Provider | Accepts | Variables |
 | --- | --- | --- |
 | YooKassa | cards, SBP | `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY`, `YOOKASSA_WEBHOOK_IP_ALLOWLIST` |
-| Freekassa | cards, SBP | `FREEKASSA_MERCHANT_ID`, `FREEKASSA_SECRET_WORD`, `FREEKASSA_SECRET_WORD_2` |
+| Freekassa | cards, SBP | `FREEKASSA_SHOP_ID`, `FREEKASSA_SECRET1`, `FREEKASSA_SECRET2`, `FREEKASSA_API_KEY`, `FREEKASSA_WEBHOOK_IP_ALLOWLIST` |
 | CloudPayments | cards, SBP, refunds | `CLOUDPAYMENTS_PUBLIC_ID`, `CLOUDPAYMENTS_API_SECRET` |
 | Platega | cards, SBP | `PLATEGA_MERCHANT_ID`, `PLATEGA_SECRET` |
 | RollyPay | cards, SBP | `ROLLYPAY_API_KEY`, `ROLLYPAY_SIGNING_SECRET` |
 | CryptoBot | crypto | `CRYPTOBOT_TOKEN`, `CRYPTOBOT_NETWORK` |
-| Lava | cards, SBP | `LAVA_*` |
+| Lava | cards, SBP | `LAVA_SHOP_ID`, `LAVA_SECRET_KEY`, `LAVA_WEBHOOK_SECRET` |
 | Pal24 | cards, SBP | `PAL24_*` |
-| Mulen Pay | cards, SBP | `MULENPAY_*` |
-| WATA | cards, SBP | `WATA_*` |
-| Antilopay | cards, SBP | `ANTILOPAY_*` |
-| AuraPay | cards, SBP | `AURAPAY_*` |
-| Anore | cards, SBP | `ANORE_*` |
-| Cashera | cards, SBP | `CASHERA_*` |
-| ParityPay | cards, SBP | `PARITYPAY_*` |
-| Tribute | wallet top-up | `TRIBUTE_*` |
+| Mulen Pay | cards, SBP | `MULENPAY_SHOP_ID`, `MULENPAY_API_KEY`, `MULENPAY_SECRET_KEY` |
+| WATA | cards, SBP | `WATA_ACCESS_TOKEN` |
+| Antilopay | cards, SBP | `ANTILOPAY_PROJECT_ID`, `ANTILOPAY_SECRET_ID`, `ANTILOPAY_PRIVATE_KEY`, `ANTILOPAY_PUBLIC_KEY`, `ANTILOPAY_CUSTOMER_EMAIL` |
+| AuraPay | cards, SBP | `AURAPAY_SHOP_ID`, `AURAPAY_API_KEY`, `AURAPAY_SECRET_KEY` |
+| Anore | cards, SBP | `ANORE_SHOP_ID`, `ANORE_API_KEY`, `ANORE_SECRET_KEY` |
+| Cashera | cards, SBP | `CASHERA_API_KEY`, `CASHERA_API_SECRET` |
+| ParityPay | cards, SBP | `PARITYPAY_SHOP_ID`, `PARITYPAY_SECRET_KEY`, `PARITYPAY_CALLBACK_SECRET` |
+| Tribute | wallet top-up | `TRIBUTE_DONATE_LINK`, `TRIBUTE_API_KEY` |
 | Telegram Stars | Stars, auto-renewal | `BOT_TOKEN` |
 
-The shared webhook address is set by `WEBHOOK_BASE_URL`.
+`WEBHOOK_BASE_URL` sets the public base URL. The notification path depends on the provider.
 
 ## Testing without money
 
+On a separate local machine with Docker and Compose, run the command below from the project root. On the first run, the script creates `.env.test` from the test template. If the file already exists, check that it sets `APP_ENV=development` and `PAYMENTS_SANDBOX=true`. Leave payment provider and Remnawave credentials empty.
+
 ```bash
-PAYMENTS_SANDBOX=true docker compose up -d backend
+COMPOSE_PROJECT_NAME=corgi-sandbox bash scripts/test-up.sh
 ```
 
-Sandbox mode runs an order through the internal logic without a real provider. It verifies the code, **not** the
-ability to take money.
+The script checks API health and places an order using the `sandbox` provider. Open the customer account at `http://127.0.0.1:18082`. This order exercises local subscription fulfillment. Live payments require separate verification for each provider.
 
 ## Emergency stop
 
-The admin panel has a "Stop accepting payments" button: new orders are not created, already paid orders finish
-normally. It applies immediately, without a restart.
+An administrator can stop new payments in the admin panel. The shop continues processing orders that have already been paid.
 
-## Honest status
+## Provider verification
 
-No real money has moved through any provider: the project has no live keys. The signature, amount verification
-and idempotency paths are covered by tests. Step-by-step live verification for every provider:
-[PAYMENTS_LIVE_CHECKLIST.md](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/ru/PAYMENTS_LIVE_CHECKLIST.md).
+The inventory lists each adapter’s capabilities and verification status. `IMPLEMENTED` means an adapter exists in the code. Provider-side tests and live payment results are recorded separately.
+
+[Provider inventory (Russian)](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/PAYMENT_PROVIDER_INVENTORY.md) · [Live provider verification guide (Russian)](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/ru/PAYMENTS_LIVE_CHECKLIST.md)
 
 [← Back to home](Home.md)

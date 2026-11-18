@@ -16,11 +16,11 @@
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
 | `PASS` | 217 | Проверено, доказательство указано |
-| `PARTIAL` | 245 | Сделано частично, остаток описан |
-| `NOT_IMPLEMENTED` | 27 | Функции нет |
+| `PARTIAL` | 250 | Сделано частично, остаток описан |
+| `NOT_IMPLEMENTED` | 25 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 166 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 163 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -41,7 +41,7 @@
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 12 | 3 | 0 | 0 |
 | Документация | 38 | 24 | 3 | 0 | 10 |
-| Аудит, тесты, скриншоты | 69 | 20 | 3 | 0 | 43 |
+| Аудит, тесты, скриншоты | 69 | 20 | 8 | 0 | 40 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 1 | 4 | 0 | 0 |
@@ -4558,34 +4558,42 @@
 
 > scripts/audit/
 
-### REQ-QA-0024 — `NOT_TESTED`
+### REQ-QA-0024 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Scripts (строка 885). Продукт: Все три.
-- Названные файлы: `check_admin_parity.py` — нет; `check_android_client.py` — нет; `check_api_contracts.py` — нет; `check_auto_selection.py` — нет; `check_backup_restore.py` — нет; `check_balanced_development.py` — нет; `check_dependencies.py` — нет; `check_doc_links.py` — есть (`scripts/check-doc-links.py`); `check_docker.py` — нет; `check_documentation.py` — нет; `check_installation.py` — нет; `check_ios_client.py` — нет; `check_licenses.py` — нет; `check_masque_support.py` — нет; `check_migration_integrity.py` — нет; `check_mobile_builds.py` — нет; `check_mobile_ui.py` — нет; `check_node_maintenance.py` — нет; `check_node_provisioning.py` — нет; `check_payments.py` — нет; `check_products_separation.py` — нет; `check_protocol_repair.py` — нет; `check_release_artifacts.py` — нет; `check_remnawave.py` — нет; `check_repository_monorepo.py` — нет; `check_requirements.py` — нет; `check_runtime_placeholders.py` — есть (`scripts/check-runtime-placeholders.py`); `check_screenshots.py` — нет; `check_secrets.py` — нет; `check_server_security.py` — нет; `check_status_page.py` — нет; `check_tests.py` — нет; `check_vpn_protocols.py` — нет; `generate_audit_report.py` — нет; `generate_checklist.py` — нет; `generate_project_map.py` — есть (`scripts/generate-project-map.py`); `run_full_audit.py` — нет.
+- Платформы: all products.
+- Названные файлы: `check_admin_parity.py` — нет; `check_android_client.py` — нет; `check_api_contracts.py` — нет; `check_auto_selection.py` — нет; `check_backup_restore.py` — нет; `check_balanced_development.py` — нет; `check_dependencies.py` — нет; `check_doc_links.py` — есть (`scripts/check-doc-links.py`); `check_docker.py` — нет; `check_documentation.py` — нет; `check_installation.py` — нет; `check_ios_client.py` — нет; `check_licenses.py` — нет; `check_masque_support.py` — нет; `check_migration_integrity.py` — нет; `check_mobile_builds.py` — нет; `check_mobile_ui.py` — нет; `check_node_maintenance.py` — нет; `check_node_provisioning.py` — нет; `check_payments.py` — нет; `check_products_separation.py` — нет; `check_protocol_repair.py` — нет; `check_release_artifacts.py` — нет; `check_remnawave.py` — нет; `check_repository_monorepo.py` — нет; `check_requirements.py` — нет; `check_runtime_placeholders.py` — есть (`scripts/check-runtime-placeholders.py`); `check_screenshots.py` — нет; `check_secrets.py` — нет; `check_server_security.py` — нет; `check_status_page.py` — нет; `check_tests.py` — нет; `check_vpn_protocols.py` — нет; `generate_audit_report.py` — нет; `generate_checklist.py` — нет; `generate_project_map.py` — есть (`scripts/generate-project-map.py`); `run_full_audit.py` — есть (`scripts/audit/run_full_audit.py`).
+- Доказательство: `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py`; `docs/AUTONOMOUS_AUDIT.md`.
+- Примечание: Добавлен run_full_audit.py: выполняет семь существующих проверок реальных условий и собирает полный перечень требований. Остальные специализированные проверки исходного списка не подменены; полный продуктовый аудит не завершён.
 
 > run_full_audit.py; check_requirements.py; check_documentation.py; check_doc_links.py; check_screenshots.py; check_admin_parity.py; check_products_separation.py; check_api_contracts.py; check_runtime_placeholders.py; check_secrets.py; check_dependencies.py; check_licenses.py; check_docker.py; check_installation.py; check_mobile_builds.py; check_release_artifacts.py; check_tests.py; check_masque_support.py; check_vpn_protocols.py; check_node_provisioning.py; check_balanced_development.py; check_payments.py; check_remnawave.py; check_android_client.py; check_ios_client.py; generate_project_map.py; generate_audit_report.py; generate_checklist.py; check_auto_selection.py; check_node_maintenance.py; check_backup_restore.py; check_server_security.py; check_protocol_repair.py; check_status_page.py; check_mobile_ui.py; check_repository_monorepo.py; check_migration_integrity.py.
 
-### REQ-QA-0025 — `NOT_IMPLEMENTED`
+### REQ-QA-0025 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Workflow (строка 889). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `.github/workflows/autonomous-audit.yml` — нет.
-- Примечание: .github/workflows/autonomous-audit.yml нет; проверки идут в ci.yml и ночном docs-links.yml.
+- Названные файлы: `.github/workflows/autonomous-audit.yml` — есть (`.github/workflows/autonomous-audit.yml`).
+- Доказательство: `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py`; `docs/AUTONOMOUS_AUDIT.md`.
+- Примечание: Добавлен autonomous-audit.yml для PR, main, ручного и ежедневного запуска с read-only permissions и сохранением результатов при сбое. Область пока ограничена согласованностью исходников и документов; сборки, платежи, устройства и VPS проверяются отдельно.
 
 > .github/workflows/autonomous-audit.yml
 
-### REQ-QA-0026 — `NOT_IMPLEMENTED`
+### REQ-QA-0026 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Artifacts (строка 893). Продукт: Все три.
 - Платформы: all products.
 - Названные файлы: `artifacts/audit/FULL_AUDIT_REPORT.md` — нет; `artifacts/audit/checklist-results.json` — нет.
-- Примечание: artifacts/audit/* не формируются.
+- Доказательство: `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py`; `docs/AUTONOMOUS_AUDIT.md`.
+- Примечание: Во время аудита формируются checklist-results.json, FULL_AUDIT_REPORT.md и отфильтрованные логи. Содержат все требования и настоящие результаты семи команд; полные продуктовые доказательства, скриншоты и все внешние связи ещё не собраны.
 
 > artifacts/audit/checklist-results.json; artifacts/audit/FULL_AUDIT_REPORT.md.
 
-### REQ-QA-0027 — `NOT_TESTED`
+### REQ-QA-0027 — `PARTIAL`
 
 - Источник: Часть I → Audit Automation → Rule (строка 897). Продукт: Все три.
+- Платформы: all products.
+- Доказательство: `scripts/audit/run_full_audit.py`; `.github/workflows/autonomous-audit.yml`; `tests/test_full_audit.py`; `docs/AUTONOMOUS_AUDIT.md`.
+- Примечание: Аудит выполняет канонические проверки, валидаторы ссылок, заглушек и секретов; фиксирует ненулевые коды и тайм-ауты. Это реальные условия, но они не охватывают все обязательные сценарии из исходного промпта.
 
 > Скрипты проверяют реальные условия, а не только наличие файлов.
 
@@ -4883,9 +4891,12 @@
 
 > - Повторное нажатие опасной кнопки не запускает дублирующую операцию.
 
-### REQ-QA-0069 — `NOT_TESTED`
+### REQ-QA-0069 — `PARTIAL`
 
 - Источник: Часть IV → 34. Полная стратегия тестирования → 34.3. Test evidence (строка 2404). Продукт: Все три.
+- Платформы: iOS shop demo simulator.
+- Доказательство: `.github/workflows/ci.yml`; `scripts/ci/verify_xcuitest_results.py`; `tests/test_xcuitest_results.py`; `docs/IOS_UI_VERIFICATION.md`.
+- Примечание: 18.11.2026: iOS UI сохраняет отдельный xcresult каждой разрешённой попытки, извлекает summary и принимает только четыре passed-теста без failed/skipped/expected failures. JSON verdict содержит commit/head SHA, branch и run ID/attempt; summary и логи сохраняются как artifact на 14 дней. Счётчики проверяются как целые числа верхнего уровня; неполный отчёт и прежний success proof не принимаются. Реальное выполнение новой проверки требует CI точной головы. Полный контракт evidence всех остальных отчётов, screenshots и внешних сценариев не подтверждён; статус PARTIAL.
 
 > Каждый отчёт содержит commit SHA, branch, environment, tool versions, commands, exit codes, test counts, skipped tests, logs, screenshots, artifact links и known limitations. Redact secrets. Не заявлять coverage или pass rate без отчёта инструмента.
 

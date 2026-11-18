@@ -1,11 +1,13 @@
 import React from "react";
-import {afterEach, expect, it, vi} from "vitest";
+import {afterEach, it} from "node:test";
+import {expect} from "chai";
+import {fn, restoreAllMocks} from "@vitest/spy";
 import {cleanup, fireEvent, render, screen, waitFor} from "@testing-library/react";
 import {AccountMerge} from "./account-merge";
 
 afterEach(() => {
   cleanup();
-  vi.restoreAllMocks();
+  restoreAllMocks();
 });
 
 const preview = {
@@ -18,7 +20,7 @@ const preview = {
 };
 
 it("creates a code only after source reauthentication and never previews implicitly", async () => {
-  const request = vi.fn(async (path: string, _options?: RequestInit) => {
+  const request = fn(async (path: string, _options?: RequestInit) => {
     if (path.endsWith("authorization")) return {code: "a".repeat(48), expires_at: "2026-10-13T12:00:00Z"};
     throw Error("unexpected request");
   });
@@ -26,25 +28,25 @@ it("creates a code only after source reauthentication and never previews implici
   fireEvent.change(screen.getByLabelText(/Текущий пароль исходного аккаунта/), {target: {value: "source-password"}});
   fireEvent.click(screen.getByRole("button", {name: "Создать одноразовый код"}));
   await screen.findByDisplayValue("a".repeat(48));
-  expect(request).toHaveBeenCalledTimes(1);
-  expect(request.mock.calls[0][0]).toBe("/api/me/account-merge/authorization");
-  expect(JSON.parse(String(request.mock.calls[0][1]!.body))).toEqual({password: "source-password"});
-  expect(screen.queryByText("Исходный аккаунт")).toBeNull();
+  expect(request.mock.calls).to.have.lengthOf(1);
+  expect(request.mock.calls[0][0]).to.equal("/api/me/account-merge/authorization");
+  expect(JSON.parse(String(request.mock.calls[0][1]!.body))).to.deep.equal({password: "source-password"});
+  expect(screen.queryByText("Исходный аккаунт")).to.be.null;
 });
 
 it("shows blocking conflicts without rendering the irreversible submit", async () => {
-  const request = vi.fn(async (_path: string, _options?: RequestInit) => ({...preview, allowed: false, conflicts: [{code: "trial_history", message: "Оба аккаунта использовали пробный период"}]}));
+  const request = fn(async (_path: string, _options?: RequestInit) => ({...preview, allowed: false, conflicts: [{code: "trial_history", message: "Оба аккаунта использовали пробный период"}]}));
   render(<AccountMerge request={request} onMerged={async () => undefined} />);
   fireEvent.change(screen.getByLabelText(/Код исходного аккаунта/), {target: {value: "b".repeat(48)}});
   fireEvent.click(screen.getByRole("button", {name: "Показать план переноса"}));
   await screen.findByText("Оба аккаунта использовали пробный период");
-  expect(screen.queryByRole("button", {name: "Объединить аккаунты"})).toBeNull();
+  expect(screen.queryByRole("button", {name: "Объединить аккаунты"})).to.be.null;
 });
 
 it("keeps the confirmation key after an uncertain response and reloads after success", async () => {
   let confirmationAttempt = 0;
-  const reload = vi.fn(async () => undefined);
-  const request = vi.fn(async (path: string, _options?: RequestInit) => {
+  const reload = fn(async () => undefined);
+  const request = fn(async (path: string, _options?: RequestInit) => {
     if (path.endsWith("preview")) return preview;
     if (path.endsWith("confirm")) {
       confirmationAttempt += 1;
@@ -61,11 +63,11 @@ it("keeps the confirmation key after an uncertain response and reloads after suc
   fireEvent.click(screen.getByLabelText("Я проверил план и подтверждаю необратимый перенос данных в текущий аккаунт."));
   fireEvent.click(screen.getByRole("button", {name: "Объединить аккаунты"}));
   await screen.findByText("Ответ потерян");
-  await waitFor(() => expect((screen.getByRole("button", {name: "Объединить аккаунты"}) as HTMLButtonElement).disabled).toBe(false));
+  await waitFor(() => expect((screen.getByRole("button", {name: "Объединить аккаунты"}) as HTMLButtonElement).disabled).to.equal(false));
   fireEvent.click(screen.getByRole("button", {name: "Объединить аккаунты"}));
   await screen.findByText("Аккаунты объединены. Перенесено подписок: 1, платежей: 2.");
   const calls = request.mock.calls.filter(([path]) => path.endsWith("confirm"));
-  expect(calls).toHaveLength(2);
-  expect((calls[0][1]!.headers as Record<string, string>)["Idempotency-Key"]).toBe((calls[1][1]!.headers as Record<string, string>)["Idempotency-Key"]);
-  expect(reload).toHaveBeenCalledTimes(1);
+  expect(calls).to.have.lengthOf(2);
+  expect((calls[0][1]!.headers as Record<string, string>)["Idempotency-Key"]).to.equal((calls[1][1]!.headers as Record<string, string>)["Idempotency-Key"]);
+  expect(reload.mock.calls).to.have.lengthOf(1);
 });

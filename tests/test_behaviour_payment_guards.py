@@ -18,6 +18,7 @@ from starlette.requests import Request
 from datetime import datetime, timedelta
 
 from app import main as shop
+from app import schedulers
 from app.models import Payment
 from test_subscription_commerce import database  # noqa: F401
 
@@ -207,3 +208,65 @@ async def test_reconciliation_asks_about_the_stored_order(database, monkeypatch)
     rows = {p.order_id: p.status for p in (await database.execute(select(Payment))).scalars()}
     assert rows[unpaid.order_id] == "pending" and rows[unknown.order_id] == "creation_unknown"
     assert rows[other.order_id] == "pending" and rows[settled.order_id] == "paid" and rows[stale.order_id] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_visits_later_orders_and_restarts_a_bounded_sweep(database, monkeypatch):
+    batch = shop.RECONCILE_BATCH
+    original = [f"pending-{i}" for i in range(batch + 1)]
+    for order in original:
+        await add_payment(database, order_id=order, provider_payment_id=order)
+
+    ticks = []
+
+    async def sleep(seconds):
+        assert seconds == shop.RECONCILE_INTERVAL
+        if len(ticks) == 4:
+            raise asyncio.CancelledError
+        if len(ticks) == 1:
+            await add_payment(database, order_id="new-arrival", provider_payment_id="new-arrival")
+        ticks.append([])
+
+    async def still_pending(self, pid, amount, currency, order_id):
+        ticks[-1].append(order_id)
+        return False
+
+    monkeypatch.setattr(shop, "engine", database.bind)
+    monkeypatch.setattr(shop, "asyncio", SimpleNamespace(**{**vars(asyncio), "sleep": sleep}))
+    monkeypatch.setattr(shop.YooKassaProvider, "verify_succeeded", still_pending)
+    with pytest.raises(asyncio.CancelledError):
+        await shop.reconciliation_scheduler()
+
+    assert ticks == [original[:batch], original[batch:], original[:batch], [original[-1], "new-arrival"]]
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_keeps_the_original_lookback_boundary_across_pages(database, monkeypatch):
+    started = datetime.utcnow()
+    for i in range(shop.RECONCILE_BATCH):
+        await add_payment(database, order_id=f"fresh-{i}", provider_payment_id=f"fresh-{i}", created_at=started)
+    boundary = await add_payment(
+        database,
+        order_id="near-boundary",
+        provider_payment_id="near-boundary",
+        created_at=started - timedelta(hours=shop.RECONCILE_LOOKBACK_HOURS) + timedelta(minutes=5),
+    )
+    asked = []
+
+    async def still_pending(self, pid, amount, currency, order_id):
+        asked.append(order_id)
+        return False
+
+    async def no_cleanup(db, now):
+        return 0
+
+    monkeypatch.setattr(shop.YooKassaProvider, "verify_succeeded", still_pending)
+    monkeypatch.setattr(shop, "cleanup_expired_promo_reservations", no_cleanup)
+
+    _, cursor = await schedulers._reconcile_page(database, started, cursor=None)
+    assert cursor is not None and len(cursor) == 3
+    assert asked == [f"fresh-{i}" for i in range(shop.RECONCILE_BATCH)]
+
+    _, cursor = await schedulers._reconcile_page(database, started + timedelta(minutes=10), cursor=cursor)
+    assert cursor is None
+    assert asked[-1] == boundary.order_id

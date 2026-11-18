@@ -99,6 +99,7 @@ jobs:
           python scripts/audit/requirements_register.py --check
           python scripts/audit/source_traceability.py --check
           python scripts/audit/check_release_readiness.py
+          python scripts/audit/run_full_audit.py
           python scripts/audit/check_payment_provider_registry.py --check
       - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
         env:
@@ -635,18 +636,28 @@ jobs:
 
   ios-ui:
     name: iOS • UI tests
-    runs-on: macos-latest
+    # Hosted arm64 jobs were cancelled before acquisition during the capacity incident.
+    # Standard Intel macOS 26 supplies the same XCUITest scenario; arm64 build jobs remain separate.
+    runs-on: macos-26-intel
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Runner and Xcode identity
+        run: |
+          uname -m
+          sw_vers
+          xcodebuild -version
       - name: XCUITest on a simulator
         working-directory: apps/vpn-shop/ios
+        env:
+          CHECKED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -o pipefail
           device=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
           xcrun simctl boot "$device" || true
           xcrun simctl bootstatus "$device" -b
-          run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" | tail -n 80; }
+          result_bundle="$RUNNER_TEMP/xcuitest-first.xcresult"
+          run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; }
           if ! run_tests; then
             # A busy macOS runner sometimes cannot launch the app at all («does not have a process ID», «Failed to launch»).
             # Only that infrastructure failure gets one more try on a freshly erased simulator; a failed assertion does not.
@@ -654,11 +665,28 @@ jobs:
                && ! grep -qE "XCTAssert" "$RUNNER_TEMP/xcuitest.log"; then
               echo "::warning title=XCUITest::the simulator could not launch the app; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
+              result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"
               run_tests || { grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1; }
             else
               grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1
             fi
           fi
+
+          xcrun xcresulttool get test-results summary --path "$result_bundle" > "$RUNNER_TEMP/xcuitest-summary.json"
+          python3 "$GITHUB_WORKSPACE/scripts/ci/verify_xcuitest_results.py" "$RUNNER_TEMP/xcuitest-summary.json" \
+            --expected-tests 4 --output "$RUNNER_TEMP/xcuitest-verified.json"
+      - name: Retain XCUITest summary and logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: xcuitest-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/xcuitest-summary.json
+            ${{ runner.temp }}/xcuitest-verified.json
+            ${{ runner.temp }}/xcuitest.log
+            ${{ runner.temp }}/xcuitest-*.xcresult.log
+          if-no-files-found: error
+          retention-days: 14
 
   ios:
     name: iOS • ${{ matrix.app }} PKCE build

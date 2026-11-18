@@ -149,6 +149,9 @@ def parse() -> list[dict]:
 
 def find(name: str) -> str | None:
     """Where a file named in the prompt lives in the repository (the prompt often gives only the name)."""
+    # Runtime reports must not make the committed source register change after an audit.
+    if name.startswith("artifacts/audit/"):
+        return None
     if (ROOT / name).is_file():
         return name
     base = name.rsplit('/', 1)[-1]
