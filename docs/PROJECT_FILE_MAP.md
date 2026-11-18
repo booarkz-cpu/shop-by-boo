@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2730**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2733**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -769,6 +769,7 @@
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
+| [docs/IOS_UI_VERIFICATION.md](../docs/IOS_UI_VERIFICATION.md) | Документация |
 | [docs/MASQUE_IMPLEMENTATION_REPORT.md](../docs/MASQUE_IMPLEMENTATION_REPORT.md) | Документация |
 | [docs/MASQUE_PANEL.md](../docs/MASQUE_PANEL.md) | Документация |
 | [docs/MASTER_EXECUTION_BLOCKERS.md](../docs/MASTER_EXECUTION_BLOCKERS.md) | Документация |
@@ -1848,6 +1849,7 @@
 | [scripts/ci/secret-leak-check.py](../scripts/ci/secret-leak-check.py) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/verify_xcuitest_results.py](../scripts/ci/verify_xcuitest_results.py) | Эксплуатация и релиз |
 | [scripts/ci/wizard-caddy-check.sh](../scripts/ci/wizard-caddy-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
@@ -2736,5 +2738,6 @@
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
 | [tests/test_workflows_parse.py](../tests/test_workflows_parse.py) | Проверки |
+| [tests/test_xcuitest_results.py](../tests/test_xcuitest_results.py) | Проверки |
 | [tests/test_xray_core_watch.py](../tests/test_xray_core_watch.py) | Проверки |
 | [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |

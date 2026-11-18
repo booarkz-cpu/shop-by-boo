@@ -4567,5 +4567,16 @@
     ],
     "platforms": "all products",
     "note": "Аудит выполняет канонические проверки, валидаторы ссылок, заглушек и секретов; фиксирует ненулевые коды и тайм-ауты. Это реальные условия, но они не охватывают все обязательные сценарии из исходного промпта."
+  },
+  "REQ-QA-0069": {
+    "status": "PARTIAL",
+    "evidence": [
+      ".github/workflows/ci.yml",
+      "scripts/ci/verify_xcuitest_results.py",
+      "tests/test_xcuitest_results.py",
+      "docs/IOS_UI_VERIFICATION.md"
+    ],
+    "platforms": "iOS shop demo simulator",
+    "note": "18.11.2026: iOS UI сохраняет отдельный xcresult каждой разрешённой попытки, извлекает summary и принимает только четыре passed-теста без failed/skipped/expected failures. JSON verdict содержит commit/head SHA, branch и run ID/attempt; summary и логи сохраняются как artifact на 14 дней. Счётчики проверяются как целые числа верхнего уровня; неполный отчёт и прежний success proof не принимаются. Реальное выполнение новой проверки требует CI точной головы. Полный контракт evidence всех остальных отчётов, screenshots и внешних сценариев не подтверждён; статус PARTIAL."
   }
 }
