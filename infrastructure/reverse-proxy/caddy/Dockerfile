@@ -9,9 +9,8 @@ RUN go version | grep -F 'go1.27.4' && \
 
 FROM ${CADDY_BASE_IMAGE}
 COPY --from=caddy_builder /go/bin/caddy /usr/bin/caddy
-# The upstream executable has CAP_NET_BIND_SERVICE. With cap_drop: ALL this
-# file capability makes exec fail with EPERM. Ports are enabled by the
-# container's ip_unprivileged_port_start sysctl; no capability is needed.
+# The locally built executable has no file capability. Ports are enabled by
+# the container's ip_unprivileged_port_start sysctl; no capability is needed.
 # v28.123.0: the base image is pinned by digest, so the package fixes published since are installed here.
-RUN apk upgrade --no-cache && apk add --no-cache libcap && setcap -r /usr/bin/caddy
+RUN apk upgrade --no-cache
 USER 10001:10001
