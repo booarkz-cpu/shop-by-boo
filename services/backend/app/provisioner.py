@@ -82,10 +82,10 @@ def install_commands(compose_yaml: str, panel_ip: str | None, node_port: int) ->
     return cmds
 
 
-# The official node compose (remnawave/node docker-compose-prod.yml, checked against the latest release in CI:
+# The official node compose (remnawave/node docker-compose-prod.yml, checked against the pinned stable release in CI:
 # tests/live/test_remnawave_live.py::test_mode_panel_plus_node). v28.65.0: the shop writes it from typed values;
 # the admin API no longer accepts a compose file from the browser (it could start any container as root).
-NODE_IMAGE = "remnawave/node:latest"
+NODE_IMAGE = "remnawave/node:3.4.6"
 
 
 def node_compose(secret_key: str, node_port: int = 2222) -> str:

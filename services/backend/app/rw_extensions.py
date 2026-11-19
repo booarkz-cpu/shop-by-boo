@@ -1,6 +1,6 @@
 """Remnawave Extension Manager, panel side (v28.69, stage 12; docs/ru/new/REMNAWAVE_EXTENSIONS.md).
 
-Everything here is the panel's own API (contract @remnawave/backend-contract 3.4.15, panel 3.4.8), called with the
+Everything here is the panel's own API (contract @remnawave/backend-contract 3.4.17, panel 3.4.11), called with the
 shop's token, and each call has a live test against the newest panel (tests/live/test_remnawave_live.py):
 
 * **Config profiles** — list with inbounds and nodes, raw JSON, create / edit / delete; a VLESS + REALITY builder

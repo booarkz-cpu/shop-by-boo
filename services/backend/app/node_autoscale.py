@@ -149,7 +149,7 @@ def cloud_init(config: dict, secret: str) -> str:
         "runcmd:",
         "  - curl -fsSL https://get.docker.com | sh",
         f"  - docker run -d --name remnanode --restart always --network host -e NODE_PORT={int(config['node_port'])} "
-        f"-e 'SECRET_KEY={secret}' remnawave/node:latest",
+        f"-e 'SECRET_KEY={secret}' remnawave/node:3.4.6",
     ]) + "\n"
 
 

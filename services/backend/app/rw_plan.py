@@ -18,11 +18,12 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-# Pinned 2026-11-03: panel 3.4.8, node 3.4.4, subscription page 8.0.1 (the versions verified by the live tests).
+# Pinned 2026-11-19: panel 3.4.11, node 3.4.6, subscription page 8.0.1. These exact multi-platform
+# index digests are shared with scripts/ci/remnawave-live.sh and protected by test_remnawave_version_pins.py.
 IMAGES = {
-    "panel": "remnawave/backend:3@sha256:d87ba51deb99486983f599edaf14d1c2127631e66989d7692dd53644b7857f81",
-    "node": "remnawave/node:latest@sha256:19ca38195f699f59c0e5978489a18173234aca4b1bd29bab495b16e9d6423f70",
-    "subscription_page": "remnawave/subscription-page:latest@sha256:ba8445b1e0d1c170cf314686ef638b73cabf42a0c6217d027e6cb958ca161ca6",
+    "panel": "remnawave/backend:3.4.11@sha256:a5b9f81fe2cfacec1c41bd2bb43fa1a5980228b81aa2e744be4adffa3a00135b",
+    "node": "remnawave/node:3.4.6@sha256:3d5fde656a36920f53c5c080f2dc821df8318f453803b07c4e5242752a549d69",
+    "subscription_page": "remnawave/subscription-page:8.0.1@sha256:ba8445b1e0d1c170cf314686ef638b73cabf42a0c6217d027e6cb958ca161ca6",
     "postgres": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
     "valkey": "valkey/valkey:9-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
     "caddy": "caddy:2.11-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9",
@@ -33,7 +34,7 @@ IMAGES = {
 TINYAUTH_PORT = 3002
 # v28.74.0: the upstream versions behind these digests, compared with the releases on GitHub by the auto-update
 # (rw_autoupdate.py). A newer upstream release is installed only after a shop release pins and live-tests it.
-VERSIONS = {"panel": "3.4.8", "node": "3.4.4", "subscription_page": "8.0.1"}
+VERSIONS = {"panel": "3.4.11", "node": "3.4.6", "subscription_page": "8.0.1"}
 UPSTREAM = {"panel": "remnawave/backend", "node": "remnawave/node", "subscription_page": "remnawave/subscription-page"}
 DIRS = {"panel": "/opt/remnawave", "node": "/opt/remnanode", "subscription_page": "/opt/remnawave-subpage", "proxy": "/opt/remnawave-caddy",
         "selfsteal": "/opt/remnawave-selfsteal", "xray_checker": "/opt/remnawave-xray-checker"}
@@ -673,7 +674,7 @@ def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_
                  geo: bool = False) -> str:
     """``hysteria`` — the node has a TLS-certificate transport (Hysteria2 or VLESS + TCP + TLS)."""
     from .provisioner import node_compose as official
-    text = official(secret_key, node_port).replace("image: remnawave/node:latest", f"image: {IMAGES['node']}")
+    text = official(secret_key, node_port).replace("image: remnawave/node:3.4.6", f"image: {IMAGES['node']}")
     volumes = []
     if selfsteal:
         # Xray reaches the SelfSteal site through the socket in /dev/shm (shared with the Caddy container).

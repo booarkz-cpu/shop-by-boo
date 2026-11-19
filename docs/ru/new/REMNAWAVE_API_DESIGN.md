@@ -8,7 +8,7 @@
 
 ## 1. API панели, которым пользуется магазин
 
-Клиент — `services/backend/app/remnawave.py`, контракт — `@remnawave/backend-contract` 3.4.15 (панель 3.4.8). Магазин вызывает только маршруты, которые есть в контракте. В столбце «Проверено на панели» указан тест из `tests/live/test_remnawave_live.py`.
+Клиент — `services/backend/app/remnawave.py`, контракт — `@remnawave/backend-contract` 3.4.17 (панель 3.4.11; точная матрица — [REMNAWAVE_COMPATIBILITY](REMNAWAVE_COMPATIBILITY.md)). Магазин вызывает только маршруты, которые есть в контракте. В столбце «Проверено на панели» указан тест из `tests/live/test_remnawave_live.py`.
 
 | Маршрут панели | Метод клиента | Где используется | Проверено на панели |
 | --- | --- | --- | --- |
