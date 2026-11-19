@@ -58,6 +58,6 @@ def test_compatibility_matrix_matches_executable_pins():
         PANEL_IMAGE, NODE_IMAGE, SUBPAGE_IMAGE,
     ):
         assert value in matrix
-    assert "@remnawave/backend-contract` `3.4.17" in matrix
+    assert "Backend contract (`@remnawave/backend-contract`) | `3.4.17`" in matrix
     assert "3.4.11" in architecture and "3.4.6" in architecture
     assert "@remnawave/backend-contract` 3.4.17" in api

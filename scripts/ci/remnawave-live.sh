@@ -15,7 +15,7 @@ SUBPAGE_COMMIT="9045728e6e197a2581c6da40f4f92b170a8bad53"
 SUBPAGE_IMAGE="remnawave/subscription-page:8.0.1@sha256:ba8445b1e0d1c170cf314686ef638b73cabf42a0c6217d027e6cb958ca161ca6"
 
 verify_image_digest() {
-  local image="$1" expected="${image##*@}"
+  local image="$1"\n  local expected="${image##*@}"
   docker image inspect "$image" --format '{{range .RepoDigests}}{{println .}}{{end}}' | grep -Fq "@$expected"
 }
 
