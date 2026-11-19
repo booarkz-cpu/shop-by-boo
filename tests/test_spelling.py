@@ -1,6 +1,7 @@
 """Extraction regressions; the CI lint job additionally runs the real RU/EN/UK dictionaries."""
 import json
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -36,6 +37,33 @@ def test_extracts_values_and_android_plural_text_but_not_resource_keys(tmp_path)
     assert entries[-2].text == "Підключення готове"
     assert entries[-1].key == "many[0]"
     assert all(entry.text != "not_prose_key" for entry in entries)
+
+
+@pytest.mark.parametrize("app", ["vpn-shop", "lucy-admin"])
+def test_native_android_catalogs_have_matching_ru_en_uk_keys(app):
+    resource_root = ROOT / "apps" / app / "android/app/src/main/res"
+    catalogs = {}
+    for qualifier in ("values", "values-en", "values-uk"):
+        path = resource_root / qualifier / "strings.xml"
+        catalogs[qualifier] = {
+            element.attrib["name"] for element in ET.parse(path).getroot()
+            if element.tag in {"string", "plurals", "string-array"}
+        }
+    assert catalogs["values"] == catalogs["values-en"] == catalogs["values-uk"]
+
+
+def test_vpn_shop_native_android_labels_are_localized():
+    resource_root = ROOT / "apps/vpn-shop/android/app/src/main/res"
+    expected = {
+        "values": {"diagnostics": "Диагностика", "privacy": "Конфиденциальность"},
+        "values-uk": {"diagnostics": "Діагностика", "privacy": "Конфіденційність"},
+    }
+    for qualifier, labels in expected.items():
+        actual = {
+            element.attrib["name"]: element.text
+            for element in ET.parse(resource_root / qualifier / "strings.xml").getroot()
+        }
+        assert {key: actual[key] for key in labels} == labels
 
 
 def test_missing_engine_is_an_error(tmp_path):
