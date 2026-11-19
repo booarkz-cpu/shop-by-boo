@@ -1,5 +1,5 @@
 ARG NODE_BASE_IMAGE=node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94
-ARG NGINX_BASE_IMAGE=nginx:1.30.7-alpine@sha256:bef154735288bc38d99fac41ae63730684bcc661503673a04a0f9bc526ba8598
+ARG NGINX_BASE_IMAGE=nginx:1.30.7-alpine@sha256:3bc3836dc0be3b811f238210360bf8e7ca8a2d0effdae46160bf1f3578710051
 FROM ${NODE_BASE_IMAGE} AS build
 # The Mini App is the customer cabinet built for the Telegram surface.
 ARG VITE_API_URL=""
