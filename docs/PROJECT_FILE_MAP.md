@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2735**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2737**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -83,6 +83,8 @@
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
+| [apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [CHANGELOG.md](../CHANGELOG.md) | Корень проекта |
 | [CI_CD_RU.md](../CI_CD_RU.md) | Корень проекта |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | Корень проекта |
