@@ -1440,6 +1440,7 @@
 | [docs/ru/new/RELEASE_ACCEPTANCE.md](../docs/ru/new/RELEASE_ACCEPTANCE.md) | Документация |
 | [docs/ru/new/REMNAWAVE_API_DESIGN.md](../docs/ru/new/REMNAWAVE_API_DESIGN.md) | Документация |
 | [docs/ru/new/REMNAWAVE_ARCHITECTURE.md](../docs/ru/new/REMNAWAVE_ARCHITECTURE.md) | Документация |
+| [docs/ru/new/REMNAWAVE_COMPATIBILITY.md](../docs/ru/new/REMNAWAVE_COMPATIBILITY.md) | Документация |
 | [docs/ru/new/REMNAWAVE_DATA_MODEL.md](../docs/ru/new/REMNAWAVE_DATA_MODEL.md) | Документация |
 | [docs/ru/new/REMNAWAVE_EXTENSIONS.md](../docs/ru/new/REMNAWAVE_EXTENSIONS.md) | Документация |
 | [docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md](../docs/ru/new/REMNAWAVE_FEATURE_MATRIX.md) | Документация |
@@ -2616,6 +2617,7 @@
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
+| [tests/test_remnawave_version_pins.py](../tests/test_remnawave_version_pins.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
