@@ -32,6 +32,8 @@ def test_live_contract_uses_exact_releases_and_checks_digests():
     assert 'verify_image_digest "$NODE_IMAGE"' in script
     assert 'verify_image_digest "$SUBPAGE_IMAGE"' in script
     assert "org.opencontainers.image.version" not in script
+    assert '  local image="$1"\\n  local expected="${image##*@}"' in script
+    assert r'local image="$1"\\\\n' not in script
 
 
 def test_runtime_and_provisioning_use_the_same_pins():
