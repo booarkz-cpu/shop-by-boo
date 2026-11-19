@@ -5,7 +5,12 @@ test('menu editor creates folders, previews nested buttons and prevents stale sa
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('browser@example.test');await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');await page.getByRole('button',{name:'Войти',exact:true}).click();
  await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/admin/content')&&r.request().method()==='GET'),page.getByRole('button',{name:/Дерево кнопок/}).click()]);
  await page.getByLabel('Название кнопки бота',{exact:true}).fill('Browser folder');await page.getByRole('combobox',{name:'Стиль бота',exact:true}).click();await page.getByRole('option',{name:'Синий',exact:true}).click();
- await page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click();await expect(page.getByRole('status')).toContainText('Кнопка сохранена');
+ // Verify the API result first: otherwise a missing status hides the actual save failure.
+ const saveFolderResponse=page.waitForResponse(r=>r.url().endsWith('/api/admin/menu')&&r.request().method()==='POST');
+ await page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click();
+ const savedFolder=await saveFolderResponse;
+ expect(savedFolder.ok(),`Bot folder save failed: HTTP ${savedFolder.status()} — ${await savedFolder.text()}`).toBeTruthy();
+ await expect(page.getByRole('status')).toContainText('Кнопка сохранена');
  await page.evaluate(async()=>{const r=await fetch('/api/admin/fields',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'')},body:JSON.stringify({key:'browser_menu_help',label:'Help',value:'Menu help'})});if(!r.ok)throw new Error('Cannot create field')});
  await page.getByLabel('Название кнопки бота',{exact:true}).fill('Browser link');await page.getByRole('combobox',{name:'Тип кнопки бота',exact:true}).click();await page.getByRole('option',{name:'Поле',exact:true}).click();await page.getByLabel('URL или ключ поля',{exact:true}).fill('browser_menu_help');await page.getByRole('combobox',{name:'Родитель бота',exact:true}).click();await page.getByRole('option',{name:/Browser folder/}).click();
  await page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click();await expect(page.getByRole('button',{name:/#\d+ Browser link/})).toBeVisible();
