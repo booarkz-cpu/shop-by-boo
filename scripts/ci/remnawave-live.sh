@@ -13,6 +13,12 @@ NODE_IMAGE="remnawave/node:3.4.6@sha256:3d5fde656a36920f53c5c080f2dc821df8318f45
 SUBPAGE_VERSION="8.0.1"
 SUBPAGE_COMMIT="9045728e6e197a2581c6da40f4f92b170a8bad53"
 SUBPAGE_IMAGE="remnawave/subscription-page:8.0.1@sha256:ba8445b1e0d1c170cf314686ef638b73cabf42a0c6217d027e6cb958ca161ca6"
+
+verify_image_digest() {
+  local image="$1" expected="${image##*@}"
+  docker image inspect "$image" --format '{{range .RepoDigests}}{{println .}}{{end}}' | grep -Fq "@$expected"
+}
+
 curl -fsSL -o docker-compose.yml "https://raw.githubusercontent.com/remnawave/backend/$PANEL_VERSION/docker-compose-prod.yml"
 curl -fsSL -o .env "https://raw.githubusercontent.com/remnawave/backend/$PANEL_VERSION/.env.sample"
 grep -Fq 'image: remnawave/backend:3' docker-compose.yml
@@ -52,15 +58,14 @@ docker run -d -q --name remnawave-subscription-page --network remnawave-network 
   -e INTERNAL_JWT_SECRET="$(openssl rand -hex 32)" -e MARZBAN_LEGACY_LINK_ENABLED=false \
   -e MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS=false "$SUBPAGE_IMAGE" >/dev/null
 for _ in $(seq 1 40); do curl -s -o /dev/null -H "X-Forwarded-For: 127.0.0.1" -H "X-Forwarded-Proto: https" "http://127.0.0.1:3010/" && break; sleep 3; done
-node_version=$(docker inspect "$NODE_IMAGE" -f '{{index .Config.Labels "org.opencontainers.image.version"}}' 2>/dev/null || echo "?")
-subpage_version=$(docker inspect "$SUBPAGE_IMAGE" -f '{{index .Config.Labels "org.opencontainers.image.version"}}' 2>/dev/null || echo "?")
 version=$(docker compose exec -T remnawave sh -c 'cat package.json 2>/dev/null' | python3 -c 'import json,sys; print(json.load(sys.stdin).get("version","?"))' 2>/dev/null || echo "?")
 [[ "$version" == "$PANEL_VERSION" ]] || { echo "Panel version mismatch: expected $PANEL_VERSION, got $version" >&2; exit 1; }
-[[ "$node_version" == "$NODE_VERSION" ]] || { echo "Node version mismatch: expected $NODE_VERSION, got $node_version" >&2; exit 1; }
-[[ "$subpage_version" == "$SUBPAGE_VERSION" ]] || { echo "Subscription page version mismatch: expected $SUBPAGE_VERSION, got $subpage_version" >&2; exit 1; }
+verify_image_digest "$PANEL_IMAGE" || { echo "Panel image digest mismatch" >&2; exit 1; }
+verify_image_digest "$NODE_IMAGE" || { echo "Node image digest mismatch" >&2; exit 1; }
+verify_image_digest "$SUBPAGE_IMAGE" || { echo "Subscription page image digest mismatch" >&2; exit 1; }
 {
   echo "Remnawave panel $version ($PANEL_COMMIT)"
-  echo "Remnawave node $node_version ($NODE_COMMIT), subscription page $subpage_version ($SUBPAGE_COMMIT)"
+  echo "Remnawave node $NODE_VERSION ($NODE_COMMIT), subscription page $SUBPAGE_VERSION ($SUBPAGE_COMMIT); image digests verified"
 } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 cd "${GITHUB_WORKSPACE:-$(git -C "$(dirname "$0")" rev-parse --show-toplevel)}"
 set +e

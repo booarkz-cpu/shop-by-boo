@@ -16,7 +16,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text()
 
 
-def test_live_contract_uses_exact_releases_and_checks_labels():
+def test_live_contract_uses_exact_releases_and_checks_digests():
     script = read("scripts/ci/remnawave-live.sh")
     for value in (
         PANEL_VERSION, NODE_VERSION, SUBPAGE_VERSION,
@@ -28,8 +28,10 @@ def test_live_contract_uses_exact_releases_and_checks_labels():
     assert "remnawave/node:latest" not in script
     assert "remnawave/subscription-page:latest" not in script
     assert '[[ "$version" == "$PANEL_VERSION" ]]' in script
-    assert '[[ "$node_version" == "$NODE_VERSION" ]]' in script
-    assert '[[ "$subpage_version" == "$SUBPAGE_VERSION" ]]' in script
+    assert 'verify_image_digest "$PANEL_IMAGE"' in script
+    assert 'verify_image_digest "$NODE_IMAGE"' in script
+    assert 'verify_image_digest "$SUBPAGE_IMAGE"' in script
+    assert "org.opencontainers.image.version" not in script
 
 
 def test_runtime_and_provisioning_use_the_same_pins():
