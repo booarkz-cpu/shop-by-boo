@@ -54,8 +54,9 @@ def bump_client(gradle: str) -> tuple[str, str]:
 def note(notes: str, version: str, tag: str, commit: str) -> str:
     """A section of the client's notes above the latest one."""
     entry = (f"## Версия {version} — ядро Xray из AndroidLibXrayLite {tag}\n\n"
-             f"- Ядро обновлено автоматически (N11): AndroidLibXrayLite {tag}, коммит `{commit}`; проверено сборкой AAR, "
-             "unit-тестами и настоящим VPN на эмуляторе.\n\n")
+             f"- Подготовлено обновление ядра (N11): AndroidLibXrayLite {tag}, коммит `{commit}`. "
+             "Сборка AAR, unit-тесты и VPN/TUN на эмуляторе требуют подтверждения успешным CI "
+             "точного коммита PR; до завершения проверок результат не подтверждён.\n\n")
     first = notes.find("\n## ")
     return notes[: first + 1] + entry + notes[first + 1:] if first >= 0 else notes + "\n" + entry
 

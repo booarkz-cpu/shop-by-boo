@@ -30,6 +30,10 @@ def test_the_client_gets_its_next_version_and_a_note():
     notes = "# Client\n\nintro\n\n## Версия 1.6.0 — x\n"
     out = watch.note(notes, "1.6.1", "v26.1.18", "b" * 40)
     assert out.index("## Версия 1.6.1") < out.index("## Версия 1.6.0") and "b" * 40 in out
+    assert "требуют подтверждения успешным CI" in out
+    assert "до завершения проверок результат не подтверждён" in out
+    assert "проверено сборкой AAR" not in out
+    assert "проверено" not in out
 
 
 def test_the_command_line(tmp_path):
