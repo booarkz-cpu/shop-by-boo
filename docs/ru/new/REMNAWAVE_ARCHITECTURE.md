@@ -14,23 +14,27 @@
 1. **Один backend.** Remnawave Manager — часть backend магазина (`services/backend/app`), а не отдельный сервис. Права (`require_permission`), журнал действий (`audit_logs`), очередь задач (`jobs`) и состояние системы общие ([RBAC](RBAC.md), [ADMIN_PANEL_GUIDE](ADMIN_PANEL_GUIDE.md)).
 2. **Никаких команд из браузера.** Браузер отправляет только типизированные значения: адрес, порт, домен, выбранный режим. Сервер сам строит из них файлы и шаги. Шаги — заранее известные, версионированные, с проверкой контрольной суммы ([DEPLOYMENT_AGENT_ARCHITECTURE](DEPLOYMENT_AGENT_ARCHITECTURE.md)).
 3. **Без второго прокси и второй подписки на сервере магазина.** Порты 80/443 сервера магазина держит Caddy (`infrastructure/reverse-proxy/Caddyfile`). Свой домен подписки — это существующая прослойка `services/backend/app/sub_proxy.py` за тем же Caddy. На отдельных серверах Remnawave свой обратный прокси допустим: там нет Caddy магазина.
-4. **Только проверенный API Remnawave.** Вызовы панели берутся из `@remnawave/backend-contract` и проверяются на настоящей панели последней версии в CI (`tests/live/test_remnawave_live.py`). Пока функция не прошла такую проверку, она не считается поддерживаемой.
+4. **Только проверенный API Remnawave.** Вызовы панели берутся из `@remnawave/backend-contract` и проверяются на настоящей панели закреплённой версии в CI (`tests/live/test_remnawave_live.py`). Пока функция не прошла такую проверку, она не считается поддерживаемой.
 5. **Каждое действие — задача.** Долгие операции идут через очередь задач с шагами и журналом, а не внутри HTTP-запроса. Исключение — существующие быстрые вызовы API панели.
 
 ## 2. Что известно о последней версии Remnawave
 
-Сверено 2026-11-03:
-- с официальными репозиториями `remnawave/backend`, `remnawave/node`, `remnawave/subscription-page`;
-- с пакетом `@remnawave/backend-contract` в npm.
+Сверено 2026-11-19 по подписанным официальным тегам и опубликованным multi-platform Docker-образам:
+- backend `3.4.11`, commit `6853666801d6d1925b6aec55824106100485777a`;
+- node `3.4.6`, commit `52d0f1c00c23bf99912687cb3b75faffb2d3bffb`;
+- subscription page `8.0.1`, commit `9045728e6e197a2581c6da40f4f92b170a8bad53`;
+- `@remnawave/backend-contract` `3.4.17` из тега backend `3.4.11`.
+
+Точная матрица тегов, коммитов, digest, лицензий и границ проверки: [REMNAWAVE_COMPATIBILITY](REMNAWAVE_COMPATIBILITY.md).
 
 Официальный сайт документации docs.rw из рабочей среды недоступен. Поэтому источник — файлы `docker-compose-prod.yml`, `.env.sample` и схемы конфигурации в самих репозиториях.
 
 | Компонент | Версия | Образ | Как запускается официально |
 | --- | --- | --- | --- |
-| Панель (backend + встроенный frontend) | 3.4.8 | `remnawave/backend:3` | `remnawave` слушает `127.0.0.1:3000` (API и интерфейс) и `127.0.0.1:3001` (метрики, `/health`). Рядом — PostgreSQL 18 (`remnawave-db`) и Valkey 9 по unix-сокету (`remnawave-redis`), сеть `remnawave-network` |
-| Нода | 3.4.4 | `remnawave/node:latest` | `network_mode: host`, `cap_add: NET_ADMIN`, переменные `NODE_PORT=2222` и `SECRET_KEY`. Ключ выдаёт панель (`GET /api/keygen`) |
-| Страница подписки | 8.0.1 | `remnawave/subscription-page:latest` | `127.0.0.1:3010`, в сети `remnawave-network`. Переменные: `REMNAWAVE_PANEL_URL`, `REMNAWAVE_API_TOKEN`, `INTERNAL_JWT_SECRET`, `SUBPAGE_CONFIG_UUID` и необязательные |
-| Контракт API | 3.4.15 | npm `@remnawave/backend-contract` | 28 контроллеров, в том числе `nodes`, `hosts`, `internal-squads`, `hwid`, `node-plugins`, `node-ssh`, `infra-billing`, `subscription-page-configs`, `keygen`, `system` |
+| Панель (backend + встроенный frontend) | 3.4.11 | `remnawave/backend:3.4.11@sha256:a5b9f81f…` | `remnawave` слушает `127.0.0.1:3000` (API и интерфейс) и `127.0.0.1:3001` (метрики, `/health`). Рядом — PostgreSQL 18 (`remnawave-db`) и Valkey 9 по unix-сокету (`remnawave-redis`), сеть `remnawave-network` |
+| Нода | 3.4.6 | `remnawave/node:3.4.6@sha256:3d5fde65…` | `network_mode: host`, `cap_add: NET_ADMIN`, переменные `NODE_PORT=2222` и `SECRET_KEY`. Ключ выдаёт панель (`GET /api/keygen`) |
+| Страница подписки | 8.0.1 | `remnawave/subscription-page:8.0.1@sha256:ba8445b1…` | `127.0.0.1:3010`, в сети `remnawave-network`. Переменные: `REMNAWAVE_PANEL_URL`, `REMNAWAVE_API_TOKEN`, `INTERNAL_JWT_SECRET`, `SUBPAGE_CONFIG_UUID` и необязательные |
+| Контракт API | 3.4.17 | `libs/contract/package.json` официального тега backend 3.4.11 | 28 контроллеров, в том числе `nodes`, `hosts`, `internal-squads`, `hwid`, `node-plugins`, `node-ssh`, `infra-billing`, `subscription-page-configs`, `keygen`, `system` |
 
 Требования панели, важные для архитектуры:
 - **HTTPS через прокси.** В production панель обрывает соединение без заголовков `X-Forwarded-For` и `X-Forwarded-Proto: https` (`proxy-check.middleware.ts`), поэтому перед ней нужен обратный прокси с TLS. Страница подписки устроена так же — это показал живой тест. Обращаясь к панели по `http://` внутри своей сети, она ставит эти заголовки сама.
@@ -38,7 +42,7 @@
 - **Связь с нодой.** Панель подключается к ноде по `NODE_PORT`. Нода открывает этот порт на хосте; доступ к нему стоит ограничить адресом панели.
 - **Возможности самой панели.** У панели есть свои плагины нод (`node-plugins`), доступ по SSH к нодам из её интерфейса (`node-ssh`) и учёт расходов на серверы (`infra-billing`). Магазин эти функции не дублирует: на этапе 12 менеджер расширений использует API плагинов панели, а не строит свой.
 
-Что проверяется на настоящей панели последней версии (`scripts/ci/remnawave-live.sh`, workflow «Remnawave live contract»: на каждый PR, затрагивающий клиент панели или живые тесты, при каждом слиянии в `main` и каждый понедельник):
+Что проверяется на настоящей панели закреплённой версии (`scripts/ci/remnawave-live.sh`, workflow «Remnawave live contract»: на каждый PR, затрагивающий клиент панели или живые тесты, при каждом слиянии в `main` и каждый понедельник):
 - пользователи, ноды, ключ ноды, сквады, хосты, устройства HWID, лимиты тарифов Lucy, подписка через `sub_proxy`;
 - с v28.65.0 — режимы «Панель + нода» и «Панель + страница подписки». Нода и страница подписки запускаются так, как их запускает официальный compose: нода должна подключиться к панели, а страница подписки — отдать подписку VPN-клиенту. Показывать ли браузеру веб-страницу, решают правила ответа подписки в панели (SRR). На свежей панели страница браузеру не показывается: в журнале страницы — «Webpage access is not allowed by Remnawave's SRR».
 
