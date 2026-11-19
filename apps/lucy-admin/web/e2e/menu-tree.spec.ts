@@ -8,7 +8,7 @@ test('menu editor creates folders, previews nested buttons and prevents stale sa
    page.waitForResponse(r=>r.url().endsWith('/api/admin/content')&&r.request().method()==='GET'),
    page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click(),
   ]);
-  expect(write.ok()).toBeTruthy();expect(refresh.ok()).toBeTruthy();
+  expect(write.ok(),`Telegram menu save failed: HTTP ${write.status()} — ${write.ok()?'':await write.text()}`).toBeTruthy();\n  expect(refresh.ok(),`Telegram menu refresh failed: HTTP ${refresh.status()} — ${refresh.ok()?'':await refresh.text()}`).toBeTruthy();
  };
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('browser@example.test');await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');await page.getByRole('button',{name:'Войти',exact:true}).click();
  await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/admin/content')&&r.request().method()==='GET'),page.getByRole('button',{name:/Дерево кнопок/}).click()]);
