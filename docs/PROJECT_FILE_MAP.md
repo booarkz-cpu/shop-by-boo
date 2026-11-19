@@ -2617,8 +2617,8 @@
 | [tests/test_release_tooling.py](../tests/test_release_tooling.py) | Проверки |
 | [tests/test_remnawave_architecture.py](../tests/test_remnawave_architecture.py) | Проверки |
 | [tests/test_remnawave_contract.py](../tests/test_remnawave_contract.py) | Проверки |
-| [tests/test_remnawave_version_pins.py](../tests/test_remnawave_version_pins.py) | Проверки |
 | [tests/test_remnawave_squads.py](../tests/test_remnawave_squads.py) | Проверки |
+| [tests/test_remnawave_version_pins.py](../tests/test_remnawave_version_pins.py) | Проверки |
 | [tests/test_renewal_readiness.py](../tests/test_renewal_readiness.py) | Проверки |
 | [tests/test_repin_images.py](../tests/test_repin_images.py) | Проверки |
 | [tests/test_requirements_register.py](../tests/test_requirements_register.py) | Проверки |
