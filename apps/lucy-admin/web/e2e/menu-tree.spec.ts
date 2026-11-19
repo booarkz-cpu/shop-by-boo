@@ -8,7 +8,8 @@ test('menu editor creates folders, previews nested buttons and prevents stale sa
    page.waitForResponse(r=>r.url().endsWith('/api/admin/content')&&r.request().method()==='GET'),
    page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click(),
   ]);
-  expect(write.ok(),`Telegram menu save failed: HTTP ${write.status()} — ${write.ok()?'':await write.text()}`).toBeTruthy();\n  expect(refresh.ok(),`Telegram menu refresh failed: HTTP ${refresh.status()} — ${refresh.ok()?'':await refresh.text()}`).toBeTruthy();
+  expect(write.ok(),`Telegram menu save failed: HTTP ${write.status()} — ${write.ok()?'':await write.text()}`).toBeTruthy();
+  expect(refresh.ok(),`Telegram menu refresh failed: HTTP ${refresh.status()} — ${refresh.ok()?'':await refresh.text()}`).toBeTruthy();
  };
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('browser@example.test');await page.getByLabel('Пароль',{exact:true}).fill('browser-only-password');await page.getByRole('button',{name:'Войти',exact:true}).click();
  await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/admin/content')&&r.request().method()==='GET'),page.getByRole('button',{name:/Дерево кнопок/}).click()]);
@@ -16,7 +17,7 @@ test('menu editor creates folders, previews nested buttons and prevents stale sa
  await saveTelegramButton();await expect(page.getByRole('status')).toContainText('Кнопка сохранена');
  await page.evaluate(async()=>{const r=await fetch('/api/admin/fields',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':decodeURIComponent(document.cookie.split('; ').find(x=>x.startsWith('rw_csrf='))?.split('=')[1]||'')},body:JSON.stringify({key:'browser_menu_help',label:'Help',value:'Menu help'})});if(!r.ok)throw new Error('Cannot create field')});
  await page.getByLabel('Название кнопки бота',{exact:true}).fill('Browser link');await page.getByRole('combobox',{name:'Тип кнопки бота',exact:true}).click();await page.getByRole('option',{name:'Поле',exact:true}).click();await page.getByLabel('URL или ключ поля',{exact:true}).fill('browser_menu_help');await page.getByRole('combobox',{name:'Родитель бота',exact:true}).click();await page.getByRole('option',{name:/Browser folder/}).click();
- await page.getByRole('button',{name:'Сохранить кнопку бота',exact:true}).click();await expect(page.getByRole('button',{name:/#\d+ Browser link/})).toBeVisible();
+ await saveTelegramButton();await expect(page.getByRole('button',{name:/#\d+ Browser link/})).toBeVisible();
  await page.getByRole('button',{name:'Добавить корневую кнопку',exact:true}).click();
  const folder=page.locator('fieldset').filter({has:page.locator('legend').filter({hasText:/^Уровень 1:/})}).last();
  await folder.getByLabel('Название кнопки',{exact:true}).fill('Nested menu');await folder.getByRole('button',{name:'Добавить дочернюю кнопку',exact:true}).click();
