@@ -66,6 +66,34 @@ def test_vpn_shop_native_android_labels_are_localized():
         assert {key: actual[key] for key in labels} == labels
 
 
+def test_lucy_admin_uk_critical_labels_are_complete():
+    paths = [
+        ROOT / "apps/lucy-admin/android/app/src/main/assets/l10n.json",
+        ROOT / "apps/lucy-admin/ios/VpnShopAdmin/l10n.json",
+    ]
+    catalogs = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+    assert catalogs[0] == catalogs[1]
+    expected = {
+        "otp": "Код 2FA",
+        "https_required": (
+            "Укажіть адресу API, що починається з https://. Локальний http:// дозволено лише "
+            "для localhost, 127.0.0.1 і 10.0.2.2."
+        ),
+        "all_telegram": "Усі користувачі з Telegram",
+        "broadcast_text": "Текст HTML-розсилки",
+        "broadcast_hint": (
+            "Чергу доставляє Telegram-бот. Повторна спроба продовжується зі збереженого "
+            "лічильника."
+        ),
+        "restricted": "Доступ обмежено",
+        "cleared": "Обмеження знято",
+        "broadcast_retried": "Розсилку повернуто до черги",
+        "password_short": "Пароль має містити щонайменше 8 символів",
+        "cash_queue": "Черга платежів",
+    }
+    assert {key: catalogs[0]["uk"][key] for key in expected} == expected
+
+
 def test_missing_engine_is_an_error(tmp_path):
     with pytest.raises(FileNotFoundError):
         Engine(str(tmp_path / "does-not-exist")).unknown("ru", {"подключение"})
