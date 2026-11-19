@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2735**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2737**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -140,6 +140,7 @@
 | [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/values-en/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/values/strings.xml](../apps/lucy-admin/android/app/src/main/res/values/strings.xml) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/xml/network_security.xml](../apps/lucy-admin/android/app/src/main/res/xml/network_security.xml) | Приложения |
 | [apps/lucy-admin/android/build.gradle.kts](../apps/lucy-admin/android/build.gradle.kts) | Приложения |
@@ -685,6 +686,7 @@
 | [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/values-en/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/values/strings.xml](../apps/vpn-shop/android/app/src/main/res/values/strings.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml](../apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/xml/network_security.xml](../apps/vpn-shop/android/app/src/main/res/xml/network_security.xml) | Приложения |

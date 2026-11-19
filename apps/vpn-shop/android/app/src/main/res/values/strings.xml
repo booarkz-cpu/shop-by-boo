@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Корги Люси</string>
-    <string name="diagnostics">Diagnostics</string>
-    <string name="privacy">Privacy</string>
+    <string name="diagnostics">Диагностика</string>
+    <string name="privacy">Конфиденциальность</string>
     <string name="widget_description">Статус VPN-подписки, срок и остаток трафика</string>
 </resources>

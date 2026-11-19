@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Коргі Люсі</string>
+    <string name="diagnostics">Діагностика</string>
+    <string name="privacy">Конфіденційність</string>
+    <string name="widget_description">Стан VPN-підписки, термін дії та залишок трафіку</string>
+</resources>
