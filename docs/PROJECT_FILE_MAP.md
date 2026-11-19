@@ -83,8 +83,6 @@
 | [.zap/rules.tsv](../.zap/rules.tsv) | Корень проекта |
 | [ADMIN_GUIDE_RU.md](../ADMIN_GUIDE_RU.md) | Корень проекта |
 | [API_REFERENCE_RU.md](../API_REFERENCE_RU.md) | Корень проекта |
-| [apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml) | Приложения |
-| [apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [CHANGELOG.md](../CHANGELOG.md) | Корень проекта |
 | [CI_CD_RU.md](../CI_CD_RU.md) | Корень проекта |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | Корень проекта |
@@ -142,6 +140,7 @@
 | [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/lucy-admin/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/values-en/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml](../apps/lucy-admin/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/values/strings.xml](../apps/lucy-admin/android/app/src/main/res/values/strings.xml) | Приложения |
 | [apps/lucy-admin/android/app/src/main/res/xml/network_security.xml](../apps/lucy-admin/android/app/src/main/res/xml/network_security.xml) | Приложения |
 | [apps/lucy-admin/android/build.gradle.kts](../apps/lucy-admin/android/build.gradle.kts) | Приложения |
@@ -687,6 +686,7 @@
 | [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_bg.png) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png](../apps/vpn-shop/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_fg.png) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/values-en/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-en/strings.xml) | Приложения |
+| [apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml](../apps/vpn-shop/android/app/src/main/res/values-uk/strings.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/values/strings.xml](../apps/vpn-shop/android/app/src/main/res/values/strings.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml](../apps/vpn-shop/android/app/src/main/res/xml/corgi_widget_info.xml) | Приложения |
 | [apps/vpn-shop/android/app/src/main/res/xml/network_security.xml](../apps/vpn-shop/android/app/src/main/res/xml/network_security.xml) | Приложения |
