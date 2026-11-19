@@ -69,3 +69,27 @@ def test_complete_declarations_are_distinct_from_real_product_verification(tmp_p
     write(tmp_path)
     assert inspect(tmp_path)["ready"]
     assert main(["--require-ready"], tmp_path) == 0
+
+
+def test_missing_status_record_is_not_silently_treated_as_pass(tmp_path):
+    write(tmp_path)
+    status = tmp_path / "docs/requirements/status.json"
+    status.write_text("{}", encoding="utf-8")
+    report = inspect(tmp_path)
+    assert report["counts"]["NOT_TESTED"] == 1
+    assert report["pending"][0]["id"] == "REQ-QA-0001"
+    assert not report["ready"]
+    assert main(["--new-release-only"], tmp_path) == 1
+
+
+def test_each_verification_flag_is_individually_required(tmp_path):
+    for missing in FLAGS:
+        write(tmp_path)
+        manifest = tmp_path / "release-manifest.template.json"
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        data[missing] = False
+        manifest.write_text(json.dumps(data), encoding="utf-8")
+        report = inspect(tmp_path)
+        assert report["flags"][missing] is False
+        assert not report["ready"]
+        assert main(["--new-release-only"], tmp_path) == 1
