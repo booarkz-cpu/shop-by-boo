@@ -41,7 +41,6 @@ def test_every_borrowed_project_has_a_notice():
     assert not missing, f"no THIRD_PARTY_NOTICES.md entry for: {missing}"
 
 
-
 def test_android_xray_provenance_is_consistent():
     build = (ROOT / "scripts/mobile/build-xray-aar.sh").read_text()
     notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
