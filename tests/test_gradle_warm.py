@@ -33,7 +33,10 @@ if [[ -n ${GRADLE_USER_HOME:-} && ! -d ${GRADLE_USER_HOME}/caches ]]; then
   printf '%s\\n' "NO_MODULE_CACHE $runs" >> calls
 fi
 fail_first=${FAIL_FIRST:-0}
-if (( runs <= fail_first )); then exit 27; fi
+if (( runs <= fail_first )); then
+  echo "${FAIL_MESSAGE:-Could not find example.group:missing:1.0.}" >&2
+  exit 27
+fi
 exit 0
 """.replace("__TASK__", TASK),
         encoding="utf-8",
@@ -117,3 +120,17 @@ def test_a_persistent_miss_is_still_a_failure(android_project, tmp_path):
     assert len(task_calls(android_project)) == 6
     assert "debug navigation resources ready" not in result.stdout
     assert "did not resolve" in result.stderr
+
+
+def test_unit_test_failure_is_not_retried(android_project, tmp_path, monkeypatch):
+    home = tmp_path / "gradle-home"
+    (home / "caches").mkdir(parents=True)
+    monkeypatch.setenv("FAIL_MESSAGE", "Could not find example.group:missing:1.0.\nThere were failing tests.")
+    result = invoke(
+        android_project, "--exec", str(android_project), "--", ":app:testDebugUnitTest",
+        fail_first=1, home=home, accept_any=True,
+    )
+    assert result.returncode == 27
+    assert (android_project / "task_runs").read_text().strip() == "1"
+    assert (home / "caches").is_dir()
+    assert "There were failing tests." in result.stdout

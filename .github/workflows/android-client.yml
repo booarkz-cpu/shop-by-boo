@@ -5,10 +5,10 @@ name: Android client app
 # Xray server on the runner (scripts/mobile/client-vpn-e2e.sh). The customer and administrator apps are not built here.
 on:
   pull_request:
-    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-client.yml']
   push:
     branches: [main]
-    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-client.yml']
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -48,16 +47,18 @@ jobs:
         run: bash scripts/mobile/build-xray-aar.sh
       - name: ktlint (main screen, view model and their tests)
         run: bash scripts/mobile/client-ktlint.sh
-      - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh apps/vpn-client/android
+      - name: Use a clean Gradle dependency cache for the client
+        run: |
+          gradle_dir="$(mktemp -d "$RUNNER_TEMP/gradle-client.XXXXXX")"
+          printf 'GRADLE_USER_HOME=%s\n' "$gradle_dir" >> "$GITHUB_ENV"
       - name: Unit tests, debug and release builds
         run: |
           set -euo pipefail
           mkdir -p apps/vpn-client/android/app/libs
           cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
-          cd apps/vpn-client/android
-          bash gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --no-daemon
-          ls -l app/build/outputs/apk/debug app/build/outputs/apk/release
+          bash scripts/ci/gradle-warm.sh --exec apps/vpn-client/android -- \
+            :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:assembleDebugAndroidTest --no-daemon
+          ls -l apps/vpn-client/android/app/build/outputs/apk/{debug,release}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
