@@ -2,14 +2,21 @@
 
 import importlib.util
 import plistlib
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 FILE = Path(__file__).resolve().parents[1] / "scripts/ios/verify_tunnel_frameworks.py"
 SPEC = importlib.util.spec_from_file_location("verify_tunnel_frameworks", FILE)
 verifier = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(verifier)
+
+RUNTIME_FILE = Path(__file__).parent / "ios/tunnel_runtime.py"
+RUNTIME_SPEC = importlib.util.spec_from_file_location("tunnel_runtime", RUNTIME_FILE)
+tunnel_runtime = importlib.util.module_from_spec(RUNTIME_SPEC)
+RUNTIME_SPEC.loader.exec_module(tunnel_runtime)
 
 
 def library(identifier, archs, variant=None):
@@ -58,6 +65,24 @@ class FrameworkTests(unittest.TestCase):
             verifier.minimum_versions(commands, "device")
         with self.assertRaisesRegex(ValueError, "exceeds"):
             verifier.minimum_versions(commands.replace("15.0", "16.0"), "simulator")
+
+
+    def test_stalled_simulator_is_erased_and_booted_once_more(self):
+        completed = subprocess.CompletedProcess([], 0)
+        with mock.patch.object(tunnel_runtime.subprocess, "run") as run:
+            run.side_effect = [
+                completed,
+                subprocess.TimeoutExpired(["bootstatus"], 180),
+                completed,
+                completed,
+                completed,
+                completed,
+            ]
+            tunnel_runtime.boot_simulator("device-id")
+        self.assertEqual(run.call_count, 6)
+        self.assertEqual(run.call_args_list[2].args[0][-2:], ["shutdown", "device-id"])
+        self.assertEqual(run.call_args_list[3].args[0][-2:], ["erase", "device-id"])
+        self.assertEqual(run.call_args_list[-1].kwargs["timeout"], 300)
 
 
 if __name__ == "__main__":

@@ -40,6 +40,26 @@ def simulator():
                 for d in group if d["name"].startswith("iPhone"))
 
 
+def boot_simulator(device):
+    """Boot once, then rebuild a runner simulator that stalls during data migration."""
+    subprocess.run(["xcrun", "simctl", "boot", device], check=False)
+    try:
+        subprocess.run(
+            ["xcrun", "simctl", "bootstatus", device, "-b"],
+            check=True,
+            timeout=180,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        subprocess.run(["xcrun", "simctl", "shutdown", device], check=False)
+        subprocess.run(["xcrun", "simctl", "erase", device], check=True)
+        subprocess.run(["xcrun", "simctl", "boot", device], check=True)
+        subprocess.run(
+            ["xcrun", "simctl", "bootstatus", device, "-b"],
+            check=True,
+            timeout=300,
+        )
+
+
 def compile_probe(exe):
     frameworks = IOS / "Frameworks"
     xray = next((frameworks / "LibXray.xcframework").glob("ios-*-simulator/LibXray.framework"))
@@ -134,5 +154,5 @@ if __name__ == "__main__":
         exe = Path(work) / "corgi-tunnel-runtime"
         compile_probe(exe)
         device = simulator()
-        subprocess.run(["xcrun", "simctl", "bootstatus", device, "-b"], check=True, timeout=240)
+        boot_simulator(device)
         traffic(exe, device)
