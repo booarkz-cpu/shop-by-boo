@@ -265,15 +265,13 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Debug build
         run: |
           set -euo pipefail
-          mkdir -p apps/vpn-client/android/app/libs
-          cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
           cd apps/vpn-client/android && bash gradlew :app:assembleDebug --no-daemon
       - name: Enable KVM
         run: |

@@ -4,10 +4,10 @@ name: Android embedded VPN
 # to an Xray server on the runner, reaches a page only the tunnel can reach, disconnects (scripts/mobile/vpn-e2e.sh).
 on:
   pull_request:
-    paths: ['apps/vpn-shop/android/**', 'scripts/mobile/**', '.github/workflows/android-vpn-e2e.yml']
+    paths: ['apps/vpn-shop/android/**', 'scripts/mobile/**', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-vpn-e2e.yml']
   push:
     branches: [main]
-    paths: ['apps/vpn-shop/android/**', 'scripts/mobile/**', '.github/workflows/android-vpn-e2e.yml']
+    paths: ['apps/vpn-shop/android/**', 'scripts/mobile/**', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-vpn-e2e.yml']
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -40,14 +39,16 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the embedded VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
       - name: Build the debug customer app with the engine
         run: |
           test -f apps/vpn-shop/android/app/libs/libv2ray.aar
-          (cd apps/vpn-shop/android && bash gradlew assembleDebug --no-daemon)
+          GRADLE_USER_HOME="$(mktemp -d "$RUNNER_TEMP/gradle-shop-vpn.XXXXXX")" \
+            bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- :app:assembleDebug --no-daemon
+          bash scripts/mobile/build-xray-aar.sh --verify-apk apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
       - name: Xray server for the runner (latest release, SHA-256 from its .dgst)
         env:
           GH_TOKEN: ${{ github.token }}

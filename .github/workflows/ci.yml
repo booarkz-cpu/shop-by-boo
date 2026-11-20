@@ -582,7 +582,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
@@ -602,7 +602,8 @@ jobs:
       - name: Compile the app with the engine
         run: |
           bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- assembleDebug --no-daemon
-          unzip -l apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'libgojni.so' || { echo "::error title=engine::libgojni.so is not in the APK"; exit 1; }
+          # Compare the packaged libgojni.so for each ABI against the AAR.
+          bash scripts/mobile/build-xray-aar.sh --verify-apk apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
 
   android-ui:
     # Compose UI tests of both apps on an emulator, in the demo mode of the debug builds.

@@ -42,7 +42,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    packaging {
+        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        // gomobile already stripped this library. Preserve the bytes recorded by the AAR build.
+        jniLibs.keepDebugSymbols += "**/libgojni.so"
+    }
     // JVM unit tests (app/src/test): Android stubs return defaults; org.json is the real library.
     testOptions { unitTests.isReturnDefaultValues = true }
     signingConfigs {

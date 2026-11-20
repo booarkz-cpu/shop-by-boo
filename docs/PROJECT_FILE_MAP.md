@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2740**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2742**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1885,6 +1885,7 @@
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
 | [scripts/mobile/vpn-e2e.sh](../scripts/mobile/vpn-e2e.sh) | Эксплуатация и релиз |
+| [scripts/mobile/xray-artifact.py](../scripts/mobile/xray-artifact.py) | Эксплуатация и релиз |
 | [scripts/mobile/xray-core-watch.py](../scripts/mobile/xray-core-watch.py) | Эксплуатация и релиз |
 | [scripts/node-agent.py](../scripts/node-agent.py) | Эксплуатация и релиз |
 | [scripts/open-ports.sh](../scripts/open-ports.sh) | Эксплуатация и релиз |
@@ -2746,5 +2747,6 @@
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
 | [tests/test_workflows_parse.py](../tests/test_workflows_parse.py) | Проверки |
 | [tests/test_xcuitest_results.py](../tests/test_xcuitest_results.py) | Проверки |
+| [tests/test_xray_artifact.py](../tests/test_xray_artifact.py) | Проверки |
 | [tests/test_xray_core_watch.py](../tests/test_xray_core_watch.py) | Проверки |
 | [tests/test_zero_downtime_deploy.py](../tests/test_zero_downtime_deploy.py) | Проверки |
