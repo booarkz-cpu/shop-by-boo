@@ -718,8 +718,10 @@ jobs:
   ios-extensions:
     # The customer app with both app extensions embedded (scripts/ios/enable-extensions.py) and the
     # tunnel engine linked: LibXray and HevSocks5Tunnel built from pinned commits and cached by them.
+    # The Intel macOS 26 image is also used by the proven XCUITest job: its CoreSimulator can spawn
+    # a process after a clean boot, unlike the macos-latest image observed on the runtime probe.
     name: iOS • tunnel and rich push extensions
-    runs-on: macos-latest
+    runs-on: macos-26-intel
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
