@@ -10,6 +10,7 @@ import struct
 import subprocess
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,25 +41,35 @@ def simulator():
                 for d in group if d["name"].startswith("iPhone"))
 
 
-def boot_simulator(device):
-    """Boot once, then rebuild a runner simulator that stalls during data migration."""
-    subprocess.run(["xcrun", "simctl", "boot", device], check=False)
-    try:
-        subprocess.run(
-            ["xcrun", "simctl", "bootstatus", device, "-b"],
-            check=True,
-            timeout=180,
-        )
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        subprocess.run(["xcrun", "simctl", "shutdown", device], check=False)
-        subprocess.run(["xcrun", "simctl", "erase", device], check=True)
-        subprocess.run(["xcrun", "simctl", "boot", device], check=True)
-        subprocess.run(
-            ["xcrun", "simctl", "bootstatus", device, "-b"],
-            check=True,
-            timeout=300,
-        )
+def simulator_ready(device, timeout):
+    """Wait only for the capability needed by this test: spawning a process."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            subprocess.run(
+                ["xcrun", "simctl", "spawn", device, "/usr/bin/true"],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=15,
+            )
+            return True
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(5)
 
+
+def boot_simulator(device):
+    """Boot the runner device and rebuild it once only if process spawning fails."""
+    subprocess.run(["xcrun", "simctl", "boot", device], check=False)
+    if simulator_ready(device, 120):
+        return
+    subprocess.run(["xcrun", "simctl", "shutdown", device], check=False)
+    subprocess.run(["xcrun", "simctl", "erase", device], check=True)
+    subprocess.run(["xcrun", "simctl", "boot", device], check=True)
+    if not simulator_ready(device, 180):
+        raise RuntimeError("iOS simulator cannot spawn a process after a clean boot")
 
 def compile_probe(exe):
     frameworks = IOS / "Frameworks"

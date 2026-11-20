@@ -68,20 +68,24 @@ class FrameworkTests(unittest.TestCase):
 
     def test_stalled_simulator_is_erased_and_booted_once_more(self):
         completed = subprocess.CompletedProcess([], 0)
-        with mock.patch.object(tunnel_runtime.subprocess, "run") as run:
-            run.side_effect = [
-                completed,
-                subprocess.TimeoutExpired(["bootstatus"], 180),
-                completed,
-                completed,
-                completed,
-                completed,
-            ]
+        with (
+            mock.patch.object(tunnel_runtime, "simulator_ready", side_effect=[False, True]) as ready,
+            mock.patch.object(tunnel_runtime.subprocess, "run", return_value=completed) as run,
+        ):
             tunnel_runtime.boot_simulator("device-id")
-        self.assertEqual(run.call_count, 6)
-        self.assertEqual(run.call_args_list[2].args[0][-2:], ["shutdown", "device-id"])
-        self.assertEqual(run.call_args_list[3].args[0][-2:], ["erase", "device-id"])
-        self.assertEqual(run.call_args_list[-1].kwargs["timeout"], 300)
+        self.assertEqual(ready.call_args_list, [mock.call("device-id", 120), mock.call("device-id", 180)])
+        self.assertEqual(run.call_count, 4)
+        self.assertEqual(run.call_args_list[1].args[0][-2:], ["shutdown", "device-id"])
+        self.assertEqual(run.call_args_list[2].args[0][-2:], ["erase", "device-id"])
+
+    def test_ready_simulator_is_not_erased(self):
+        completed = subprocess.CompletedProcess([], 0)
+        with (
+            mock.patch.object(tunnel_runtime, "simulator_ready", return_value=True),
+            mock.patch.object(tunnel_runtime.subprocess, "run", return_value=completed) as run,
+        ):
+            tunnel_runtime.boot_simulator("device-id")
+        self.assertEqual(run.call_count, 1)
 
 
 if __name__ == "__main__":
