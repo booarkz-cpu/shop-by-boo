@@ -572,7 +572,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -588,8 +587,11 @@ jobs:
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
-      - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh apps/vpn-shop/android
+      - name: Resolve the debug runtime from a clean Gradle home
+        run: |
+          gradle_dir="$(mktemp -d "$RUNNER_TEMP/gradle-engine.XXXXXX")"
+          printf 'GRADLE_USER_HOME=%s\n' "$gradle_dir" >> "$GITHUB_ENV"
+          GRADLE_USER_HOME="$gradle_dir" bash scripts/ci/gradle-warm.sh --android-runtime apps/vpn-shop/android
       - name: Compile the app with the engine
         working-directory: apps/vpn-shop/android
         run: |
