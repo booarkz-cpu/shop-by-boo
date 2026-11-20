@@ -587,11 +587,19 @@ jobs:
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
+      - name: Cache the Gradle distribution only
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.gradle-warm-dists
+          key: gradle-dists-${{ hashFiles('apps/vpn-shop/android/gradle/wrapper/gradle-wrapper.properties') }}
       - name: Resolve the debug runtime from a clean Gradle home
         run: |
           gradle_dir="$(mktemp -d "$RUNNER_TEMP/gradle-engine.XXXXXX")"
+          mkdir -p "$HOME/.gradle-warm-dists"
           printf 'GRADLE_USER_HOME=%s\n' "$gradle_dir" >> "$GITHUB_ENV"
-          GRADLE_USER_HOME="$gradle_dir" bash scripts/ci/gradle-warm.sh --android-runtime apps/vpn-shop/android
+          printf 'GRADLE_WARM_WRAPPER_CACHE=%s\n' "$HOME/.gradle-warm-dists" >> "$GITHUB_ENV"
+          GRADLE_USER_HOME="$gradle_dir" GRADLE_WARM_WRAPPER_CACHE="$HOME/.gradle-warm-dists" \
+            bash scripts/ci/gradle-warm.sh --android-runtime apps/vpn-shop/android
       - name: Compile the app with the engine
         working-directory: apps/vpn-shop/android
         run: |
