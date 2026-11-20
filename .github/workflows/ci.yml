@@ -557,8 +557,7 @@ jobs:
       - name: Gradle distribution (retries on GitHub 504)
         run: bash scripts/ci/gradle-warm.sh ${{ matrix.dir }}
       - name: Compile debug application and run JVM unit tests
-        working-directory: ${{ matrix.dir }}
-        run: bash gradlew assembleDebug testDebugUnitTest --no-daemon
+        run: bash scripts/ci/gradle-warm.sh --exec ${{ matrix.dir }} -- assembleDebug testDebugUnitTest --no-daemon
 
   android-engine:
     # The customer app with the embedded VPN engine (Xray-core via libv2ray.aar, built from the
@@ -601,10 +600,9 @@ jobs:
           GRADLE_USER_HOME="$gradle_dir" GRADLE_WARM_WRAPPER_CACHE="$HOME/.gradle-warm-dists" \
             bash scripts/ci/gradle-warm.sh --android-runtime apps/vpn-shop/android
       - name: Compile the app with the engine
-        working-directory: apps/vpn-shop/android
         run: |
-          bash gradlew assembleDebug --no-daemon
-          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -q 'libgojni.so' || { echo "::error title=engine::libgojni.so is not in the APK"; exit 1; }
+          bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- assembleDebug --no-daemon
+          unzip -l apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'libgojni.so' || { echo "::error title=engine::libgojni.so is not in the APK"; exit 1; }
 
   android-ui:
     # Compose UI tests of both apps on an emulator, in the demo mode of the debug builds.
@@ -625,8 +623,8 @@ jobs:
         run: bash scripts/ci/gradle-warm.sh apps/vpn-shop/android apps/lucy-admin/android
       - name: Build the apps and their tests
         run: |
-          (cd apps/vpn-shop/android && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
-          (cd apps/lucy-admin/android && bash gradlew assembleDebug assembleDebugAndroidTest --no-daemon)
+          bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- assembleDebug assembleDebugAndroidTest --no-daemon
+          bash scripts/ci/gradle-warm.sh --exec apps/lucy-admin/android -- assembleDebug assembleDebugAndroidTest --no-daemon
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

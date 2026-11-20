@@ -24,7 +24,7 @@ for arg in "$@"; do
   prev=$arg
 done
 if [[ $1 == --version ]]; then exit 0; fi
-[[ $1 == "__TASK__" ]] || exit 64
+if [[ ${GRADLE_ACCEPT_ANY:-} != 1 && $1 != "__TASK__" ]]; then exit 64; fi
 runs=0
 if [[ -f task_runs ]]; then runs=$(cat task_runs); fi
 runs=$((runs + 1))
@@ -41,17 +41,16 @@ exit 0
     return project
 
 
-def invoke(project, *options, fail_first=0, home=None):
+def invoke(project, *options, fail_first=0, home=None, accept_any=False):
     env = {**os.environ, "FAIL_FIRST": str(fail_first), "GRADLE_WARM_NO_SLEEP": "1"}
+    if accept_any:
+        env["GRADLE_ACCEPT_ANY"] = "1"
     if home is not None:
         env["GRADLE_USER_HOME"] = str(home)
-    return subprocess.run(
-        ["bash", str(WARM), *options, str(project)],
-        env=env,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    command = ["bash", str(WARM), *options]
+    if not options or options[0] != "--exec":
+        command.append(str(project))
+    return subprocess.run(command, env=env, capture_output=True, text=True, check=False)
 
 
 def calls(project):
@@ -94,6 +93,21 @@ def test_a_miss_is_asked_again_without_the_recorded_failure(android_project, tmp
     assert "NO_MODULE_CACHE 2" in calls(android_project)
     assert "gradle: backoff 5s" in result.stdout
     assert "debug navigation resources ready" in result.stdout
+
+
+def test_exec_retries_the_requested_gradle_command(android_project, tmp_path):
+    home = tmp_path / "gradle-home"
+    (home / "caches").mkdir(parents=True)
+    result = invoke(
+        android_project, "--exec", str(android_project), "--", "assembleDebug", "--no-daemon",
+        fail_first=1, home=home, accept_any=True,
+    )
+    assert result.returncode == 0, result.stderr
+    resolved = [line for line in calls(android_project) if line.startswith("assembleDebug")]
+    assert len(resolved) == 2
+    assert "--refresh-dependencies" not in resolved[0]
+    assert "--refresh-dependencies" in resolved[1]
+    assert "command ready" in result.stdout
 
 
 def test_a_persistent_miss_is_still_a_failure(android_project, tmp_path):
