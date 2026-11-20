@@ -5,10 +5,10 @@ name: Android client app
 # Xray server on the runner (scripts/mobile/client-vpn-e2e.sh). The customer and administrator apps are not built here.
 on:
   pull_request:
-    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-client.yml']
   push:
     branches: [main]
-    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', '.github/workflows/android-client.yml']
+    paths: ['apps/vpn-client/android/**', 'scripts/mobile/client-vpn-e2e.sh', 'scripts/mobile/client-ktlint.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/ci/gradle-warm.sh', '.github/workflows/android-client.yml']
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platform-tools platforms;android-35 build-tools;35.0.0"
@@ -37,27 +36,29 @@ jobs:
         with:
           go-version: stable
           cache: false
-      # The same engine as the customer app (same cache): built into apps/vpn-shop/android/app/libs, copied here.
+      # The same engine as the customer app (same cache): consumed directly from apps/vpn-shop/android/app/libs.
       - id: xray
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
       - name: ktlint (main screen, view model and their tests)
         run: bash scripts/mobile/client-ktlint.sh
-      - name: Gradle distribution (retries on GitHub 504)
-        run: bash scripts/ci/gradle-warm.sh apps/vpn-client/android
+      - name: Use a clean Gradle dependency cache for the client
+        run: |
+          gradle_dir="$(mktemp -d "$RUNNER_TEMP/gradle-client.XXXXXX")"
+          printf 'GRADLE_USER_HOME=%s\n' "$gradle_dir" >> "$GITHUB_ENV"
       - name: Unit tests, debug and release builds
         run: |
           set -euo pipefail
-          mkdir -p apps/vpn-client/android/app/libs
-          cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
-          cd apps/vpn-client/android
-          bash gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --no-daemon
-          ls -l app/build/outputs/apk/debug app/build/outputs/apk/release
+          bash scripts/ci/gradle-warm.sh --exec apps/vpn-client/android -- \
+            :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:assembleDebugAndroidTest --no-daemon
+          bash scripts/mobile/build-xray-aar.sh --verify-apk \
+            apps/vpn-client/android/app/build/outputs/apk/debug/app-debug.apk \
+            apps/vpn-client/android/app/build/outputs/apk/release/*.apk
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:

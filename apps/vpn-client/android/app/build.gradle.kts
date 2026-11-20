@@ -1,9 +1,32 @@
+import java.util.zip.ZipFile
+
 // «Корги Люси: клиент» — the third Android app (v28.79.0, stage 18): a standalone VPN client on the shop's Xray engine
 // for any subscriptions, not only the shop's. Separate from the customer (apps/vpn-shop/android) and administrator
 // (apps/lucy-admin/android) apps: its own applicationId, tags and APK name; nothing here changes their builds.
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+}
+
+val xrayAar = rootProject.file("../../vpn-shop/android/app/libs/libv2ray.aar")
+val pinFile = rootProject.file("../../../scripts/mobile/build-xray-aar.sh")
+val pinnedRevision = pinFile.takeIf { it.isFile }?.let {
+    Regex("XRAY_AAR_COMMIT:-([0-9a-f]{40})").find(it.readText())?.groupValues?.get(1)
+}
+val packagedRevision = if (xrayAar.isFile) {
+    ZipFile(xrayAar).use { archive ->
+        val marker = archive.getEntry("assets/corgi-xray.commit")
+            ?: error("Rebuild the shared libv2ray.aar to record its source revision")
+        archive.getInputStream(marker).bufferedReader().use { it.readText().trim() }
+            .also { check(it.matches(Regex("[0-9a-f]{40}"))) { "Invalid Xray source marker" } }
+    }
+} else null
+
+// Keep engine-free debug builds available. Release APKs and bundles require the pinned engine.
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    doFirst {
+        check(packagedRevision != null && packagedRevision == pinnedRevision) { "Build the pinned shared AAR with scripts/mobile/build-xray-aar.sh" }
+    }
 }
 
 android {
@@ -16,10 +39,7 @@ android {
         versionCode = 1101
         versionName = "1.10.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // v1.6.1 (N11): the AndroidLibXrayLite commit the AAR is built from, shown in «О приложении».
-        val xrayAar = rootProject.file("../../../scripts/mobile/build-xray-aar.sh")
-        val xrayCommit = Regex("XRAY_AAR_COMMIT:-([0-9a-f]{40})").find(if (xrayAar.exists()) xrayAar.readText() else "")?.groupValues?.get(1) ?: "unknown"
-        buildConfigField("String", "XRAY_AAR_COMMIT", "\"$xrayCommit\"")
+        buildConfigField("String", "XRAY_AAR_COMMIT", "\"${packagedRevision ?: "unknown"}\"")
     }
     buildFeatures {
         compose = true
@@ -29,7 +49,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    packaging {
+        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        // gomobile already stripped this library. Preserve the bytes recorded by the AAR build.
+        jniLibs.keepDebugSymbols += "**/libgojni.so"
+    }
     signingConfigs {
         create("shopRelease") {
             val store = System.getenv("ANDROID_KEYSTORE")
@@ -73,7 +97,7 @@ dependencies {
     implementation("androidx.fragment:fragment:1.9.1")
     implementation("com.google.zxing:core:3.5.4")
     // The VPN engine: Xray-core through libv2ray.aar (scripts/mobile/build-xray-aar.sh), the same as the customer app.
-    if (file("libs/libv2ray.aar").exists()) implementation(files("libs/libv2ray.aar"))
+    if (xrayAar.isFile) implementation(files(xrayAar))
     // UI tests (app/src/androidTest): Compose testing on an emulator in CI (android-client.yml).
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

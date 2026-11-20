@@ -88,8 +88,9 @@ EOF
 run_gradle() {
   local ready=$1
   shift
-  local init attempt code delay
+  local init log attempt code delay
   init=$(mktemp)
+  log="$init.log"
   write_mirror_init "$init"
   for attempt in 1 2 3 4 5 6; do
     local -a args=("$@")
@@ -99,17 +100,24 @@ run_gradle() {
     fi
     args+=(--init-script "$init")
     set +e
-    bash gradlew "${args[@]}"
+    bash gradlew "${args[@]}" 2>&1 | tee "$log"
     code=$?
     set -e
     if (( code == 0 )); then
       echo "gradle: $dir $ready"
-      rm -f "$init"
+      rm -f "$init" "$log"
       return 0
+    fi
+    # A test, compiler or packaging failure is final. Only repository misses and
+    # transport failures justify another build with fresh dependency metadata.
+    if grep -Fq 'There were failing tests' "$log" ||
+       ! grep -Eiq 'Could not find [[:alnum:]_.-]+:[[:alnum:]_.-]+:[[:alnum:]_.+-]+|could not resolve plugin artifact|Could not (GET|HEAD) .?https?://|Received status code (408|429|5[0-9]{2})' "$log"; then
+      rm -f "$init" "$log"
+      return "$code"
     fi
     if (( attempt == 6 )); then
       echo "::error title=gradle::$dir $ready did not resolve (try $attempt of 6)" >&2
-      rm -f "$init"
+      rm -f "$init" "$log"
       return "$code"
     fi
     echo "::warning title=gradle::$dir $ready failed (try $attempt of 6)" >&2

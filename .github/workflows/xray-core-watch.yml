@@ -54,7 +54,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          git add scripts/mobile/build-xray-aar.sh apps/vpn-client/android/app/build.gradle.kts docs/ru/new/ANDROID_CLIENT_APP.md
+          git add scripts/mobile/build-xray-aar.sh apps/vpn-client/android/app/build.gradle.kts docs/ru/new/ANDROID_CLIENT_APP.md THIRD_PARTY_NOTICES.md
           git commit -m "client $version: Xray core from AndroidLibXrayLite $TAG" -m "Opened by «Xray core watch» (N11)."
           # The branch ruleset lets only trusted apps create branches; the workflow token is not one of them unless the
           # owner allows it. Then the new core becomes an issue (once per tag) for a maintainer to open the pull request.
@@ -70,3 +70,4 @@ jobs:
             --body "Автоматически (N11, «Xray core watch»): AndroidLibXrayLite \`$TAG\` (\`$COMMIT\`) вместо закреплённого коммита; клиент $version. Вливать только при полностью зелёном CI (сборка AAR из нового коммита, unit, эмулятор с настоящим VPN)."
           gh workflow run ci.yml --ref "$branch"
           gh workflow run android-client.yml --ref "$branch"
+          gh workflow run android-vpn-e2e.yml --ref "$branch"

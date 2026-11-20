@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh') }}
+          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the embedded VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
@@ -77,10 +77,10 @@ jobs:
           done
           # v28.79.0: the third app «Корги Люси: клиент» (apps/vpn-client/android), signed with the same key, under the
           # permanent name corgi-lusi-client.apk. Its own Gradle project: the builds above do not change.
-          mkdir -p apps/vpn-client/android/app/libs && cp apps/vpn-shop/android/app/libs/libv2ray.aar apps/vpn-client/android/app/libs/
           (cd apps/vpn-client/android && bash gradlew :app:assembleRelease --no-daemon -q)
           client=apps/vpn-client/android/app/build/outputs/apk/release/app-release.apk
           [[ -f "$client" ]] || client=apps/vpn-client/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          bash scripts/mobile/build-xray-aar.sh --verify-apk "$client" dist/mobile/corgi_lusi_android_user_*.apk
           if [[ "$state" == signed ]]; then
             "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$client" > "$RUNNER_TEMP/client-cert.txt"
             digest="$(sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' "$RUNNER_TEMP/client-cert.txt" | head -1)"
