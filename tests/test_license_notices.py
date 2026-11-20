@@ -39,3 +39,22 @@ def test_every_borrowed_project_has_a_notice():
     assert found, "the scan finds the known borrowings"
     missing = sorted(name for name in found if name.split("/")[-1] not in notices)
     assert not missing, f"no THIRD_PARTY_NOTICES.md entry for: {missing}"
+
+
+
+def test_android_xray_provenance_is_consistent():
+    build = (ROOT / "scripts/mobile/build-xray-aar.sh").read_text()
+    notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
+    client_doc = (ROOT / "docs/ru/new/ANDROID_CLIENT_APP.md").read_text()
+
+    core = re.search(r'XRAY_AAR_COMMIT:-([0-9a-f]{40})', build)
+    mobile = re.search(r'MOBILE_VERSION="([^"]+)"', build)
+    assert core, "build script must pin AndroidLibXrayLite commit"
+    assert mobile, "build script must pin golang.org/x/mobile version"
+    assert "@latest" not in build
+    assert build.count('golang.org/x/mobile/cmd/gomobile@${MOBILE_VERSION}') == 1
+    assert build.count('golang.org/x/mobile/cmd/gobind@${MOBILE_VERSION}') == 1
+
+    for source in (notices, client_doc):
+        assert core.group(1) in source
+        assert mobile.group(1) in source

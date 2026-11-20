@@ -12,6 +12,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REPO="https://github.com/2dust/AndroidLibXrayLite"
 COMMIT="${XRAY_AAR_COMMIT:-b5a377087e74eaa34e86718710b04c50f4b767f5}"
+MOBILE_VERSION="v0.0.0-20261011034528-197770444867"
 OUT="$ROOT/apps/vpn-shop/android/app/libs"
 WORK="${RUNNER_TEMP:-/tmp}/xray-aar-$COMMIT"
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
@@ -24,8 +25,8 @@ git -C "$WORK" fetch -q --depth 1 origin "$COMMIT"
 git -C "$WORK" checkout -q FETCH_HEAD
 cd "$WORK"
 export PATH="$(go env GOPATH)/bin:$PATH"
-go install golang.org/x/mobile/cmd/gomobile@latest
-go install golang.org/x/mobile/cmd/gobind@latest
+go install "golang.org/x/mobile/cmd/gomobile@${MOBILE_VERSION}"
+go install "golang.org/x/mobile/cmd/gobind@${MOBILE_VERSION}"
 gomobile init
 go mod download
 gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar ./
