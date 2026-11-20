@@ -5,8 +5,8 @@ import plistlib
 import subprocess
 import tempfile
 import unittest
-from unittest import mock
 from pathlib import Path
+from unittest import mock
 
 FILE = Path(__file__).resolve().parents[1] / "scripts/ios/verify_tunnel_frameworks.py"
 SPEC = importlib.util.spec_from_file_location("verify_tunnel_frameworks", FILE)
@@ -65,7 +65,6 @@ class FrameworkTests(unittest.TestCase):
             verifier.minimum_versions(commands, "device")
         with self.assertRaisesRegex(ValueError, "exceeds"):
             verifier.minimum_versions(commands.replace("15.0", "16.0"), "simulator")
-
 
     def test_stalled_simulator_is_erased_and_booted_once_more(self):
         completed = subprocess.CompletedProcess([], 0)
