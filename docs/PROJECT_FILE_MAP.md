@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2742**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2746**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1876,6 +1876,7 @@
 | [scripts/integration-test.sh](../scripts/integration-test.sh) | Эксплуатация и релиз |
 | [scripts/ios/build-tunnel-frameworks.sh](../scripts/ios/build-tunnel-frameworks.sh) | Эксплуатация и релиз |
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
+| [scripts/ios/verify_tunnel_frameworks.py](../scripts/ios/verify_tunnel_frameworks.py) | Эксплуатация и релиз |
 | [scripts/masque-selfcheck.sh](../scripts/masque-selfcheck.sh) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
@@ -2417,6 +2418,8 @@
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
+| [tests/ios/TunnelRuntime.swift](../tests/ios/TunnelRuntime.swift) | Проверки |
+| [tests/ios/tunnel_runtime.py](../tests/ios/tunnel_runtime.py) | Проверки |
 | [tests/live/test_caddy_on_demand.py](../tests/live/test_caddy_on_demand.py) | Проверки |
 | [tests/live/test_hetzner_live.py](../tests/live/test_hetzner_live.py) | Проверки |
 | [tests/live/test_install_live.py](../tests/live/test_install_live.py) | Проверки |
@@ -2548,6 +2551,7 @@
 | [tests/test_install_status.py](../tests/test_install_status.py) | Проверки |
 | [tests/test_integration_billing_vpn.py](../tests/test_integration_billing_vpn.py) | Проверки |
 | [tests/test_integrity_report.py](../tests/test_integrity_report.py) | Проверки |
+| [tests/test_ios_tunnel_frameworks.py](../tests/test_ios_tunnel_frameworks.py) | Проверки |
 | [tests/test_layout_stage4.py](../tests/test_layout_stage4.py) | Проверки |
 | [tests/test_layout_stage5.py](../tests/test_layout_stage5.py) | Проверки |
 | [tests/test_legal_docs.py](../tests/test_legal_docs.py) | Проверки |

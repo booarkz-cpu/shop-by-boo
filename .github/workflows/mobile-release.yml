@@ -112,14 +112,21 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         if: github.event_name != 'pull_request'
         with:
-          go-version: stable
+          go-version: "1.27.3"
           cache: false
+      - id: apple-tools
+        if: github.event_name != 'pull_request'
+        name: Identify Xcode and Go for the framework cache
+        run: |
+          xcode_id="$(xcodebuild -version | awk '/Build version/{print $3}')"
+          test -n "$xcode_id"
+          echo "id=$xcode_id-$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
       - id: tunnel-frameworks
         if: github.event_name != 'pull_request'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/ios/Frameworks
-          key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
+          key: ios-tunnel-${{ runner.arch }}-${{ steps.apple-tools.outputs.id }}-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh', 'scripts/ios/verify_tunnel_frameworks.py') }}
       - name: Build the iOS tunnel engine when its profile is configured
         if: github.event_name != 'pull_request' && steps.tunnel-frameworks.outputs.cache-hit != 'true'
         env:
