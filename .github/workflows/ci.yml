@@ -419,7 +419,7 @@ jobs:
           refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml services/support-pro/docker-compose.yml | sort -u)"
           echo "$refs"
           test "$(echo "$refs" | wc -l)" = 1
-          echo "$refs" | grep -qE '^postgres:18\.6-alpine@sha256:[0-9a-f]{64}$'
+          echo "$refs" | grep -qE '^postgres:18\.7-alpine@sha256:[0-9a-f]{64}$'
           pinned="${refs#*@}"
           docker buildx imagetools inspect "postgres@$pinned" >/dev/null
           want="$(docker buildx imagetools inspect postgres:18.7-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
