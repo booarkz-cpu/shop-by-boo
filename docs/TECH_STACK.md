@@ -8,7 +8,8 @@
 
 | Компонент | Версия | Файл | Назначение |
 | --- | --- | --- | --- |
-| Python | 3.14-slim (pinned digest) | `services/backend/Dockerfile` | язык исполнения |
+| Python runtime | 3.14-slim (pinned digest) | `services/backend/Dockerfile` | текущий production runtime |
+| Python compatibility gate | 3.14 + 3.15 | `.github/workflows/ci.yml` | полный backend suite в двух shards на обеих версиях до переключения production |
 | FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |
