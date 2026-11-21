@@ -48,7 +48,7 @@ Pydantic 2.14.4 и pydantic-core 2.50.5 (MIT). Требуемый FastAPI пак
 
 ## UI дистрибутива v28.161.0
 
-shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` сохраняют ISC-лицензию. Версии закреплены в `apps/lucy-admin/web/package-lock.json`; тексты лицензий новых прямых зависимостей сохранены в [apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt](apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
+shadcn-совместимые компоненты используют Radix Tooltip, DropdownMenu, Select и Slot, Tailwind CSS, `class-variance-authority`, `clsx` и `tailwind-merge` (MIT). Иконки `lucide-react` 1.77.0 сохраняют ISC-лицензию. Web E2E использует `@playwright/test` 1.65.1 (Apache-2.0), а компонентные тесты кабинета — `jsdom` 31.0.1 (MIT). Версии закреплены в lock-файлах Lucy Admin и кабинета; тексты лицензий новых прямых зависимостей сохранены в [apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt](apps/lucy-admin/web/THIRD_PARTY_LICENSES.txt). Это дополняет требования сохранения уведомлений всех реально включённых транзитивных зависимостей.
 
 ## Карта стран (с v28.42.0)
 
