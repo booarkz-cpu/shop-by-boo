@@ -22,12 +22,13 @@ jobs:
   backend:
     # v28.75.0: the suite runs in two halves on separate runners (each with its own PostgreSQL and Redis): one
     # runner took 25–30 minutes and a slow one hit the step limit.
-    name: Backend • Python + tests + migrations (${{ matrix.shard }}/2)
+    name: Backend • Python ${{ matrix.python }} + tests + migrations (${{ matrix.shard }}/2)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
+        python: ["3.14", "3.15"]
         shard: [1, 2]
     services:
       postgres:
@@ -74,7 +75,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.14"
+          python-version: "${{ matrix.python }}"
           cache: pip
           cache-dependency-path: services/backend/requirements.txt
       - name: Install dependencies
