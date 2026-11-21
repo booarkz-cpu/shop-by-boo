@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 import yaml
+from packaging.version import Version
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -48,3 +49,16 @@ def test_dependabot_watches_the_files_that_are_installed():
     config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
     pip_dirs = {u["directory"] for u in config["updates"] if u["package-ecosystem"] == "pip"}
     assert pip_dirs == {"/services/backend", "/services/support-pro"}
+
+
+def test_support_pro_python_315_runtime_dependency_contract():
+    locked = pins("services/support-pro/requirements.txt")
+    assert locked["fastapi"] == "0.165.0"
+    assert locked["sqlalchemy"] == "2.1.9"
+    assert locked["aiogram"] == "3.33.0"
+    assert locked["pydantic"] == "2.14.4"
+    assert locked["pydantic-core"] == "2.50.5"
+    assert Version(locked["opentelemetry-api"]) >= Version("1.44.0")
+
+    dockerfile = (ROOT / "services/support-pro/app/Dockerfile").read_text()
+    assert "python:3.15-slim@" in dockerfile
