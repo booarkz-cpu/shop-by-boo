@@ -1351,7 +1351,7 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 
 | Компонент | Технология | Назначение |
 | --- | --- | --- |
-| API и backend | Python 3.14, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
+| API и backend | Python 3.15.2, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
 | ORM и БД | SQLAlchemy 2.1.6, Alembic 1.20.1, PostgreSQL 18.6 | модели, миграции, транзакции |
 | Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
 | Telegram-бот | aiogram 3.33.0 | `/start`, меню, покупка, поддержка, уведомления |
@@ -1511,7 +1511,7 @@ flowchart LR
 | `mail_receiver` (профиль `mail`) | Необязательный приём почты для служебных адресов |
 
 **Стек.**
-- Backend: Python 3.14, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.31.
+- Backend: Python 3.15.2, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.33.
 - Frontend: Next.js 16, React 19, TypeScript 7 strict, Tailwind CSS 4, shadcn/Radix; сборка на Node.js 26 LTS.
 - Мобильные приложения: Kotlin (Android) и Swift (iOS).
 - База данных: PostgreSQL 18.6 (магазин и Support Pro), Redis 8.10.
