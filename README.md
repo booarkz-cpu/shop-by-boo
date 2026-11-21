@@ -1354,7 +1354,7 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 | API и backend | Python 3.14, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
 | ORM и БД | SQLAlchemy 2.1.6, Alembic 1.20.1, PostgreSQL 18.6 | модели, миграции, транзакции |
 | Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
-| Telegram-бот | aiogram 3.31.0 | `/start`, меню, покупка, поддержка, уведомления |
+| Telegram-бот | aiogram 3.33.0 | `/start`, меню, покупка, поддержка, уведомления |
 | Админ-панель | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 (strict), Node.js 26 LTS | управление магазином |
 | Кабинет и Mini App | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 | личный кабинет клиента и Telegram Mini App |
 | Стили и шрифты | Tailwind CSS 4.3, Inter, JetBrains Mono | тёмная тема, типографика |
