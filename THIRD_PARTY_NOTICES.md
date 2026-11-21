@@ -60,8 +60,9 @@ shadcn-совместимые компоненты используют Radix To
 
 Сборки клиентского приложения iOS со встроенным VPN (расширение `CorgiTunnel`, включается `scripts/ios/enable-extensions.py`) связывают две библиотеки, собранные `scripts/ios/build-tunnel-frameworks.sh` из закреплённых ревизий:
 
-- [libXray](https://github.com/XTLS/libXray) — MIT, ревизия `756ef80f41903eaf7bbeeb38a0a1f802ec204464`, обвязка gomobile над [Xray-core](https://github.com/XTLS/Xray-core) — MPL-2.0;
-- [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) — MIT, ревизия `55cc2efc280f3a72ffc60ce856772b57f5122e9c` (вместе с lwIP — BSD-3-Clause, libyaml — MIT, hev-task-system — MIT).
+- libXray `v26.11.9`, MIT, связывает Swift с Xray-core `v26.11.9`, MPL-2.0. Исходные ревизии — `5a0f7d8d1c28b34afb5727b04b26a10f6dbac7e3` и `676eaf66f8f05d4d558ee7a74b4736623d3feeb9`. [libXray](https://github.com/XTLS/libXray/commit/5a0f7d8d1c28b34afb5727b04b26a10f6dbac7e3) · [Xray-core](https://github.com/XTLS/Xray-core/commit/676eaf66f8f05d4d558ee7a74b4736623d3feeb9)
+- hev-socks5-tunnel `2.20.0`, MIT, ревизия `75dbc1e9ace6c70d3d1b94df7c283efe1de7effc`. Включает hev-socks5-core, hev-task-system и libyaml под MIT и lwIP под BSD-3-Clause. Сборка записывает фактические ревизии подмодулей в `Frameworks/SOURCES.txt`. [Исходники и лицензия](https://github.com/heiher/hev-socks5-tunnel/tree/75dbc1e9ace6c70d3d1b94df7c283efe1de7effc)
+- Обвязка gomobile и gobind использует `golang.org/x/mobile v0.0.0-20261011034528-197770444867`, BSD-3-Clause. [Исходники и лицензия](https://github.com/golang/mobile/tree/197770444867)
 
 Файлы MPL-2.0 Xray-core остаются под MPL-2.0: при распространении приложения приложите текст MPL-2.0 и ссылку на исходники ревизии. Сборка без расширения передаёт подписку в Happ или v2RayTun и этих библиотек не содержит.
 

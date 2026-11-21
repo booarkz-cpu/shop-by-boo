@@ -57,3 +57,12 @@ def test_android_xray_provenance_is_consistent():
     for source in (notices, client_doc):
         assert core.group(1) in source
         assert mobile.group(1) in source
+
+
+def test_ios_framework_source_revisions_match_notices_and_matrix():
+    build = (ROOT / "scripts/ios/build-tunnel-frameworks.sh").read_text()
+    docs = [(ROOT / path).read_text() for path in ("THIRD_PARTY_NOTICES.md", "docs/ru/new/VPN_ENGINE.md")]
+    for pin in ("LIBXRAY_COMMIT", "HEV_COMMIT"):
+        match = re.search(rf"{pin}:-([0-9a-f]{{40}})", build)
+        assert match, f"{pin} must default to a full upstream commit"
+        assert all(match[1] in doc for doc in docs), pin

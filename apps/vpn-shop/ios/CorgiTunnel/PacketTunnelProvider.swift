@@ -19,12 +19,15 @@ import HevSocks5Tunnel
 /// entitlement: the default build and its signing stay exactly as before.
 final class PacketTunnelProvider: NEPacketTunnelProvider {
     private let log = OSLog(subsystem: "shop.remnawave.user.tunnel", category: "tunnel")
-    private var tunnelThread: Thread?
+    #if canImport(LibXray) && canImport(HevSocks5Tunnel)
+    private let engine = CorgiPacketEngine()
+    #endif
 
     private var shared: UserDefaults? { UserDefaults(suiteName: CorgiXray.appGroup) }
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         #if canImport(LibXray) && canImport(HevSocks5Tunnel)
+        let session = engine.begin()
         let configuration = (protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
         guard let subscription = configuration["subscription"] as? String, subscription.hasPrefix("https://"),
               let url = URL(string: subscription) else {
@@ -46,19 +49,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                                          extraDirect: (self.shared?.stringArray(forKey: CorgiXray.keyDirectExtra) ?? []).filter { $0.range(of: "^[a-z0-9.-]{3,253}$", options: .regularExpression) != nil })
             self.setTunnelNetworkSettings(Self.networkSettings()) { error in
                 if let error { return self.fail(error.localizedDescription, completionHandler) }
-                if let problem = Self.runXray(xray) { return self.fail(problem, completionHandler) }
                 guard let fd = self.tunnelDescriptor() else {
-                    Self.stopXray()
                     return self.fail("Не найден дескриптор туннеля", completionHandler)
                 }
-                let yaml = CorgiXray.tunnelConfig()
-                let thread = Thread {
-                    let bytes = Array(yaml.utf8)
-                    _ = hev_socks5_tunnel_main_from_str(bytes, UInt32(bytes.count), fd)
+                let problem = self.engine.start(session, config: xray, yaml: CorgiXray.tunnelConfig(), fd: fd) { [weak self] status in
+                    let error = NSError(domain: "CorgiTunnel", code: Int(status),
+                                        userInfo: [NSLocalizedDescriptionKey: "VPN-туннель неожиданно остановился"])
+                    self?.cancelTunnelWithError(error)
                 }
-                thread.name = "hev-socks5-tunnel"
-                thread.start()
-                self.tunnelThread = thread
+                if let problem {
+                    return self.fail(problem, completionHandler)
+                }
                 self.shared?.removeObject(forKey: CorgiXray.keyError)
                 os_log("tunnel up with %d servers", log: self.log, type: .info, servers.count)
                 completionHandler(nil)
@@ -71,10 +72,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         #if canImport(LibXray) && canImport(HevSocks5Tunnel)
-        hev_socks5_tunnel_quit()
-        Self.stopXray()
+        if let error = engine.stop() {
+            shared?.set(error, forKey: CorgiXray.keyError)
+            os_log("tunnel stop failed: %{public}@", log: log, type: .error, error)
+        }
         #endif
-        tunnelThread = nil
         completionHandler()
     }
 
@@ -114,28 +116,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         return settings
     }
 
-    #if canImport(LibXray)
-    /// LibXray's single entry point: Invoke(requestJSON) → {"success": bool, "error": "..."}.
-    static func runXray(_ config: String) -> String? {
-        let request: [String: Any] = ["apiVersion": 2, "method": "runXray", "payload": ["xrayJson": config]]
-        guard let data = try? JSONSerialization.data(withJSONObject: request), let json = String(data: data, encoding: .utf8) else {
-            return "Не удалось подготовить конфигурацию"
-        }
-        let answer = LibXrayInvoke(json)
-        guard let body = answer.data(using: .utf8), let parsed = try? JSONSerialization.jsonObject(with: body) as? [String: Any] else {
-            return "Xray не ответил"
-        }
-        return (parsed["success"] as? Bool) == true ? nil : (parsed["error"] as? String ?? "Xray не запустился")
-    }
-
-    static func stopXray() {
-        _ = LibXrayInvoke(#"{"apiVersion":2,"method":"stopXray","payload":{}}"#)
-    }
-    #else
-    static func runXray(_ config: String) -> String? { "Xray не собран" }
-    static func stopXray() {}
-    #endif
-
     /// File descriptor of the utun interface: the packet flow's socket (older iOS) or the utun
     /// control socket found by its kernel control id.
     private func tunnelDescriptor() -> Int32? {
@@ -158,6 +138,76 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         return nil
     }
 }
+
+#if canImport(LibXray) && canImport(HevSocks5Tunnel)
+/// Serializes native start/stop across a reload. The NEPacketTunnelFlow retains ownership of fd.
+final class CorgiPacketEngine: @unchecked Sendable {
+    private let lock = NSLock()
+    private let worker = DispatchQueue(label: "shop.remnawave.user.tunnel.hev")
+    private var requested: UUID?
+    private var running = false
+
+    func begin() -> UUID {
+        lock.withLock {
+            let session = UUID()
+            requested = session
+            return session
+        }
+    }
+
+    func start(_ session: UUID, config: String, yaml: String, fd: Int32,
+               onExit: @escaping @Sendable (Int32) -> Void = { _ in }) -> String? {
+        lock.withLock {
+            guard requested == session else { return "Запуск VPN отменён" }
+            guard !running else { return "VPN уже запущен" }
+            if let error = Self.invoke("runXray", payload: ["xrayJson": config]) { return error }
+            running = true
+            worker.async {
+                let bytes = Array(yaml.utf8)
+                let status = hev_socks5_tunnel_main_from_str(bytes, UInt32(bytes.count), fd)
+                // stop() drains this queue under lock. Report unexpected exits off the worker.
+                DispatchQueue.global().async { [weak self] in
+                    guard let self else { return }
+                    let unexpected = self.lock.withLock {
+                        guard self.running, self.requested == session else { return false }
+                        self.running = false
+                        self.requested = nil
+                        _ = Self.invoke("stopXray")
+                        return true
+                    }
+                    if unexpected { onExit(status) }
+                }
+            }
+            return nil
+        }
+    }
+
+    @discardableResult
+    func stop() -> String? {
+        lock.withLock {
+            requested = nil
+            guard running else { return nil }
+            hev_socks5_tunnel_quit()
+            // quit signals the worker. Its return releases native state before the next start.
+            worker.sync {}
+            running = false
+            return Self.invoke("stopXray")
+        }
+    }
+
+    private static func invoke(_ method: String, payload: [String: Any] = [:]) -> String? {
+        let request: [String: Any] = ["apiVersion": 3, "method": method, "payload": payload]
+        guard let data = try? JSONSerialization.data(withJSONObject: request),
+              let json = String(data: data, encoding: .utf8) else { return "Не удалось подготовить конфигурацию" }
+        let answer = LibXrayInvoke(json)
+        guard let body = answer.data(using: .utf8),
+              let parsed = (try? JSONSerialization.jsonObject(with: body)) as? [String: Any] else {
+            return "Xray не ответил"
+        }
+        return (parsed["success"] as? Bool) == true ? nil : (parsed["error"] as? String ?? "Ошибка вызова Xray")
+    }
+}
+#endif
 
 /// struct ctl_info and struct sockaddr_ctl of <sys/kern_control.h>, which the iOS SDK does not import.
 private struct CtlInfo {

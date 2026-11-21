@@ -8,6 +8,9 @@ OUT="${1:?Output directory required}"
 : "${IOS_USER_PROFILE_BASE64:?Buyer provisioning profile required}"
 : "${IOS_ADMIN_PROFILE_BASE64:?Administrator provisioning profile required}"
 : "${IOS_TEAM_ID:?Apple Team ID required}"
+if [[ -n "${IOS_USER_TUNNEL_PROFILE_BASE64:-}" ]]; then
+  bash "$ROOT/scripts/ios/build-tunnel-frameworks.sh" --verify
+fi
 METHOD="${IOS_EXPORT_METHOD:-release-testing}"
 case "$METHOD" in release-testing|debugging|app-store-connect|enterprise) ;; *) echo 'Unsupported export method' >&2; exit 1;; esac
 mkdir -p "$OUT"
@@ -103,8 +106,10 @@ PY
   app="$WORK/verify-$role/Payload/$project.app"
   codesign --verify --deep --strict "$app"
   test -f "$app/embedded.mobileprovision"
-  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = 3.8.0
-  version="$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")"
+  version="$(xcodebuild -project "$ios_dir/$project.xcodeproj" -target "$project" -configuration Release \
+    -sdk iphoneos -showBuildSettings -json | python3 -c 'import json,sys; rows=json.load(sys.stdin); print(next(r["buildSettings"]["MARKETING_VERSION"] for r in rows if r["target"] == sys.argv[1]))' "$project")"
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = "$version"
   name="corgi_lusi_ios_${role}_${version//./_}_signed.ipa"
   cp "$ipa" "$OUT/$name"
   (cd "$OUT" && shasum -a 256 "$name" > "$name.sha256")

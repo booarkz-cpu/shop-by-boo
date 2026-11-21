@@ -718,23 +718,33 @@ jobs:
   ios-extensions:
     # The customer app with both app extensions embedded (scripts/ios/enable-extensions.py) and the
     # tunnel engine linked: LibXray and HevSocks5Tunnel built from pinned commits and cached by them.
+    # The Intel macOS 26 image is also used by the proven XCUITest job: its CoreSimulator can spawn
+    # a process after a clean boot, unlike the macos-latest image observed on the runtime probe.
     name: iOS • tunnel and rich push extensions
-    runs-on: macos-latest
+    runs-on: macos-26-intel
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: stable
+          go-version: "1.27.3"
           cache: false
+      - id: apple-tools
+        name: Identify Xcode and Go for the framework cache
+        run: |
+          xcode_id="$(xcodebuild -version | awk '/Build version/{print $3}')"
+          test -n "$xcode_id"
+          echo "id=$xcode_id-$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
       - id: frameworks
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/ios/Frameworks
-          key: ios-tunnel-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh') }}
+          key: ios-tunnel-${{ runner.arch }}-${{ steps.apple-tools.outputs.id }}-${{ hashFiles('scripts/ios/build-tunnel-frameworks.sh', 'scripts/ios/verify_tunnel_frameworks.py') }}
       - name: Build LibXray and HevSocks5Tunnel
         if: steps.frameworks.outputs.cache-hit != 'true'
         run: bash scripts/ios/build-tunnel-frameworks.sh
+      - name: Verify both iOS destinations and the native ABI
+        run: bash scripts/ios/build-tunnel-frameworks.sh --verify
       - name: Embed the extensions
         run: |
           ls apps/vpn-shop/ios/Frameworks 2>/dev/null | sed 's/^/::notice title=frameworks::/' || echo "::warning title=frameworks::none built"
@@ -761,8 +771,20 @@ jobs:
           if grep -q "Встроенный VPN не собран" "$RUNNER_TEMP/strings.txt"; then
             echo "::error title=extensions::CorgiTunnel was compiled without LibXray/HevSocks5Tunnel"; exit 1
           fi
-          grep -qE "hev_socks5_tunnel_main_from_str" "$RUNNER_TEMP/symbols.txt" && grep -qE "LibXrayInvoke|libXray" "$RUNNER_TEMP/symbols.txt" \
-            || { echo "::error title=extensions::the tunnel engine is not linked"; exit 1; }
+          for symbol in LibXrayInvoke hev_socks5_tunnel_main_from_str hev_socks5_tunnel_quit; do
+            grep -Eq "[[:space:]]_${symbol}$" "$RUNNER_TEMP/symbols.txt" || { echo "Missing linked symbol: $symbol"; exit 1; }
+          done
+      - name: Exercise the Swift VPN engine on an iOS simulator
+        timeout-minutes: 10
+        run: python3 tests/ios/tunnel_runtime.py
+      - name: Save the iOS source revisions and binary hashes
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ios-tunnel-provenance
+          path: |
+            apps/vpn-shop/ios/Frameworks/SOURCES.txt
+            apps/vpn-shop/ios/Frameworks/ios-sha256.txt
+          if-no-files-found: error
 
   gate:
     # The one required status check for main (Settings → Rules): green only when every job above passed.
