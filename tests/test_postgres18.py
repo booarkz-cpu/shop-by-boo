@@ -8,6 +8,9 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres.sh"
+POSTGRES_TAG = "postgres:18.7-alpine"
+POSTGRES_DIGEST = "ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff"
+POSTGRES_PIN = f"{POSTGRES_TAG}@sha256:{POSTGRES_DIGEST}"
 
 
 def compose(path):
@@ -18,18 +21,38 @@ def test_every_database_service_runs_postgres_18_on_the_new_volume_layout():
     main = compose("docker-compose.yml")
     for name, volume in (("db", "postgres18_data"), ("support_db", "support_postgres18_data")):
         service = main["services"][name]
-        assert re.search(r"postgres:18\.\d+-alpine@sha256:[0-9a-f]{64}", service["image"]), service["image"]
+        assert POSTGRES_PIN in service["image"], service["image"]
         # PostgreSQL 18 images store data under /var/lib/postgresql/18/docker.
         assert f"{volume}:/var/lib/postgresql" in service["volumes"]
     # The PostgreSQL 16 volumes stay declared so the move and a rollback can reach them.
     assert {"postgres_data", "support_postgres_data", "postgres18_data", "support_postgres18_data"} <= set(main["volumes"])
     support = compose("services/support-pro/docker-compose.yml")
     assert support["services"]["db"]["volumes"] == ["pgdata18:/var/lib/postgresql"]
-    assert re.search(r"postgres:18\.\d+-alpine@", support["services"]["backup"]["image"])
+    assert support["services"]["backup"]["image"] == POSTGRES_PIN
     test = compose("docker-compose.test.yml")
-    assert any("postgres:18." in str(s.get("image", "")) for s in test["services"].values())
+    assert any(s.get("image") == POSTGRES_PIN for s in test["services"].values())
     for path in ("docker-compose.yml", "docker-compose.test.yml", "services/support-pro/docker-compose.yml", ".github/workflows/ci.yml", "scripts/pin-images.sh"):
         assert "postgres:16" not in (ROOT / path).read_text().replace("postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea", ""), path
+
+
+def test_postgres_18_7_patch_baseline_is_exact_and_documented():
+    active = (
+        "docker-compose.yml",
+        "docker-compose.test.yml",
+        "services/support-pro/docker-compose.yml",
+        "scripts/pin-images.sh",
+        ".github/workflows/ci.yml",
+        ".github/workflows/resolve-image-digests.yml",
+        ".github/workflows/mobile-screenshots.yml",
+    )
+    for path in active:
+        text = (ROOT / path).read_text()
+        assert "postgres:18.6-alpine" not in text, path
+        assert POSTGRES_TAG in text, path
+    docs = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
+    notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
+    assert POSTGRES_DIGEST in docs
+    assert "release-18-7.html" in docs and "PostgreSQL License" in notices
 
 
 def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
@@ -103,4 +126,4 @@ def test_installs_pinned_to_postgres_16_are_switched_to_18(tmp_path):
         text = (tmp_path / name).read_text()
         assert f"POSTGRES_IMAGE={default}" in text and "postgres:16" not in text
     assert "REDIS_IMAGE=redis@sha256:" in (tmp_path / ".env").read_text()
-    assert ".env: POSTGRES_IMAGE postgres:16-alpine -> postgres:18.6-alpine" in run.stdout
+    assert ".env: POSTGRES_IMAGE postgres:16-alpine -> postgres:18.7-alpine" in run.stdout

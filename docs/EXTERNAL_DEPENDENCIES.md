@@ -13,10 +13,22 @@
 
 | Зависимость | Переменные | Без неё |
 | --- | --- | --- |
-| PostgreSQL 18.6 | `DATABASE_URL`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Backend не стартует |
+| PostgreSQL 18.7 | `DATABASE_URL`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Backend не стартует |
 | Redis 7.4 | `REDIS_URL` | `/health/ready` → `redis: false`, фоновые блокировки не работают |
 | Секрет приложения | `APP_SECRET` | Сессии не подписываются, старт отклоняется |
 | Медиа-каталог | `MEDIA_DIR` | Ошибка `StaticFiles` при импорте |
+
+### PostgreSQL 18.7 patch baseline
+
+Магазин, Support Pro и тестовые профили используют официальный образ
+`postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff`. Это patch-обновление в пределах major 18; формат каталога данных и тома
+`*postgres18_data` не меняются. Официальные [release notes](https://www.postgresql.org/docs/18/release-18-7.html)
+не требуют dump/restore для 18.x, но требуют проверить затронутые индексы по пунктам `REINDEX` и
+создать новый полный backup вместо доверия прежним incremental backup. Миграция 18→19 остаётся
+отдельной задачей: этот baseline не запускает её и не удаляет старые тома.
+
+Источник образа: [Docker Official Image](https://hub.docker.com/_/postgres). Лицензия PostgreSQL —
+[PostgreSQL License](https://www.postgresql.org/about/licence/).
 
 ## 2. Функциональные (отключаются без ключа)
 
