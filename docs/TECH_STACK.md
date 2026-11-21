@@ -16,7 +16,7 @@
 | SQLAlchemy | 2.1.6 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
 | asyncpg | 0.32.0 | `requirements.txt` | драйвер PostgreSQL |
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
-| aiogram | 3.31.0 | `requirements.txt` | Telegram-бот |
+| aiogram | 3.33.0 | `requirements.txt` | Telegram-бот |
 | aiohttp | 3.14.5 | `requirements.txt` | HTTP-клиент бота |
 | httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
