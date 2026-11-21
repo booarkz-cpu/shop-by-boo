@@ -29,7 +29,7 @@ jobs:
           check nginx:1.30-alpine 'nginx -v'
           check caddy:2.11-alpine 'caddy version'
           check redis:8.10-alpine 'redis-server --version'
-          check postgres:18.6-alpine 'postgres --version'
+          check postgres:18.7-alpine 'postgres --version'
           label(){ docker pull -q "$1" >/dev/null; echo "IMAGE $1 | $(docker image inspect "$1" --format '{{index .RepoDigests 0}}') | $(docker image inspect "$1" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" | tee -a "$GITHUB_STEP_SUMMARY"; }
           label remnawave/backend:3
           label remnawave/node:latest

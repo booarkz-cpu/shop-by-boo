@@ -12,7 +12,7 @@ resolve(){
   printf '%s\n' "$digest"
 }
 REDIS_IMAGE="$(resolve redis:8.10-alpine)"
-POSTGRES_IMAGE="$(resolve postgres:18.6-alpine)"
+POSTGRES_IMAGE="$(resolve postgres:18.7-alpine)"
 CADDY_IMAGE="$(resolve caddy:2.11-alpine)"
 {
   echo "REDIS_IMAGE=$REDIS_IMAGE"

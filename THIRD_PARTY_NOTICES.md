@@ -20,6 +20,14 @@
 
 Поле `license` в lock-файле помогает составить список, но не заменяет полный LICENSE/COPYING установленного пакета. Проверяйте пакет из закреплённой версии, сохраняйте полный текст и copyright, а не только короткое имя лицензии. Установленные в тестовой среде версии не обязательно совпадают с production lock-файлом.
 
+## PostgreSQL 18.7
+
+Контейнеры магазина, Support Pro и тестовых профилей используют официальный образ
+`postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff`. PostgreSQL распространяется по разрешительной
+[PostgreSQL License](https://www.postgresql.org/about/licence/). Patch 18.7 сохраняет major 18;
+операционные требования `REINDEX` для затронутых индексов и нового полного backup описаны в
+[официальных release notes](https://www.postgresql.org/docs/18/release-18-7.html).
+
 ## Support Pro: критические runtime-зависимости
 
 Support Pro на Python 3.15 использует FastAPI 0.165.0, SQLAlchemy 2.1.9, aiogram 3.33.0,
