@@ -4,6 +4,7 @@ Support Pro has exactly one lock, ``services/support-pro/requirements.txt``: the
 (through ``requirements-dev.txt``), Dependabot updates it, and the Docker image installs it,
 because docker-compose builds Support Pro with the ``support-pro`` directory as the context.
 """
+import json
 import re
 from pathlib import Path
 
@@ -62,3 +63,25 @@ def test_support_pro_python_315_runtime_dependency_contract():
 
     dockerfile = (ROOT / "services/support-pro/app/Dockerfile").read_text()
     assert "python:3.15-slim@" in dockerfile
+
+
+def test_web_dependency_contracts_are_synchronized():
+    admin_manifest = json.loads((ROOT / "apps/lucy-admin/web/package.json").read_text())
+    admin_lock = json.loads((ROOT / "apps/lucy-admin/web/package-lock.json").read_text())
+    cabinet_manifest = json.loads((ROOT / "apps/user-cabinet/package.json").read_text())
+    cabinet_lock = json.loads((ROOT / "apps/user-cabinet/package-lock.json").read_text())
+
+    assert admin_manifest["devDependencies"]["@playwright/test"] == "1.65.1"
+    assert admin_lock["packages"][""]["devDependencies"]["@playwright/test"] == "1.65.1"
+    assert admin_lock["packages"]["node_modules/@playwright/test"]["version"] == "1.65.1"
+    assert admin_lock["packages"]["node_modules/playwright"]["version"] == "1.65.1"
+    assert admin_lock["packages"]["node_modules/playwright-core"]["version"] == "1.65.1"
+
+    for manifest, lock in ((admin_manifest, admin_lock), (cabinet_manifest, cabinet_lock)):
+        assert manifest["dependencies"]["lucide-react"] == "^1.77.0"
+        assert lock["packages"][""]["dependencies"]["lucide-react"] == "^1.77.0"
+        assert lock["packages"]["node_modules/lucide-react"]["version"] == "1.77.0"
+
+    assert cabinet_manifest["devDependencies"]["jsdom"] == "31.0.1"
+    assert cabinet_lock["packages"][""]["devDependencies"]["jsdom"] == "31.0.1"
+    assert cabinet_lock["packages"]["node_modules/jsdom"]["version"] == "31.0.1"
