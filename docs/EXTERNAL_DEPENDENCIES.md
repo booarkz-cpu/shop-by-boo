@@ -46,7 +46,8 @@
 
 | Инструмент | Версия в проекте | Где используется |
 | --- | --- | --- |
-| Python | 3.14 (CI и образы); 3.15 — когда её поддержит aiogram | backend, scripts, tests |
+| Python | backend/общий CI — 3.14; Support Pro — 3.15 | backend, Support Pro, scripts, tests |
+| Support Pro runtime | FastAPI 0.165.0; SQLAlchemy 2.1.9; aiogram 3.33.0; Pydantic 2.14.4 / core 2.50.5; OpenTelemetry API 1.45.2 | закреплённый Python 3.15 dependency graph; unit/integration, Alembic, PostgreSQL/Redis и container tests |
 | Node.js | 26 LTS (CI и образы) | admin, cabinet, miniapp |
 | ruff | 0.17.3 | lint |
 | pytest | 9.1.1 | тесты |
