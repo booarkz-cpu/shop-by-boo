@@ -10,7 +10,7 @@ SCRIPT = ROOT / "scripts/postgres19-preflight.sh"
 def _run(tmp_path, volumes=(), spec=None):
     (tmp_path / "docker-compose.yml").write_text("services: {}\n")
     bindir = tmp_path / "bin"
-    bindir.mkdir()
+    bindir.mkdir(exist_ok=True)
     log = tmp_path / "docker.log"
     docker = bindir / "docker"
     docker.write_text(
@@ -57,3 +57,11 @@ def test_preflight_rejects_invalid_spec(tmp_path):
 
 def test_preflight_script_syntax():
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
+
+
+def test_preflight_rejects_duplicate_or_colliding_volumes(tmp_path):
+    for spec in ("db:old:new,support_db:other:new", "db:old:new,support_db:new:other", "db:old:new,"):
+        run, calls = _run(tmp_path, spec=spec)
+        assert run.returncode == 2
+        assert "Invalid PG19_PREFLIGHT_SPEC" in run.stderr
+        assert "volume inspect" not in calls
