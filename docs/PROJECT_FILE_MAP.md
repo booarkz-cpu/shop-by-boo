@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2746**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2749**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -790,6 +790,7 @@
 | [docs/OWNER_DECISIONS.md](../docs/OWNER_DECISIONS.md) | Документация |
 | [docs/PAYMENT_PROVIDER_INVENTORY.md](../docs/PAYMENT_PROVIDER_INVENTORY.md) | Документация |
 | [docs/PERFORMANCE_BASELINE.md](../docs/PERFORMANCE_BASELINE.md) | Документация |
+| [docs/POSTGRES19_MIGRATION_PREFLIGHT.md](../docs/POSTGRES19_MIGRATION_PREFLIGHT.md) | Документация |
 | [docs/PRIVACY_DATA_MAP.md](../docs/PRIVACY_DATA_MAP.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
@@ -1894,6 +1895,7 @@
 | [scripts/package-distribution.py](../scripts/package-distribution.py) | Эксплуатация и релиз |
 | [scripts/package-source.py](../scripts/package-source.py) | Эксплуатация и релиз |
 | [scripts/pin-images.sh](../scripts/pin-images.sh) | Эксплуатация и релиз |
+| [scripts/postgres19-preflight.sh](../scripts/postgres19-preflight.sh) | Эксплуатация и релиз |
 | [scripts/preflight.sh](../scripts/preflight.sh) | Эксплуатация и релиз |
 | [scripts/publish-github-release.cjs](../scripts/publish-github-release.cjs) | Эксплуатация и релиз |
 | [scripts/release-gate.cjs](../scripts/release-gate.cjs) | Эксплуатация и релиз |
@@ -2603,6 +2605,7 @@
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
 | [tests/test_postgres18.py](../tests/test_postgres18.py) | Проверки |
+| [tests/test_postgres19_preflight.py](../tests/test_postgres19_preflight.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
 | [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |
 | [tests/test_provider_contract_20260928.py](../tests/test_provider_contract_20260928.py) | Проверки |
