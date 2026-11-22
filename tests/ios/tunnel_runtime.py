@@ -128,13 +128,22 @@ def traffic(exe, device):
         listener = stack.enter_context(socket.socket())
         listener.bind(("127.0.0.1", 0))
         listener.listen()
-        listener.settimeout(30)
+        # Simulator process launch may be slow on shared macOS runners.
+        # Keep a bounded deadline and report an early process exit distinctly.
+        listener.settimeout(90)
         dns.settimeout(15)
         link.settimeout(15)
         probe = subprocess.Popen(["xcrun", "simctl", "spawn", device, exe,
                                   str(listener.getsockname()[1]), str(link.getsockname()[1]), str(endpoint)])
         try:
-            control, _ = listener.accept()
+            try:
+                control, _ = listener.accept()
+            except socket.timeout as exc:
+                code = probe.poll()
+                raise RuntimeError(
+                    f"simulator probe did not connect to host control port within 90s "
+                    f"(probe exit status: {code if code is not None else 'still running'})"
+                ) from exc
             with control:
                 for cycle in (1, 2):
                     marker, peer = link.recvfrom(64)
