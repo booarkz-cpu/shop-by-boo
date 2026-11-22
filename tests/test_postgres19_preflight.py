@@ -65,3 +65,10 @@ def test_preflight_rejects_duplicate_or_colliding_volumes(tmp_path):
         assert run.returncode == 2
         assert "Invalid PG19_PREFLIGHT_SPEC" in run.stderr
         assert "volume inspect" not in calls
+
+
+def test_preflight_rejects_unavailable_compose_service(tmp_path):
+    run, calls = _run(tmp_path, volumes=("shop_postgres18_data",), spec="unknown:postgres18_data:postgres19_data")
+    assert run.returncode == 1
+    assert "unknown: not present in this Compose profile" in run.stderr
+    assert "volume inspect" not in calls

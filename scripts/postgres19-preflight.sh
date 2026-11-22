@@ -33,7 +33,8 @@ done
 for entry in "${entries[@]}"; do
   IFS=':' read -r service source target extra <<<"$entry"
   if ! grep -qx "$service" <<<"$services"; then
-    echo "$service: not present in this Compose profile; skipped"
+    echo "$service: not present in this Compose profile; preflight cannot validate this entry" >&2
+    status=1
     continue
   fi
   old="${project}_${source}"
