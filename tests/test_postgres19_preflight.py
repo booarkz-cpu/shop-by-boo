@@ -10,7 +10,7 @@ SCRIPT = ROOT / "scripts/postgres19-preflight.sh"
 def _run(tmp_path, volumes=(), spec=None):
     (tmp_path / "docker-compose.yml").write_text("services: {}\n")
     bindir = tmp_path / "bin"
-    bindir.mkdir()
+    bindir.mkdir(exist_ok=True)
     log = tmp_path / "docker.log"
     docker = bindir / "docker"
     docker.write_text(
