@@ -16,12 +16,18 @@ IFS=',' read -ra entries <<<"$spec"
 # Validate the entire specification before querying any volumes. In particular,
 # reject reused source/target names and cross-entry collisions.
 declare -A seen_volumes=()
+declare -A seen_services=()
 for entry in "${entries[@]}"; do
   IFS=':' read -r service source target extra <<<"$entry"
   if [[ -n "${extra:-}" || ! "$service" =~ ^[a-z0-9_-]+$ || ! "$source" =~ ^[a-z0-9_-]+$ || ! "$target" =~ ^[a-z0-9_-]+$ || "$source" == "$target" ]]; then
     echo "Invalid PG19_PREFLIGHT_SPEC entry: $entry" >&2
     exit 2
   fi
+  if [[ -n "${seen_services[$service]:-}" ]]; then
+    echo "Invalid PG19_PREFLIGHT_SPEC: duplicate service $service" >&2
+    exit 2
+  fi
+  seen_services[$service]=1
   for volume in "$source" "$target"; do
     if [[ -n "${seen_volumes[$volume]:-}" ]]; then
       echo "Invalid PG19_PREFLIGHT_SPEC: reused volume $volume" >&2
