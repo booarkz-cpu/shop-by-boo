@@ -94,6 +94,10 @@ updates:
   - package-ecosystem: docker-compose
     directories: [/, /services/support-pro]
     schedule: {interval: weekly, day: monday}
+    # PG19 needs dump/restore rehearsal and rollback; never auto-bump the image (#392).
+    ignore:
+      - dependency-name: postgres
+        update-types: [version-update:semver-major]
     groups:
       compose-images: {update-types: [minor, patch]}
   - package-ecosystem: github-actions
