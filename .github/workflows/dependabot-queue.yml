@@ -79,7 +79,16 @@ jobs:
               if (pull.user.login !== 'dependabot[bot]') continue;
               checksByNumber[pull.number] = await github.paginate(github.rest.checks.listForRef, {owner, repo, ref: pull.head.sha, per_page: 100});
             }
-            const result = plan({openPulls: pulls, state: loaded.state, checksByNumber, now: new Date().toISOString()});
+            const mergedNumbers = [];
+            if (loaded.state.active && !pulls.some((pull) => pull.number === loaded.state.active.number)) {
+              try {
+                const recorded = await github.rest.pulls.get({owner, repo, pull_number: loaded.state.active.number});
+                if (recorded.data.merged) mergedNumbers.push(recorded.data.number);
+              } catch (error) {
+                core.warning(`Could not read #${loaded.state.active.number}: ${error.message}`);
+              }
+            }
+            const result = plan({openPulls: pulls, state: loaded.state, checksByNumber, now: new Date().toISOString(), mergedNumbers});
             const saved = await store(result.state, loaded.parent);
             core.info(`Queue stored at ${saved}. Actions: ${result.actions.map((item) => item.type + ' #' + item.number).join(', ') || 'none'}`);
             for (const action of result.actions) {
@@ -93,6 +102,10 @@ jobs:
                   await github.rest.pulls.update({owner, repo, pull_number: action.number, state: 'open'});
                 } catch (error) {
                   core.warning(`Could not reopen #${action.number}: ${error.message}`);
+                  const item = result.state.active && result.state.active.number === action.number ? result.state.active : {number: action.number};
+                  result.state.active = null;
+                  result.state.deferred.unshift({...item, status: 'waiting', note: `reopen failed: ${error.message}`});
+                  await store(result.state, saved);
                 }
               } else if (action.type === 'rerun') {
                 const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: pulls.find((pull) => pull.number === action.number).head.sha, per_page: 20});

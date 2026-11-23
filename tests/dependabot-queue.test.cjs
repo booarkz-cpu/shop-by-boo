@@ -43,6 +43,7 @@ const promoted = plan({
   openPulls: [],
   state: first.state,
   checksByNumber: {},
+  mergedNumbers: [7],
   now: '2026-11-23T12:00:00Z',
 });
 assert.equal(promoted.actions.find((action) => action.type === 'reopen').number, 1);
@@ -74,6 +75,24 @@ const held = plan({openPulls: [human, batch[0], batch[1]], state: {schema: 1, ac
 assert.equal(held.state.active, null);
 assert.deepEqual(held.actions.filter((action) => action.type === 'close').map((action) => action.number).sort(), [1, 2]);
 assert.equal(held.actions.some((action) => action.type === 'close' && action.number === 50), false);
+
+const recovered = plan({
+  openPulls: [],
+  state: {schema: 1, active: {number: 445, security: false, createdAt: '2026-11-23T18:33:29Z', ecosystem: 'gradle', ref: 'dependabot/gradle/x', sha: 'b'.repeat(40), title: 'agp', status: 'active', attempts: 0, conflicts: 0}, deferred: [], history: []},
+  checksByNumber: {},
+  now: '2026-11-23T21:14:32Z',
+});
+assert.equal(recovered.actions.find((action) => action.type === 'reopen').number, 445);
+
+const afterMerge = plan({
+  openPulls: [],
+  state: {schema: 1, active: {number: 444, security: false, createdAt: '2026-11-23T18:31:52Z', ecosystem: 'gradle', status: 'active', attempts: 0, conflicts: 0, ref: 'dependabot/gradle/y', sha: 'c'.repeat(40), title: 'agp'}, deferred: [{number: 445, security: false, createdAt: '2026-11-23T18:33:29Z', ecosystem: 'gradle', status: 'waiting', attempts: 0, conflicts: 0, ref: 'dependabot/gradle/x', sha: 'b'.repeat(40), title: 'agp'}], history: []},
+  checksByNumber: {},
+  mergedNumbers: [444],
+  now: '2026-11-23T21:14:00Z',
+});
+assert.equal(afterMerge.actions.find((action) => action.type === 'reopen').number, 445);
+assert.equal(afterMerge.state.deferred.some((item) => item.number === 444), false);
 
 assert.equal(ecosystemOf('dependabot/github_actions/actions/checkout-1'), 'github_actions');
 assert.equal(isSecurity({title: 'x', body: 'CVE-2026-1', labels: []}), true);

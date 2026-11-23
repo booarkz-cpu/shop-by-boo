@@ -70,8 +70,10 @@ function clone(state) {
  * @returns {{state: object, actions: object[]}}
  * actions: close | reopen | rerun | comment. Closing is safe only after the caller stores state.
  */
-function plan({openPulls, state, checksByNumber, now}) {
+function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
   const current = clone(state);
+  const merged = new Set(mergedNumbers || []);
+  const previousActive = current.active ? {...current.active} : null;
   current.updatedAt = now;
   const actions = [];
   const note = (action) => { current.history.push({at: now, ...action}); };
@@ -158,7 +160,11 @@ function plan({openPulls, state, checksByNumber, now}) {
   for (const item of current.deferred || []) {
     if (!waiting.some((row) => row.number === item.number) && item.number !== keep) waiting.push(item);
   }
-  current.deferred = waiting.sort(byPriority);
+  if (previousActive && !merged.has(previousActive.number) && previousActive.number !== keep && !waiting.some((row) => row.number === previousActive.number)) {
+    waiting.push({...previousActive, status: 'waiting', note: previousActive.note || 'kept because the recorded candidate is not open'});
+    note({action: 'keep', number: previousActive.number, reason: 'recorded candidate was not open'});
+  }
+  current.deferred = waiting.filter((item) => !merged.has(item.number)).sort(byPriority);
   if (!keep) {
     const next = current.deferred.find((item) => item.status === 'waiting');
     if (next) {
