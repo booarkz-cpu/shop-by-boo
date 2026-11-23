@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2749**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2753**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -65,6 +65,7 @@
 | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | GitHub CI/CD |
 | [.github/workflows/claude-roadmap.yml](../.github/workflows/claude-roadmap.yml) | GitHub CI/CD |
 | [.github/workflows/dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) | GitHub CI/CD |
+| [.github/workflows/dependabot-queue.yml](../.github/workflows/dependabot-queue.yml) | GitHub CI/CD |
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | GitHub CI/CD |
 | [.github/workflows/docker.yml](../.github/workflows/docker.yml) | GitHub CI/CD |
 | [.github/workflows/docs-links.yml](../.github/workflows/docs-links.yml) | GitHub CI/CD |
@@ -1008,6 +1009,7 @@
 | [docs/archive/root/V4_RELEASE_NOTES.md](../docs/archive/root/V4_RELEASE_NOTES.md) | Документация |
 | [docs/archive/root/V6_PLATFORM_RELEASE_RU.md](../docs/archive/root/V6_PLATFORM_RELEASE_RU.md) | Документация |
 | [docs/current-guides.json](../docs/current-guides.json) | Документация |
+| [docs/dependabot-queue.json](../docs/dependabot-queue.json) | Документация |
 | [docs/en/DEPLOYMENT.md](../docs/en/DEPLOYMENT.md) | Документация |
 | [docs/en/DOCUMENTATION.md](../docs/en/DOCUMENTATION.md) | Документация |
 | [docs/en/NEW_IN_V28_36.md](../docs/en/NEW_IN_V28_36.md) | Документация |
@@ -1862,6 +1864,7 @@
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
 | [scripts/configure-support-bridge.py](../scripts/configure-support-bridge.py) | Эксплуатация и релиз |
 | [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
+| [scripts/dependabot-queue.cjs](../scripts/dependabot-queue.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
 | [scripts/generate-admin-matrix.py](../scripts/generate-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
@@ -2419,6 +2422,7 @@
 | [tests/admin-safe.test.mjs](../tests/admin-safe.test.mjs) | Проверки |
 | [tests/app_contract.py](../tests/app_contract.py) | Проверки |
 | [tests/dependabot-automerge.test.cjs](../tests/dependabot-automerge.test.cjs) | Проверки |
+| [tests/dependabot-queue.test.cjs](../tests/dependabot-queue.test.cjs) | Проверки |
 | [tests/frontend_sources.py](../tests/frontend_sources.py) | Проверки |
 | [tests/ios/TunnelRuntime.swift](../tests/ios/TunnelRuntime.swift) | Проверки |
 | [tests/ios/tunnel_runtime.py](../tests/ios/tunnel_runtime.py) | Проверки |
