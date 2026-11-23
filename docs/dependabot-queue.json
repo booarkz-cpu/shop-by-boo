@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-11-23T20:35:42.940Z",
+  "updatedAt": "2026-11-23T20:36:16.134Z",
   "active": {
     "number": 444,
     "ref": "dependabot/gradle/apps/vpn-shop/android/android-user-minor-45004a4cf0",
@@ -10,9 +10,9 @@
     "security": false,
     "createdAt": "2026-11-23T18:31:52Z",
     "status": "active",
-    "attempts": 0,
+    "attempts": 1,
     "conflicts": 0,
-    "note": "Owner closed this unmerged at 2026-11-23T20:07:00Z. Head remains ddcbd34ee595473d431624878df4fbee62c009bb. Status waiting means deferred until it is the only open update."
+    "note": ""
   },
   "deferred": [
     {
@@ -47,6 +47,12 @@
       "action": "reopen",
       "number": 444,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-23T20:36:16.134Z",
+      "action": "retry",
+      "number": 444,
+      "reason": "attempt 1"
     }
   ]
 }
