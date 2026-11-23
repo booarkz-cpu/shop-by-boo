@@ -72,3 +72,10 @@ def test_preflight_rejects_unavailable_compose_service(tmp_path):
     assert run.returncode == 1
     assert "unknown: not present in this Compose profile" in run.stderr
     assert "volume inspect" not in calls
+
+
+def test_preflight_rejects_duplicate_service_even_with_distinct_volumes(tmp_path):
+    run, calls = _run(tmp_path, spec="db:source_a:target_a,db:source_b:target_b")
+    assert run.returncode == 2
+    assert "duplicate service db" in run.stderr
+    assert "volume inspect" not in calls
