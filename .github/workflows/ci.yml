@@ -554,7 +554,7 @@ jobs:
           cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
-          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+          packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - name: Gradle distribution (retries on GitHub 504)
         run: bash scripts/ci/gradle-warm.sh ${{ matrix.dir }}
       - name: Compile debug application and run JVM unit tests
@@ -574,7 +574,7 @@ jobs:
           java-version: '21'
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
-          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+          packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: stable
@@ -620,7 +620,7 @@ jobs:
           cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
-          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
+          packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - name: Gradle distribution (retries on GitHub 504)
         run: bash scripts/ci/gradle-warm.sh apps/vpn-shop/android apps/lucy-admin/android
       - name: Build the apps and their tests

@@ -5,7 +5,12 @@ plugins {
 
 android {
     namespace = "shop.remnawave.user"
-    compileSdk = 37
+    // Compile against API 37.1 without changing runtime targetSdk.
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     defaultConfig {
         applicationId = "shop.remnawave.user"
         minSdk = 26

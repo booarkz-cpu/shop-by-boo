@@ -31,7 +31,12 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach {
 
 android {
     namespace = "shop.corgi.client"
-    compileSdk = 37
+    // Compile against API 37.1 without changing runtime targetSdk.
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     defaultConfig {
         applicationId = "shop.corgi.client"
         minSdk = 26
