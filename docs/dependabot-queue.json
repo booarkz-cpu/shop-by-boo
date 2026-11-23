@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-11-23T20:05:00Z",
+  "updatedAt": "2026-11-23T20:07:00Z",
   "active": null,
   "deferred": [
     {
@@ -14,7 +14,7 @@
       "status": "waiting",
       "attempts": 0,
       "conflicts": 0,
-      "note": "Open together with #445. Closed so the queue change can be the only pull request, then reopened alone."
+      "note": "Owner closed this unmerged at 2026-11-23T20:07:00Z. Head remains ddcbd34ee595473d431624878df4fbee62c009bb. Status waiting means deferred until it is the only open update."
     },
     {
       "number": 445,
@@ -27,11 +27,11 @@
       "status": "waiting",
       "attempts": 0,
       "conflicts": 0,
-      "note": "Waits until #444 has finished. Same AGP bump, different app."
+      "note": "Owner closed this unmerged at 2026-11-23T20:07:00Z. Head remains 3398ad97bef183f2a3e112bcb1683c9173967ef4. Status waiting means deferred until #444 has finished."
     }
   ],
   "history": [
-    {"at": "2026-11-23T20:05:00Z", "action": "defer", "number": 444, "reason": "one active pull request"},
-    {"at": "2026-11-23T20:05:00Z", "action": "defer", "number": 445, "reason": "one active pull request"}
+    {"at": "2026-11-23T20:07:00Z", "action": "defer", "number": 444, "reason": "owner closed unmerged; one active pull request"},
+    {"at": "2026-11-23T20:07:00Z", "action": "defer", "number": 445, "reason": "owner closed unmerged; one active pull request"}
   ]
 }
