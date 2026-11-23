@@ -14,6 +14,18 @@ Workflow `.github/workflows/dependabot-automerge.yml` сам вливает PR D
 
 Код из PR при этом не запускается: решение принимает `scripts/dependabot-automerge.cjs` из `main` (тест — `tests/dependabot-automerge.test.cjs`). После слияния workflow запускает CI на `main`. Отдельный выпуск ради патча зависимостей не публикуется: изменение войдёт в ближайший выпуск.
 
+## Очередь Dependabot
+
+Lint по-прежнему требует не больше одного открытого PR (`open.length > 1` в `ci.yml`). Dependabot в понедельник открывает обновления pip, npm, Gradle, Docker, Compose и GitHub Actions сразу. Workflow `.github/workflows/dependabot-queue.yml` сериализует их:
+
+- одно открытое обновление, остальные закрываются только после записи в `docs/dependabot-queue.json` и в ветку `automation/dependabot-queue`;
+- обновление с меткой `security` или с CVE/GHSA идёт первым;
+- конфликт один раз просит `@dependabot rebase`, повторный конфликт откладывает PR и открывает следующий;
+- два неуспешных прогона проверок откладывают PR и открывают следующий; сам провал не стирается из очереди;
+- пока открыт чужой PR, обновления зависимостей не открываются заново.
+
+Решение считает `scripts/dependabot-queue.cjs` (тест — `tests/dependabot-queue.test.cjs`). Защита веток не обходится. Этот механизм не меняет число требований со статусом PASS.
+
 Ruleset `Rules` разрешает обновлять ветки только участникам из списка обхода. Чтобы автослияние заработало, владелец добавляет в этот список приложение **GitHub Actions**: Settings → Rules → Rulesets → Rules → Bypass list → Add bypass. Пока это не сделано, workflow пишет в журнал предупреждение «GitHub refused the merge», а PR остаётся открытым.
 
 ## Заменённые ветки

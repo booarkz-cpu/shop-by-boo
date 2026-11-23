@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-11-23T20:05:00Z",
+  "active": null,
+  "deferred": [
+    {
+      "number": 444,
+      "ref": "dependabot/gradle/apps/vpn-shop/android/android-user-minor-45004a4cf0",
+      "sha": "ddcbd34ee595473d431624878df4fbee62c009bb",
+      "title": "build(deps): bump com.android.application from 9.5.1 to 9.5.2 in /apps/vpn-shop/android in the android-user-minor group",
+      "ecosystem": "gradle",
+      "security": false,
+      "createdAt": "2026-11-23T18:31:52Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "Open together with #445. Closed so the queue change can be the only pull request, then reopened alone."
+    },
+    {
+      "number": 445,
+      "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-45004a4cf0",
+      "sha": "3398ad97bef183f2a3e112bcb1683c9173967ef4",
+      "title": "build(deps): bump com.android.application from 9.5.1 to 9.5.2 in /apps/vpn-client/android in the android-client-minor group",
+      "ecosystem": "gradle",
+      "security": false,
+      "createdAt": "2026-11-23T18:33:29Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "Waits until #444 has finished. Same AGP bump, different app."
+    }
+  ],
+  "history": [
+    {"at": "2026-11-23T20:05:00Z", "action": "defer", "number": 444, "reason": "one active pull request"},
+    {"at": "2026-11-23T20:05:00Z", "action": "defer", "number": 445, "reason": "one active pull request"}
+  ]
+}
