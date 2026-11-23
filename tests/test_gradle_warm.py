@@ -113,6 +113,28 @@ def test_exec_retries_the_requested_gradle_command(android_project, tmp_path):
     assert "command ready" in result.stdout
 
 
+def test_http_429_keeps_downloaded_modules(android_project, tmp_path, monkeypatch):
+    home = tmp_path / "gradle-home"
+    (home / "caches").mkdir(parents=True)
+    monkeypatch.setenv("FAIL_MESSAGE", "Received status code 429 from server: Too Many Requests")
+    result = invoke(android_project, "--android-runtime", fail_first=1, home=home)
+    assert result.returncode == 0, result.stderr
+    resolved = task_calls(android_project)
+    assert len(resolved) == 2
+    assert "--refresh-dependencies" not in resolved[1]
+    assert "NO_MODULE_CACHE" not in calls(android_project)
+    assert (home / "caches").is_dir()
+    assert "gradle: backoff 20s" in result.stdout
+
+
+def test_android_apps_ask_the_mirror_before_maven_central():
+    root = WARM.parents[2]
+    for name in ("vpn-shop", "lucy-admin", "vpn-client"):
+        text = (root / "apps" / name / "android" / "settings.gradle.kts").read_text(encoding="utf-8")
+        assert text.index("maven-central.storage-download.googleapis.com") < text.index("mavenCentral()")
+        assert text.index("google()") < text.index("maven-central.storage-download.googleapis.com")
+
+
 def test_a_persistent_miss_is_still_a_failure(android_project, tmp_path):
     home = tmp_path / "gradle-home"
     result = invoke(android_project, "--android-runtime", fail_first=9, home=home)
