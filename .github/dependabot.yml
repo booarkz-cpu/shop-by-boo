@@ -55,18 +55,33 @@ updates:
     directory: /apps/vpn-shop/android
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
+    # Compose BOM 2026.11+ pulls Compose 1.13, which requires compileSdk >=37.1.
+    # Current apps use compileSdk 37.0; revisit after SDK/CI upgrade (#420).
+    ignore:
+      - dependency-name: androidx.compose:compose-bom
+        versions: [">=2026.11.00"]
     groups:
       android-user-minor: {update-types: [minor, patch]}
   - package-ecosystem: gradle
     directory: /apps/lucy-admin/android
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
+    # Compose BOM 2026.11+ pulls Compose 1.13, which requires compileSdk >=37.1.
+    # Current apps use compileSdk 37.0; revisit after SDK/CI upgrade (#420).
+    ignore:
+      - dependency-name: androidx.compose:compose-bom
+        versions: [">=2026.11.00"]
     groups:
       android-admin-minor: {update-types: [minor, patch]}
   - package-ecosystem: gradle
     directory: /apps/vpn-client/android
     schedule: {interval: weekly, day: monday}
     open-pull-requests-limit: 5
+    # Compose BOM 2026.11+ pulls Compose 1.13, which requires compileSdk >=37.1.
+    # Current apps use compileSdk 37.0; revisit after SDK/CI upgrade (#420).
+    ignore:
+      - dependency-name: androidx.compose:compose-bom
+        versions: [">=2026.11.00"]
     groups:
       android-client-minor: {update-types: [minor, patch]}
   # Base images of every Dockerfile (pinned by digest: Dependabot moves tag and digest together).
