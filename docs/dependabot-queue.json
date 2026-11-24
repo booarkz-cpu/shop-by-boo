@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-11-24T00:37:42.448Z",
+  "updatedAt": "2026-11-24T01:09:56.364Z",
   "active": {
     "number": 445,
     "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-45004a4cf0",
@@ -10,7 +10,7 @@
     "security": false,
     "createdAt": "2026-11-23T18:33:29Z",
     "status": "active",
-    "attempts": 1,
+    "attempts": 0,
     "conflicts": 0,
     "note": ""
   },
