@@ -1,22 +1,20 @@
 {
   "schema": 1,
-  "updatedAt": "2026-11-23T21:17:21.441Z",
-  "active": null,
-  "deferred": [
-    {
-      "number": 445,
-      "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-45004a4cf0",
-      "sha": "3398ad97bef183f2a3e112bcb1683c9173967ef4",
-      "title": "build(deps): bump com.android.application from 9.5.1 to 9.5.2 in /apps/vpn-client/android in the android-client-minor group",
-      "ecosystem": "gradle",
-      "security": false,
-      "createdAt": "2026-11-23T18:33:29Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "Reopen failed because the branch was deleted. The branch was restored at 3398ad97. Still deferred."
-    }
-  ],
+  "updatedAt": "2026-11-24T00:34:46.725Z",
+  "active": {
+    "number": 445,
+    "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-45004a4cf0",
+    "sha": "3398ad97bef183f2a3e112bcb1683c9173967ef4",
+    "title": "build(deps): bump com.android.application from 9.5.1 to 9.5.2 in /apps/vpn-client/android in the android-client-minor group",
+    "ecosystem": "gradle",
+    "security": false,
+    "createdAt": "2026-11-23T18:33:29Z",
+    "status": "active",
+    "attempts": 0,
+    "conflicts": 0,
+    "note": "Reopen failed because the branch was deleted. The branch was restored at 3398ad97. Still deferred."
+  },
+  "deferred": [],
   "history": [
     {
       "at": "2026-11-23T20:07:00Z",
@@ -53,6 +51,12 @@
       "action": "defer",
       "number": 445,
       "reason": "reopen failed: branch had been deleted; branch restored, still waiting"
+    },
+    {
+      "at": "2026-11-24T00:34:46.725Z",
+      "action": "reopen",
+      "number": 445,
+      "reason": "promoted"
     }
   ]
 }
