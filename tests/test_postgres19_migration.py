@@ -120,3 +120,27 @@ def test_rejects_identical_source_and_destination_volumes(tmp_path):
     assert "source and destination volumes must differ" in run.stderr
     assert "compose down" not in log.read_text()
     assert "run -d" not in log.read_text()
+
+
+def test_nonempty_destination_refuses_even_with_legacy_force(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_postgres18_data",))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(
+        '{"name":"shop"}',
+        '{"name":"shop","services":{"db":{"environment":{"POSTGRES_PASSWORD":"test-only"}}}}',
+    ).replace(
+        "  *) exit 0;;",
+        '  "run --rm --entrypoint cat "*) echo 18;;\n'
+        '  "run --rm --entrypoint du "*) echo "1024 /old";;\n'
+        '  "exec "*)" df -Pk "*) printf "Filesystem 1024-blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
+        '  "exec "*)"FROM pg_class c JOIN pg_namespace"*) echo 1;;\n'
+        '  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir, PG19_UPGRADE_FORCE="1")
+    assert run.returncode == 1, run.stderr + run.stdout
+    assert "Existing destination data will not be overwritten" in run.stderr
+    commands = log.read_text()
+    assert "pg_restore" not in commands
+    assert "pg_dump" not in commands
+    assert "DROP DATABASE" not in commands
+    assert "volume rm" not in commands
