@@ -32,7 +32,7 @@ jobs:
         shard: [1, 2]
     services:
       postgres:
-        image: postgres:19.0-alpine
+        image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
         env:
           POSTGRES_USER: vpnshop
           POSTGRES_PASSWORD: ci-password
@@ -45,7 +45,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis:
-        image: redis:8.10-alpine
+        image: redis:8.10-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
         ports:
           - 6379:6379
         options: >-
@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:19.0-alpine
+        image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
         env:
           POSTGRES_USER: support
           POSTGRES_PASSWORD: ci-support-password
@@ -480,7 +480,7 @@ jobs:
           APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | grep -q 'db: already moved to PostgreSQL 19'
           # A stale marker must never certify a missing or wrong destination cluster.
           docker volume create "${project}_pg19_invalid_marker" >/dev/null
-          docker run --rm --entrypoint sh -v "${project}_pg19_invalid_marker":/new postgres:19.0-alpine -c 'touch /new/.migrated-from-postgres18'
+          docker run --rm --entrypoint sh -v "${project}_pg19_invalid_marker":/new postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f -c 'touch /new/.migrated-from-postgres18'
           if APP_DIR="$PWD" PG19_UPGRADE_SPEC=db:postgres18_data:pg19_invalid_marker:vpnshop:vpnshop bash scripts/upgrade-postgres19.sh > "$RUNNER_TEMP/invalid-marker.log" 2>&1; then
             echo "Invalid migration marker unexpectedly accepted" >&2
             exit 1
