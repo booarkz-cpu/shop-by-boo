@@ -80,12 +80,18 @@ jobs:
               checksByNumber[pull.number] = await github.paginate(github.rest.checks.listForRef, {owner, repo, ref: pull.head.sha, per_page: 100});
             }
             const mergedNumbers = [];
-            if (loaded.state.active && !pulls.some((pull) => pull.number === loaded.state.active.number)) {
+            const openNumbers = new Set(pulls.map(pull => pull.number));
+            const recordedNumbers = new Set([
+              ...(loaded.state.active ? [loaded.state.active.number] : []),
+              ...(loaded.state.deferred || []).map(item => item.number),
+            ]);
+            for (const number of recordedNumbers) {
+              if (openNumbers.has(number)) continue;
               try {
-                const recorded = await github.rest.pulls.get({owner, repo, pull_number: loaded.state.active.number});
-                if (recorded.data.merged) mergedNumbers.push(recorded.data.number);
+                const recorded = await github.rest.pulls.get({owner, repo, pull_number: number});
+                if (recorded.data.merged) mergedNumbers.push(number);
               } catch (error) {
-                core.warning(`Could not read #${loaded.state.active.number}: ${error.message}`);
+                core.warning(`Could not read #${number}: ${error.message}`);
               }
             }
             const result = plan({openPulls: pulls, state: loaded.state, checksByNumber, now: new Date().toISOString(), mergedNumbers});
