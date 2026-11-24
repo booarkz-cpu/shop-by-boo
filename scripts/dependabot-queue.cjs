@@ -84,7 +84,12 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
   if (current.active) known.set(current.active.number, current.active);
 
   function remember(pull, status, extra) {
-    const item = {...(known.get(pull.number) || recordOf(pull)), ...recordOf(pull), status, ...extra};
+    const fresh = recordOf(pull);
+    const previous = known.get(pull.number);
+    const counters = previous && previous.sha === fresh.sha
+      ? {attempts: previous.attempts || 0, conflicts: previous.conflicts || 0, note: previous.note || ''}
+      : {};
+    const item = {...fresh, ...counters, status, ...extra};
     return item;
   }
 
@@ -117,7 +122,7 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
     const checks = (checksByNumber || {})[winner.pull.number] || [];
     const dirty = winner.pull.mergeable_state === 'dirty';
     if (dirty) {
-      const conflicts = (known.get(winner.pull.number) || {}).conflicts || 0;
+      const conflicts = winner.item.conflicts || 0;
       if (conflicts >= 1) {
         const item = remember(winner.pull, 'conflict', {conflicts: conflicts + 1, note: 'conflicts with the base'});
         actions.push({type: 'close', number: winner.pull.number,
@@ -132,7 +137,7 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
         winner.item = remember(winner.pull, 'active', {conflicts: conflicts + 1});
       }
     } else if (checksFailed(checks)) {
-      const attempts = ((known.get(winner.pull.number) || {}).attempts || 0) + 1;
+      const attempts = (winner.item.attempts || 0) + 1;
       if (attempts > MAX_ATTEMPTS) {
         const item = remember(winner.pull, 'failed', {attempts, note: 'checks failed after retries'});
         actions.push({type: 'close', number: winner.pull.number,

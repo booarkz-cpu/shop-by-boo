@@ -121,3 +121,34 @@ assert.deepEqual(reconciled.actions, []);
 const repeated = plan({openPulls: [human], state: reconciled.state, mergedNumbers: [1,2], now: monday});
 assert.deepEqual(repeated.state, reconciled.state);
 assert.deepEqual(repeated.actions, []);
+
+ // Retry history survives pending observations and deferral, but not a new SHA.
+const candidate = batch[0];
+const observe = (state, checks = [], openPulls = [candidate]) => plan({
+  state, openPulls, checksByNumber: {1: checks}, now: monday,
+});
+const badChecks = [{status: 'completed', conclusion: 'failure'}];
+const pendingChecks = [{status: 'in_progress'}];
+const retry1 = observe(null, badChecks);
+assert.equal(retry1.state.active.attempts, 1);
+const pending = observe(retry1.state, pendingChecks);
+assert.equal(pending.state.active.attempts, 1);
+const retry2 = observe(pending.state, badChecks);
+assert.equal(retry2.state.active.attempts, 2);
+const exhausted = observe(observe(retry2.state, pendingChecks).state, badChecks);
+assert.equal(exhausted.state.deferred.find(item => item.number === 1).status, 'failed');
+const dirtyCandidate = {...candidate, mergeable_state: 'dirty'};
+const rebased = observe(null, [], [dirtyCandidate]);
+assert.equal(rebased.state.active.conflicts, 1);
+const deferredConflict = observe(rebased.state, [], [human, dirtyCandidate]);
+assert.equal(deferredConflict.state.deferred[0].conflicts, 1);
+const reopenedConflict = observe(deferredConflict.state, [], []);
+assert.equal(reopenedConflict.state.active.conflicts, 1);
+const exhaustedConflict = observe(reopenedConflict.state, [], [dirtyCandidate]);
+assert.equal(exhaustedConflict.state.deferred[0].status, 'conflict');
+const changed = {...candidate, head: {...candidate.head, sha: 'f'.repeat(40)}};
+const freshRetry = observe(retry2.state, badChecks, [changed]);
+assert.equal(freshRetry.state.active.attempts, 1);
+assert.equal(freshRetry.state.active.sha, changed.head.sha);
+const freshConflict = observe(rebased.state, [], [{...changed, mergeable_state: 'dirty'}]);
+assert.equal(freshConflict.state.active.conflicts, 1);
