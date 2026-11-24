@@ -512,6 +512,17 @@ jobs:
           for i in $(seq 1 60); do docker exec pg18-rollback pg_isready -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
           test "$(docker exec pg18-rollback psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_orders')" = "1500"
           docker rm -f pg18-rollback >/dev/null
+          # Restore the retained dump into an independent disposable PostgreSQL 19 cluster.
+          docker run -d --name pg19-backup-verify --network none -e POSTGRES_USER=vpnshop -e POSTGRES_PASSWORD=ci-only -e POSTGRES_DB=vpnshop postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f >/dev/null
+          trap 'docker rm -fv pg19-backup-verify >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 60); do docker exec pg19-backup-verify pg_isready -h 127.0.0.1 -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
+          backups=("$RUNNER_TEMP/rollback"/postgres18-db-*.dump)
+          test "${#backups[@]}" = 1
+          docker exec -i pg19-backup-verify pg_restore -U vpnshop -d vpnshop --no-owner --single-transaction --exit-on-error < "${backups[0]}"
+          test "$(docker exec pg19-backup-verify psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = "1500|1125750.00"
+          test "$(docker exec pg19-backup-verify psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_users')" = "42"
+          docker rm -fv pg19-backup-verify >/dev/null
+          trap - EXIT
           # The synthetic tables are not part of either schema: Support Pro refuses unknown unversioned schemas.
           docker compose exec -T db psql -U vpnshop -d vpnshop -c 'DROP TABLE legacy_orders, legacy_users'
           docker compose exec -T support_db psql -U support -d support -c 'DROP TABLE legacy_orders, legacy_users'
