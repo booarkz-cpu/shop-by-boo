@@ -98,3 +98,13 @@ def test_rollback_flag_checks_the_18_baseline_without_deleting_it(tmp_path):
     assert run.returncode == 0, run.stderr + run.stdout
     assert "intact for rollback" in run.stdout
     assert "volume rm" not in log.read_text()
+
+
+
+def test_destination_guard_uses_catalog_not_estimated_row_statistics():
+    text = SCRIPT.read_text()
+    assert "n_live_tup" not in text
+    assert "FROM pg_class c JOIN pg_namespace" in text
+    assert "cannot establish destination state" in text
+    assert "relname <> 'alembic_version'" not in text
+    assert text.index("cannot establish destination state") < text.index("DROP DATABASE")
