@@ -24,7 +24,7 @@ def test_script_keeps_the_source_volume_and_checks_the_restore():
     text = SCRIPT.read_text()
     assert "docker volume rm" not in text
     assert "pg_dump" in text and "--exit-on-error" in text and "diff -u" in text
-    assert "PG19_UPGRADE_FORCE" in text and "PG19_MIN_FREE_BYTES" in text and "PG19_ROLLBACK" in text
+    assert "PG19_UPGRADE_FORCE" not in text and "PG19_MIN_FREE_BYTES" in text and "PG19_ROLLBACK" in text
     assert "restore failed; PostgreSQL 18 volume" in text
     assert "not enough free space" in text
     assert "--network none" in text
@@ -107,4 +107,16 @@ def test_destination_guard_uses_catalog_not_estimated_row_statistics():
     assert "FROM pg_class c JOIN pg_namespace" in text
     assert "cannot establish destination state" in text
     assert "relname <> 'alembic_version'" not in text
-    assert text.index("cannot establish destination state") < text.index("DROP DATABASE")
+    assert "DROP DATABASE" not in text
+    assert text.index("cannot establish destination state") < text.index("pg_restore -U")
+    assert "--single-transaction" in text
+    assert "insufficient destination storage" in text
+
+
+def test_rejects_identical_source_and_destination_volumes(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_old",))
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:old:old:vpnshop:vpnshop")
+    assert run.returncode == 2
+    assert "source and destination volumes must differ" in run.stderr
+    assert "compose down" not in log.read_text()
+    assert "run -d" not in log.read_text()
