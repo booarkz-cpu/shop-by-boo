@@ -89,6 +89,29 @@ def checklist(root: Path, canonical: list[dict], register: list[dict], statuses:
     return rows
 
 
+def render_acceptance_inventory(requirements: list[dict]) -> str:
+    """Generate a reproducible inventory without claiming new acceptance evidence."""
+    lines = [
+        "# Autonomous acceptance checklist", "",
+        "Source: docs/prompts/MASTER_PROMPT_V6.md, docs/requirements/register.json and "
+        "docs/requirements/status.json. Statuses are declared, not newly certified.", "",
+        "| ID | Original wording | Description / section | Criteria | Dependencies | Status | "
+        "Code / evidence references | Test | Evidence note | Date | Version |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for item in requirements:
+        source = item["source"]
+        cells = [
+            item["id"], source["text"], source["path"],
+            item["acceptance_criteria"] or "Проверить исходное требование целиком",
+            item["dependencies"] or "Не зафиксированы", item["declared_status"],
+            "; ".join(item["declared_evidence"]) or "—", "Не выделен отдельно",
+            item["note"] or "См. реестр статусов; независимая проверка не выполнялась", "—", "—",
+        ]
+        lines.append("| " + " | ".join(escape(cell) for cell in cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
 def validate_acceptance_inventory(root: Path, requirements: list[dict]) -> None:
     """Reject missing, duplicated or stale acceptance inventory rows."""
     path = root / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
