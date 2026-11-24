@@ -132,8 +132,8 @@ def test_nonempty_destination_refuses_even_with_legacy_force(tmp_path):
         "  *) exit 0;;",
         '  "run --rm --entrypoint cat "*) echo 18;;\n'
         '  "run --rm --entrypoint du "*) echo "1024 /old";;\n'
-        '  "exec "*)" df -Pk "*) printf "Filesystem 1024-blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
-        '  "exec "*)"FROM pg_class c JOIN pg_namespace"*) echo 1;;\n'
+        '  "exec "*" df -Pk "*) printf "Filesystem 1024-blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
+        '  "exec "*"FROM pg_class c JOIN pg_namespace"*) echo 1;;\n'
         '  *) exit 0;;',
     ))
     run = _run(tmp_path, bindir, PG19_UPGRADE_FORCE="1")
@@ -156,10 +156,10 @@ def test_failed_restore_keeps_backup_and_does_not_mark_success(tmp_path):
         "  *) exit 0;;",
         '  "run --rm --entrypoint cat "*) echo 18;;\n'
         '  "run --rm --entrypoint du "*) echo "1024 /old";;\n'
-        '  "exec "*)" df -Pk "*) printf "Filesystem Blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
-        '  "exec "*)"FROM pg_class c JOIN pg_namespace"*) echo 0;;\n'
-        '  "exec "*)" pg_dump "*) echo "test dump";;\n'
-        '  "exec "*)" pg_restore "*) exit 1;;\n'
+        '  "exec "*" df -Pk "*) printf "Filesystem Blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
+        '  "exec "*"FROM pg_class c JOIN pg_namespace"*) echo 0;;\n'
+        '  "exec "*" pg_dump "*) echo "test dump";;\n'
+        '  "exec "*" pg_restore "*) exit 1;;\n'
         '  *) exit 0;;',
     ))
     run = _run(tmp_path, bindir)
