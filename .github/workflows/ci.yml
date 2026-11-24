@@ -32,7 +32,7 @@ jobs:
         shard: [1, 2]
     services:
       postgres:
-        image: postgres:18.7-alpine
+        image: postgres:19.0-alpine
         env:
           POSTGRES_USER: vpnshop
           POSTGRES_PASSWORD: ci-password
@@ -289,7 +289,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:18.7-alpine
+        image: postgres:19.0-alpine
         env:
           POSTGRES_USER: support
           POSTGRES_PASSWORD: ci-support-password
@@ -420,11 +420,11 @@ jobs:
           refs="$(grep -rhoE 'postgres:[0-9][^ "}]*' docker-compose.yml docker-compose.test.yml services/support-pro/docker-compose.yml | sort -u)"
           echo "$refs"
           test "$(echo "$refs" | wc -l)" = 1
-          echo "$refs" | grep -qE '^postgres:18\.7-alpine@sha256:[0-9a-f]{64}$'
+          echo "$refs" | grep -qE '^postgres:19\.0-alpine@sha256:[0-9a-f]{64}$'
           pinned="${refs#*@}"
           docker buildx imagetools inspect "postgres@$pinned" >/dev/null
-          want="$(docker buildx imagetools inspect postgres:18.7-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
-          if [ "$want" != "$pinned" ]; then echo "::notice title=postgres:18.7-alpine was rebuilt::pinned $pinned, the tag now points to $want — repin"; fi
+          want="$(docker buildx imagetools inspect postgres:19.0-alpine --format '{{json .Manifest.Digest}}' | tr -d '"')"
+          if [ "$want" != "$pinned" ]; then echo "::notice title=postgres:19.0-alpine was rebuilt::pinned $pinned, the tag now points to $want — repin"; fi
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
       - name: Prometheus alert rules
@@ -469,14 +469,24 @@ jobs:
           APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres.sh | tee "$RUNNER_TEMP/upgrade.log"
           grep -q 'db: moved to PostgreSQL 18' "$RUNNER_TEMP/upgrade.log"
           grep -q 'support_db: moved to PostgreSQL 18' "$RUNNER_TEMP/upgrade.log"
+          APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | tee "$RUNNER_TEMP/upgrade19.log"
+          grep -q 'db: moved to PostgreSQL 19' "$RUNNER_TEMP/upgrade19.log"
+          grep -q 'support_db: moved to PostgreSQL 19' "$RUNNER_TEMP/upgrade19.log"
           docker compose up -d --wait db support_db
           test "$(docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = "1500|1125750.00"
           test "$(docker compose exec -T support_db psql -U support -d support -At -c 'SELECT count(*) FROM legacy_users')" = "42"
-          docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^18\.'
-          # A second run is a no-op and the PostgreSQL 16 volume is kept for rollback.
-          APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres.sh | grep -q 'db: already moved to PostgreSQL 18'
+          docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^19\.'
+          # A second run is a no-op. PostgreSQL 16 and 18 volumes stay for rollback.
+          APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | grep -q 'db: already moved to PostgreSQL 19'
           docker volume inspect "${project}_postgres_data" >/dev/null
+          docker volume inspect "${project}_postgres18_data" >/dev/null
           ls "$RUNNER_TEMP/rollback"/postgres16-db-*.dump
+          ls "$RUNNER_TEMP/rollback"/postgres18-db-*.dump
+          # The PostgreSQL 18 volume still answers with the copied rows. Nothing deleted it.
+          docker run -d --name pg18-rollback --network none -v "${project}_postgres18_data":/var/lib/postgresql postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff >/dev/null
+          for i in $(seq 1 60); do docker exec pg18-rollback pg_isready -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
+          test "$(docker exec pg18-rollback psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_orders')" = "1500"
+          docker rm -f pg18-rollback >/dev/null
           # The synthetic tables are not part of either schema: Support Pro refuses unknown unversioned schemas.
           docker compose exec -T db psql -U vpnshop -d vpnshop -c 'DROP TABLE legacy_orders, legacy_users'
           docker compose exec -T support_db psql -U support -d support -c 'DROP TABLE legacy_orders, legacy_users'
@@ -489,10 +499,10 @@ jobs:
             exit 1
           fi
           docker compose up -d --wait --wait-timeout 240 backend admin miniapp cabinet support_pro support_worker
-          # PostgreSQL 18 everywhere, and pg_dump in the backend image matches the server major version.
-          docker compose exec -T db postgres --version | grep -E 'PostgreSQL\) 18\.'
-          docker compose exec -T support_db postgres --version | grep -E 'PostgreSQL\) 18\.'
-          docker compose exec -T backend pg_dump --version | grep -E 'PostgreSQL\) 18\.'
+          # PostgreSQL 19 everywhere, and pg_dump in the backend image matches the server major version.
+          docker compose exec -T db postgres --version | grep -E 'PostgreSQL\) 19\.'
+          docker compose exec -T support_db postgres --version | grep -E 'PostgreSQL\) 19\.'
+          docker compose exec -T backend pg_dump --version | grep -E 'PostgreSQL\) 19\.'
       - name: Verify privilege and authentication boundaries
         run: |
           for service in backend admin miniapp cabinet support_pro; do

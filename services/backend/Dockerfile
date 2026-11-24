@@ -2,7 +2,7 @@ ARG PYTHON_BASE_IMAGE=python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb
 FROM ${PYTHON_BASE_IMAGE}
 # pg_dump must not be older than the server: install the PostgreSQL 18 client from the
 # official PGDG repository (Debian ships an older major). The signing key is checked by fingerprint.
-ARG PG_CLIENT_MAJOR=18
+ARG PG_CLIENT_MAJOR=19
 ARG PGDG_KEY_FINGERPRINT=B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
 # The base image is pinned by digest, so its packages are as old as the digest: the fixes published since are
 # installed here (v28.123.0, container scan in CI).

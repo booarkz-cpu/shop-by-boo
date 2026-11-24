@@ -35,15 +35,15 @@ services:
     cpus: 0.50
 
   db:
-    image: ${POSTGRES_IMAGE:-postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff}
+    image: ${POSTGRES_IMAGE:-postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f}
     restart: unless-stopped
     environment:
       POSTGRES_USER: vpnshop
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
       POSTGRES_DB: vpnshop
     volumes:
-      # PostgreSQL 18 images keep data in /var/lib/postgresql/18/docker; the volume is the parent.
-      - postgres18_data:/var/lib/postgresql
+      # PostgreSQL 19 images keep data in /var/lib/postgresql/19/docker; the volume is the parent.
+      - postgres19_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vpnshop -d vpnshop"]
       interval: 5s
@@ -340,14 +340,14 @@ services:
       start_period: 10s
 
   support_db:
-    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
+    image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
     restart: unless-stopped
     environment:
       POSTGRES_DB: support
       POSTGRES_USER: support
       POSTGRES_PASSWORD: ${SUPPORT_PRO_DB_PASSWORD:?set SUPPORT_PRO_DB_PASSWORD in .env}
     volumes:
-      - support_postgres18_data:/var/lib/postgresql
+      - support_postgres19_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U support -d support"]
       interval: 5s
@@ -527,12 +527,16 @@ services:
 volumes:
   redis_data:
   backup_data:
+  postgres19_data:
+  # PostgreSQL 18 data: scripts/upgrade-postgres19.sh copies it into postgres19_data once
+  # and leaves this volume untouched for rollback.
   postgres18_data:
   # PostgreSQL 16 data of releases before v28.23.0: scripts/upgrade-postgres.sh copies it
   # into postgres18_data once and leaves it untouched for rollback.
   postgres_data:
   media_data:
   app_packages:
+  support_postgres19_data:
   support_postgres18_data:
   support_postgres_data:
   support_redis_data:

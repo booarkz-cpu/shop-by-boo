@@ -76,7 +76,7 @@
 
 | Компонент | Версия | Файл | Назначение |
 | --- | --- | --- | --- |
-| PostgreSQL | 18.6-alpine (pinned digest) | `docker-compose.yml` | основная БД и Support Pro |
+| PostgreSQL | 19.0-alpine (pinned digest) | `docker-compose.yml` | основная БД и Support Pro; том 18 остаётся для отката |
 | Redis | 8.10-alpine (pinned digest) | `docker-compose.yml` | блокировки, кэш |
 | Caddy | 2.11, build из `infrastructure/reverse-proxy/caddy` | `docker-compose.yml` | TLS, HTTP/3, маршруты |
 | Prometheus | конфиг `infrastructure/monitoring/prometheus` | `prometheus.example.yml`, `vpnshop-alerts.yml` | метрики и алерты |

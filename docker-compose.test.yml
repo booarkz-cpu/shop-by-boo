@@ -15,13 +15,13 @@ services:
       retries: 20
 
   db:
-    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
+    image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
     environment:
       POSTGRES_USER: vpnshop
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env.test}
       POSTGRES_DB: vpnshop
     volumes:
-      - test_postgres18_data:/var/lib/postgresql
+      - test_postgres19_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vpnshop -d vpnshop"]
       interval: 5s
@@ -118,6 +118,6 @@ services:
 
 volumes:
   test_redis_data:
-  test_postgres18_data:
+  test_postgres19_data:
   test_media_data:
   test_backup_data:

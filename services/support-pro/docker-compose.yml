@@ -8,13 +8,13 @@ x-app: &app
     - uploads:/data/uploads
 services:
   db:
-    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
+    image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes: [pgdata18:/var/lib/postgresql]
+    volumes: [pgdata19:/var/lib/postgresql]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -72,7 +72,7 @@ services:
       redis: {condition: service_healthy}
   backup:
     user: "10001:10001"
-    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
+    image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
     restart: unless-stopped
     env_file: .env
     volumes:
@@ -110,6 +110,8 @@ services:
       - ./nginx/certs:/etc/letsencrypt:ro
     depends_on: [app]
 volumes:
+  pgdata19: {}
+  # PostgreSQL 18 data; scripts/upgrade-postgres19.sh leaves it for rollback.
   pgdata18: {}
   # PostgreSQL 16 data before Support Pro on PostgreSQL 18; kept for rollback.
   pgdata: {}

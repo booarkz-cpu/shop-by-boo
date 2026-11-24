@@ -8,8 +8,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres.sh"
-POSTGRES_TAG = "postgres:18.7-alpine"
-POSTGRES_DIGEST = "ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff"
+POSTGRES_TAG = "postgres:19.0-alpine"
+POSTGRES_DIGEST = "cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f"
 POSTGRES_PIN = f"{POSTGRES_TAG}@sha256:{POSTGRES_DIGEST}"
 
 
@@ -17,17 +17,18 @@ def compose(path):
     return yaml.safe_load((ROOT / path).read_text())
 
 
-def test_every_database_service_runs_postgres_18_on_the_new_volume_layout():
+def test_every_database_service_runs_postgres_19_and_keeps_the_old_volumes():
     main = compose("docker-compose.yml")
-    for name, volume in (("db", "postgres18_data"), ("support_db", "support_postgres18_data")):
+    for name, volume in (("db", "postgres19_data"), ("support_db", "support_postgres19_data")):
         service = main["services"][name]
         assert POSTGRES_PIN in service["image"], service["image"]
-        # PostgreSQL 18 images store data under /var/lib/postgresql/18/docker.
+        # PostgreSQL 19 images store data under /var/lib/postgresql/19/docker.
         assert f"{volume}:/var/lib/postgresql" in service["volumes"]
-    # The PostgreSQL 16 volumes stay declared so the move and a rollback can reach them.
-    assert {"postgres_data", "support_postgres_data", "postgres18_data", "support_postgres18_data"} <= set(main["volumes"])
+    # PostgreSQL 16 and 18 volumes stay declared so the moves and a rollback can reach them.
+    assert {"postgres_data", "support_postgres_data", "postgres18_data", "support_postgres18_data", "postgres19_data", "support_postgres19_data"} <= set(main["volumes"])
     support = compose("services/support-pro/docker-compose.yml")
-    assert support["services"]["db"]["volumes"] == ["pgdata18:/var/lib/postgresql"]
+    assert support["services"]["db"]["volumes"] == ["pgdata19:/var/lib/postgresql"]
+    assert "pgdata18" in support["volumes"]
     assert support["services"]["backup"]["image"] == POSTGRES_PIN
     test = compose("docker-compose.test.yml")
     assert any(s.get("image") == POSTGRES_PIN for s in test["services"].values())
@@ -35,7 +36,7 @@ def test_every_database_service_runs_postgres_18_on_the_new_volume_layout():
         assert "postgres:16" not in (ROOT / path).read_text().replace("postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea", ""), path
 
 
-def test_postgres_18_7_patch_baseline_is_exact_and_documented():
+def test_postgres_19_image_is_pinned_and_18_stays_available_for_rollback():
     active = (
         "docker-compose.yml",
         "docker-compose.test.yml",
@@ -52,12 +53,13 @@ def test_postgres_18_7_patch_baseline_is_exact_and_documented():
     docs = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
     notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
     assert POSTGRES_DIGEST in docs
-    assert "release-18-7.html" in docs and "PostgreSQL License" in notices
+    assert POSTGRES_DIGEST in docs and "PostgreSQL License" in notices
+    assert "ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff" in (ROOT / "scripts/upgrade-postgres19.sh").read_text()
 
 
 def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
     docker = (ROOT / "services/backend/Dockerfile").read_text()
-    assert "ARG PG_CLIENT_MAJOR=18" in docker
+    assert "ARG PG_CLIENT_MAJOR=19" in docker
     assert 'postgresql-client-${PG_CLIENT_MAJOR}' in docker
     assert "B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8" in docker
     assert "apt.postgresql.org" in docker
@@ -65,7 +67,7 @@ def test_backend_image_ships_a_postgres_18_client_for_in_app_backups():
 
 def test_update_moves_data_before_the_new_stack_starts():
     update = (ROOT / "scripts/update.sh").read_text()
-    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash infrastructure/deployment/build-production.sh")
+    assert update.index("bash scripts/upgrade-postgres.sh") < update.index("bash scripts/upgrade-postgres19.sh") < update.index("bash infrastructure/deployment/build-production.sh")
     assert "scripts/upgrade-postgres.sh" in (ROOT / "scripts/preflight.sh").read_text()
     assert SCRIPT.stat().st_mode & 0o111
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
@@ -75,6 +77,7 @@ def test_move_keeps_the_old_volume_and_verifies_row_counts():
     script = SCRIPT.read_text()
     assert "docker volume rm" not in script.replace("(docker volume rm <project>_postgres_data)", "")
     assert "diff -u" in script and "--exit-on-error" in script and "PG_UPGRADE_FORCE" in script
+    assert 'docker exec -i "$dest" psql -U "$user" -d "$db" -At' in script
     assert "--network none" in script
 
 
@@ -126,4 +129,4 @@ def test_installs_pinned_to_postgres_16_are_switched_to_18(tmp_path):
         text = (tmp_path / name).read_text()
         assert f"POSTGRES_IMAGE={default}" in text and "postgres:16" not in text
     assert "REDIS_IMAGE=redis@sha256:" in (tmp_path / ".env").read_text()
-    assert ".env: POSTGRES_IMAGE postgres:16-alpine -> postgres:18.7-alpine" in run.stdout
+    assert ".env: POSTGRES_IMAGE postgres:16-alpine -> postgres:19.0-alpine" in run.stdout

@@ -23,6 +23,7 @@ command -v docker >/dev/null || { echo "Docker is required" >&2; exit 2; }
 if [[ -f scripts/repin-images.sh ]]; then bash scripts/repin-images.sh; fi
 umask 077
 OLD_IMAGE="${PG_OLD_IMAGE:-postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea}"
+PG18_IMAGE="${PG18_IMAGE:-postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff}"
 MARKER=/var/lib/postgresql/.migrated-from-postgres16
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 KEEP_DIR="${ROLLBACK_DIR:-$APP_DIR/.rollback}"
@@ -31,7 +32,8 @@ project="$(docker compose config --format json | python3 -c 'import json,sys; pr
 services="$(docker compose config --services)"
 work="$(mktemp -d)"
 temp=""
-cleanup(){ [[ -n "$temp" ]] && docker rm -f "$temp" >/dev/null 2>&1 || true; rm -rf "$work"; }
+dest=""
+cleanup(){ [[ -n "$temp" ]] && docker rm -f "$temp" >/dev/null 2>&1 || true; [[ -n "$dest" ]] && docker rm -f "$dest" >/dev/null 2>&1 || true; rm -rf "$work"; }
 trap cleanup EXIT
 
 # Installs pinned before v28.23.0 keep POSTGRES_IMAGE=postgres:16… in .env and .env.images.
@@ -40,7 +42,7 @@ trap cleanup EXIT
 repin_postgres(){
   local default file value
   default="$(sed -nE 's/.*\$\{POSTGRES_IMAGE:-([^}]+)\}.*/\1/p' docker-compose.yml | head -1)"
-  [[ "$default" == postgres:18* ]] || { echo "docker-compose.yml has no PostgreSQL 18 default image" >&2; exit 2; }
+  [[ "$default" == postgres:19* ]] || { echo "docker-compose.yml has no PostgreSQL 19 default image" >&2; exit 2; }
   for file in .env .env.images; do
     [[ -f "$file" ]] || continue
     value="$(sed -nE 's/^POSTGRES_IMAGE=(.*)$/\1/p' "$file" | tail -1)"
@@ -86,18 +88,34 @@ move(){
     return 0
   fi
   stop_stack
-  docker compose up -d --wait "$service" >/dev/null
+  local password
+  password="$(docker compose config --format json | python3 -c 'import json,sys
+svc=sys.argv[1]
+env=(json.load(sys.stdin).get("services") or {}).get(svc,{}).get("environment") or {}
+if isinstance(env, list):
+    env=dict(item.split("=",1) for item in env if "=" in item)
+print(env.get("POSTGRES_PASSWORD",""))' "$service")"
+  [[ -n "$password" ]] || { echo "$service: POSTGRES_PASSWORD is empty" >&2; exit 2; }
+  dest="pg18-upgrade-${service}-$$"
+  docker run -d --name "$dest" --network none \
+    -e POSTGRES_USER="$user" -e POSTGRES_PASSWORD="$password" -e POSTGRES_DB="$db" \
+    -v "${project}_${new_volume}":/var/lib/postgresql "$PG18_IMAGE" >/dev/null
+  local _
+  for _ in $(seq 1 60); do
+    docker exec "$dest" pg_isready -U "$user" -d "$db" >/dev/null 2>&1 && break
+    sleep 2
+  done
+  docker exec "$dest" pg_isready -U "$user" -d "$db" >/dev/null || { docker logs --tail=50 "$dest" >&2; echo "$service: PostgreSQL 18 did not start" >&2; exit 1; }
   # Anything in the new cluster before the marker comes from a service that started
   # before the move (for example migrations on an empty database). Real data there is
   # not discarded silently.
   local rows
-  rows="$(docker compose exec -T "$service" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 -c "SELECT coalesce(sum(n_live_tup),0) FROM pg_stat_user_tables WHERE relname <> 'alembic_version'")"
+  rows="$(docker exec "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 -c "SELECT coalesce(sum(n_live_tup),0) FROM pg_stat_user_tables WHERE relname <> 'alembic_version'")"
   if [[ "${rows:-0}" != "0" && "${PG_UPGRADE_FORCE:-0}" != "1" ]]; then
     echo "$service: PostgreSQL 18 already contains ${rows} rows written before the move." >&2
     echo "Check them; to replace them with the PostgreSQL 16 data run again with PG_UPGRADE_FORCE=1." >&2
     exit 1
   fi
-  docker compose stop "$service" >/dev/null
 
   echo "$service: dumping PostgreSQL 16 data from $old"
   temp="pg16-upgrade-${service}-$$"
@@ -114,17 +132,21 @@ move(){
   cp "$work/$service.dump" "$KEEP_DIR/postgres16-${service}-${STAMP}.dump"
 
   echo "$service: restoring into PostgreSQL 18"
-  docker compose up -d --wait "$service" >/dev/null
-  docker compose exec -T "$service" psql -U "$user" -d postgres -v ON_ERROR_STOP=1 \
+  docker exec "$dest" psql -U "$user" -d postgres -v ON_ERROR_STOP=1 \
     -c "DROP DATABASE IF EXISTS \"$db\" WITH (FORCE)" -c "CREATE DATABASE \"$db\" OWNER \"$user\"" >/dev/null
-  docker compose exec -T "$service" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --exit-on-error < "$work/$service.dump"
-  docker compose exec -T "$service" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 <<<"$COUNT_SQL" > "$work/$service.after"
+  if ! docker exec -i "$dest" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --exit-on-error < "$work/$service.dump"; then
+    echo "$service: restore failed; PostgreSQL 16 volume $old is untouched" >&2
+    exit 1
+  fi
+  docker exec -i "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 <<<"$COUNT_SQL" > "$work/$service.after"
   if ! diff -u "$work/$service.before" "$work/$service.after"; then
     echo "$service: row counts differ after restore; PostgreSQL 16 data is untouched in $old" >&2
     exit 1
   fi
-  docker compose exec -T "$service" vacuumdb -U "$user" -d "$db" --analyze-only --quiet
-  docker compose exec -T "$service" sh -c "echo 'moved $STAMP: $(wc -l < "$work/$service.after") tables' > $MARKER"
+  docker exec "$dest" vacuumdb -U "$user" -d "$db" --analyze-only --quiet
+  docker exec "$dest" sh -c "echo 'moved $STAMP' > $MARKER"
+  docker rm -f "$dest" >/dev/null
+  dest=""
   echo "$service: moved to PostgreSQL 18 ($(wc -l < "$work/$service.after") tables, row counts match). Dump kept: $KEEP_DIR/postgres16-${service}-${STAMP}.dump"
 }
 

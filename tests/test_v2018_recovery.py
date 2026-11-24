@@ -170,7 +170,7 @@ class RecoveryTests(unittest.TestCase):
             (stage / "support-pro" / ".env").write_text("release-secret\n")
             (stage / "infrastructure" / "deployment").mkdir(parents=True)
             (stage / "scripts").mkdir()
-            for path in (stage / "infrastructure" / "deployment" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh"):
+            for path in (stage / "infrastructure" / "deployment" / "build-production.sh", stage / "scripts" / "doctor.sh", stage / "scripts" / "upgrade-postgres.sh", stage / "scripts" / "upgrade-postgres19.sh"):
                 path.write_text("#!/bin/sh\nexit 0\n")
                 path.chmod(0o755)
             fakebin = base / "bin"

@@ -1,9 +1,12 @@
 # PostgreSQL 19 migration — read-only preflight
 
-PostgreSQL 18.7 remains the production baseline. PostgreSQL 19 is a **major**
-upgrade and cannot open PostgreSQL 18 data directories directly. Do not change
-the active Compose image to 19 until a separately reviewed migration and
-rollback procedure is implemented and tested.
+Compose now starts PostgreSQL 19.0. PostgreSQL 19 cannot open a PostgreSQL 18
+data directory. `scripts/upgrade-postgres19.sh` copies an existing 18 volume
+into a new 19 volume with `pg_dump -Fc`, checks row counts, runs `ANALYZE`,
+and keeps both the dump and the 18 volume. It does not delete volumes.
+`PG19_ROLLBACK=1` only checks that the 18 volume is still a PostgreSQL 18
+cluster. A live server was not migrated by this change, and no requirement
+PASS is claimed. The read-only preflight below remains available before cutover.
 
 From the deployment directory, run:
 
@@ -33,3 +36,18 @@ rollback or live integration testing has passed. No requirement PASS is claimed.
 
 References: https://www.postgresql.org/docs/current/pgupgrade.html
 and https://www.postgresql.org/docs/current/upgrading.html
+
+### Non-destructive migration safeguards
+
+The PostgreSQL 19 migration refuses identical source and destination volumes,
+existing destination relations (including empty tables and migration metadata),
+and insufficient or indeterminate storage capacity. The legacy
+`PG19_UPGRADE_FORCE` option no longer permits overwriting data. The script does
+not drop the destination database. Restore uses a single transaction.
+
+Backup filenames are unique even for runs in the same second; the retained
+copy is compared byte-for-byte with the temporary dump before restoration.
+This comparison is not proof that the dump is recoverable. The rollback flag
+checks only the PostgreSQL 18 version marker, not actual recovery. Do not
+resume production traffic until data and application health are verified.
+A failed restore must be investigated without deleting the source volume.

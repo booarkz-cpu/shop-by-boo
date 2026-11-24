@@ -192,7 +192,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: postgres:18.7-alpine
+        image: postgres:19.0-alpine
         env:
           POSTGRES_USER: shots
           POSTGRES_PASSWORD: shots-password
