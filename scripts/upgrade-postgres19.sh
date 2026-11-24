@@ -104,7 +104,13 @@ move(){
   fi
   if docker volume inspect "$new" >/dev/null 2>&1 &&
      docker run --rm --entrypoint test -v "$new":/new:ro "$PG19_IMAGE" -f "/new/${MARKER##*/}"; then
-    echo "$service: already moved to PostgreSQL 19"
+    local target_version
+    target_version="$(docker run --rm --entrypoint cat -v "$new":/new:ro "$PG19_IMAGE" /new/19/docker/PG_VERSION 2>/dev/null || true)"
+    if [[ "$target_version" != "19" ]]; then
+      echo "$service: migration marker exists but destination PG_VERSION is not 19 (\x27$target_version\x27). Refusing to skip migration." >&2
+      exit 1
+    fi
+    echo "$service: already moved to PostgreSQL 19 (version marker verified; recovery not verified)"
     return 0
   fi
   local source_bytes
