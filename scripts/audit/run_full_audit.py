@@ -89,12 +89,59 @@ def checklist(root: Path, canonical: list[dict], register: list[dict], statuses:
     return rows
 
 
-def collect(root: Path) -> tuple[list[dict], dict]:
+def render_acceptance_inventory(requirements: list[dict]) -> str:
+    """Generate a reproducible inventory without claiming new acceptance evidence."""
+    lines = [
+        "# Autonomous acceptance checklist", "",
+        "Source: docs/prompts/MASTER_PROMPT_V6.md, docs/requirements/register.json and "
+        "docs/requirements/status.json. Statuses are declared, not newly certified.", "",
+        "| ID | Original wording | Description / section | Criteria | Dependencies | Status | "
+        "Code / evidence references | Test | Evidence note | Date | Version |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for item in requirements:
+        source = item["source"]
+        cells = [
+            item["id"], source["text"], source["path"],
+            item["acceptance_criteria"] or "Проверить исходное требование целиком",
+            item["dependencies"] or "Не зафиксированы", item["declared_status"],
+            "; ".join(item["declared_evidence"]) or "—", "Не выделен отдельно",
+            item["note"] or "См. реестр статусов; независимая проверка не выполнялась", "—", "—",
+        ]
+        lines.append("| " + " | ".join(escape(cell) for cell in cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def validate_acceptance_inventory(root: Path, requirements: list[dict]) -> None:
+    """Reject missing, duplicated or stale acceptance inventory rows."""
+    path = root / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| REQ-"):
+            continue
+        cells = [cell.strip() for cell in re.split(r"(?<!\\)\|", line)[1:-1]]
+        if len(cells) != 11:
+            raise ValueError("Malformed acceptance inventory row: " + cells[0])
+        rows.append(cells)
+    if [row[0] for row in rows] != [item["id"] for item in requirements]:
+        raise ValueError("Acceptance inventory identities or order differ from canonical requirements")
+    for row, item in zip(rows, requirements, strict=True):
+        if row[1] != escape(item["source"]["text"]) or row[2] != escape(item["source"]["path"]):
+            raise ValueError("Stale acceptance inventory source wording or section: " + item["id"])
+        evidence = "; ".join(item["declared_evidence"]) or "—"
+        if row[5] != item["declared_status"] or row[6] != escape(evidence):
+            raise ValueError("Stale acceptance inventory status or evidence: " + item["id"])
+
+
+def collect(root: Path, *, validate_inventory: bool = True) -> tuple[list[dict], dict]:
     parser = module(root, "requirements_register")
     register = json.loads((root / "docs/requirements/register.json").read_text(encoding="utf-8"))
     statuses = json.loads((root / "docs/requirements/status.json").read_text(encoding="utf-8"))
     readiness = module(root, "check_release_readiness").inspect(root)
-    return checklist(root, parser.parse(), register, statuses), readiness
+    requirements = checklist(root, parser.parse(), register, statuses)
+    if validate_inventory:
+        validate_acceptance_inventory(root, requirements)
+    return requirements, readiness
 
 
 def git_value(root: Path, *args: str) -> str | None:
@@ -163,7 +210,16 @@ def render(report: dict) -> str:
 def main(argv: list[str] | None = None, root: Path = ROOT) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-ready", action="store_true")
+    parser.add_argument("--write-acceptance-inventory", action="store_true",
+                        help="Regenerate the Markdown inventory from canonical requirements")
     args = parser.parse_args(argv)
+    if args.write_acceptance_inventory:
+        requirements, _ = collect(root, validate_inventory=False)
+        path = root / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+        path.write_text(render_acceptance_inventory(requirements), encoding="utf-8")
+        validate_acceptance_inventory(root, requirements)
+        print(f"Acceptance inventory generated: {len(requirements)} requirements")
+        return 0
     output = root / "artifacts/audit"
     output.mkdir(parents=True, exist_ok=True)
     (output / "logs").mkdir(exist_ok=True)
