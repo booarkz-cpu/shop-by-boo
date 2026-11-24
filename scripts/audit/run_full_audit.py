@@ -89,12 +89,33 @@ def checklist(root: Path, canonical: list[dict], register: list[dict], statuses:
     return rows
 
 
+def validate_acceptance_inventory(root: Path, requirements: list[dict]) -> None:
+    """Reject missing, duplicated or stale acceptance inventory rows."""
+    path = root / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| REQ-"):
+            continue
+        cells = [cell.strip() for cell in re.split(r"(?<!\\)\|", line)[1:-1]]
+        if len(cells) != 11:
+            raise ValueError("Malformed acceptance inventory row: " + cells[0])
+        rows.append(cells)
+    if [row[0] for row in rows] != [item["id"] for item in requirements]:
+        raise ValueError("Acceptance inventory identities or order differ from canonical requirements")
+    for row, item in zip(rows, requirements, strict=True):
+        evidence = "; ".join(item["declared_evidence"]) or "—"
+        if row[5] != item["declared_status"] or row[6] != evidence:
+            raise ValueError("Stale acceptance inventory status or evidence: " + item["id"])
+
+
 def collect(root: Path) -> tuple[list[dict], dict]:
     parser = module(root, "requirements_register")
     register = json.loads((root / "docs/requirements/register.json").read_text(encoding="utf-8"))
     statuses = json.loads((root / "docs/requirements/status.json").read_text(encoding="utf-8"))
     readiness = module(root, "check_release_readiness").inspect(root)
-    return checklist(root, parser.parse(), register, statuses), readiness
+    requirements = checklist(root, parser.parse(), register, statuses)
+    validate_acceptance_inventory(root, requirements)
+    return requirements, readiness
 
 
 def git_value(root: Path, *args: str) -> str | None:
