@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-11-24T00:34:46.725Z",
+  "updatedAt": "2026-11-24T00:37:42.448Z",
   "active": {
     "number": 445,
     "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-45004a4cf0",
@@ -10,9 +10,9 @@
     "security": false,
     "createdAt": "2026-11-23T18:33:29Z",
     "status": "active",
-    "attempts": 0,
+    "attempts": 1,
     "conflicts": 0,
-    "note": "Reopen failed because the branch was deleted. The branch was restored at 3398ad97. Still deferred."
+    "note": ""
   },
   "deferred": [],
   "history": [
@@ -57,6 +57,12 @@
       "action": "reopen",
       "number": 445,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-24T00:37:42.448Z",
+      "action": "retry",
+      "number": 445,
+      "reason": "attempt 1"
     }
   ]
 }
