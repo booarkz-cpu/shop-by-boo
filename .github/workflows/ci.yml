@@ -880,7 +880,7 @@ jobs:
     # A new job must be added to `needs` — otherwise the gate does not wait for it.
     name: CI gate
     if: always()
-    needs: [backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    needs: [python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
