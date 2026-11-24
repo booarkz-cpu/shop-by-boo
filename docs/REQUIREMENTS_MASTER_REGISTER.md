@@ -94,7 +94,7 @@
 
 - Источник: Часть I → Acceptance Checklist → File (строка 862). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет.
+- Названные файлы: `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — есть (`docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md`).
 - Примечание: docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md ещё нет.
 
 > docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md
@@ -132,7 +132,7 @@
 ### REQ-GOV-0012 — `NOT_TESTED`
 
 - Источник: Часть I → State Tracking → Files (строка 908). Продукт: Все три.
-- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет; `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`); `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — есть (`docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md`); `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`); `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
 
 > IMPLEMENTATION_STATUS.md; MASTER_ROADMAP.md; AUTOMATION_LOG.md; KNOWN_LIMITATIONS.md; docs/ADMIN_FEATURE_PARITY_MATRIX.md; docs/SCREENSHOT_COVERAGE.md; docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md; docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md; docs/MASQUE_IMPLEMENTATION_REPORT.md; docs/CODE_REUSE_REGISTER.md; docs/REFERENCE_REPOSITORIES.md; docs/PAYMENT_TESTING.md; docs/AUTO_SELECTION.md.
 
@@ -442,7 +442,7 @@
 ### REQ-GOV-0058 — `NOT_TESTED`
 
 - Источник: Часть I → Non Loss Rule → Reconciliation (строка 1130). Продукт: Все три.
-- Названные файлы: `AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — нет.
+- Названные файлы: `AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — есть (`docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md`).
 
 > Перед каждым крупным этапом сверять работу с AUTONOMOUS_ACCEPTANCE_CHECKLIST.md. Новые задачи добавлять. Дубликаты объединять только при сохранении всех исходных критериев и связей.
 
