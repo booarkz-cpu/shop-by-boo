@@ -478,6 +478,31 @@ jobs:
           docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^19\.'
           # A second run is a no-op. PostgreSQL 16 and 18 volumes stay for rollback.
           APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | grep -q 'db: already moved to PostgreSQL 19'
+          # A stale marker must never certify a missing or wrong destination cluster.
+          docker volume create "${project}_pg19_invalid_marker" >/dev/null
+          docker run --rm --entrypoint sh -v "${project}_pg19_invalid_marker":/new postgres:19.0-alpine -c 'touch /new/.migrated-from-postgres18'
+          if APP_DIR="$PWD" PG19_UPGRADE_SPEC=db:postgres18_data:pg19_invalid_marker:vpnshop:vpnshop bash scripts/upgrade-postgres19.sh > "$RUNNER_TEMP/invalid-marker.log" 2>&1; then
+            echo "Invalid migration marker unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -q 'migration marker exists but destination PG_VERSION is not 19' "$RUNNER_TEMP/invalid-marker.log"
+          docker volume rm "${project}_pg19_invalid_marker" >/dev/null
+          # Simulate limited shared disk space without filling the runner disk.
+          mkdir -p "$RUNNER_TEMP/pg19-capacity/bin" "$RUNNER_TEMP/pg19-capacity/backup"
+          source_bytes="$(docker run --rm --entrypoint du -v "${project}_postgres18_data":/old:ro postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff -sb /old | awk '{print $1}')"
+          test "$source_bytes" -gt 0
+          printf '#!/bin/sh\n echo "Filesystem 1-blocks Used Available Capacity Mounted"\n echo "test 0 0 %s 0%% /"\n' "$source_bytes" > "$RUNNER_TEMP/pg19-capacity/bin/df"
+          chmod +x "$RUNNER_TEMP/pg19-capacity/bin/df"
+          if PATH="$RUNNER_TEMP/pg19-capacity/bin:$PATH" TMPDIR="$RUNNER_TEMP/pg19-capacity" APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/pg19-capacity/backup" PG19_UPGRADE_SPEC=db:postgres18_data:pg19_capacity_test:vpnshop:vpnshop bash scripts/upgrade-postgres19.sh > "$RUNNER_TEMP/capacity.log" 2>&1; then
+            echo "Insufficient shared capacity unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -q 'insufficient shared filesystem capacity' "$RUNNER_TEMP/capacity.log"
+          docker compose exec -T db pg_isready -U vpnshop -d vpnshop
+          if docker volume inspect "${project}_pg19_capacity_test" >/dev/null 2>&1; then
+            echo "Destination created despite failed preflight" >&2
+            exit 1
+          fi
           docker volume inspect "${project}_postgres_data" >/dev/null
           docker volume inspect "${project}_postgres18_data" >/dev/null
           ls "$RUNNER_TEMP/rollback"/postgres16-db-*.dump
@@ -487,6 +512,17 @@ jobs:
           for i in $(seq 1 60); do docker exec pg18-rollback pg_isready -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
           test "$(docker exec pg18-rollback psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_orders')" = "1500"
           docker rm -f pg18-rollback >/dev/null
+          # Restore the retained dump into an independent disposable PostgreSQL 19 cluster.
+          docker run -d --name pg19-backup-verify --network none -e POSTGRES_USER=vpnshop -e POSTGRES_PASSWORD=ci-only -e POSTGRES_DB=vpnshop postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f >/dev/null
+          trap 'docker rm -fv pg19-backup-verify >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 60); do docker exec pg19-backup-verify pg_isready -h 127.0.0.1 -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
+          backups=("$RUNNER_TEMP/rollback"/postgres18-db-*.dump)
+          test "${#backups[@]}" = 1
+          docker exec -i pg19-backup-verify pg_restore -U vpnshop -d vpnshop --no-owner --single-transaction --exit-on-error < "${backups[0]}"
+          test "$(docker exec pg19-backup-verify psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = "1500|1125750.00"
+          test "$(docker exec pg19-backup-verify psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_users')" = "42"
+          docker rm -fv pg19-backup-verify >/dev/null
+          trap - EXIT
           # The synthetic tables are not part of either schema: Support Pro refuses unknown unversioned schemas.
           docker compose exec -T db psql -U vpnshop -d vpnshop -c 'DROP TABLE legacy_orders, legacy_users'
           docker compose exec -T support_db psql -U support -d support -c 'DROP TABLE legacy_orders, legacy_users'

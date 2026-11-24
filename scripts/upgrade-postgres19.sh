@@ -104,7 +104,13 @@ move(){
   fi
   if docker volume inspect "$new" >/dev/null 2>&1 &&
      docker run --rm --entrypoint test -v "$new":/new:ro "$PG19_IMAGE" -f "/new/${MARKER##*/}"; then
-    echo "$service: already moved to PostgreSQL 19"
+    local target_version
+    target_version="$(docker run --rm --entrypoint cat -v "$new":/new:ro "$PG19_IMAGE" /new/19/docker/PG_VERSION 2>/dev/null || true)"
+    if [[ "$target_version" != "19" ]]; then
+      echo "$service: migration marker exists but destination PG_VERSION is not 19 (\x27$target_version\x27). Refusing to skip migration." >&2
+      exit 1
+    fi
+    echo "$service: already moved to PostgreSQL 19 (version marker verified; recovery not verified)"
     return 0
   fi
   local source_bytes
@@ -115,6 +121,15 @@ move(){
   [[ "$source_bytes" =~ ^[0-9]+$ && "$avail" =~ ^[0-9]+$ && "$keep_avail" =~ ^[0-9]+$ ]] || { echo "$service: cannot determine storage capacity" >&2; exit 1; }
   if (( avail < source_bytes || keep_avail < source_bytes )); then
     echo "$service: not enough free space for the dump (have $avail, source $source_bytes). No data was moved." >&2
+    exit 1
+  fi
+  # The temporary dump and retained backup coexist until cleanup.
+  # When both directories share a filesystem, reserve space for both.
+  local work_device keep_device
+  work_device="$(stat -c %d "$work")"
+  keep_device="$(stat -c %d "$KEEP_DIR")"
+  if [[ "$work_device" == "$keep_device" ]] && (( avail / 2 < source_bytes )); then
+    echo "$service: insufficient shared filesystem capacity for dump and backup" >&2
     exit 1
   fi
   stop_stack

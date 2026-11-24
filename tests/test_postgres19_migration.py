@@ -179,10 +179,25 @@ def test_completed_migration_is_not_repeated(tmp_path):
     docker = bindir / "docker"
     docker.write_text(docker.read_text().replace(
         "  *) exit 0;;",
+        '  "run --rm --entrypoint cat "*"/new/19/docker/PG_VERSION") echo 19;;\n'
         '  "run --rm --entrypoint cat "*) echo 18;;\n  *) exit 0;;',
     ))
     run = _run(tmp_path, bindir)
     assert run.returncode == 0, run.stderr + run.stdout
     assert "already moved to PostgreSQL 19" in run.stdout
+    assert "compose down" not in log.read_text()
+    assert "pg_restore" not in log.read_text()
+
+
+def test_completed_marker_with_wrong_version_is_rejected(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_postgres18_data", "shop_postgres19_data"))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(
+        "  *) exit 0;;",
+        '  "run --rm --entrypoint cat "*) echo 18;;\n  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir)
+    assert run.returncode == 1, run.stderr + run.stdout
+    assert "migration marker exists but destination PG_VERSION is not 19" in run.stderr
     assert "compose down" not in log.read_text()
     assert "pg_restore" not in log.read_text()
