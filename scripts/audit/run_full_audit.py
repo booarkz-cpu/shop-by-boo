@@ -127,7 +127,7 @@ def validate_acceptance_inventory(root: Path, requirements: list[dict]) -> None:
         raise ValueError("Acceptance inventory identities or order differ from canonical requirements")
     for row, item in zip(rows, requirements, strict=True):
         evidence = "; ".join(item["declared_evidence"]) or "—"
-        if row[5] != item["declared_status"] or row[6] != evidence:
+        if row[5] != item["declared_status"] or row[6] != escape(evidence):
             raise ValueError("Stale acceptance inventory status or evidence: " + item["id"])
 
 
