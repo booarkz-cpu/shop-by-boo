@@ -144,3 +144,45 @@ def test_nonempty_destination_refuses_even_with_legacy_force(tmp_path):
     assert "pg_dump" not in commands
     assert "DROP DATABASE" not in commands
     assert "volume rm" not in commands
+
+
+def test_failed_restore_keeps_backup_and_does_not_mark_success(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_postgres18_data",))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(
+        '{"name":"shop"}',
+        '{"name":"shop","services":{"db":{"environment":{"POSTGRES_PASSWORD":"test-only"}}}}',
+    ).replace(
+        "  *) exit 0;;",
+        '  "run --rm --entrypoint cat "*) echo 18;;\n'
+        '  "run --rm --entrypoint du "*) echo "1024 /old";;\n'
+        '  "exec "*)" df -Pk "*) printf "Filesystem Blocks Used Available Capacity Mounted\\n/dev/test 100000 1 99999 1%% /var/lib/postgresql\\n";;\n'
+        '  "exec "*)"FROM pg_class c JOIN pg_namespace"*) echo 0;;\n'
+        '  "exec "*)" pg_dump "*) echo "test dump";;\n'
+        '  "exec "*)" pg_restore "*) exit 1;;\n'
+        '  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir)
+    assert run.returncode == 1, run.stderr + run.stdout
+    assert "restore failed" in run.stderr
+    backups = list((tmp_path / ".rollback").glob("postgres18-db-*.dump"))
+    assert len(backups) == 1
+    assert backups[0].read_text() == "test dump\n"
+    commands = log.read_text()
+    assert "--single-transaction" in commands
+    assert "echo moved" not in commands
+    assert "volume rm" not in commands
+
+
+def test_completed_migration_is_not_repeated(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_postgres18_data", "shop_postgres19_data"))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(
+        "  *) exit 0;;",
+        '  "run --rm --entrypoint cat "*) echo 18;;\n  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir)
+    assert run.returncode == 0, run.stderr + run.stdout
+    assert "already moved to PostgreSQL 19" in run.stdout
+    assert "compose down" not in log.read_text()
+    assert "pg_restore" not in log.read_text()
