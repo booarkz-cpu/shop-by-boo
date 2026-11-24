@@ -103,7 +103,11 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
         deferred.push(item);
       }
     }
-    current.deferred = deferred.sort(byPriority);
+    if (previousActive && !merged.has(previousActive.number) && !deferred.some((row) => row.number === previousActive.number)) {
+      deferred.push({...previousActive, status: 'waiting'});
+      note({action: 'keep', number: previousActive.number, reason: 'recorded candidate retained while another pull request is open'});
+    }
+    current.deferred = deferred.filter((item) => !merged.has(item.number)).sort(byPriority);
     return {state: current, actions};
   }
 
