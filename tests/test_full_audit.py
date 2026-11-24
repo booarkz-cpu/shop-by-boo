@@ -127,12 +127,14 @@ def test_runtime_report_creation_does_not_make_committed_source_metadata_stale(t
     assert register.render([item], {}) == before
 
 
-@pytest.mark.parametrize("mutation", ["valid", "missing", "duplicate", "wrong_id", "status", "evidence", "columns"])
+@pytest.mark.parametrize("mutation", ["valid", "missing", "duplicate", "wrong_id", "status", "evidence", "columns", "wording", "section"])
 def test_acceptance_inventory_rejects_drift(tmp_path, mutation):
     item, register = sample()
     requirements = audit.checklist(tmp_path, [item], register, {
         item["id"]: {"status": "PASS", "evidence": ["tests/example.py"]}})
-    cells = [item["id"], r"Source \| wording", "Section", "Criteria", "—",
+    item["text"] = "Source | wording"
+    requirements[0]["source"]["text"] = item["text"]
+    cells = [item["id"], r"Source \| wording", item["path"], "Criteria", "—",
              "PASS", "tests/example.py", "—", "Note", "—", "—"]
     if mutation == "wrong_id":
         cells[0] = "REQ-QA-9999"
@@ -142,6 +144,10 @@ def test_acceptance_inventory_rejects_drift(tmp_path, mutation):
         cells[6] = "tests/other.py"
     elif mutation == "columns":
         cells.pop()
+    elif mutation == "wording":
+        cells[1] = "Changed source"
+    elif mutation == "section":
+        cells[2] = "Changed section"
     row = "| " + " | ".join(cells) + " |\n"
     content = "" if mutation == "missing" else row * (2 if mutation == "duplicate" else 1)
     path = tmp_path / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
