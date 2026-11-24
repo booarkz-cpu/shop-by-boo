@@ -7,6 +7,19 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres19.sh"
 
 
+def test_password_reader_receives_the_service_as_an_argument():
+    for name in ("scripts/upgrade-postgres.sh", "scripts/upgrade-postgres19.sh"):
+        text = (ROOT / name).read_text()
+        assert 'os.environ["PG_SVC"]' not in text
+        assert "sys.argv[1]" in text
+    proc = subprocess.run(
+        ["python3", "-c", "import json,sys\nsvc=sys.argv[1]\nenv=(json.load(sys.stdin).get('services') or {}).get(svc,{}).get('environment') or {}\nprint(env.get('POSTGRES_PASSWORD',''))", "db"],
+        input='{"services":{"db":{"environment":{"POSTGRES_PASSWORD":"secret"}}}}',
+        text=True, capture_output=True, check=True,
+    )
+    assert proc.stdout.strip() == "secret"
+
+
 def test_script_keeps_the_source_volume_and_checks_the_restore():
     text = SCRIPT.read_text()
     assert "docker volume rm" not in text

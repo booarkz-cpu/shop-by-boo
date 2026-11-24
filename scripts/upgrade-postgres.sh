@@ -89,11 +89,12 @@ move(){
   fi
   stop_stack
   local password
-  password="$(PG_SVC="$service" docker compose config --format json | python3 -c 'import json,os,sys
-env=(json.load(sys.stdin).get("services") or {}).get(os.environ["PG_SVC"],{}).get("environment") or {}
+  password="$(docker compose config --format json | python3 -c 'import json,sys
+svc=sys.argv[1]
+env=(json.load(sys.stdin).get("services") or {}).get(svc,{}).get("environment") or {}
 if isinstance(env, list):
     env=dict(item.split("=",1) for item in env if "=" in item)
-print(env.get("POSTGRES_PASSWORD",""))')"
+print(env.get("POSTGRES_PASSWORD",""))' "$service")"
   [[ -n "$password" ]] || { echo "$service: POSTGRES_PASSWORD is empty" >&2; exit 2; }
   dest="pg18-upgrade-${service}-$$"
   docker run -d --name "$dest" --network none \

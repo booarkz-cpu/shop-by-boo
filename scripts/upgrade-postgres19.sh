@@ -38,11 +38,12 @@ COUNT_SQL="SELECT format('SELECT %L || '' '' || count(*) FROM %I.%I', schemaname
 free_bytes(){ df -B1 -P "$work" | awk 'NR==2 {print $4}'; }
 
 password_of(){
-  PG_SVC="$1" docker compose config --format json | python3 -c 'import json,os,sys
-env=(json.load(sys.stdin).get("services") or {}).get(os.environ["PG_SVC"],{}).get("environment") or {}
+  docker compose config --format json | python3 -c 'import json,sys
+svc=sys.argv[1]
+env=(json.load(sys.stdin).get("services") or {}).get(svc,{}).get("environment") or {}
 if isinstance(env, list):
     env=dict(item.split("=",1) for item in env if "=" in item)
-print(env.get("POSTGRES_PASSWORD",""))'
+print(env.get("POSTGRES_PASSWORD",""))' "$1"
 }
 
 stopped=0
