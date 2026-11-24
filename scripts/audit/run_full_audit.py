@@ -131,13 +131,14 @@ def validate_acceptance_inventory(root: Path, requirements: list[dict]) -> None:
             raise ValueError("Stale acceptance inventory status or evidence: " + item["id"])
 
 
-def collect(root: Path) -> tuple[list[dict], dict]:
+def collect(root: Path, *, validate_inventory: bool = True) -> tuple[list[dict], dict]:
     parser = module(root, "requirements_register")
     register = json.loads((root / "docs/requirements/register.json").read_text(encoding="utf-8"))
     statuses = json.loads((root / "docs/requirements/status.json").read_text(encoding="utf-8"))
     readiness = module(root, "check_release_readiness").inspect(root)
     requirements = checklist(root, parser.parse(), register, statuses)
-    validate_acceptance_inventory(root, requirements)
+    if validate_inventory:
+        validate_acceptance_inventory(root, requirements)
     return requirements, readiness
 
 
@@ -207,7 +208,16 @@ def render(report: dict) -> str:
 def main(argv: list[str] | None = None, root: Path = ROOT) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-ready", action="store_true")
+    parser.add_argument("--write-acceptance-inventory", action="store_true",
+                        help="Regenerate the Markdown inventory from canonical requirements")
     args = parser.parse_args(argv)
+    if args.write_acceptance_inventory:
+        requirements, _ = collect(root, validate_inventory=False)
+        path = root / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+        path.write_text(render_acceptance_inventory(requirements), encoding="utf-8")
+        validate_acceptance_inventory(root, requirements)
+        print(f"Acceptance inventory generated: {len(requirements)} requirements")
+        return 0
     output = root / "artifacts/audit"
     output.mkdir(parents=True, exist_ok=True)
     (output / "logs").mkdir(exist_ok=True)
