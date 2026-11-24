@@ -28,6 +28,7 @@ def test_script_keeps_the_source_volume_and_checks_the_restore():
     assert "restore failed; PostgreSQL 18 volume" in text
     assert "not enough free space" in text
     assert "--network none" in text
+    assert 'docker exec -i "$dest" psql -U "$user" -d "$db" -At' in text
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
 
 

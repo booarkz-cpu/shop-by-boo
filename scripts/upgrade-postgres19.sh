@@ -145,7 +145,7 @@ move(){
     echo "$service: restore failed; PostgreSQL 18 volume $old is untouched" >&2
     exit 1
   fi
-  docker exec "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 <<<"$COUNT_SQL" > "$work/$service.after"
+  docker exec -i "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 <<<"$COUNT_SQL" > "$work/$service.after"
   if ! diff -u "$work/$service.before" "$work/$service.after"; then
     echo "$service: row counts differ after restore; PostgreSQL 18 data is untouched in $old" >&2
     exit 1

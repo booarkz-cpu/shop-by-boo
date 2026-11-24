@@ -77,6 +77,7 @@ def test_move_keeps_the_old_volume_and_verifies_row_counts():
     script = SCRIPT.read_text()
     assert "docker volume rm" not in script.replace("(docker volume rm <project>_postgres_data)", "")
     assert "diff -u" in script and "--exit-on-error" in script and "PG_UPGRADE_FORCE" in script
+    assert 'docker exec -i "$dest" psql -U "$user" -d "$db" -At' in script
     assert "--network none" in script
 
 
