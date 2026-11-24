@@ -92,9 +92,12 @@ run_gradle() {
   init=$(mktemp)
   log="$init.log"
   write_mirror_init "$init"
+  local refresh_next=0
   for attempt in 1 2 3 4 5 6; do
     local -a args=("$@")
-    if (( attempt > 1 )); then
+    # A recorded "not found" is stale metadata. HTTP 429 and other transport
+    # failures must keep the modules that already downloaded.
+    if (( refresh_next )); then
       forget_module_cache
       args+=(--refresh-dependencies)
     fi
@@ -121,7 +124,13 @@ run_gradle() {
       return "$code"
     fi
     echo "::warning title=gradle::$dir $ready failed (try $attempt of 6)" >&2
-    delay=$((5 << (attempt - 1)))
+    if grep -Eiq 'Received status code (408|429|5[0-9]{2})|Could not (GET|HEAD) .?https?://' "$log"; then
+      refresh_next=0
+      delay=$((20 * attempt))
+    else
+      refresh_next=1
+      delay=$((5 << (attempt - 1)))
+    fi
     pause "$delay"
   done
 }

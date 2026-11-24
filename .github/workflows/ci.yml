@@ -572,6 +572,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: gradle
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
@@ -595,11 +596,19 @@ jobs:
       - name: Resolve the debug runtime from a clean Gradle home
         run: |
           gradle_dir="$(mktemp -d "$RUNNER_TEMP/gradle-engine.XXXXXX")"
-          mkdir -p "$HOME/.gradle-warm-dists"
+          mkdir -p "$HOME/.gradle-warm-dists" "$gradle_dir"
+          if [[ -d "$HOME/.gradle/caches" ]]; then
+            mkdir -p "$gradle_dir/caches"
+            cp -a "$HOME/.gradle/caches/." "$gradle_dir/caches/"
+          fi
           printf 'GRADLE_USER_HOME=%s\n' "$gradle_dir" >> "$GITHUB_ENV"
           printf 'GRADLE_WARM_WRAPPER_CACHE=%s\n' "$HOME/.gradle-warm-dists" >> "$GITHUB_ENV"
           GRADLE_USER_HOME="$gradle_dir" GRADLE_WARM_WRAPPER_CACHE="$HOME/.gradle-warm-dists" \
             bash scripts/ci/gradle-warm.sh --android-runtime apps/vpn-shop/android
+          if [[ -d "$gradle_dir/caches" ]]; then
+            mkdir -p "$HOME/.gradle/caches"
+            cp -a "$gradle_dir/caches/." "$HOME/.gradle/caches/"
+          fi
       - name: Compile the app with the engine
         run: |
           bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- assembleDebug --no-daemon
