@@ -72,6 +72,8 @@ if [[ -n "${UPDATE_STAGE:-}" ]]; then
 fi
 # v28.23.0+: move PostgreSQL 16 data to the PostgreSQL 18 volumes once (no-op afterwards).
 bash scripts/upgrade-postgres.sh
+# Move PostgreSQL 18 data to the PostgreSQL 19 volumes once. The 18 volumes stay for rollback.
+bash scripts/upgrade-postgres19.sh
 bash infrastructure/deployment/build-production.sh
 bash scripts/doctor.sh
 trap - ERR

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2753**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2755**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1922,6 +1922,7 @@
 | [scripts/update-space.sh](../scripts/update-space.sh) | Эксплуатация и релиз |
 | [scripts/update.sh](../scripts/update.sh) | Эксплуатация и релиз |
 | [scripts/upgrade-postgres.sh](../scripts/upgrade-postgres.sh) | Эксплуатация и релиз |
+| [scripts/upgrade-postgres19.sh](../scripts/upgrade-postgres19.sh) | Эксплуатация и релиз |
 | [scripts/v15_quality_gate.py](../scripts/v15_quality_gate.py) | Эксплуатация и релиз |
 | [scripts/v16_production_gate.py](../scripts/v16_production_gate.py) | Эксплуатация и релиз |
 | [scripts/v19_marketplace_gate.py](../scripts/v19_marketplace_gate.py) | Эксплуатация и релиз |
@@ -2609,6 +2610,7 @@
 | [tests/test_platform_refund_regressions.py](../tests/test_platform_refund_regressions.py) | Проверки |
 | [tests/test_plugins.py](../tests/test_plugins.py) | Проверки |
 | [tests/test_postgres18.py](../tests/test_postgres18.py) | Проверки |
+| [tests/test_postgres19_migration.py](../tests/test_postgres19_migration.py) | Проверки |
 | [tests/test_postgres19_preflight.py](../tests/test_postgres19_preflight.py) | Проверки |
 | [tests/test_production_installer_v2016.py](../tests/test_production_installer_v2016.py) | Проверки |
 | [tests/test_promo_generator_and_tg_backup.py](../tests/test_promo_generator_and_tg_backup.py) | Проверки |

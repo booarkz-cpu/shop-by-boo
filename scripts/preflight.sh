@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 if [[ -f .env.images ]]; then set -a; . ./.env.images; set +a; fi
 # Host dependencies are not required on a fresh VDS; CI runs the full test suite.
-bash -n install.sh infrastructure/deployment/install-docker.sh infrastructure/deployment/install-vps.sh infrastructure/deployment/build-production.sh scripts/update.sh scripts/pin-images.sh scripts/repin-images.sh scripts/upgrade-postgres.sh
+bash -n install.sh infrastructure/deployment/install-docker.sh infrastructure/deployment/install-vps.sh infrastructure/deployment/build-production.sh scripts/update.sh scripts/pin-images.sh scripts/repin-images.sh scripts/upgrade-postgres.sh scripts/upgrade-postgres19.sh
 python3 -m compileall -q services/backend
 if command -v docker >/dev/null 2>&1; then if [[ "${REQUIRE_PINNED_IMAGES:-1}" == "1" ]]; then
   [[ -f .env.images ]] || { echo "Missing .env.images: run ./scripts/pin-images.sh before production start." >&2; exit 2; }
