@@ -152,3 +152,29 @@ def test_acceptance_inventory_rejects_drift(tmp_path, mutation):
     else:
         with pytest.raises(ValueError, match="[Aa]cceptance inventory"):
             audit.validate_acceptance_inventory(tmp_path, requirements)
+
+
+def test_acceptance_inventory_cli_regenerates_deterministically(tmp_path, monkeypatch):
+    item, register = sample()
+    item["text"] = "Full source | wording <example>"
+    rows = audit.checklist(tmp_path, [item], register, {
+        item["id"]: {"status": "PASS", "evidence": ["tests/example.py"], "note": "Historic"}})
+    calls = []
+
+    def collect(root, *, validate_inventory=True):
+        calls.append(validate_inventory)
+        assert root == tmp_path
+        return rows, {}
+
+    monkeypatch.setattr(audit, "collect", collect)
+    path = tmp_path / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    path.parent.mkdir()
+    path.write_text("stale", encoding="utf-8")
+    assert audit.main(["--write-acceptance-inventory"], tmp_path) == 0
+    first = path.read_bytes()
+    assert r"Full source \| wording &lt;example&gt;" in first.decode("utf-8")
+    assert audit.main(["--write-acceptance-inventory"], tmp_path) == 0
+    assert path.read_bytes() == first
+    assert calls == [False, False]
+    assert not (tmp_path / "artifacts").exists()
+    audit.validate_acceptance_inventory(tmp_path, rows)
