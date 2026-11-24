@@ -35,7 +35,7 @@ cleanup(){ [[ -n "$temp" ]] && docker rm -f "$temp" >/dev/null 2>&1 || true; [[ 
 trap cleanup EXIT
 COUNT_SQL="SELECT format('SELECT %L || '' '' || count(*) FROM %I.%I', schemaname || '.' || tablename, schemaname, tablename) FROM pg_tables WHERE schemaname NOT IN ('pg_catalog','information_schema') ORDER BY schemaname, tablename \\gexec"
 
-free_bytes(){ df -B1 -P "$work" | awk 'NR==2 {print $4}'; }
+free_bytes(){ df -B1 -P "${1:-$work}" | awk 'NR==2 {print $4}'; }
 
 password_of(){
   docker compose config --format json | python3 -c 'import json,sys
@@ -78,6 +78,7 @@ move(){
   local service="$1" old_volume="$2" new_volume="$3" user="$4" db="$5"
   grep -qx "$service" <<<"$services" || return 0
   local old="${project}_${old_volume}" new="${project}_${new_volume}"
+  [[ "$old" != "$new" ]] || { echo "$service: source and destination volumes must differ" >&2; exit 2; }
   if ! docker volume inspect "$old" >/dev/null 2>&1; then
     echo "$service: no PostgreSQL 18 volume ($old) — nothing to move"
     return 0
@@ -109,7 +110,10 @@ move(){
   local source_bytes
   source_bytes="$(docker run --rm --entrypoint du -v "$old":/old:ro "$PG18_IMAGE" -sb /old | awk '{print $1}')"
   avail="$(free_bytes)"
-  if [[ "$source_bytes" =~ ^[0-9]+$ ]] && (( avail < source_bytes )); then
+  local keep_avail
+  keep_avail="$(free_bytes "$KEEP_DIR")"
+  [[ "$source_bytes" =~ ^[0-9]+$ && "$avail" =~ ^[0-9]+$ && "$keep_avail" =~ ^[0-9]+$ ]] || { echo "$service: cannot determine storage capacity" >&2; exit 1; }
+  if (( avail < source_bytes || keep_avail < source_bytes )); then
     echo "$service: not enough free space for the dump (have $avail, source $source_bytes). No data was moved." >&2
     exit 1
   fi
@@ -140,11 +144,15 @@ move(){
   docker exec -i "$temp" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 <<<"$COUNT_SQL" > "$work/$service.before"
   docker rm -f "$temp" >/dev/null; temp=""
   [[ -s "$work/$service.dump" ]] || { echo "$service: empty dump" >&2; exit 1; }
+  keep_avail="$(free_bytes "$KEEP_DIR")"
+  local dump_bytes
+  dump_bytes="$(wc -c < "$work/$service.dump" | tr -d '[:space:]')"
+  [[ "$keep_avail" =~ ^[0-9]+$ && "$dump_bytes" =~ ^[0-9]+$ ]] && (( keep_avail >= dump_bytes )) || { echo "$service: insufficient rollback storage" >&2; exit 1; }
   cp "$work/$service.dump" "$KEEP_DIR/postgres18-${service}-${STAMP}.dump"
   echo "$service: restoring into PostgreSQL 19"
   docker exec "$dest" psql -U "$user" -d postgres -v ON_ERROR_STOP=1 \
     -c "DROP DATABASE IF EXISTS \"$db\" WITH (FORCE)" -c "CREATE DATABASE \"$db\" OWNER \"$user\"" >/dev/null
-  if ! docker exec -i "$dest" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --exit-on-error < "$work/$service.dump"; then
+  if ! docker exec -i "$dest" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --single-transaction --exit-on-error < "$work/$service.dump"; then
     echo "$service: restore failed; PostgreSQL 18 volume $old is untouched" >&2
     exit 1
   fi
