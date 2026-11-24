@@ -123,6 +123,15 @@ move(){
     echo "$service: not enough free space for the dump (have $avail, source $source_bytes). No data was moved." >&2
     exit 1
   fi
+  # The temporary dump and retained backup coexist until cleanup.
+  # When both directories share a filesystem, reserve space for both.
+  local work_device keep_device
+  work_device="$(stat -c %d "$work")"
+  keep_device="$(stat -c %d "$KEEP_DIR")"
+  if [[ "$work_device" == "$keep_device" ]] && (( avail / 2 < source_bytes )); then
+    echo "$service: insufficient shared filesystem capacity for dump and backup" >&2
+    exit 1
+  fi
   stop_stack
   local password
   password="$(password_of "$service")"
