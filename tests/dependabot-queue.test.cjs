@@ -106,3 +106,18 @@ assert.match(workflow, /cancel-in-progress: false/);
 assert.doesNotMatch(workflow, /--admin/);
 
 console.log('dependabot queue: ok');
+
+const reconciled = plan({
+  openPulls: [human],
+  state: first.state,
+  mergedNumbers: [1, 2],
+  now: monday,
+});
+assert.equal(reconciled.state.active, null);
+assert.deepEqual(reconciled.state.deferred.map(item => item.number).sort((a,b) => a-b), [3,4,5,6,7]);
+assert.equal(reconciled.state.deferred.find(item => item.number === 7).status, 'waiting');
+assert.ok(reconciled.state.history.some(item => item.action === 'keep' && item.number === 7));
+assert.deepEqual(reconciled.actions, []);
+const repeated = plan({openPulls: [human], state: reconciled.state, mergedNumbers: [1,2], now: monday});
+assert.deepEqual(repeated.state, reconciled.state);
+assert.deepEqual(repeated.actions, []);
