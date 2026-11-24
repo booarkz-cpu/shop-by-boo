@@ -125,3 +125,30 @@ def test_runtime_report_creation_does_not_make_committed_source_metadata_stale(t
     artifact.parent.mkdir(parents=True)
     artifact.write_text("A real generated audit output.", encoding="utf-8")
     assert register.render([item], {}) == before
+
+
+@pytest.mark.parametrize("mutation", ["valid", "missing", "duplicate", "wrong_id", "status", "evidence", "columns"])
+def test_acceptance_inventory_rejects_drift(tmp_path, mutation):
+    item, register = sample()
+    requirements = audit.checklist(tmp_path, [item], register, {
+        item["id"]: {"status": "PASS", "evidence": ["tests/example.py"]}})
+    cells = [item["id"], r"Source \| wording", "Section", "Criteria", "—",
+             "PASS", "tests/example.py", "—", "Note", "—", "—"]
+    if mutation == "wrong_id":
+        cells[0] = "REQ-QA-9999"
+    elif mutation == "status":
+        cells[5] = "PARTIAL"
+    elif mutation == "evidence":
+        cells[6] = "tests/other.py"
+    elif mutation == "columns":
+        cells.pop()
+    row = "| " + " | ".join(cells) + " |\n"
+    content = "" if mutation == "missing" else row * (2 if mutation == "duplicate" else 1)
+    path = tmp_path / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    path.parent.mkdir()
+    path.write_text(content, encoding="utf-8")
+    if mutation == "valid":
+        audit.validate_acceptance_inventory(tmp_path, requirements)
+    else:
+        with pytest.raises(ValueError, match="[Aa]cceptance inventory"):
+            audit.validate_acceptance_inventory(tmp_path, requirements)
