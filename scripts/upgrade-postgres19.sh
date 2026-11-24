@@ -123,9 +123,12 @@ move(){
     -v "$new":/var/lib/postgresql "$PG19_IMAGE" >/dev/null
   ready "$dest" "$user" "$db" || { echo "$service: PostgreSQL 19 did not start" >&2; exit 1; }
   local rows
-  rows="$(docker exec "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 -c "SELECT coalesce(sum(n_live_tup),0) FROM pg_stat_user_tables WHERE relname <> 'alembic_version'")"
+  # Statistics are estimates, not a safe guard for a destructive restore.
+  # Refuse any existing user relation, including migration metadata and empty tables.
+  rows="$(docker exec "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp_%' AND c.relkind IN ('r','p','v','m','S','f')")"
+  [[ "$rows" =~ ^[0-9]+$ ]] || { echo "$service: cannot establish destination state" >&2; exit 1; }
   if [[ "${rows:-0}" != "0" && "${PG19_UPGRADE_FORCE:-0}" != "1" ]]; then
-    echo "$service: PostgreSQL 19 already contains ${rows} rows written before the move." >&2
+    echo "$service: PostgreSQL 19 already contains ${rows} user relations before the move." >&2
     echo "Check them; to replace them with the PostgreSQL 18 data run again with PG19_UPGRADE_FORCE=1." >&2
     exit 1
   fi
