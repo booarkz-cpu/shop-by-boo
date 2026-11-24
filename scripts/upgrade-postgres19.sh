@@ -11,7 +11,7 @@
 # prints that the PostgreSQL 18 volume is unchanged.
 #
 #   APP_DIR=/opt/vpn-shop bash scripts/upgrade-postgres19.sh
-#   PG19_UPGRADE_FORCE=1 ...  replace rows already written on the empty-looking 19 volume
+# Existing destination relations are never overwritten.
 #   PG19_MIN_FREE_BYTES=...   refuse when the work directory is smaller than this
 #   PG19_ROLLBACK=1 ...       only check that the PostgreSQL 18 volume is still readable
 set -Eeuo pipefail
@@ -126,14 +126,20 @@ move(){
     -e POSTGRES_USER="$user" -e POSTGRES_PASSWORD="$password" -e POSTGRES_DB="$db" \
     -v "$new":/var/lib/postgresql "$PG19_IMAGE" >/dev/null
   ready "$dest" "$user" "$db" || { echo "$service: PostgreSQL 19 did not start" >&2; exit 1; }
+  local target_avail
+  target_avail="$(docker exec "$dest" df -Pk /var/lib/postgresql | awk 'NR==2 {print $4}')"
+  [[ "$target_avail" =~ ^[0-9]+$ ]] || { echo "$service: cannot determine destination capacity" >&2; exit 1; }
+  if (( target_avail < (source_bytes + 1023) / 1024 )); then
+    echo "$service: insufficient destination storage" >&2; exit 1
+  fi
   local rows
   # Statistics are estimates, not a safe guard for a destructive restore.
   # Refuse any existing user relation, including migration metadata and empty tables.
   rows="$(docker exec "$dest" psql -U "$user" -d "$db" -At -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp_%' AND c.relkind IN ('r','p','v','m','S','f')")"
   [[ "$rows" =~ ^[0-9]+$ ]] || { echo "$service: cannot establish destination state" >&2; exit 1; }
-  if [[ "${rows:-0}" != "0" && "${PG19_UPGRADE_FORCE:-0}" != "1" ]]; then
+  if [[ "${rows:-0}" != "0" ]]; then
     echo "$service: PostgreSQL 19 already contains ${rows} user relations before the move." >&2
-    echo "Check them; to replace them with the PostgreSQL 18 data run again with PG19_UPGRADE_FORCE=1." >&2
+    echo "Existing destination data will not be overwritten. Use a separate empty destination volume." >&2
     exit 1
   fi
   echo "$service: dumping PostgreSQL 18 data from $old"
@@ -150,8 +156,6 @@ move(){
   [[ "$keep_avail" =~ ^[0-9]+$ && "$dump_bytes" =~ ^[0-9]+$ ]] && (( keep_avail >= dump_bytes )) || { echo "$service: insufficient rollback storage" >&2; exit 1; }
   cp "$work/$service.dump" "$KEEP_DIR/postgres18-${service}-${STAMP}.dump"
   echo "$service: restoring into PostgreSQL 19"
-  docker exec "$dest" psql -U "$user" -d postgres -v ON_ERROR_STOP=1 \
-    -c "DROP DATABASE IF EXISTS \"$db\" WITH (FORCE)" -c "CREATE DATABASE \"$db\" OWNER \"$user\"" >/dev/null
   if ! docker exec -i "$dest" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --single-transaction --exit-on-error < "$work/$service.dump"; then
     echo "$service: restore failed; PostgreSQL 18 volume $old is untouched" >&2
     exit 1
