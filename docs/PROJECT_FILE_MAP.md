@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2755**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2756**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -759,6 +759,7 @@
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
+| [docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md](../docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md) | Документация |
 | [docs/AUTONOMOUS_AUDIT.md](../docs/AUTONOMOUS_AUDIT.md) | Документация |
 | [docs/AUTO_SELECTION.md](../docs/AUTO_SELECTION.md) | Документация |
 | [docs/AUTO_UPDATE.md](../docs/AUTO_UPDATE.md) | Документация |
