@@ -93,7 +93,7 @@ move(){
     local version
     version="$(version_of "$old")"
     [[ "$version" == "18" ]] || { echo "$service: rollback baseline $old is not PostgreSQL 18 (PG_VERSION='$version')" >&2; exit 1; }
-    echo "$service: PostgreSQL 18 volume $old is intact for rollback"
+    echo "$service: PostgreSQL 18 volume $old is intact for rollback (version marker only; recovery not verified)"
     return 0
   fi
   local version
@@ -154,7 +154,10 @@ move(){
   local dump_bytes
   dump_bytes="$(wc -c < "$work/$service.dump" | tr -d '[:space:]')"
   [[ "$keep_avail" =~ ^[0-9]+$ && "$dump_bytes" =~ ^[0-9]+$ ]] && (( keep_avail >= dump_bytes )) || { echo "$service: insufficient rollback storage" >&2; exit 1; }
-  cp "$work/$service.dump" "$KEEP_DIR/postgres18-${service}-${STAMP}.dump"
+  local backup
+  backup="$(mktemp "$KEEP_DIR/postgres18-${service}-${STAMP}-XXXXXX.dump")"
+  cp "$work/$service.dump" "$backup"
+  cmp -s "$work/$service.dump" "$backup" || { echo "$service: backup verification failed" >&2; exit 1; }
   echo "$service: restoring into PostgreSQL 19"
   if ! docker exec -i "$dest" pg_restore -U "$user" -d "$db" --no-owner --role="$user" --single-transaction --exit-on-error < "$work/$service.dump"; then
     echo "$service: restore failed; PostgreSQL 18 volume $old is untouched" >&2
@@ -169,7 +172,7 @@ move(){
   docker exec "$dest" sh -c "echo moved > $MARKER"
   docker rm -f "$dest" >/dev/null
   dest=""
-  echo "$service: moved to PostgreSQL 19 ($(wc -l < "$work/$service.after") tables, row counts match). Dump kept: $KEEP_DIR/postgres18-${service}-${STAMP}.dump. Volume $old was not deleted."
+  echo "$service: moved to PostgreSQL 19 ($(wc -l < "$work/$service.after") tables, row counts match). Dump kept: $backup. Volume $old was not deleted."
 }
 
 SPEC="${PG19_UPGRADE_SPEC:-db:postgres18_data:postgres19_data:vpnshop:vpnshop,support_db:support_postgres18_data:support_postgres19_data:support:support}"
