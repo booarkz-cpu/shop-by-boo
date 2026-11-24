@@ -478,6 +478,15 @@ jobs:
           docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^19\.'
           # A second run is a no-op. PostgreSQL 16 and 18 volumes stay for rollback.
           APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | grep -q 'db: already moved to PostgreSQL 19'
+          # A stale marker must never certify a missing or wrong destination cluster.
+          docker volume create "${project}_pg19_invalid_marker" >/dev/null
+          docker run --rm --entrypoint sh -v "${project}_pg19_invalid_marker":/new postgres:19.0-alpine -c 'touch /new/.migrated-from-postgres18'
+          if APP_DIR="$PWD" PG19_UPGRADE_SPEC=db:postgres18_data:pg19_invalid_marker:vpnshop:vpnshop bash scripts/upgrade-postgres19.sh > "$RUNNER_TEMP/invalid-marker.log" 2>&1; then
+            echo "Invalid migration marker unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -q 'migration marker exists but destination PG_VERSION is not 19' "$RUNNER_TEMP/invalid-marker.log"
+          docker volume rm "${project}_pg19_invalid_marker" >/dev/null
           docker volume inspect "${project}_postgres_data" >/dev/null
           docker volume inspect "${project}_postgres18_data" >/dev/null
           ls "$RUNNER_TEMP/rollback"/postgres16-db-*.dump
