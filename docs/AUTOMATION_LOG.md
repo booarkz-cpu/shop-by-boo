@@ -2,6 +2,12 @@
 
 Записи идут от новых к старым. Каждая содержит что сделано, чем проверено и что осталось.
 
+## 2026-11-24 — ручной шаг, если очередь открыла Dependabot и CI стал action_required
+
+- #445 после открытия токеном Actions получил прогоны `45298310338`, `45298310064`, `45298309996`, `45298310023` с итогом `action_required` и без check runs. Merge API ответил: `Required status check "CI gate" is expected`.
+- Владелец в 01:09Z закрыл и сразу открыл #445. Corgi Lusi CI `45302931559` на `3398ad97` запущен от `booarkz-cpu`, CI gate job `138151502956` success. Squash автослияния: `ca20575b`. Post-merge CI `45306553179` и Docker `45306555619` success.
+- Закрытие и комментарий #419 токену интеграции недоступны (403). Шаг записан в `docs/BRANCHES.md`. PASS не менялся.
+
 ## 2026-11-23 — iOS tunnel завис на установке Go
 
 - Прогон `45287528835` на `e8b6ca69`: Android embedded VPN engine и Android UI tests success. `iOS • tunnel and rich push extensions` job `138087611351` с 23:21:42Z до таймаута оставался на `actions/setup-go`. Журнал задания не сохранился (`BlobNotFound`). Повтор через API недоступен (403). Этот коммит запускает проверку заново.
