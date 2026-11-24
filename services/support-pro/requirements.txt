@@ -40,7 +40,7 @@ pydantic_core==2.50.5
 PyOTP==2.12.1
 python-dotenv==1.2.4
 python-multipart==0.0.34
-PyYAML==6.0.3
+PyYAML==6.0.4
 qrcode==8.2
 redis==8.1.0
 SQLAlchemy==2.1.9
