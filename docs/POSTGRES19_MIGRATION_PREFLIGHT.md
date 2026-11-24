@@ -36,3 +36,18 @@ rollback or live integration testing has passed. No requirement PASS is claimed.
 
 References: https://www.postgresql.org/docs/current/pgupgrade.html
 and https://www.postgresql.org/docs/current/upgrading.html
+
+### Non-destructive migration safeguards
+
+The PostgreSQL 19 migration refuses identical source and destination volumes,
+existing destination relations (including empty tables and migration metadata),
+and insufficient or indeterminate storage capacity. The legacy
+`PG19_UPGRADE_FORCE` option no longer permits overwriting data. The script does
+not drop the destination database. Restore uses a single transaction.
+
+Backup filenames are unique even for runs in the same second; the retained
+copy is compared byte-for-byte with the temporary dump before restoration.
+This comparison is not proof that the dump is recoverable. The rollback flag
+checks only the PostgreSQL 18 version marker, not actual recovery. Do not
+resume production traffic until data and application health are verified.
+A failed restore must be investigated without deleting the source volume.
