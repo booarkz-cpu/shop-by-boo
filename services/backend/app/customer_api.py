@@ -89,11 +89,12 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
     if not provider_order: raise shop.HTTPException(503,"Нет доступных платёжных провайдеров")
     candidate=provider_order[0]
     # Every routable gateway (a reserve one may be first in line while the main one cools down).
-    from .payments_api import _checkout_provider
+    from .payments_api import _checkout_provider, _read_checkout_intent
     provider=_checkout_provider(candidate)
     order_id=f"topup-{user.id}-{shop.hashlib.sha256(idem.encode()).hexdigest()[:24]}"
     row=shop.Payment(user_id=user.id,plan_id=0,provider=candidate,order_id=order_id,amount=amount,original_amount=amount,discount_amount=shop.Decimal("0.00"),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="topup",bonus_days=0)
     db.add(row); await db.commit(); await db.refresh(row)
+    payment_id = row.id
     try:
         back=shop._return_url(order_id,request=request)
         meta={"order_id":order_id,"user_id":user.id,"email":user.email,"return_url":back,"cancel_url":back}
@@ -101,8 +102,11 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
         elif candidate=="yookassa" and method: result=await provider.create(amount,order_id,"Wallet top-up",shop._return_url(order_id,shop.settings.mini_app_url,request),method=method)
         else: result=await provider.create(amount,order_id,"Wallet top-up",shop._return_url(order_id,shop.settings.mini_app_url,request))
         if not result.get("id"): raise RuntimeError("Payment provider returned no payment ID")
-        row=(await db.execute(shop.select(shop.Payment).where(shop.Payment.id==row.id).with_for_update())).scalar_one()
-        row.provider_payment_id=result["id"]; row.checkout_url=result.get("url")
+        row, observed = await _read_checkout_intent(db, payment_id, result)
+        if observed is not None:
+            return {**observed, "purpose": "topup"}
+        await shop.bind_provider_payment_id(db, row, result["id"])
+        row.checkout_url=result.get("url")
         if candidate=="sandbox" and result.get("status")=="succeeded":
             row.status="paid"; row.paid_at=shop.datetime.utcnow(); await db.commit()
             try:
@@ -115,7 +119,10 @@ async def wallet_topup(payload:dict, request:shop.Request, db:shop.AsyncSession=
         await db.commit()
         return {"id":result.get("id"),"url":result.get("url"),"provider":candidate,"status":"pending","purpose":"topup"}
     except Exception as exc:
-        row=(await db.execute(shop.select(shop.Payment).where(shop.Payment.id==row.id).with_for_update())).scalar_one()
+        await db.rollback()
+        row, observed = await _read_checkout_intent(db, payment_id)
+        if observed is not None:
+            return {**observed, "purpose": "topup"}
         row.status="creation_unknown"; row.fulfillment_terminal=True; row.fulfillment_error=str(exc)[:1000]
         await db.commit()
         raise shop.HTTPException(503,"Результат создания платежа не определён. Повторное списание заблокировано; операция будет сверена.")
