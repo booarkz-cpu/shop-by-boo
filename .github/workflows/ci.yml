@@ -519,6 +519,8 @@ jobs:
           if [ "$want" != "$pinned" ]; then echo "::notice title=postgres:19.0-alpine was rebuilt::pinned $pinned, the tag now points to $want — repin"; fi
           cp .env.test.example .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml config --quiet
+          cp services/support-pro/.env.example services/support-pro/.env
+          python3 scripts/ci/check-compose-profiles.py
       - name: Prometheus alert rules
         # v28.75.0: the alert rules are checked and unit-tested with promtool (the image of the infrastructure/monitoring stack).
         run: |

@@ -14,7 +14,7 @@
 | Зависимость | Переменные | Без неё |
 | --- | --- | --- |
 | PostgreSQL 19.0 | `DATABASE_URL`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Backend не стартует |
-| Redis 7.4 | `REDIS_URL` | `/health/ready` → `redis: false`, фоновые блокировки не работают |
+| Redis 8.10 | `REDIS_URL` | `/health/ready` → `redis: false`, фоновые блокировки не работают |
 | Секрет приложения | `APP_SECRET` | Сессии не подписываются, старт отклоняется |
 | Медиа-каталог | `MEDIA_DIR` | Ошибка `StaticFiles` при импорте |
 
@@ -30,6 +30,15 @@
 
 Источник образа: [Docker Official Image](https://hub.docker.com/_/postgres). Лицензия PostgreSQL —
 [PostgreSQL License](https://www.postgresql.org/about/licence/).
+
+В CI `python3 scripts/ci/check-compose-profiles.py` проверяет состав сервисов во всех
+комбинациях профилей. Магазин и интеграционная конфигурация включают `mail_receiver` через
+`mail` и `backend_standby` через `standby`. У автономного Support Pro сервис `clamav`
+включается через `antivirus`. Проверка рендерит также локальную тестовую конфигурацию.
+Для воспроизведения в чистой рабочей копии подготовьте `.env` и `.env.test` из одноимённых
+шаблонов `.example`, а `support-pro/.env` и `services/support-pro/.env` — из
+`services/support-pro/.env.example`. Проверку готовности запущенных сервисов выполняют
+отдельные контейнерные задания CI.
 
 ## 2. Функциональные (отключаются без ключа)
 
