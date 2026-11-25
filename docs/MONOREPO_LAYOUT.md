@@ -12,8 +12,8 @@
 |---|---|---|---|
 | `apps/vpn-client/android` | бывш. `mobile/android-client` | 1 | **перенесено в v28.149.0** |
 | `apps/vpn-client/ios` | — (клиента iOS нет) | — | не создаётся: пустой модуль |
-| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | бывш. `mobile/android-user`; `mobile/ios-user` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
-| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | бывш. `mobile/android-admin`; `mobile/ios-admin` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
+| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | бывш. `mobile/android-user`; `mobile/ios-user` | 2а / 2б | Android перенесён в v28.151.0, iOS — в v28.152.0 |
+| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | бывш. `mobile/android-admin`; `mobile/ios-admin` | 2а / 2б | Android перенесён в v28.151.0, iOS — в v28.152.0 |
 | `apps/lucy-admin/web` | бывш. `admin` | 3 | **перенесено в v28.153.0** |
 | `apps/user-cabinet` | бывш. `cabinet` | 3 | **перенесено в v28.153.0** |
 | `apps/telegram-mini-app` | бывш. `miniapp` | 3 | **перенесено в v28.153.0** |
@@ -27,7 +27,7 @@
 | `database/migrations` | `services/backend/alembic`, `services/support-pro/alembic` | 5 | вместе с сервисами |
 | `scripts/…`, `tests/…`, `docs/…`, `.github/workflows` | уже на месте | — | без изменений |
 
-Остальное (`browser-extension`, `desktop`, `corgi-cli`, `screenshots`) — в `apps/` на этапе 3, если это действующий код.
+В таблице перечислены перенесённые рабочие компоненты. Исходники бота и страницы статуса находятся в Backend.
 
 ## Порядок и проверка каждого этапа
 
@@ -73,3 +73,16 @@
 
 Перекладка папок по решению № 14 завершена. Не делаются: деление бэкенда на отдельные службы, `database/`, разбивка
 `scripts/` и `tests/` по подпапкам, пакеты общего кода — причины в таблице выше.
+
+## Приёмка адаптированной структуры · REQ-MIG-0018
+
+На 25 ноября 2026 года сборки трёх продуктов используют каталоги `apps/vpn-shop`, `apps/vpn-client` и `apps/lucy-admin`. У каждого Android-приложения есть собственный Gradle-проект и идентификатор пакета. Для магазина и панели присутствуют отдельные проекты Xcode. Веб-панель, кабинет и Mini App имеют собственные команды сборки. Mini App вызывает целевую команду в общем исходном дереве кабинета. Локализации находятся в `packages/localization`. Миграции Alembic принадлежат соответствующим сервисам.
+
+| Что было проверено | Результат |
+| --- | --- |
+| Перенос Backend и Support Pro | PR #351 вошёл в main `cdde0c1e9c5c1a426da54a0e0de225ab027f6891`. На этом SHA после слияния успешно прошли 20/20 заданий основного CI и 3/3 задания упаковки. [Изменение](https://github.com/booarkz-cpu/shop-by-boo/pull/351) · [CI](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/43704223914) · [Пакеты](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/43704223871) |
+| Выпуск после этапа 5 | На SHA тега v28.158.0 `23534b828e68ad311027950cb5f871345a1162f8` основной CI и упаковка прошли 20/20 и 3/3. Опубликованы 33 файла. [Выпуск](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.158.0) · [CI](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/43804867633) · [Пакеты](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/43804867617) |
+| Сохранность независимых сборок | На SHA v28.161.0 `a3d4b19b6842d2c9b3633c19583d4f34fc7e54b8` прошли 20/20 заданий CI и 3/3 упаковки, включая ветку сборки отдельного Android-клиента. В выпуске доступны три разных Android APK и отдельные IPA магазина и панели без подписи для устройств. Зафиксированы 33 файла с SHA-256. [CI](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/44018677795) · [Упаковка](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/44018677797) · [Выпуск](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) |
+| Совместимость после переноса | `tests/test_layout_stage4.py` и `tests/test_layout_stage5.py` проверяют переходники, прежний путь версии, место настроек Support Pro, имена контейнерных сервисов и отдельные точки сборки приложений. |
+
+Для REQ-GOV-0020 отдельно учитываются общие контракты и проверка сохранности установки. REQ-GOV-0076 охватывает также возможность независимого развёртывания бизнес-доменов Backend. Успешная сборка приложений покрывает только соответствующую часть этих требований.

@@ -5,10 +5,37 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 STUB = ROOT / "backend/app/main.py"
 REAL = ROOT / "services/backend/app/main.py"
+
+
+def test_layout_preserves_independent_application_builds():
+    android_ids = set()
+    for product in ("vpn-shop", "vpn-client", "lucy-admin"):
+        project = ROOT / "apps" / product / "android"
+        assert (project / "gradlew").is_file()
+        assert 'include(":app")' in (project / "settings.gradle.kts").read_text()
+        build = (project / "app/build.gradle.kts").read_text()
+        app_id = re.search(r'^\s*applicationId\s*=\s*"([^"]+)"', build, re.MULTILINE)
+        assert app_id, product
+        android_ids.add(app_id.group(1))
+        manifest = ElementTree.parse(project / "app/src/main/AndroidManifest.xml")
+        assert manifest.find("application") is not None
+    assert len(android_ids) == 3
+
+    for product, target in (("vpn-shop", "VpnShopUser"), ("lucy-admin", "VpnShopAdmin")):
+        project = ROOT / "apps" / product / "ios"
+        bundle = (project / f"{target}.xcodeproj/project.pbxproj").read_text()
+        assert f"name = {target};" in bundle
+        assert 'productType = "com.apple.product-type.application"' in bundle
+        assert (project / target / "Info.plist").is_file()
+
+    for path in ("lucy-admin/web", "user-cabinet", "telegram-mini-app"):
+        manifest = json.loads((ROOT / "apps" / path / "package.json").read_text())
+        assert manifest["scripts"]["build"].strip(), path
 
 
 def version_as_an_older_updater_reads_it(path: Path) -> str:
