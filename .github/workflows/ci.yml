@@ -59,6 +59,7 @@ jobs:
             grep -Eq "^[^ ]+ / [^ ]+ ro[, ]" /proc/mounts
             grep -Eq "^CapEff:[[:space:]]+0+$" /proc/self/status
             grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status
+            nginx -v 2>&1 | grep -Fx "nginx version: nginx/1.30.8"
             nginx -t
             nginx
             trap "nginx -s quit" EXIT
