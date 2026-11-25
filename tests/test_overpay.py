@@ -201,3 +201,38 @@ async def test_both_webhook_formats_share_one_settlement_and_recover_an_uncertai
     assert payment.provider_payment_id == checkout["token"] and completed == [pk]
     events = (await database.scalars(select(PaymentProviderEvent))).all()
     assert [(event.event_id, event.status, event.attempts) for event in events] == [("paid:tx-001", "processed", 1)]
+
+
+@pytest.mark.asyncio
+async def test_wallet_checkout_and_duplicate_notification_credit_exactly_once(database, monkeypatch, merchant):
+    from app.models import FinancialLedger, User
+    from test_behaviour_payments_v2 import _checkout_env, checkout
+
+    if database.bind.dialect.name != "postgresql":
+        pytest.skip("production event journal uses PostgreSQL")
+    await _checkout_env(database, monkeypatch, ["overpay"])
+    monkeypatch.setattr(shop, "engine", database.bind)
+    payload = {"amount": "199", "provider": "overpay"}
+    request = checkout([(b"idempotency-key", b"overpay-wallet")])
+    first = await shop.wallet_topup(payload, request, database)
+    assert first["status"] == "pending" and first["id"] == merchant["checkout"]["token"]
+    assert (await shop.wallet_topup(payload, request, database))["id"] == first["id"]
+    created = [req for req in merchant["calls"] if req.method == "POST"]
+    assert len(created) == 1
+    order = json.loads(created[0].content)["checkout"]["order"]
+    merchant["checkout"]["order"] = order
+    raw, headers = merchant["signed"](merchant["checkout"])
+    app = FastAPI()
+    app.include_router(common.router)
+    app.dependency_overrides[get_db] = lambda: database
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://shop.test") as client:
+        for outcome in ("paid", "duplicate"):
+            res = await client.post("/api/webhooks/overpay", content=raw, headers=headers)
+            assert res.json() == {"ok": True, "result": outcome}
+    after = await shop.wallet_topup(payload, request, database)
+    assert after["status"] == "paid" and after["id"] == first["id"]
+    user = await database.get(User, 1, populate_existing=True)
+    assert user.wallet_balance == Decimal("1199")
+    ledger = (await database.execute(select(FinancialLedger.kind, FinancialLedger.amount).order_by(FinancialLedger.id))).all()
+    assert ledger == [("payment", Decimal("199")), ("wallet_topup", Decimal("199"))]
+    assert [r.method for r in merchant["calls"]] == ["POST", "GET", "GET"]
