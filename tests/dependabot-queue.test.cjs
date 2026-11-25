@@ -152,3 +152,19 @@ assert.equal(freshRetry.state.active.attempts, 1);
 assert.equal(freshRetry.state.active.sha, changed.head.sha);
 const freshConflict = observe(rebased.state, [], [{...changed, mergeable_state: 'dirty'}]);
 assert.equal(freshConflict.state.active.conflicts, 1);
+
+ // Deferral actions must use normalized security and creation-time priority.
+const priorityBatch = [
+  pull(10, 'npm', '2026-11-23T08:04:00Z'),
+  pull(20, 'pip', '2026-11-23T08:01:00Z'),
+  pull(30, 'gradle', '2026-11-23T08:05:00Z', {body: 'GHSA-test-1234-5678'}),
+  pull(40, 'docker', '2026-11-23T08:02:00Z', {labels: [{name: 'security'}]}),
+  pull(21, 'npm', '2026-11-23T08:01:00Z'),
+];
+for (const order of [priorityBatch, [...priorityBatch].reverse()]) {
+  const result = plan({openPulls: [human, ...order], state: null, now: monday});
+  assert.equal(result.state.active, null);
+  assert.deepEqual(result.actions.map(action => [action.type, action.number]),
+    [40, 30, 20, 21, 10].map(number => ['close', number]));
+  assert.deepEqual(result.state.deferred.map(item => item.number), [40, 30, 20, 21, 10]);
+}
