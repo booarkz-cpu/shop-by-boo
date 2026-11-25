@@ -20,9 +20,12 @@ def test_migration_table_identifies_both_source_and_published_revisions():
     shop = migration_head()
     table = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
     assert f"| Текущая рабочая ветка main | `{shop}` | `{support}` |" in table
+    support_readme = (ROOT / "services/support-pro/README.md").read_text().split("\n# ", 1)[0]
+    assert f"В рабочей ветке ревизия Alembic — `{support}`" in support_readme
     manifest = json.loads((ROOT / "release-manifest.template.json").read_text())
     if manifest["distribution_tag"] == PUBLISHED_TAG:
         published_row = f"| Опубликованный {PUBLISHED_TAG} | `{manifest['migration_head']}` | `{manifest['support_migration_head']}` |"
         assert published_row in table
+        assert f"В выпуске `{PUBLISHED_TAG}` ревизия Support Pro — `{manifest['support_migration_head']}`" in support_readme
     else:
         assert (manifest["migration_head"], manifest["support_migration_head"]) == (shop, support)

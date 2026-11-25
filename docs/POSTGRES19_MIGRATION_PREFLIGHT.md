@@ -63,3 +63,19 @@ This comparison is not proof that the dump is recoverable. The rollback flag
 checks only the PostgreSQL 18 version marker, not actual recovery. Do not
 resume production traffic until data and application health are verified.
 A failed restore must be investigated without deleting the source volume.
+
+### Verify the application migrations after restore
+
+For each service, restore the PostgreSQL 18 dump into an isolated PostgreSQL 19
+database. Record its `alembic_version` and check representative application
+records against the source. Apply the service's migrations to this database
+and to a separate empty PostgreSQL 19 database. Compare their final revision,
+columns, indexes and constraints. Run `alembic upgrade head` again on the
+restored database and verify that the catalog and the saved records are intact.
+The [revision table](EXTERNAL_DEPENDENCIES.md) identifies the release and working-tree heads.
+
+In the 18.7 to 19.0 rehearsal, PostgreSQL printed the casts in four shop
+`CHECK` constraints differently after restore. The constraints govern ledger
+direction and payout, refund and withdrawal statuses. Compare their behavior
+using the allowed values from the migrations, values outside those lists and
+`NULL`. The Support Pro catalog matched the clean database entry for entry.
