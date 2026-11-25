@@ -148,6 +148,18 @@ def test_single_service_profile_uses_available_default_mapping(tmp_path):
     ]
 
 
+def test_standalone_support_mapping_checks_its_own_volume(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_pgdata18",))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(r"db\nsupport_db\n", r"db\n").replace(
+        "  *) exit 0;;", '  "run --rm --entrypoint cat "*) echo 18;;\n  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:pgdata18:pgdata19:support:support", PG19_ROLLBACK="1")
+    assert run.returncode == 0, run.stderr
+    assert "PostgreSQL 18 volume shop_pgdata18 is intact for rollback" in run.stdout
+    assert all("postgres18_data" not in line for line in log.read_text().splitlines())
+
+
 def test_rollback_flag_checks_the_18_baseline_without_deleting_it(tmp_path):
     bindir, log = _fake(tmp_path, ("shop_postgres18_data",))
     docker = bindir / "docker"
