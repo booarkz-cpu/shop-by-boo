@@ -50,7 +50,13 @@ def require_release_inventory(bom: dict) -> None:
 
 def main(path: Path, release: bool = False) -> None:
     bom = validate_schema(path.read_text(encoding="utf-8"))
-    count = len(bom.get("components", []))
+    # Android applications own their resolved components in the CycloneDX hierarchy.
+    pending = list(bom.get("components", []))
+    count = 0
+    while pending:
+        component = pending.pop()
+        count += 1
+        pending.extend(component.get("components", []))
     if count <= 100:
         raise SystemExit(f"Repository SBOM has only {count} components")
     if release:

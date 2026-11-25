@@ -11,6 +11,29 @@ AAR = Path("/example/shared/libv2ray.aar")
 COMMIT = "a" * 40
 
 
+def test_inventory_summary_counts_nested_components_and_excludes_the_root(tmp_path, capsys):
+    import json
+
+    validator = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+    product = {
+        "type": "application", "name": "mobile", "bom-ref": "mobile",
+        "components": [{"type": "library", "name": f"runtime-{i}"} for i in range(100)],
+    }
+    bom = {
+        "bomFormat": "CycloneDX", "specVersion": "1.7", "version": 1,
+        "metadata": {"component": {"type": "application", "name": "shop"}},
+        "components": [{"type": "application", "name": "distribution", "components": [product]}],
+    }
+    path = tmp_path / "sbom.cdx.json"
+    path.write_text(json.dumps(bom))
+    validator["main"](path)
+    assert "102 components" in capsys.readouterr().out
+    del product["components"][-2:]
+    path.write_text(json.dumps(bom))
+    with pytest.raises(SystemExit, match="only 100 components"):
+        validator["main"](path)
+
+
 def inputs(product="vpn-shop"):
     app = MODULE["PRODUCTS"][product]
     bom = {"bomFormat": "CycloneDX", "specVersion": "1.7",
