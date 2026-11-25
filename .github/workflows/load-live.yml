@@ -28,7 +28,7 @@ jobs:
       PEAK_VUS: ${{ inputs.peak_vus }}
       STEP: ${{ inputs.step }}
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Target is set
         run: test -n "$TARGET" || { echo "::error title=Load live::Add the LOAD_TARGET_URL secret or give a target"; exit 1; }
       - uses: grafana/setup-k6-action@c47136d33d365efbeb9ae7266908b5dcf98cdece # v1
