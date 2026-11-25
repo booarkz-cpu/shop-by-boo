@@ -23,12 +23,13 @@ import os
 from datetime import datetime, timedelta
 
 import httpx
+import yaml
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
-from .rw_plan import IMAGES
+from .provisioner import DOCKER_INSTALL, NODE_IMAGE
 from .security import require_permission
 
 logger = logging.getLogger("vpnshop.autoscale")
@@ -144,14 +145,14 @@ def decide(config: dict, nodes: list[dict], state: dict, now: datetime, cpu: flo
 
 
 def cloud_init(config: dict, secret: str) -> str:
-    secret = secret.replace("'", "")
-    return "\n".join([
-        "#cloud-config",
-        "runcmd:",
-        "  - curl -fsSL https://get.docker.com | sh",
-        f"  - docker run -d --name remnanode --restart always --network host -e NODE_PORT={int(config['node_port'])} "
-        f"-e 'SECRET_KEY={secret}' {IMAGES['node']}",
-    ]) + "\n"
+    # An already installed Docker exits the installer early. Limit that exit to the subshell.
+    bootstrap = f'(\n{DOCKER_INSTALL.rstrip()}\n)\nexec "$@"'
+    command = [
+        "/bin/sh", "-ec", bootstrap, "start-remnanode", "docker", "run", "-d",
+        "--name", "remnanode", "--restart", "always", "--network", "host",
+        "-e", f"NODE_PORT={int(config['node_port'])}", "-e", f"SECRET_KEY={secret}", NODE_IMAGE,
+    ]
+    return "#cloud-config\n" + yaml.safe_dump({"runcmd": [command]}, sort_keys=False)
 
 
 async def _hetzner(method: str, path: str, client: httpx.AsyncClient | None = None, **kwargs) -> dict:

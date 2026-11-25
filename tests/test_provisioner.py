@@ -88,8 +88,8 @@ def _tool(directory: Path, name: str, body: str):
     path.chmod(path.stat().st_mode | stat.S_IEXEC)
 
 
-def _run(tmp_path, os_release: str, fingerprint: str | None, docker_ready: bool = False):
-    """Run DOCKER_INSTALL with fake apt-get, curl, gpg, dpkg and docker; returns (code, stderr, log)."""
+def _run(tmp_path, os_release: str, fingerprint: str | None, docker_ready: bool = False, command=None):
+    """Run the installer or a cloud-init command with the system tools isolated in the test directory."""
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     log = tmp_path / "log"
@@ -98,19 +98,48 @@ def _run(tmp_path, os_release: str, fingerprint: str | None, docker_ready: bool 
     _tool(bin_dir, "curl", f'echo "curl $*" >> "{log}"; while [ "$#" -gt 0 ]; do [ "$1" = "-o" ] && echo key > "$2"; shift; done')
     _tool(bin_dir, "gpg", f'echo "gpg $*" >> "{log}"; case "$*" in *show-keys*) echo "fpr:::::::::{fingerprint or ""}:";; esac')
     ready = "exit 0" if docker_ready else f'[ -f "{tmp_path}/installed" ] && exit 0; exit 1'
-    _tool(bin_dir, "docker", f'echo "docker $*" >> "{log}"; {ready}')
+    _tool(bin_dir, "docker", f'echo "docker $*" >> "{log}"; '
+          f'if [ "$1" = run ]; then printf "%s\\n" "$@" > "{tmp_path}/docker-args"; fi; {ready}')
     release = tmp_path / "os-release"
     release.write_text(os_release)
     env = {"PATH": f"{bin_dir}:/usr/bin:/bin", "OS_RELEASE": str(release), "HOME": str(tmp_path)}
     # The repository list goes to /etc; point it at the temp dir for the test.
-    script = provisioner.DOCKER_INSTALL.replace("/etc/apt/sources.list.d/docker.list", str(tmp_path / "docker.list")) \
+    args = list(command) if command is not None else ["bash", "-c", provisioner.DOCKER_INSTALL]
+    script = args[2].replace("/etc/apt/sources.list.d/docker.list", str(tmp_path / "docker.list")) \
         .replace("/etc/apt/keyrings/docker.gpg", str(tmp_path / "docker.gpg"))
     script = script.replace("docker compose version >/dev/null\n", f'touch "{tmp_path}/installed"; docker compose version >/dev/null\n')
-    proc = subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True, timeout=30)
+    args[2] = script
+    proc = subprocess.run(args, env=env, capture_output=True, text=True, timeout=30)
     return proc.returncode, proc.stderr, log.read_text() if log.exists() else ""
 
 
 needs_bash = pytest.mark.skipif(not shutil.which("bash") or os.name != "posix", reason="needs bash")
+
+
+@needs_bash
+@pytest.mark.parametrize("ready,fingerprint,expected", [
+    (False, provisioner.DOCKER_KEY_FINGERPRINT, 0),
+    (False, "0" * 40, 21),
+    (True, None, 0),
+])
+def test_autoscaled_node_starts_only_with_a_verified_or_existing_docker(tmp_path, ready, fingerprint, expected):
+    import yaml
+    from app import node_autoscale
+
+    key = "fixture with spaces, 'quotes' and $symbols"
+    [command] = yaml.safe_load(node_autoscale.cloud_init({"node_port": 2223}, key))["runcmd"]
+    code, err, log = _run(tmp_path, "ID=ubuntu\nVERSION_CODENAME=noble\n", fingerprint, ready, command)
+    assert code == expected, err
+    captured = tmp_path / "docker-args"
+    if expected:
+        assert "fingerprint mismatch" in err
+        assert not captured.exists() and not (tmp_path / "docker.list").exists()
+    else:
+        args = captured.read_text().splitlines()
+        assert args == command[5:]
+        assert f"SECRET_KEY={key}" in args and "NODE_PORT=2223" in args
+        assert args[-1] == provisioner.NODE_IMAGE
+        assert ("curl " in log) == (not ready)
 
 
 @needs_bash

@@ -1,4 +1,3 @@
-import shlex
 from pathlib import Path
 
 import yaml
@@ -58,8 +57,9 @@ def test_runtime_and_provisioning_use_the_same_pins():
         assert yaml.safe_load(compose)["services"]["remnanode"]["image"] == NODE_IMAGE
 
     cloud_config = yaml.safe_load(node_autoscale.cloud_init({"node_port": 2223}, "test-key"))
-    commands = [shlex.split(cmd) for cmd in cloud_config["runcmd"]]
-    assert [args[-1] for args in commands if args[:2] == ["docker", "run"]] == [NODE_IMAGE]
+    [command] = cloud_config["runcmd"]
+    assert command[4:6] == ["docker", "run"]
+    assert command[-1] == NODE_IMAGE
 
 
 def test_compatibility_matrix_matches_executable_pins():
