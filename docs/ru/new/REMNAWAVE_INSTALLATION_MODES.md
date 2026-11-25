@@ -30,7 +30,7 @@
 | HTTPS | `/opt/remnawave-caddy` | `remnawave-caddy`, сеть хоста | 80, 443 |
 | Нода | `/opt/remnanode` | `remnanode`, сеть хоста | `NODE_PORT` (2222 по умолчанию) |
 
-Файлы строятся по официальным `docker-compose-prod.yml` и `.env.sample` проектов remnawave/backend, remnawave/node и remnawave/subscription-page. Образы закреплены по SHA-256 (`rw_plan.IMAGES`): панель 3.4.8, нода 3.4.4, страница подписки 8.0.1, PostgreSQL 18.4, Valkey 9.1.3, Caddy 2.11. Digest читает CI (`.github/workflows/resolve-image-digests.yml`), живой тест запускает именно эти образы.
+Мастер строит файлы по официальным `docker-compose-prod.yml` и `.env.sample` панели, ноды и страницы подписки. Версии этих трёх компонентов, исходные коммиты и SHA-256 образов приведены в [матрице совместимости Remnawave](REMNAWAVE_COMPATIBILITY.md). Образы PostgreSQL, Valkey и Caddy для установки панели задаёт `IMAGES` в [плане установки](../../../services/backend/app/rw_plan.py).
 
 Caddy ставится только на сервер Remnawave и только если порты 80 и 443 свободны или заняты прежней установкой мастера. Общий Caddy магазина (`infrastructure/reverse-proxy/Caddyfile`) и `sub_proxy` не меняются; второго прокси рядом с ними мастер не ставит.
 

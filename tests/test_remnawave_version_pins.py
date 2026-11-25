@@ -68,6 +68,8 @@ def test_invalid_node_settings_stop_before_cloud_init_is_built(port, secret):
 
 def test_compatibility_matrix_matches_executable_pins():
     matrix = read("docs/ru/new/REMNAWAVE_COMPATIBILITY.md")
+    modes = read("docs/ru/new/REMNAWAVE_INSTALLATION_MODES.md")
+    assert "](REMNAWAVE_COMPATIBILITY.md)" in modes
     architecture = read("docs/ru/new/REMNAWAVE_ARCHITECTURE.md")
     api = read("docs/ru/new/REMNAWAVE_API_DESIGN.md")
     for value in (
