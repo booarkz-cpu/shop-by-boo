@@ -10,6 +10,7 @@ const {requireVerifiedMain} = require('../scripts/release-gate.cjs');
 const SHA = 'a'.repeat(40), TAG = 'v28.34.0';
 const ARTIFACT = 'remnawave_vpn_shop_v28_34_0_full_release.zip';
 const MANIFEST = ARTIFACT.replace('.zip', '_manifest.json');
+const SBOM = ARTIFACT.replace('.zip', '.cdx.json');
 const digest = data => 'sha256:' + crypto.createHash('sha256').update(data).digest('hex');
 const notFound = () => Object.assign(new Error('Not found'), {status: 404});
 
@@ -34,6 +35,7 @@ for (const event of ['push', 'workflow_dispatch']) {
     await requireVerifiedMain(args);
     assert.equal(state.outputs.ready, 'true');
     assert.equal(state.outputs.ci_run, state.runs['ci.yml'][0].html_url);
+    assert.equal(state.outputs.ci_run_id, state.runs['ci.yml'][0].id);
   });
 }
 
@@ -42,6 +44,14 @@ test('release gate accepts a push and a dispatched check of the same main commit
   state.runs['ci.yml'][0].event = 'push';
   await requireVerifiedMain(args);
   assert.equal(state.outputs.ready, 'true');
+});
+
+test('a CI run without an artifact source ID cannot open the release gate', async () => {
+  const {args, state} = gateFixture();
+  delete state.runs['ci.yml'][0].id;
+  await requireVerifiedMain(args);
+  assert.equal(state.outputs.ready, 'false');
+  assert.equal(state.outputs.ci_run_id, undefined);
 });
 
 for (const change of [
@@ -57,6 +67,7 @@ for (const change of [
     await requireVerifiedMain(args);
     assert.equal(state.outputs.ready, 'false');
     assert.equal(state.outputs.ci_run, undefined);
+    assert.equal(state.outputs.ci_run_id, undefined);
   });
 }
 
@@ -96,7 +107,10 @@ function fixture(t) {
   fs.writeFileSync(path.join(root, 'release-manifest.template.json'), JSON.stringify(template));
   fs.writeFileSync(path.join(root, ARTIFACT), zip);
   fs.writeFileSync(path.join(root, ARTIFACT + '.sha256'), `${sha256}  ${ARTIFACT}\n`);
-  fs.writeFileSync(path.join(root, MANIFEST), JSON.stringify({...template, commit: SHA, sha256}));
+  const bom = Buffer.from(JSON.stringify({bomFormat: 'CycloneDX', specVersion: '1.7', components: [{name: 'test', type: 'library'}]}));
+  fs.writeFileSync(path.join(root, SBOM), bom);
+  fs.writeFileSync(path.join(root, MANIFEST), JSON.stringify({...template, commit: SHA, sha256,
+    sbom: {name: SBOM, size: bom.length, sha256: digest(bom).slice(7)}}));
   fs.writeFileSync(path.join(root, 'notes.md'), 'Release notes');
   const state = {main: SHA, ref: null, release: null, uploads: 0, publications: 0, dispatches: 0,
     badUpload: false, moveOnUpload: false};
@@ -113,16 +127,17 @@ function fixture(t) {
         state.release = {id: 1, html_url: 'https://github.com/test/releases/tag/' + TAG, draft: true, assets: []};
         return {data: state.release};
       },
-      uploadReleaseAsset: async ({name, data}) => {
+      uploadReleaseAsset: async ({name, data, headers}) => {
         state.uploads++;
         assert.equal(state.release.draft, true);
+        if (name === SBOM) assert.equal(headers['content-type'], 'application/vnd.cyclonedx+json');
         const asset = {id: state.uploads, name, size: data.length, digest: state.badUpload ? 'sha256:bad' : digest(data)};
         state.release.assets.push(asset);
         if (state.moveOnUpload) state.main = 'b'.repeat(40);
         return {data: asset};
       },
       updateRelease: async args => {
-        assert.equal(state.release.assets.length, 3);
+        assert.equal(state.release.assets.length, 4);
         assert.equal(args.draft, false);
         state.publications++; state.release.draft = false;
         return {data: state.release};
@@ -139,12 +154,12 @@ function fixture(t) {
 
 test('uploads and verifies all files before publishing and dispatches tagged images', async t => {
   const {state,args} = fixture(t); await publish(args);
-  assert.equal(state.uploads,3);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
+  assert.equal(state.uploads,4);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
   assert.equal(state.ref.sha,SHA);assert.equal(state.release.draft,false);
 });
 test('retry preserves existing assets and avoids duplicate publication and dispatch', async t => {
   const {state,args} = fixture(t);await publish(args);await publish(args);
-  assert.equal(state.uploads,3);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
+  assert.equal(state.uploads,4);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
 });
 test('stale main never creates a tag or release', async t => {
   const {state,args} = fixture(t);state.main='b'.repeat(40);
@@ -167,11 +182,32 @@ test('corrupt uploaded bytes leave the release draft', async t => {
 });
 test('published assets are never deleted or replaced on mismatch', async t => {
   const {state,args} = fixture(t);await publish(args);state.release.assets[0].digest='sha256:different';
-  await assert.rejects(publish(args),/refusing to replace/);assert.equal(state.uploads,3);assert.equal(state.publications,1);
+  await assert.rejects(publish(args),/refusing to replace/);assert.equal(state.uploads,4);assert.equal(state.publications,1);
 });
 test('main moving during upload keeps the fully uploaded release draft', async t => {
   const {state,args} = fixture(t);state.moveOnUpload=true;
-  await assert.rejects(publish(args),/moved during publication/);assert.equal(state.uploads,3);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
+  await assert.rejects(publish(args),/moved during publication/);assert.equal(state.uploads,4);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
+});
+
+test('SBOM drift, even at the same size, stops publication before tag creation', async t => {
+  const {state, args} = fixture(t);
+  const file = path.join(args.root, SBOM);
+  const bytes = fs.readFileSync(file);
+  bytes[bytes.length - 1] ^= 1;
+  fs.writeFileSync(file, bytes);
+  await assert.rejects(publish(args), /SBOM does not match/);
+  assert.equal(state.ref, null);
+  assert.equal(state.uploads, 0);
+});
+
+test('the detached manifest cannot select an unrelated SBOM file', async t => {
+  const {state, args} = fixture(t);
+  const file = path.join(args.root, MANIFEST);
+  const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
+  manifest.sbom.name = '../unrelated.json';
+  fs.writeFileSync(file, JSON.stringify(manifest));
+  await assert.rejects(publish(args), /invalid SBOM name/);
+  assert.equal(state.ref, null);
 });
 test('a tag that is not visible right after creation is read again (v28.84.0)', async t => {
   const {state,args} = fixture(t);

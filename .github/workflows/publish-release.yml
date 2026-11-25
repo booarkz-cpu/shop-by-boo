@@ -37,14 +37,25 @@ jobs:
           script: |
             const {requireVerifiedMain} = require('./scripts/release-gate.cjs');
             await requireVerifiedMain({github, context, core});
+      - name: Download the SBOM from the verified CI run
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sbom
+          run-id: ${{ steps.gate.outputs.ci_run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/release-sbom
+          digest-mismatch: error
       - name: Package deterministic distribution
         if: steps.gate.outputs.ready == 'true'
+        env:
+          VERIFIED_CI_URL: ${{ steps.gate.outputs.ci_run }}
         run: |
           python3 scripts/check-current-docs.py
           python3 scripts/audit/check_release_changelog.py
           python3 scripts/audit/requirements_register.py --check
           python3 scripts/audit/check_release_readiness.py --new-release-only
-          python3 scripts/package-distribution.py --ci-run '${{ steps.gate.outputs.ci_run }}'
+          python3 scripts/package-distribution.py --ci-run "$VERIFIED_CI_URL" --sbom "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2757**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2761**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1839,8 +1839,11 @@
 | [scripts/check-external-links.py](../scripts/check-external-links.py) | Эксплуатация и релиз |
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
+| [scripts/ci/android-sbom.gradle](../scripts/ci/android-sbom.gradle) | Эксплуатация и релиз |
+| [scripts/ci/android-sbom.py](../scripts/ci/android-sbom.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/check-licenses.py](../scripts/ci/check-licenses.py) | Эксплуатация и релиз |
+| [scripts/ci/check-sbom.py](../scripts/ci/check-sbom.py) | Эксплуатация и релиз |
 | [scripts/ci/crowdsec-check.sh](../scripts/ci/crowdsec-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
@@ -2461,6 +2464,7 @@
 | [tests/test_admin_ssh_ip.py](../tests/test_admin_ssh_ip.py) | Проверки |
 | [tests/test_admin_stepup.py](../tests/test_admin_stepup.py) | Проверки |
 | [tests/test_admin_web_ticket.py](../tests/test_admin_web_ticket.py) | Проверки |
+| [tests/test_android_sbom.py](../tests/test_android_sbom.py) | Проверки |
 | [tests/test_anti_sharing.py](../tests/test_anti_sharing.py) | Проверки |
 | [tests/test_app_config.py](../tests/test_app_config.py) | Проверки |
 | [tests/test_app_growth.py](../tests/test_app_growth.py) | Проверки |
