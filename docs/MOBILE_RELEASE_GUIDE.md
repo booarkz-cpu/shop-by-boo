@@ -9,6 +9,13 @@ GitHub и реальных скриптов, а не подтверждение 
 
 ## Продукты и версии
 
+В задании `iOS • UI tests` CI проверяет четыре сценария магазина на симуляторе.
+Если XCTest до начала первого сценария сообщает `XCTDaemonErrorDomain Code=18` и
+`Timed out waiting for AX loaded notification`, CI один раз очищает и перезапускает симулятор.
+При ошибке проверки приложения задание завершается с ошибкой. Журналы обеих попыток
+сохраняются в артефакте `xcuitest-results-<run_id>-<run_attempt>`; успешный результат
+включает сводку xcresult с четырьмя выполненными сценариями.
+
 | Продукт | Android | iOS |
 |---|---|---|
 | Магазин | [apps/vpn-shop/android](../apps/vpn-shop/android), package shop.remnawave.user | [apps/vpn-shop/ios](../apps/vpn-shop/ios), VpnShopUser |
