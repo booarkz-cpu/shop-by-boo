@@ -7,6 +7,26 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres19.sh"
 
 
+def test_drill_rejects_swapped_databases_and_corruption_with_unchanged_totals(tmp_path):
+    import sys
+
+    probe = ROOT / "scripts/ci/verify-pg-upgrade-fixture.py"
+    rows = ["db\tsupport\t19", *(f"order\t{i}\tsupport order {i}\t{i}.00" for i in range(1, 1501)),
+            *(f"user\t{i}" for i in range(1, 43))]
+    fixture = tmp_path / "fixture"
+    command = [sys.executable, str(probe), "support", "19", sys.executable, "-c",
+               "import pathlib,sys; sys.stdout.buffer.write(pathlib.Path(sys.argv[1]).read_bytes())", str(fixture)]
+    for first_order, should_match in [
+        ("order\t1\tsupport order 1\t1.00", True),
+        ("order\t1\tvpnshop order 1\t1.00", False),
+        ("order\t1\tchanged\t1.00", False),
+    ]:
+        rows[1] = first_order
+        fixture.write_text("\n".join(rows) + "\n")
+        result = subprocess.run(command, capture_output=True)
+        assert (result.returncode == 0) == should_match, result.stderr
+
+
 def test_password_reader_receives_the_service_as_an_argument():
     for name in ("scripts/upgrade-postgres.sh", "scripts/upgrade-postgres19.sh"):
         text = (ROOT / name).read_text()

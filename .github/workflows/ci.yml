@@ -555,7 +555,7 @@ jobs:
             docker run -d --name "seed-$1" -e POSTGRES_USER="$2" -e POSTGRES_PASSWORD=seed -e POSTGRES_DB="$3" -v "${project}_$1":/var/lib/postgresql/data "$old" >/dev/null
             for i in $(seq 1 60); do docker exec "seed-$1" pg_isready -U "$2" -d "$3" >/dev/null 2>&1 && break; sleep 2; done
             sleep 3
-            docker exec "seed-$1" psql -U "$2" -d "$3" -v ON_ERROR_STOP=1 -c "CREATE TABLE legacy_orders(id serial PRIMARY KEY, note text, paid numeric(12,2)); INSERT INTO legacy_orders(note, paid) SELECT 'order '||g, g FROM generate_series(1,1500) g; CREATE TABLE legacy_users(id int PRIMARY KEY); INSERT INTO legacy_users SELECT generate_series(1,42);"
+            docker exec "seed-$1" psql -U "$2" -d "$3" -v ON_ERROR_STOP=1 -c "CREATE TABLE legacy_orders(id serial PRIMARY KEY, note text, paid numeric(12,2)); INSERT INTO legacy_orders(note, paid) SELECT current_database()||' order '||g, g FROM generate_series(1,1500) g; CREATE TABLE legacy_users(id int PRIMARY KEY); INSERT INTO legacy_users SELECT generate_series(1,42);"
             docker rm -f "seed-$1" >/dev/null
           }
           seed postgres_data vpnshop vpnshop
@@ -567,9 +567,8 @@ jobs:
           grep -q 'db: moved to PostgreSQL 19' "$RUNNER_TEMP/upgrade19.log"
           grep -q 'support_db: moved to PostgreSQL 19' "$RUNNER_TEMP/upgrade19.log"
           docker compose up -d --wait db support_db
-          test "$(docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = "1500|1125750.00"
-          test "$(docker compose exec -T support_db psql -U support -d support -At -c 'SELECT count(*) FROM legacy_users')" = "42"
-          docker compose exec -T db psql -U vpnshop -d vpnshop -At -c 'SHOW server_version' | grep -E '^19\.'
+          python3 scripts/ci/verify-pg-upgrade-fixture.py vpnshop 19 docker compose exec -T db psql -U vpnshop -d vpnshop
+          python3 scripts/ci/verify-pg-upgrade-fixture.py support 19 docker compose exec -T support_db psql -U support -d support
           # A second run is a no-op. PostgreSQL 16 and 18 volumes stay for rollback.
           APP_DIR="$PWD" ROLLBACK_DIR="$RUNNER_TEMP/rollback" bash scripts/upgrade-postgres19.sh | grep -q 'db: already moved to PostgreSQL 19'
           # A stale marker must never certify a missing or wrong destination cluster.
@@ -601,11 +600,23 @@ jobs:
           docker volume inspect "${project}_postgres18_data" >/dev/null
           ls "$RUNNER_TEMP/rollback"/postgres16-db-*.dump
           ls "$RUNNER_TEMP/rollback"/postgres18-db-*.dump
-          # The PostgreSQL 18 volume still answers with the copied rows. Nothing deleted it.
-          docker run -d --name pg18-rollback --network none -v "${project}_postgres18_data":/var/lib/postgresql postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff >/dev/null
-          for i in $(seq 1 60); do docker exec pg18-rollback pg_isready -U vpnshop -d vpnshop >/dev/null 2>&1 && break; sleep 2; done
-          test "$(docker exec pg18-rollback psql -U vpnshop -d vpnshop -At -c 'SELECT count(*) FROM legacy_orders')" = "1500"
-          docker rm -f pg18-rollback >/dev/null
+          # Start each rollback copy on its original major. The retained sources stay read-only.
+          verify_rollback() (
+            volume=$1 user=$2 db=$3
+            cid=$(docker run -d --network none -v "${project}_$volume":/baseline:ro \
+              -e PGDATA=/var/lib/postgresql/18/docker --entrypoint sh \
+              postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff \
+              -ec 'mkdir -p "$PGDATA"; cp -a /baseline/18/docker/. "$PGDATA/"; exec docker-entrypoint.sh postgres')
+            trap 'docker rm -fv "$cid" >/dev/null 2>&1 || true' EXIT
+            for i in $(seq 1 60); do
+              docker exec "$cid" pg_isready -h 127.0.0.1 -U "$user" -d "$db" >/dev/null 2>&1 && break
+              sleep 2
+            done
+            docker exec "$cid" pg_isready -h 127.0.0.1 -U "$user" -d "$db"
+            python3 scripts/ci/verify-pg-upgrade-fixture.py "$db" 18 docker exec -i "$cid" psql -U "$user" -d "$db"
+          )
+          verify_rollback postgres18_data vpnshop vpnshop
+          verify_rollback support_postgres18_data support support
           # Restore both retained dumps into independent disposable PostgreSQL 19 clusters.
           shopt -s nullglob
           verify_backup() (
@@ -621,9 +632,7 @@ jobs:
             done
             docker exec "$cid" pg_isready -h 127.0.0.1 -U "$user" -d "$db"
             docker exec -i "$cid" pg_restore -U "$user" -d "$db" --no-owner --single-transaction --exit-on-error < "${backups[0]}"
-            test "$(docker exec "$cid" psql -U "$user" -d "$db" -v ON_ERROR_STOP=1 -At -c 'SELECT count(*), sum(paid) FROM legacy_orders')" = '1500|1125750.00'
-            test "$(docker exec "$cid" psql -U "$user" -d "$db" -v ON_ERROR_STOP=1 -At -c 'SELECT count(*) FROM legacy_users')" = '42'
-            docker exec "$cid" psql -U "$user" -d "$db" -v ON_ERROR_STOP=1 -At -c 'SHOW server_version' | grep -E '^19\.'
+            python3 scripts/ci/verify-pg-upgrade-fixture.py "$db" 19 docker exec -i "$cid" psql -U "$user" -d "$db"
           )
           verify_backup db vpnshop vpnshop
           verify_backup support_db support support
