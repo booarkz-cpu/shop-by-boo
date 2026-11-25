@@ -668,6 +668,24 @@ jobs:
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.trivyignore:/.trivyignore:ro" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
               image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /.trivyignore --exit-code 1 "$image"
           done
+      - name: Exercise the mail and standby profiles
+        env:
+          MAIL_RECEIVER_PUBLISH: "127.0.0.1:"
+        run: |
+          profiles=(docker compose --profile mail --profile standby)
+          "${profiles[@]}" up -d --build --wait --wait-timeout 240 mail_receiver backend_standby
+          for service in mail_receiver backend_standby; do
+            cid="$("${profiles[@]}" ps -q "$service")"
+            test "$(docker inspect --format '{{.State.Health.Status}} {{.HostConfig.ReadonlyRootfs}}' "$cid")" = "healthy true"
+            docker exec "$cid" python -c 'import os; assert os.geteuid() == 10001'
+          done
+          "${profiles[@]}" exec -T mail_receiver python - <<'PYMAIL'
+          from smtplib import SMTP
+          with SMTP("127.0.0.1", 2525, timeout=5) as smtp:
+              assert smtp.ehlo()[0] == 250
+          PYMAIL
+          "${profiles[@]}" exec -T backend_standby python -c "from urllib.request import urlopen; assert urlopen('http://127.0.0.1:8000/health', timeout=5).status == 200"
+          "${profiles[@]}" rm --stop --force mail_receiver backend_standby
       - name: Restore drill (copy, total loss, restore, same data)
         # Stage 19, C2: scripts/backup.sh → every volume and .env lost → the copy alone brings back every table,
         # the customer's subscription and payment, the administrator's sign-in and the files.
@@ -684,7 +702,7 @@ jobs:
           done
       - name: Stop isolated services
         if: always()
-        run: docker compose down -v
+        run: docker compose --profile mail --profile standby down -v
 
   android:
     name: Android • ${{ matrix.app }} PKCE build
