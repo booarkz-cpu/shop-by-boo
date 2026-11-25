@@ -553,10 +553,11 @@ jobs:
         timeout-minutes: 20
         run: bash scripts/integration-test.sh tests/test_schema_matches_migrations.py tests/test_integration_billing_vpn.py
       - name: Prometheus alert rules
-        # v28.75.0: the alert rules are checked and unit-tested with promtool (the image of the infrastructure/monitoring stack).
+        env:
+          PROMTOOL_IMAGE: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
         run: |
-          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" --entrypoint promtool prom/prometheus:v3.5.0 check rules /rules/vpnshop-alerts.yml
-          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" -w /rules --entrypoint promtool prom/prometheus:v3.5.0 test rules vpnshop-alerts.test.yml
+          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" --entrypoint promtool "$PROMTOOL_IMAGE" check rules /rules/vpnshop-alerts.yml
+          docker run --rm -v "$PWD/infrastructure/monitoring/prometheus:/rules:ro" -w /rules --entrypoint promtool "$PROMTOOL_IMAGE" test rules vpnshop-alerts.test.yml
 
   containers:
     name: Containers • non-root startup and Redis authentication

@@ -82,6 +82,15 @@
 В указанном снимке тег `nginx:stable-alpine` у автономного Support Pro закреплён на nginx 1.30.5. Проверенный индекс для перехода на 1.30.8 — `8eb04fe3b385090e9aa02961f77398ad09b6bf33ab07f6669a5bb7acce22c0d3`. Образы трёх веб-приложений используют отдельное закрепление. [Изменение Support Pro](https://github.com/booarkz-cpu/shop-by-boo/pull/470) · [Лицензия nginx 1.30.8](https://github.com/nginx/nginx/blob/release-1.30.8/LICENSE).
 
 
+### Образы инструментов сборки и CI
+
+Оба тега закреплены по SHA-256 OCI-индекса. Для каждого проверены манифесты и конфигурации linux/amd64 и linux/arm64.
+
+| Использование | Версия программы | SHA-256 OCI-индекса | Лицензия программы |
+| --- | --- | --- | --- |
+| Компиляция входного прокси Caddy | Go 1.27.4, Alpine | `70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280` | [BSD-3-Clause](https://github.com/golang/go/blob/go1.27.4/LICENSE) |
+| Проверка и тестирование правил оповещения | Prometheus promtool 3.5.0 | `63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996` | [Apache-2.0](https://github.com/prometheus/prometheus/blob/v3.5.0/LICENSE) |
+
 ### Схемы баз данных
 
 | Источник | Магазин | Support Pro |
