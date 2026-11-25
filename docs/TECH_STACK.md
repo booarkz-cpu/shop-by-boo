@@ -64,12 +64,13 @@
 
 | Платформа | Стек | Каталоги |
 | --- | --- | --- |
-| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
-| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
-| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
-| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `apps/lucy-admin/ios` |
+| VPN Shop Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Corgi Lucy Client Android 1.10.1 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
+| Lucy Admin Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
+| VPN Shop iOS 3.9.0 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| Lucy Admin iOS 3.9.0 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
 
-Версия приложений — **3.8.0** (`versionName`, `MARKETING_VERSION`).
+Три Android-приложения используют AGP 9.5.2, Gradle 9.9.2 и Compose BOM 2026.11.01. Они собираются с API 37.1, минимальный API — 26, целевой — 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
 
 ## Данные и инфраструктура

@@ -1,5 +1,6 @@
 """The Android runtime preflight retries a repository miss and still fails a real one."""
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -9,6 +10,13 @@ import pytest
 WARM = Path(__file__).resolve().parents[1] / "scripts/ci/gradle-warm.sh"
 TASK = ":app:processDebugNavigationResources"
 MIRROR = "https://maven-central.storage-download.googleapis.com/maven2/"
+
+
+@pytest.mark.parametrize("project", ["vpn-shop", "vpn-client", "lucy-admin"])
+def test_distribution_checksum_is_configured(project):
+    wrapper = WARM.parents[2] / "apps" / project / "android/gradle/wrapper/gradle-wrapper.properties"
+    entries = dict(line.split("=", 1) for line in wrapper.read_text().splitlines() if "=" in line)
+    assert re.fullmatch(r"[0-9a-f]{64}", entries.get("distributionSha256Sum", "")), project
 
 
 @pytest.fixture
