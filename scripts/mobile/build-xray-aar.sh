@@ -10,7 +10,8 @@
 # the LGPL requires; its sources are the pinned commit below.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REPO="https://github.com/2dust/AndroidLibXrayLite"
+MODULE="github.com/2dust/AndroidLibXrayLite"
+REPO="https://$MODULE"
 COMMIT="${XRAY_AAR_COMMIT:-b5a377087e74eaa34e86718710b04c50f4b767f5}"
 MOBILE_VERSION="v0.0.0-20261011034528-197770444867"
 OUT="$ROOT/apps/vpn-shop/android/app/libs"
@@ -35,9 +36,22 @@ export PATH="$(go env GOPATH)/bin:$PATH"
 go install "golang.org/x/mobile/cmd/gomobile@${MOBILE_VERSION}"
 go install "golang.org/x/mobile/cmd/gobind@${MOBILE_VERSION}"
 gomobile init
-go mod download
-gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar ./
-python3 "$CHECK" stamp "$COMMIT" libv2ray.aar
+# gomobile records a local module replacement when binding "./". Link the same
+# verified wrapper as a versioned dependency so checkout paths stay out of ELF.
+BIND=$(mktemp -d "${RUNNER_TEMP:-/tmp}/xray-bind.XXXXXX")
+trap 'rm -rf -- "$BIND"' EXIT
+export GOWORK=off
+go mod edit -json > "$BIND/upstream.json"
+go mod download -json "$MODULE@$COMMIT" > "$BIND/module.json"
+VERSION=$(python3 "$CHECK" module-version "$COMMIT" "$BIND/module.json" "$BIND/upstream.json")
+cp go.mod go.sum "$BIND/"
+cd "$BIND"
+go mod edit -module=example.invalid/corgi-android-binding -require="$MODULE@$VERSION"
+go mod download "$MODULE"
+SELECTED=$(go list -m -f '{{if .Replace}}replaced{{else}}{{.Version}}{{end}}' "$MODULE")
+[[ "$SELECTED" == "$VERSION" ]] || { echo "Go selected another Android wrapper version" >&2; exit 1; }
+gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar "$MODULE"
+python3 "$CHECK" stamp "$COMMIT" libv2ray.aar --module-info "$BIND/module.json"
 mkdir -p "$OUT"
 cp libv2ray.aar "$OUT/libv2ray.aar"
 sha256sum "$OUT/libv2ray.aar"

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Record the source commit in the AAR and verify the actual JNI payload of assembled APKs."""
 import argparse
+import json
 import hashlib
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 from zipfile import BadZipFile, ZipFile, ZipInfo, is_zipfile
 
@@ -15,6 +19,42 @@ def revision(text: str) -> bytes:
     if not re.fullmatch("[0-9a-f]{40}", text):
         raise ValueError("expected a full lowercase source commit")
     return (text + "\n").encode("ascii")
+
+
+def module_version(info: dict, commit: str) -> str:
+    revision(commit)
+    name = "github.com/2dust/AndroidLibXrayLite"
+    origin = info.get("Origin") or {}
+    version = info.get("Version", "")
+    if (info.get("Path") != name or origin.get("VCS") != "git" or origin.get("URL") != f"https://{name}"
+            or origin.get("Hash") != commit or not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.+-]+)?", version)
+            or not re.fullmatch(r"h1:[A-Za-z0-9+/]{43}=", info.get("Sum", ""))):
+        raise ValueError("Go module does not identify the pinned Android wrapper and checksum")
+    return version
+
+
+def check_replacements(mod: dict) -> None:
+    for entry in mod.get("Replace") or []:
+        if entry["Old"]["Path"] == "github.com/2dust/AndroidLibXrayLite" or not entry["New"].get("Version"):
+            raise ValueError("Go module replacement would substitute the wrapper or embed a local path")
+
+
+def check_linked_module(build: dict, info: dict) -> None:
+    wrappers = [dep for dep in build.get("Deps", []) if dep.get("Path") == info["Path"]]
+    if (len(wrappers) != 1 or wrappers[0].get("Replace") or wrappers[0].get("Version") != info["Version"]
+            or wrappers[0].get("Sum") != info["Sum"]):
+        raise ValueError("ELF linked wrapper differs from the resolved version and checksum")
+
+
+def check_native_metadata(aar: Path, commit: str, info: dict) -> None:
+    module_version(info, commit)
+    with ZipFile(aar) as archive, tempfile.TemporaryDirectory() as directory:
+        elf = Path(directory) / "libgojni.so"
+        for abi in ABIS:
+            with archive.open(f"jni/{abi}/libgojni.so") as src, elf.open("wb") as dst:
+                shutil.copyfileobj(src, dst)
+            build = json.loads(subprocess.check_output(["go", "version", "-m", "-json", str(elf)], text=True))
+            check_linked_module(build, info)
 
 
 def stamp(aar: Path, commit: str) -> None:
@@ -65,19 +105,31 @@ def verify(aar: Path, apks: list[Path], commit: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("stamp", "verify"))
-    parser.add_argument("commit")
-    parser.add_argument("aar", type=Path)
-    parser.add_argument("apks", nargs="*", type=Path)
+    commands = parser.add_subparsers(dest="action", required=True)
+    for action in ("stamp", "verify", "module-version"):
+        cmd = commands.add_parser(action)
+        cmd.add_argument("commit")
+        if action == "module-version":
+            cmd.add_argument("metadata", type=Path)
+            cmd.add_argument("modfile", type=Path)
+        else:
+            cmd.add_argument("aar", type=Path)
+            if action == "stamp":
+                cmd.add_argument("--module-info", type=Path)
+            if action == "verify":
+                cmd.add_argument("apks", nargs="+", type=Path)
     args = parser.parse_args()
-    if (args.action == "verify") != bool(args.apks):
-        parser.error("verify requires at least one APK; stamp accepts only the AAR")
     try:
         if args.action == "stamp":
+            if args.module_info:
+                check_native_metadata(args.aar, args.commit, json.loads(args.module_info.read_text()))
             stamp(args.aar, args.commit)
-        else:
+        elif args.action == "verify":
             verify(args.aar, args.apks, args.commit)
-    except (OSError, ValueError, BadZipFile) as error:
+        else:
+            check_replacements(json.loads(args.modfile.read_text()))
+            print(module_version(json.loads(args.metadata.read_text()), args.commit))
+    except (OSError, KeyError, ValueError, BadZipFile, subprocess.CalledProcessError) as error:
         parser.exit(1, f"{error}\n")
 
 
