@@ -259,12 +259,13 @@ const workflowScript = workflow.split('          script: |\n')[1];
 assert.ok(workflowScript);
 const intake = new AsyncFunction('github', 'context', 'core', 'require', 'process', 'Date', workflowScript);
 
-function queueApi() {
-  let state = {schema: 1, active: null, deferred: [], history: []};
+function queueApi(initialState) {
+  let state = initialState || {schema: 1, active: null, deferred: [], history: []};
   let blob;
   const writes = [];
   const posts = [];
-  const mock = {runs: [ciFor(candidate)], detail: candidate, checks: badChecks, now: monday};
+  const mock = {runs: [ciFor(candidate)], detail: candidate, checks: badChecks, now: monday,
+    open: [candidate], closed: new Map(), reopenNumbers: [], comments: []};
   function commitState() {
     if (mock.failSavePhase && blob.active?.retry?.phase === mock.failSavePhase) throw new Error('ref update failed');
     state = structuredClone(blob);
@@ -282,7 +283,28 @@ function queueApi() {
       createCommit: async () => ({data: {sha: 'commit'}}),
       updateRef: async () => commitState(),
     },
-    pulls: {list: () => {}, get: async () => ({data: state.active?.retry && mock.dispatchDetail || mock.detail})},
+    pulls: {
+      list: async () => ({data: mock.freshOpen || mock.open}),
+      get: async ({pull_number}) => {
+        if (mock.readAfterPatchError && mock.reopenNumbers.includes(pull_number)) throw mock.readAfterPatchError;
+        return {data: mock.closed.get(pull_number) || (state.active?.retry && mock.dispatchDetail) || mock.detail};
+      },
+      update: async ({pull_number, state: to}) => {
+        assert.equal(to, 'open');
+        assert.equal(state.active.number, pull_number, 'save the candidate before requesting reopen');
+        mock.reopenNumbers.push(pull_number);
+        const pr = mock.closed.get(pull_number);
+        if (mock.applyReopen !== false) {
+          mock.closed.delete(pull_number);
+          mock.open.push({...pr, state: 'open'});
+          mock.detail = mock.open.at(-1);
+        }
+        if (mock.mergedDuringReopen) mock.closed.set(pull_number, {...pr, state: 'closed', merged: true});
+        if (mock.reopenError) throw mock.reopenError;
+        return {data: mock.detail};
+      },
+    },
+    issues: {createComment: async ({issue_number, body}) => { mock.comments.push({issue_number, body}); }},
     checks: {listForRef: () => {}},
     actions: {listWorkflowRuns: () => {}, reRunWorkflowFailedJobs: async args => {
       assert.deepEqual(args, {...repo, run_id: state.active.retry.runId});
@@ -292,7 +314,7 @@ function queueApi() {
       return {status: 201};
     }},
   }, paginate: async (method, args) => {
-    if (method === github.rest.pulls.list) return [candidate];
+    if (method === github.rest.pulls.list) return mock.open;
     if (method === github.rest.checks.listForRef) return mock.checks;
     assert.equal(method, github.rest.actions.listWorkflowRuns);
     assert.deepEqual(args, {...repo, workflow_id: 'ci.yml', event: 'pull_request', branch: candidate.head.ref, head_sha: candidate.head.sha, per_page: 100});
@@ -300,9 +322,9 @@ function queueApi() {
     return state.active?.retry && mock.dispatchRuns || mock.runs;
   }};
   const workspace = path.resolve(__dirname, '..');
-  const clock = class extends Date { constructor() { super(mock.now); } };
+  const clock = class extends Date { constructor(...args) { super(...(args.length ? args : [mock.now])); } };
   return {mock, writes, posts, state: () => state, run: () =>
-    intake(github, {repo}, {info() {}}, require, {env: {GITHUB_WORKSPACE: workspace}}, clock)};
+    intake(github, {repo}, {info() {}, warning() {}}, require, {env: {GITHUB_WORKSPACE: workspace}}, clock)};
 }
 
 test('POST acceptance waits for a later run attempt and survives repeated observations', async () => {
@@ -410,4 +432,101 @@ test('old observation counts are archived once; conflicts and deferred requests 
   const deferred = observe(retry1.state, [], [human, candidate]);
   const reopened = observe(deferred.state, [], []);
   assert.deepEqual(reopened.state.active.retry, retry1.state.active.retry);
+});
+
+
+function closedQueue() {
+  const waiting = [batch[6], batch[1]];
+  const items = waiting.map(pr => ({...plan({openPulls: [pr], now: monday}).state.active, status: 'waiting'}));
+  const api = queueApi({schema: 2, active: null, deferred: items, history: []});
+  api.mock.open = [];
+  for (const pr of waiting) api.mock.closed.set(pr.number, {...pr, state: 'closed', merged: false});
+  return api;
+}
+
+test('a refused security PR stays recorded while another update can reopen, then regains priority', async () => {
+  const api = closedQueue();
+  api.mock.applyReopen = false;
+  api.mock.reopenError = Object.assign(new Error('validation failed'), {status: 422});
+  await api.run();
+  assert.deepEqual(api.mock.reopenNumbers, [7]);
+  assert.deepEqual(api.mock.comments, []);
+  assert.equal(api.state().active, null);
+  const refused = api.state().deferred.find(row => row.number === 7);
+  assert.equal(refused.security, true);
+  assert.equal(refused.sha, batch[6].head.sha);
+  assert.equal(refused.attempts, 0);
+  assert.ok(Date.parse(refused.reopenAfter) > Date.parse(monday));
+
+  api.mock.now = '2026-11-23T15:00:00Z';
+  delete api.mock.reopenError;
+  delete api.mock.applyReopen;
+  await api.run();
+  assert.deepEqual(api.mock.reopenNumbers, [7, 2]);
+  assert.deepEqual(api.mock.comments.map(c => c.issue_number), [2]);
+  api.mock.closed.set(2, {...api.mock.open.pop(), state: 'closed', merged: true});
+  await api.run();
+  assert.equal(api.state().active, null);
+  api.mock.now = refused.reopenAfter;
+  await api.run();
+  assert.deepEqual(api.mock.reopenNumbers, [7, 2, 7]);
+  assert.deepEqual(api.mock.comments.map(c => c.issue_number), [2, 7]);
+  assert.equal(api.state().deferred.length, 0);
+});
+
+test('reopen reconciles a lost HTTP response and stops when the result is unknown', async () => {
+  const accepted = closedQueue();
+  accepted.mock.reopenError = new Error('lost response');
+  await accepted.run();
+  assert.deepEqual(accepted.mock.reopenNumbers, [7]);
+  assert.deepEqual(accepted.mock.comments.map(c => c.issue_number), [7]);
+  assert.equal(accepted.state().active.number, 7);
+
+  const uncertain = closedQueue();
+  uncertain.mock.applyReopen = false;
+  uncertain.mock.reopenError = Object.assign(new Error('service unavailable'), {status: 503});
+  await assert.rejects(uncertain.run(), /service unavailable/);
+  assert.deepEqual(uncertain.mock.comments, []);
+  assert.equal(uncertain.state().active.number, 7);
+  assert.equal(uncertain.state().deferred.length, 1);
+  delete uncertain.mock.applyReopen;
+  delete uncertain.mock.reopenError;
+  await uncertain.run();
+  assert.deepEqual(uncertain.mock.reopenNumbers, [7, 7]);
+  assert.equal(uncertain.mock.open.length, 1);
+});
+
+test('a newly opened human PR prevents the queued reopen after the queue state was saved', async () => {
+  const api = closedQueue();
+  api.mock.freshOpen = [human];
+  await api.run();
+  assert.deepEqual(api.mock.reopenNumbers, []);
+  assert.deepEqual(api.mock.comments, []);
+  api.mock.open = [human];
+  await api.run();
+  assert.deepEqual(api.state().deferred.map(row => row.number).sort(), [2, 7]);
+});
+
+test('a merged candidate is retired and an unreadable outcome keeps the saved intent', async () => {
+  const merged = closedQueue();
+  merged.mock.applyReopen = false;
+  merged.mock.mergedDuringReopen = true;
+  merged.mock.reopenError = Object.assign(new Error('already merged'), {status: 422});
+  await merged.run();
+  assert.deepEqual(merged.mock.comments, []);
+  delete merged.mock.mergedDuringReopen;
+  delete merged.mock.reopenError;
+  delete merged.mock.applyReopen;
+  await merged.run();
+  assert.equal(merged.state().active.number, 2);
+  assert.deepEqual(merged.state().deferred, []);
+
+  const unreadable = closedQueue();
+  unreadable.mock.applyReopen = false;
+  unreadable.mock.reopenError = Object.assign(new Error('validation failed'), {status: 422});
+  unreadable.mock.readAfterPatchError = new Error('cannot read disposition');
+  await assert.rejects(unreadable.run(), /cannot read disposition/);
+  assert.equal(unreadable.state().active.number, 7);
+  assert.deepEqual(unreadable.mock.comments, []);
+  assert.equal(unreadable.state().deferred[0].number, 2);
 });
