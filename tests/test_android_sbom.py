@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULE = runpy.run_path(str(ROOT / "scripts/ci/android-sbom.py"))
 AAR = Path("/example/shared/libv2ray.aar")
 COMMIT = "a" * 40
+SOURCE_REVISION = "b" * 40
 
 
 def test_inventory_summary_counts_nested_components_and_excludes_the_root(tmp_path, capsys):
@@ -95,12 +96,14 @@ def test_two_apps_cannot_shadow_each_others_gradle_refs():
 
 
 def test_repository_retains_original_components_and_links_all_three_apps(monkeypatch):
-    repo = {"metadata": {"component": {"bom-ref": "root"}}, "components": [{"bom-ref": "web"}],
+    repo = {"metadata": {"component": {"bom-ref": "root", "name": "/temporary/scan/path"}}, "components": [{"bom-ref": "web"}],
             "dependencies": [{"ref": "root", "dependsOn": ["web"]}], "vulnerabilities": [{"id": "example"}]}
     native = [{"type": "file", "bom-ref": MODULE["ENGINE_REF"], "name": "libv2ray.aar"}]
     combine = MODULE["combine"]
     monkeypatch.setitem(combine.__globals__, "engine_inventory", lambda aar, commit: (native, []))
-    output = combine(repo, {p: inputs(p) for p in MODULE["PRODUCTS"]}, AAR, COMMIT)
+    output = combine(repo, {p: inputs(p) for p in MODULE["PRODUCTS"]}, AAR, COMMIT, SOURCE_REVISION)
+    root = output["metadata"]["component"]
+    assert (root["bom-ref"], root["name"], root["version"]) == ("root", "VPN Shop by Corgi Lucy", SOURCE_REVISION)
     refs = {f"corgi:android:{p}:app" for p in MODULE["PRODUCTS"]}
     assert set(output["dependencies"][0]["dependsOn"]) == refs | {"web"}
     assert output["components"][0]["bom-ref"] == "web"
@@ -110,7 +113,7 @@ def test_repository_retains_original_components_and_links_all_three_apps(monkeyp
 
 def test_manifest_requires_all_apps():
     with pytest.raises(ValueError, match="all three"):
-        MODULE["combine"]({}, {"vpn-shop": inputs()}, AAR, COMMIT)
+        MODULE["combine"]({}, {"vpn-shop": inputs()}, AAR, COMMIT, SOURCE_REVISION)
 
 
 def test_pom_licence_names_and_spdx_choices():
@@ -193,7 +196,8 @@ def test_go_source_lookup_rejects_mismatched_provenance(monkeypatch, change, wra
         MODULE["add_go_license_evidence"](component, COMMIT)
 
 
-@pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven"])
+@pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven",
+                                    "wrong-commit", "missing-commit", "scan-path"])
 def test_packaging_requires_all_android_apps_and_native_links(damage):
     validator = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
     shared = MODULE["ENGINE_REF"]
@@ -206,9 +210,10 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
              {"ref": shared, "dependsOn": sorted(abis)}]
     for product in MODULE["PRODUCTS"]:
         links.append({"ref": product, "dependsOn": [product + "-lib"] + ([] if product == "lucy-admin" else [shared])})
-    bom = {"bomFormat": "CycloneDX", "specVersion": "1.7", "metadata": {"component": {"bom-ref": "root"}},
+    root = {"bom-ref": "root", "name": "VPN Shop by Corgi Lucy", "version": SOURCE_REVISION}
+    bom = {"bomFormat": "CycloneDX", "specVersion": "1.7", "metadata": {"component": root},
            "components": apps + files, "dependencies": links}
-    validator["require_release_inventory"](bom)
+    validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
     if damage == "repository-only":
         bom["components"] = files
     elif damage == "detached":
@@ -217,10 +222,16 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
         links[2]["dependsOn"].remove(shared)
     elif damage == "missing-abi":
         links[1]["dependsOn"].pop()
-    else:
+    elif damage == "no-maven":
         apps[0]["components"] = []
+    elif damage == "wrong-commit":
+        root["version"] = "c" * 40
+    elif damage == "missing-commit":
+        del root["version"]
+    else:
+        root["name"] = "/src"
     with pytest.raises(ValueError):
-        validator["require_release_inventory"](bom)
+        validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
 def test_versioned_wrapper_checks_the_commit_query_and_linked_module_version(monkeypatch):

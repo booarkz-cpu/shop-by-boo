@@ -243,14 +243,15 @@ def android_graph(product, bom, model, aar):
     return app, [{"ref": ref, "dependsOn": sorted(children)} for ref, children in sorted(graph.items())]
 
 
-def combine(repo, inputs, aar, commit):
+def combine(repo, inputs, aar, wrapper_revision, source_revision):
     if set(inputs) != set(PRODUCTS):
         raise ValueError("Expected release SBOMs for all three Android products")
-    root = repo["metadata"]["component"]["bom-ref"]
-    root_edges = [row for row in repo["dependencies"] if row["ref"] == root]
+    root = repo["metadata"]["component"]
+    root_edges = [row for row in repo["dependencies"] if row["ref"] == root["bom-ref"]]
     if len(root_edges) != 1:
         raise ValueError("Repository SBOM must identify its root dependency graph")
-    native, native_edges = engine_inventory(aar, commit)
+    native, native_edges = engine_inventory(aar, wrapper_revision)
+    root.update(name=CONTRACT["PROJECT_NAME"], version=source_revision)
     for product, (bom, model) in sorted(inputs.items()):
         app, graph = android_graph(product, bom, model, aar)
         repo["components"].append(app)
@@ -274,7 +275,8 @@ def main():
     for product in PRODUCTS:
         folder = ROOT / "apps" / product / "android/app/build/reports/cyclonedx-direct"
         inputs[product] = (validate_schema((folder / "bom.json").read_text()), json.loads((folder / "resolution.json").read_text()))
-    result = combine(json.loads(args.repository.read_text()), inputs, aar, commit)
+    source_revision = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, text=True).strip()
+    result = combine(json.loads(args.repository.read_text()), inputs, aar, commit, source_revision)
     args.output.write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n")
     for product, (bom, _) in inputs.items():
         print(f"{product}: {len(bom['components'])} Maven components, release dependency graph verified")

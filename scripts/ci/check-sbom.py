@@ -1,11 +1,13 @@
 """Validate repository and release inventories before packaging."""
 import argparse
 import json
+import re
 import runpy
 from pathlib import Path
 
 PRODUCTS = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client", "lucy-admin": "shop.remnawave.admin"}
 ENGINE_REF = "corgi:android:libv2ray.aar"
+PROJECT_NAME = "VPN Shop by Corgi Lucy"
 
 
 def validate_schema(raw: str) -> dict:
@@ -23,12 +25,20 @@ def validate_schema(raw: str) -> dict:
     return bom
 
 
-def require_release_inventory(bom: dict) -> None:
+def require_release_inventory(bom: dict, *, expected_commit: str | None = None) -> None:
     if (bom.get("bomFormat"), bom.get("specVersion")) != ("CycloneDX", "1.7"):
         raise ValueError("Release requires CycloneDX 1.7")
     components = bom.get("components", [])
     links = {row["ref"]: set(row.get("dependsOn", [])) for row in bom.get("dependencies", [])}
-    root = bom.get("metadata", {}).get("component", {}).get("bom-ref")
+    product_root = bom.get("metadata", {}).get("component", {})
+    if product_root.get("name") != PROJECT_NAME:
+        raise ValueError("Release SBOM has the wrong product name")
+    revision = product_root.get("version", "")
+    if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
+        raise ValueError("Release SBOM must identify the source commit")
+    if expected_commit is not None and revision != expected_commit:
+        raise ValueError(f"Release SBOM belongs to {revision}, expected {expected_commit}")
+    root = product_root.get("bom-ref")
     for product, name in PRODUCTS.items():
         apps = [item for item in components if item.get("type") == "application" and item.get("name") == name]
         if len(apps) != 1:

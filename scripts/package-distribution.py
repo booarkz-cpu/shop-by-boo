@@ -26,15 +26,15 @@ def main() -> None:
     detached = artifact.removesuffix(".zip") + "_manifest.json"
     if manifest["artifact"] != artifact or manifest["detached_manifest"] != detached:
         raise SystemExit("Distribution filenames do not match its tag")
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root).decode().strip()
     if args.sbom:
         raw = args.sbom.read_bytes()
         bom = json.loads(raw)
         validate_release = runpy.run_path(str(root / "scripts/ci/check-sbom.py"))["require_release_inventory"]
-        validate_release(bom)
+        validate_release(bom, expected_commit=commit)
         sbom_name = artifact.removesuffix(".zip") + ".cdx.json"
         (root / sbom_name).write_bytes(raw)
         manifest["sbom"] = {"name": sbom_name, "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw)}
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root).decode().strip()
     subprocess.run([sys.executable, str(root / "scripts/package-source.py"), artifact], cwd=root, check=True)
     digest = hashlib.sha256((root / artifact).read_bytes()).hexdigest()
     (root / (artifact + ".sha256")).write_text(f"{digest}  {artifact}\n")
