@@ -39,6 +39,13 @@ and https://www.postgresql.org/docs/current/upgrading.html
 
 ### Non-destructive migration safeguards
 
+For a custom deployment, set `PG19_UPGRADE_SPEC` to a comma-separated list of
+`service:source_volume:destination_volume:database_user:database_name` mappings.
+The upgrade validates the whole list before inspecting volumes or stopping the
+stack. Each service must exist in the selected Compose project and each volume
+name can appear only once across the list. With the default mappings, a
+single-service deployment migrates the service present in its Compose model.
+
 The PostgreSQL 19 migration refuses identical source and destination volumes,
 existing destination relations (including empty tables and migration metadata),
 and insufficient or indeterminate storage capacity. The legacy

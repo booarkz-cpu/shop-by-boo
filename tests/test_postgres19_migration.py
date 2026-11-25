@@ -3,6 +3,8 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres19.sh"
 
@@ -103,6 +105,47 @@ def test_rejects_a_malformed_spec(tmp_path):
     run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:old:new:bad user:db")
     assert run.returncode == 2
     assert "Bad PG19_UPGRADE_SPEC" in run.stderr
+
+
+@pytest.mark.parametrize("second", [
+    "db:old_b:new_b:u:b",             # same service
+    "support_db:old_a:new_b:u:b",     # shared source
+    "support_db:old_b:new_a:u:b",     # shared destination
+    "support_db:new_a:new_b:u:b",     # first destination reused as source
+    "support_db:old_b:old_a:u:b",     # first source reused as destination
+    "support_db:old_b:old_b:u:b",     # one volume in both roles
+    "support_db:old_b:new_b:u:b:",    # unexpected field
+    "support_db:old_b:new_b:bad user:b",
+    "absent:old_b:new_b:u:b",
+    "",                                # trailing comma
+    "\nsupport_db:old_b:new_b:u:b",   # read must not silently truncate the spec
+])
+def test_invalid_second_mapping_rejects_the_whole_upgrade(tmp_path, second):
+    bindir, log = _fake(tmp_path)
+    spec = f"db:old_a:new_a:u:a,{second}"
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC=spec)
+    assert run.returncode == 2, (run.stdout, run.stderr)
+    assert all(command.startswith("compose config") for command in log.read_text().splitlines())
+
+
+def test_explicit_two_service_mapping_visits_both_sources(tmp_path):
+    bindir, log = _fake(tmp_path)
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:old_a:new_a:u:a,support_db:old_b:new_b:u:b")
+    assert run.returncode == 0, run.stderr
+    assert [line for line in log.read_text().splitlines() if line.startswith("volume inspect")] == [
+        "volume inspect shop_old_a", "volume inspect shop_old_b",
+    ]
+
+
+def test_single_service_profile_uses_available_default_mapping(tmp_path):
+    bindir, log = _fake(tmp_path)
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(r"db\nsupport_db\n", r"db\n"))
+    run = _run(tmp_path, bindir)
+    assert run.returncode == 0, run.stderr
+    assert [line for line in log.read_text().splitlines() if line.startswith("volume inspect")] == [
+        "volume inspect shop_postgres18_data",
+    ]
 
 
 def test_rollback_flag_checks_the_18_baseline_without_deleting_it(tmp_path):
