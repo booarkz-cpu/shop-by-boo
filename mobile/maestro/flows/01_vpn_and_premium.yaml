@@ -2,12 +2,11 @@ appId: shop.remnawave.user.preview
 name: VPN screen, tab bar and the plans
 ---
 - launchApp:
-    clearState: true
+    stopApp: true
     arguments:
       corgi_demo: true
       corgi_tab: vpn
       corgi_lang: ru
-# A cold start of a cleared debug build on a CI emulator can take longer than the default wait.
 - extendedWaitUntil:
     visible: "Подключить"
     timeout: 30000

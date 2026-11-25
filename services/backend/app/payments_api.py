@@ -31,6 +31,53 @@ def _checkout_provider(name: str):
     factories={"yookassa":shop.YooKassaProvider,"platega":shop.PlategaProvider,"rollypay":shop.RollyPayProvider,"cryptobot":shop.CryptoBotProvider,"freekassa":shop.FreekassaProvider,**extra_factories(),"sandbox":shop.SandboxProvider}
     return factories[name]()
 
+async def _read_checkout_intent(db: shop.AsyncSession, payment_id: int, result: dict | None = None):
+    """Lock the current intent. If it advanced independently, commit and return its observed state."""
+    row = (await db.execute(
+        shop.select(shop.Payment).where(shop.Payment.id == payment_id)
+        .execution_options(populate_existing=True).with_for_update()
+    )).scalar_one()
+    if row.status in {"creating", "creation_unknown"}:
+        return row, None
+
+    # A verified notification or reconciliation already advanced this payment.
+    if result and str(result["id"]) != row.provider_payment_id:
+        await shop.audit(db, "payment.creation.identifier_mismatch", row.provider, str(row.id))
+    elif result and row.status == "pending" and not row.checkout_url:
+        row.checkout_url = result.get("url")
+    observed = {"id": row.provider_payment_id, "provider": row.provider, "status": row.status,
+                "url": row.checkout_url if row.status == "pending" else None}
+    await db.commit()
+    return row, observed
+
+async def _save_checkout_method(db: shop.AsyncSession, user_id: int, result: dict) -> None:
+    if not result.get("recurring_token") or result.get("status") != "succeeded":
+        return
+    method = (await db.execute(shop.select(shop.AutoRenewMethod).where(
+        shop.AutoRenewMethod.user_id == user_id).with_for_update())).scalar_one_or_none()
+    if method is None:
+        method = shop.AutoRenewMethod(user_id=user_id)
+        db.add(method)
+    method.provider = "yookassa"
+    method.external_token_encrypted = shop.encrypt_secret(str(result["recurring_token"]))
+    method.enabled = True
+    await db.commit()
+
+async def _recover_yookassa_checkout(provider, payment):
+    """Once the key expires, only an authenticated lookup may attach an existing checkout."""
+    created = payment.created_at
+    if created is not None and shop.timedelta(0) <= shop.datetime.utcnow() - created < shop.timedelta(hours=23):
+        return await provider.create(shop.Decimal(str(payment.amount)), payment.order_id,
+                                     f"VPN plan {payment.plan_id}", shop.settings.mini_app_url)
+    found = await provider.find_by_order_id(payment.order_id, created)
+    if found and found.get("id") and (found.get("metadata") or {}).get("order_id") == payment.order_id:
+        amount = found.get("amount") or {}
+        if (amount.get("currency") == payment.currency and shop.Decimal(str(amount.get("value"))) == payment.amount
+                and found.get("status") in {"pending", "waiting_for_capture", "succeeded"}):
+            link = (found.get("confirmation") or {}).get("confirmation_url") if found["status"] == "pending" else None
+            return {"id": found["id"], "url": link, "provider": "yookassa", "status": "pending"}
+    raise RuntimeError("Не удалось сопоставить ранее созданный платёж после истечения окна идемпотентности")
+
 async def _payment_provider_order(db: shop.AsyncSession, requested: str|None, method: str|None=None):
     names=shop.routing_names(shop.payments_sandbox_allowed())
     # Provider health rows are lazily bootstrapped. Serialize that bootstrap so
@@ -172,17 +219,28 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
             lock_key, lock_token=await shop._acquire_redis_lock(lock_key,ttl=300,conflict_message="Payment creation is already in progress")
         except RuntimeError as exc:
             raise shop._lock_conflict(exc, "Payment creation is already in progress") from exc
+        payment_id = existing.id
         try:
-            result=await provider.create(final_amount,existing.order_id,f"VPN plan {existing.plan_id}",shop.settings.mini_app_url)
+            existing, observed = await _read_checkout_intent(db, payment_id)
+            if observed is not None:
+                return observed
+            await db.commit()  # release the row while the gateway answers
+            result = await _recover_yookassa_checkout(provider, existing)
             if not result.get("id"):
                 raise RuntimeError("YooKassa returned no payment ID")
-            existing.provider_payment_id=result["id"]; existing.status="pending"; existing.checkout_url=result.get("url"); await db.commit()
+            existing, observed = await _read_checkout_intent(db, payment_id, result)
+            if observed is not None:
+                return observed
+            await shop.bind_provider_payment_id(db, existing, result["id"])
+            existing.checkout_url=result.get("url"); await db.commit()
             return result
         except Exception as exc:
             await db.rollback()
-            existing=(await db.execute(shop.select(shop.Payment).where(shop.Payment.id==existing.id).with_for_update())).scalar_one()
+            existing, observed = await _read_checkout_intent(db, payment_id)
+            if observed is not None:
+                return observed
             existing.status="creation_unknown"; existing.fulfillment_terminal=True; existing.fulfillment_error=str(exc)[:2000]
-            await shop.audit(db,"payment.creation.uncertain",str(user.id),str(existing.id),{"provider":existing.provider,"error":str(exc)[:500]}); await db.commit()
+            await shop.audit(db,"payment.creation.uncertain",str(existing.user_id),str(existing.id),{"provider":existing.provider,"error":str(exc)[:500]}); await db.commit()
             raise shop.HTTPException(503,"Результат создания платежа не определён. Повторное списание заблокировано; операция будет сверена.")
         finally:
             await shop._release_payment_side_effect_lock(lock_key,lock_token)
@@ -300,6 +358,7 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
             payment_row=shop.Payment(user_id=user.id,subscription_id=target.id,new_subscription=bool(payload.get("new_subscription",False)),plan_id=plan.id,provider=candidate,provider_payment_id=None,order_id=order_id,amount=final_amount,original_amount=base_amount,discount_amount=discount_amount,duration_days_snapshot=snap_days,traffic_limit_gb_snapshot=snap_traffic,device_limit_snapshot=snap_devices,remnawave_profile_id_snapshot=snap_profile,referrer_id_snapshot=user.referred_by_id,referral_terms_snapshot=await shop.referral_snapshot(db,user),promo_code=(promo.code if promo else None),currency=shop.settings.default_currency,status="creating",fulfillment_status="pending",idempotency_key=idem,purpose="subscription",bonus_days=bonus_days,**partner_terms)
             db.add(payment_row)
             await db.flush()
+            payment_id = payment_row.id
             db.add(shop.PaymentRiskAssessment(payment_id=payment_row.id,score=risk_score,decision=risk_decision,signals=risk_signals))
             if reservation: reservation.payment_id=payment_row.id
             await db.commit()
@@ -312,12 +371,18 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
                 if not result.get("id"):
                     raise RuntimeError("Payment provider returned no payment ID")
                 provider_name=candidate; provider=candidate_provider
+                payment_row, observed = await _read_checkout_intent(db, payment_id, result)
+                if observed is not None:
+                    if (candidate == "yookassa" and observed["id"] == str(result["id"])
+                            and observed["status"] in {"pending", "paid", "fulfilled"}):
+                        await _save_checkout_method(db, payment_row.user_id, result)
+                    return observed
                 health=(await db.execute(shop.select(shop.PaymentProviderHealth).where(shop.PaymentProviderHealth.provider==candidate).with_for_update())).scalar_one_or_none()
                 if health:
                     health.success_count += 1; health.failure_count=0; health.last_error=None; health.circuit_open_until=None; health.updated_at=shop.datetime.utcnow()
                 await shop._record_provider_metric(db,candidate,attempt=1,success=1,gross=final_amount)
-                payment_row=(await db.execute(shop.select(shop.Payment).where(shop.Payment.id==payment_row.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
-                payment_row.provider_payment_id=result["id"]; payment_row.checkout_url=result.get("url"); payment_row.fulfillment_terminal=False
+                await shop.bind_provider_payment_id(db, payment_row, result["id"])
+                payment_row.checkout_url=result.get("url")
                 if candidate=="sandbox" and result.get("status")=="succeeded":
                     payment_row.status="pending"; await db.commit()
                     try:
@@ -331,24 +396,20 @@ async def create_payment(payload:dict, request:shop.Request, db:shop.AsyncSessio
             except Exception as exc:
                 last_error=str(exc)[:1000]
                 await db.rollback()
+                payment_row, observed = await _read_checkout_intent(db, payment_id)
+                if observed is not None:
+                    return observed
                 health=(await db.execute(shop.select(shop.PaymentProviderHealth).where(shop.PaymentProviderHealth.provider==candidate).with_for_update())).scalar_one_or_none()
                 if health:
                     health.failure_count += 1; health.last_error=last_error; health.updated_at=shop.datetime.utcnow()
                 await shop._record_provider_metric(db,candidate,attempt=1,failed=1)
                 if health and health.failure_count >= 3: health.circuit_open_until=shop.datetime.utcnow()+shop.timedelta(minutes=5)
-                payment_row=(await db.execute(shop.select(shop.Payment).where(shop.Payment.id==payment_row.id).execution_options(populate_existing=True).with_for_update())).scalar_one()
                 payment_row.status="creation_unknown"; payment_row.fulfillment_terminal=True; payment_row.fulfillment_error=last_error
-                await shop.audit(db,"payment.creation.uncertain",str(user.id),str(payment_row.id),{"provider":candidate,"error":last_error,"fallback_blocked":True})
+                await shop.audit(db,"payment.creation.uncertain",str(payment_row.user_id),str(payment_row.id),{"provider":candidate,"error":last_error,"fallback_blocked":True})
                 await db.commit()
                 raise shop.HTTPException(503,"Результат создания платежа не определён. Повторное списание заблокировано; операция будет сверена.")
-            if result.get("recurring_token") and provider_name == "yookassa" and result.get("status") == "succeeded":
-                existing_method=(await db.execute(shop.select(shop.AutoRenewMethod).where(shop.AutoRenewMethod.user_id==user.id).with_for_update())).scalar_one_or_none()
-                token_enc=shop.encrypt_secret(str(result["recurring_token"]))
-                if existing_method:
-                    existing_method.provider="yookassa"; existing_method.external_token_encrypted=token_enc; existing_method.enabled=True
-                else:
-                    db.add(shop.AutoRenewMethod(user_id=user.id,provider="yookassa",external_token_encrypted=token_enc,enabled=True))
-                await db.commit()
+            if provider_name == "yookassa":
+                await _save_checkout_method(db, payment_row.user_id, result)
             return result
         finally:
             await shop._release_payment_side_effect_lock(lock_key,lock_token)

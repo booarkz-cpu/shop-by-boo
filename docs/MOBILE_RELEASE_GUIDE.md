@@ -10,8 +10,10 @@ GitHub и реальных скриптов, а не подтверждение 
 ## Продукты и версии
 
 В задании `iOS • UI tests` CI проверяет четыре сценария магазина на симуляторе.
-Если XCTest до начала первого сценария сообщает `XCTDaemonErrorDomain Code=18` и
-`Timed out waiting for AX loaded notification`, CI один раз очищает и перезапускает симулятор.
+Если до первого сценария XCTest сообщает `XCTDaemonErrorDomain Code=18` с сообщением
+`Timed out waiting for AX loaded notification` или `XCTFuture Code=1000` с сообщением
+`Timed out while loading Accessibility`, CI один раз очищает и перезапускает симулятор.
+Заданию отведено 65 минут с учётом второго запуска.
 При ошибке проверки приложения задание завершается с ошибкой. Журналы обеих попыток
 сохраняются в артефакте `xcuitest-results-<run_id>-<run_attempt>`; успешный результат
 включает сводку xcresult с четырьмя выполненными сценариями.

@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out the queue script from main
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           sparse-checkout: |
@@ -39,7 +39,7 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const {plan, inspectOpenPulls} = require(`${process.env.GITHUB_WORKSPACE}/scripts/dependabot-queue.cjs`);
+            const {plan, isDependabot, inspectOpenPulls, inspectCiRuns, dispatchRetry} = require(`${process.env.GITHUB_WORKSPACE}/scripts/dependabot-queue.cjs`);
             const {owner, repo} = context.repo;
             const branch = 'automation/dependabot-queue';
             const path = 'docs/dependabot-queue.json';
@@ -76,9 +76,11 @@ jobs:
             const loaded = await load();
             const pulls = await inspectOpenPulls(github, {owner, repo});
             const checksByNumber = {};
-            for (const pull of pulls) {
-              if (pulls.length !== 1 || pull.user.login !== 'dependabot[bot]') continue;
-              checksByNumber[pull.number] = await github.paginate(github.rest.checks.listForRef, {owner, repo, ref: pull.head.sha, per_page: 100});
+            let ciRuns = [];
+            const [candidate] = pulls;
+            if (pulls.length === 1 && isDependabot(candidate) && candidate.mergeable) {
+              checksByNumber[candidate.number] = await github.paginate(github.rest.checks.listForRef, {owner, repo, ref: candidate.head.sha, per_page: 100});
+              ciRuns = await inspectCiRuns(github, {owner, repo}, candidate);
             }
             const mergedNumbers = [];
             const openNumbers = new Set(pulls.map(pull => pull.number));
@@ -92,7 +94,7 @@ jobs:
               if (recorded.data.state !== 'closed') throw new Error(`PR #${number} changed during queue inspection`);
               if (recorded.data.merged) mergedNumbers.push(number);
             }
-            const result = plan({openPulls: pulls, state: loaded.state, checksByNumber, now: new Date().toISOString(), mergedNumbers});
+            const result = plan({openPulls: pulls, state: loaded.state, checksByNumber, ciRuns, now: new Date().toISOString(), mergedNumbers});
             const saved = await store(result.state, loaded.parent);
             core.info(`Queue stored at ${saved}. Actions: ${result.actions.map((item) => item.type + ' #' + item.number).join(', ') || 'none'}`);
             for (const action of result.actions) {
@@ -112,8 +114,10 @@ jobs:
                   await store(result.state, saved);
                 }
               } else if (action.type === 'rerun') {
-                const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: pulls.find((pull) => pull.number === action.number).head.sha, per_page: 20});
-                const failed = runs.find((run) => run.conclusion === 'failure' && run.name === 'Corgi Lusi CI');
-                if (failed) await github.rest.actions.reRunWorkflowFailedJobs({owner, repo, run_id: failed.id});
+                const {retry} = result.state.active;
+                if (await dispatchRetry(github, {owner, repo}, candidate, retry)) {
+                  retry.phase = 'accepted';
+                  await store(result.state, saved);
+                }
               }
             }
