@@ -14,7 +14,7 @@
 | Зависимость | Переменные | Без неё |
 | --- | --- | --- |
 | PostgreSQL 19.0 | `DATABASE_URL`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Backend не стартует |
-| Redis 7.4 | `REDIS_URL` | `/health/ready` → `redis: false`, фоновые блокировки не работают |
+| Redis 8.10 | `REDIS_URL` | `/health/ready` → `redis: false`, фоновые блокировки не работают |
 | Секрет приложения | `APP_SECRET` | Сессии не подписываются, старт отклоняется |
 | Медиа-каталог | `MEDIA_DIR` | Ошибка `StaticFiles` при импорте |
 

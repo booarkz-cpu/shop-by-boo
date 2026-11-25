@@ -31,9 +31,9 @@ flowchart TD
   end
 
   subgraph Data["Данные"]
-    PG[("PostgreSQL 18.6<br/>88 миграций")]
-    RDS[("Redis 7.4<br/>блокировки, кэш")]
-    SupPG[("PostgreSQL<br/>Support Pro, 8 миграций")]
+    PG[("PostgreSQL<br/>магазин")]
+    RDS[("Redis<br/>блокировки, кэш")]
+    SupPG[("PostgreSQL<br/>Support Pro")]
     SupRDS[("Redis<br/>Support Pro")]
     Media[("MEDIA_DIR<br/>баннеры, вложения")]
   end
@@ -118,8 +118,8 @@ flowchart TD
 
 | Хранилище | Что держит | Особенности |
 | --- | --- | --- |
-| PostgreSQL 18.6 | клиенты, подписки, платежи, заказы, настройки | 88 миграций, head `0088_filter_and_regions` |
-| Redis 7.4 | блокировки, идемпотентность, circuit breaker, кэш статусов | с паролем, отдельный инстанс для Support Pro |
+| PostgreSQL 19.0 | клиенты, подписки, платежи, заказы, настройки | Миграций в магазине — 94, head `0094_store_subscriptions`. Миграций в Support Pro — 9, head `0009`. |
+| Redis 8.10 | блокировки, идемпотентность, circuit breaker, кэш статусов | с паролем, отдельный инстанс для Support Pro |
 | MEDIA_DIR | баннеры, аватары, вложения | том, не в git |
 
 ### Внешние системы
