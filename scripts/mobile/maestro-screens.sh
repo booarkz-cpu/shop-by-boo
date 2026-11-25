@@ -8,27 +8,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export PATH="$HOME/.maestro/bin:$PATH"
 command -v maestro >/dev/null || { echo "Maestro is not installed: curl -fsSL https://get.maestro.mobile.dev | bash" >&2; exit 1; }
+# Clearing a running app removes its recent task. On API 34 a delayed task cleanup can kill
+# the next launch. Reset the preview once before Maestro starts; each flow cold-starts its own demo.
+adb shell am force-stop shop.remnawave.user.preview
+adb shell pm clear shop.remnawave.user.preview
 mkdir -p "$ROOT/screenshots/mobile/maestro"
 cd "$ROOT/mobile/maestro"
 REPORT="$ROOT/screenshots/mobile/maestro/report.xml"
 status=0
 # Screenshots of takeScreenshot land in the test output folder.
 maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
-for attempt in 2 3; do
-  [[ $status -eq 0 ]] && break
-  # CI emulators sometimes stall on cold starts («failed to attach»): warm the app up again and give the whole
-  # suite another try (two at most), so a slow emulator does not fail the job while a real regression still does.
-  echo "Maestro failed; warm-up and attempt $attempt" >&2
-  if command -v adb >/dev/null; then
-    bash "$ROOT/scripts/mobile/emulator-quiet.sh" dismiss
-    adb shell am force-stop shop.remnawave.user.preview || true
-    adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true >/dev/null 2>&1 || true
-    sleep 10
-    adb shell am force-stop shop.remnawave.user.preview || true
-  fi
-  status=0
-  maestro test --format junit --output "$REPORT" --test-output-dir "$ROOT/screenshots/mobile/maestro" flows/ || status=$?
-done
 ls -1 "$ROOT/screenshots/mobile/maestro"
 if [[ $status -ne 0 ]] && command -v adb >/dev/null; then
   # What the emulator showed and why: the top activity and crashes reach the run's annotations.

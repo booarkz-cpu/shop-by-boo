@@ -114,10 +114,112 @@ def test_rollback_excludes_secrets_and_has_db_dump():
     assert "pg_dump" not in r or "psql" in r
 
 
-def test_integration_uses_published_port():
-    c = (ROOT / "docker-compose.integration.yml").read_text()
-    t = (ROOT / "scripts/integration-test.sh").read_text()
-    assert '"18000:8000"' in c and "localhost:18000/health" in t
+@pytest.mark.parametrize("scenario", ["success", "partial-start", "existing-volume", "remote-daemon",
+                                      "unscoped-volume", "external-mount", "fixed-subnet"])
+def test_integration_cleanup_is_scoped_to_a_disposable_project(tmp_path, scenario):
+    import json
+    import os
+    import re
+    import shutil
+    import subprocess
+    import sys
+
+    repo = tmp_path / "checkout"
+    repo.mkdir()
+    for name in ("scripts/integration-test.sh", ".env.test.example", "support-pro/README.txt"):
+        target = repo / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / name, target)
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(["git", "-C", str(repo), "-c", "user.email=test@example.test",
+                    "-c", "user.name=Test", "commit", "-qm", "fixture"], check=True)
+    (repo / ".env").write_text("BOT_TOKEN=external-sentinel\n")
+
+    tools = tmp_path / "bin"
+    tools.mkdir()
+    trace, fixture = tmp_path / "calls", tmp_path / "fixture"
+    docker = tools / "docker"
+    docker.write_text(f"""#!{sys.executable}
+import json, os, sys
+from pathlib import Path
+args = sys.argv[1:]
+with open({str(trace)!r}, "a") as out:
+    print(json.dumps([os.getcwd(), args, os.getenv("COMPOSE_PROJECT_NAME"), os.getenv("BOT_TOKEN")]), file=out)
+if args[:2] == ["volume", "ls"] and {scenario!r} == "existing-volume":
+    print("previous-volume")
+if args[0] == "compose" and "config" in args:
+    project = args[args.index("--project-name") + 1]
+    resource = {{"name": project + "_data"}}
+    service = {{"volumes": [{{"type": "bind", "source": os.getcwd()}}]}}
+    net = {{"name": project + "_default"}}
+    if {scenario!r} == "unscoped-volume":
+        resource["name"] = "production_data"
+    if {scenario!r} == "external-mount":
+        service["volumes"][0]["source"] = "/outside"
+    if {scenario!r} == "fixed-subnet":
+        net["ipam"] = {{"config": [{{"subnet": "172.30.84.0/29"}}]}}
+    print(json.dumps({{"name": project, "volumes": {{"data": resource}}, "networks": {{"default": net}},
+                       "services": {{"backend": service}}}}))
+if args[0] == "compose" and "up" in args:
+    model = Path(args[args.index("up") - 1])
+    assert "ipam: !reset" in model.read_text() and "networks: !override" in model.read_text()
+    env_file = Path(args[args.index("--env-file") + 1]).resolve()
+    assert not env_file.is_relative_to(Path.cwd())
+    assert env_file.stat().st_mode & 0o777 == 0o600
+    for placeholder in (Path(".env"), Path("support-pro/.env")):
+        assert placeholder.read_bytes() == b"" and placeholder.stat().st_mode & 0o004
+    Path({str(fixture)!r}).write_bytes(env_file.read_bytes())
+    sys.exit(37 if {scenario!r} == "partial-start" else 0)
+if args[0] == "compose" and "port" in args:
+    print("127.0.0.1:44123")
+""")
+    docker.chmod(0o755)
+    curl = tools / "curl"
+    curl.write_text("#!/bin/sh\nexit 0\n")
+    curl.chmod(0o755)
+    host = "ssh://example.test" if scenario == "remote-daemon" else "unix:///var/run/docker.sock"
+    env = dict(os.environ, PATH=f"{tools}:{os.environ['PATH']}", COMPOSE_PROJECT_NAME="production",
+               BOT_TOKEN="external-sentinel", DATABASE_URL="external-sentinel", DOCKER_HOST=host, TMPDIR=str(tmp_path))
+    result = subprocess.run(["bash", str(repo / "scripts/integration-test.sh")], env=env,
+                            capture_output=True, text=True, timeout=40)
+    assert (repo / ".env").read_text() == "BOT_TOKEN=external-sentinel\n"
+    if scenario == "remote-daemon":
+        assert result.returncode != 0 and not trace.exists()
+        return
+    calls = [json.loads(line) for line in trace.read_text().splitlines()]
+    assert not any(project or token for _, _, project, token in calls)
+    commands = [args for _, args, _, _ in calls if args[0] == "compose"]
+    if scenario == "existing-volume":
+        assert result.returncode != 0 and commands == []
+        return
+    if scenario in {"unscoped-volume", "external-mount", "fixed-subnet"}:
+        assert result.returncode != 0 and len(commands) == 1 and "config" in commands[0]
+        return
+    assert result.returncode == (37 if scenario == "partial-start" else 0), result.stderr
+    projects = {args[args.index("--project-name") + 1] for args in commands}
+    assert len(projects) == 1 and re.fullmatch(r"corgi-integration-[a-f0-9]{32}", projects.pop())
+    assert all(Path(cwd) != repo and not Path(cwd).exists() for cwd, *_ in calls)
+    assert "down" in commands[-1] and "--volumes" in commands[-1]
+    build = next(args for args in commands if "build" in args)
+    assert {"backend", "worker", "integration_tests"} <= set(build[build.index("build") + 1:])
+    assert commands.index(build) < next(i for i, args in enumerate(commands) if "up" in args)
+    assert all("--build" not in args for args in commands if "run" in args)
+    settings = fixture.read_text()
+    values = dict(line.split("=", 1) for line in settings.splitlines() if line and not line.startswith("#"))
+    assert "external-sentinel" not in settings and not any("CHANGE_ME" in value for value in values.values())
+    assert values["PAYMENTS_SANDBOX"] == "true" and values["BOT_TOKEN"] == ""
+
+
+def test_integration_api_is_published_only_on_loopback():
+    import yaml
+
+    spec = yaml.safe_load((ROOT / "docker-compose.integration.yml").read_text())
+    assert spec["services"]["backend"]["ports"] == ["127.0.0.1:${INTEGRATION_API_PORT-18000}:8000"]
+    suite = spec["services"]["integration_tests"]
+    assert suite["read_only"] and suite["volumes"] == [".:/project:ro"]
+    assert suite["environment"]["AUDIT_TEST_DATABASE_URL"].endswith("/integration_pytest")
+    assert suite["command"] == ["tests"]
 
 
 def test_v29_migration_exists():
