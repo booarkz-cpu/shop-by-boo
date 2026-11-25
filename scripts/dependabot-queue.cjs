@@ -8,6 +8,7 @@
 
 const MAX_ATTEMPTS = 2;
 const RETRY_RECHECK_MS = 10 * 60 * 1000;
+const REOPEN_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const ECOSYSTEMS = new Set([
   'pip', 'npm', 'gradle', 'docker', 'docker-compose', 'docker_compose',
   'github-actions', 'github_actions', 'gomod', 'cargo', 'maven', 'nuget',
@@ -148,6 +149,28 @@ async function dispatchRetry(github, repo, pull, retry) {
   return true;
 }
 
+// A human can open a PR after intake. Re-read membership just before changing
+// it. If GitHub loses the PATCH response, the pull detail resolves the outcome.
+async function reopenQueuedPull(github, repo, item) {
+  const {data: open} = await github.rest.pulls.list({...repo, state: 'open', per_page: 1});
+  if (open.length) return 'busy';
+  const target = {...repo, pull_number: item.number};
+  let pull, patchError;
+  try {
+    ({data: pull} = await github.rest.pulls.update({...target, state: 'open'}));
+  } catch (error) {
+    patchError = error;
+    ({data: pull} = await github.rest.pulls.get(target));
+  }
+  if (pull.number !== item.number || !isDependabot(pull) || pull.head.ref !== item.ref) {
+    throw new Error(`Unexpected pull request identity while reopening #${item.number}`);
+  }
+  if (pull.state === 'open') return 'open';
+  if (pull.state === 'closed' && pull.merged === true) return 'merged';
+  if (pull.state === 'closed' && pull.merged === false && patchError?.status === 422) return 'refused';
+  throw patchError || new Error(`Unconfirmed reopen for #${item.number}`);
+}
+
 function loadState(state, now) {
   const current = JSON.parse(JSON.stringify(state || emptyState()));
   if (current.schema === 1) {
@@ -274,13 +297,14 @@ function plan({openPulls, state, checksByNumber, ciRuns = [], now, mergedNumbers
   }
   current.deferred = waiting.filter((item) => !merged.has(item.number)).sort(byPriority);
   if (!keep) {
-    const next = current.deferred.find((item) => item.status === 'waiting');
+    const next = current.deferred.find((item) => item.status === 'waiting' &&
+      (!item.reopenAfter || Date.parse(item.reopenAfter) <= Date.parse(now)));
     if (next) {
       current.active = {...next, status: 'active'};
       current.deferred = current.deferred.filter((item) => item.number !== next.number);
       actions.push({type: 'reopen', number: next.number,
         comment: `This is now the only open update (#${next.number}, ${next.ecosystem}).`});
-      note({action: 'reopen', number: next.number, reason: 'promoted'});
+      note({action: 'reopen-requested', number: next.number, reason: 'promoted'});
     }
   }
   return {state: current, actions};
@@ -288,5 +312,5 @@ function plan({openPulls, state, checksByNumber, ciRuns = [], now, mergedNumbers
 
 module.exports = {
   ECOSYSTEMS, MAX_ATTEMPTS, emptyState, ecosystemOf, isDependabot, isSecurity,
-  plan, checksFailed, inspectOpenPulls, inspectCiRuns, dispatchRetry,
+  plan, checksFailed, inspectOpenPulls, inspectCiRuns, dispatchRetry, reopenQueuedPull, REOPEN_COOLDOWN_MS,
 };
