@@ -7,6 +7,7 @@
  */
 
 const MAX_ATTEMPTS = 2;
+const RETRY_RECHECK_MS = 10 * 60 * 1000;
 const ECOSYSTEMS = new Set([
   'pip', 'npm', 'gradle', 'docker', 'docker-compose', 'docker_compose',
   'github-actions', 'github_actions', 'gomod', 'cargo', 'maven', 'nuget',
@@ -14,7 +15,7 @@ const ECOSYSTEMS = new Set([
 ]);
 
 function emptyState(now) {
-  return {schema: 1, updatedAt: now || null, active: null, deferred: [], history: []};
+  return {schema: 2, updatedAt: now || null, active: null, deferred: [], history: []};
 }
 
 function ecosystemOf(headRef) {
@@ -80,16 +81,95 @@ function checksFailed(checks) {
   return runs.some((run) => !['success', 'skipped', 'neutral'].includes(run.conclusion));
 }
 
-function clone(state) {
-  return JSON.parse(JSON.stringify(state || emptyState()));
+function matchesCiRun(run, pull) {
+  return run.path === '.github/workflows/ci.yml' && run.event === 'pull_request' &&
+    run.head_sha === pull.head.sha && run.head_branch === pull.head.ref &&
+    Boolean(pull.head.repo?.full_name) && run.head_repository?.full_name === pull.head.repo.full_name &&
+    (!run.pull_requests?.length || run.pull_requests.some(pr => pr.number === pull.number));
+}
+
+async function inspectCiRuns(github, repo, pull) {
+  const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+    ...repo, workflow_id: 'ci.yml', event: 'pull_request', branch: pull.head.ref, head_sha: pull.head.sha, per_page: 100,
+  });
+  const matching = runs.filter(run => matchesCiRun(run, pull));
+  for (const run of matching) {
+    if (![run.id, run.run_attempt, run.run_number].every(n => Number.isSafeInteger(n) && n > 0)) {
+      throw new Error(`Missing CI run identity for #${pull.number}`);
+    }
+  }
+  return matching.sort((a, b) => b.run_number - a.run_number);
+}
+
+function failedRun(run) {
+  return run && run.status === 'completed' && run.conclusion === 'failure';
+}
+
+// The ref contains the request before the POST. Only a later GitHub run_attempt
+// confirms execution. A lost POST response can thus be reconciled after restart.
+function planRetry(item, runs, checks, now, note) {
+  const latest = runs[0];
+  const previous = item.retry;
+  if (previous) {
+    const observed = runs.find(run => run.id === previous.runId);
+    if (!latest || (!observed && latest.run_number <= previous.runNumber)) return;
+    if (observed && observed.run_attempt < previous.runAttempt) return;
+    if (previous.phase !== 'confirmed' && observed && observed.run_attempt > previous.runAttempt) {
+      item.attempts++;
+      previous.phase = 'confirmed';
+      note({action: 'retry-confirmed', number: item.number, runId: observed.id, runAttempt: observed.run_attempt});
+    }
+    if (previous.runId === latest.id && latest.run_attempt === previous.runAttempt) {
+      // An accepted POST can precede Actions exposing the next attempt. An
+      // unacknowledged intent is eligible for a guarded replay after a grace period.
+      if (previous.phase !== 'requested' || Date.parse(now) - Date.parse(previous.requestedAt) < RETRY_RECHECK_MS) return;
+    } else if (latest.run_number > previous.runNumber && previous.phase !== 'confirmed') {
+      note({action: 'retry-superseded', number: item.number, runId: previous.runId, runAttempt: previous.runAttempt});
+      delete item.retry;
+    }
+  }
+  if (!failedRun(latest) || !checksFailed(checks)) return;
+  if (item.attempts >= MAX_ATTEMPTS) return 'defer';
+  item.retry = {runId: latest.id, runNumber: latest.run_number, runAttempt: latest.run_attempt, phase: 'requested', requestedAt: now};
+  note({action: 'retry-requested', number: item.number, runId: latest.id, runAttempt: latest.run_attempt});
+  return 'rerun';
+}
+
+async function dispatchRetry(github, repo, pull, retry) {
+  const {data: current} = await github.rest.pulls.get({...repo, pull_number: pull.number});
+  if (current.state !== 'open' || !isDependabot(current) || current.head.sha !== pull.head.sha ||
+      current.base.sha !== pull.base.sha || current.base.ref !== pull.base.ref) {
+    throw new Error(`PR #${pull.number} changed before CI retry`);
+  }
+  const [run] = await inspectCiRuns(github, repo, current);
+  if (!failedRun(run) || run.id !== retry.runId || run.run_attempt !== retry.runAttempt) return false;
+  const response = await github.rest.actions.reRunWorkflowFailedJobs({...repo, run_id: run.id});
+  if (response.status !== 201) throw new Error(`Unexpected CI rerun response ${response.status}`);
+  return true;
+}
+
+function loadState(state, now) {
+  const current = JSON.parse(JSON.stringify(state || emptyState()));
+  if (current.schema === 1) {
+    // The old counter measured observations, including requests that never ran.
+    for (const item of [current.active, ...current.deferred].filter(Boolean)) {
+      if (item.attempts) {
+        current.history.push({at: now, action: 'legacy-retry-count', number: item.number, sha: item.sha, attempts: item.attempts});
+        item.attempts = 0;
+      }
+    }
+    current.schema = 2;
+  }
+  if (current.schema !== 2) throw new Error(`Unknown queue schema: ${current.schema}`);
+  return current;
 }
 
 /**
  * @returns {{state: object, actions: object[]}}
  * actions: close | reopen | rerun | comment. Closing is safe only after the caller stores state.
  */
-function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
-  const current = clone(state);
+function plan({openPulls, state, checksByNumber, ciRuns = [], now, mergedNumbers}) {
+  const current = loadState(state, now);
   const merged = new Set(mergedNumbers || []);
   const previousActive = current.active ? {...current.active} : null;
   current.updatedAt = now;
@@ -104,11 +184,13 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
   function remember(pull, status, extra) {
     const fresh = recordOf(pull);
     const previous = known.get(pull.number);
-    const counters = previous && previous.sha === fresh.sha
-      ? {attempts: previous.attempts || 0, conflicts: previous.conflicts || 0, note: previous.note || ''}
-      : {};
-    const item = {...fresh, ...counters, status, ...extra};
-    return item;
+    if (previous && previous.sha === fresh.sha) {
+      fresh.attempts = previous.attempts || 0;
+      fresh.conflicts = previous.conflicts || 0;
+      fresh.note = previous.note || '';
+      if (previous.retry) fresh.retry = {...previous.retry};
+    }
+    return {...fresh, status, ...extra};
   }
 
   if (others.length) {
@@ -155,20 +237,18 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
         note({action: 'rebase', number: winner.pull.number, reason: 'merge conflict'});
         winner.item = remember(winner.pull, 'active', {conflicts: conflicts + 1});
       }
-    } else if (checksFailed(checks)) {
-      const attempts = (winner.item.attempts || 0) + 1;
-      if (attempts > MAX_ATTEMPTS) {
-        const item = remember(winner.pull, 'failed', {attempts, note: 'checks failed after retries'});
+    } else {
+      const retry = planRetry(winner.item, ciRuns, checks, now, note);
+      if (retry === 'defer') {
+        const item = {...winner.item, status: 'failed', note: 'CI failed after confirmed retries'};
         actions.push({type: 'close', number: winner.pull.number,
-          comment: `Deferred after ${attempts - 1} failed check runs (#${winner.pull.number}). The update stays in the queue.`});
+          comment: `Deferred after ${item.attempts} confirmed CI retries (#${winner.pull.number}). The update stays in the queue.`});
         note({action: 'rollback', number: winner.pull.number, reason: 'checks failed'});
         ranked.shift();
         winner = ranked[0] || null;
         current.deferred = [item, ...(current.deferred || []).filter((row) => row.number !== item.number)];
-      } else {
+      } else if (retry === 'rerun') {
         actions.push({type: 'rerun', number: winner.pull.number});
-        note({action: 'retry', number: winner.pull.number, reason: `attempt ${attempts}`});
-        winner.item = remember(winner.pull, 'active', {attempts});
       }
     }
   }
@@ -208,5 +288,5 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
 
 module.exports = {
   ECOSYSTEMS, MAX_ATTEMPTS, emptyState, ecosystemOf, isDependabot, isSecurity,
-  plan, checksFailed, inspectOpenPulls,
+  plan, checksFailed, inspectOpenPulls, inspectCiRuns, dispatchRetry,
 };
