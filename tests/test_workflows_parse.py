@@ -6,6 +6,7 @@ jobs, so its checks are simply missing and the rest of the CI looks green. In v2
 from __future__ import annotations
 
 import pathlib
+import re
 
 import pytest
 import yaml
@@ -15,6 +16,21 @@ WORKFLOWS = sorted((pathlib.Path(__file__).resolve().parents[1] / ".github/workf
 
 def test_there_are_workflows():
     assert len(WORKFLOWS) > 10
+
+
+def test_artifact_uploaders_share_one_immutable_revision():
+    uses = {}
+    for path in WORKFLOWS:
+        workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+        for job in workflow["jobs"].values():
+            for step in job.get("steps", []):
+                action, _, revision = step.get("uses", "").partition("@")
+                if action == "actions/upload-artifact":
+                    uses.setdefault(revision, set()).add(path.name)
+    assert len(uses) == 1, uses
+    revision, workflows = next(iter(uses.items()))
+    assert re.fullmatch(r"[0-9a-f]{40}", revision)
+    assert {"ci.yml", "load-security.yml"} <= workflows
 
 
 @pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
