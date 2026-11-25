@@ -1,15 +1,9 @@
 services:
-  db:
-    environment:
-      POSTGRES_PASSWORD: test_password
   backend:
     ports:
-      - "18000:8000"
+      - "127.0.0.1:${INTEGRATION_API_PORT-18000}:8000"
     environment:
-      APP_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-      DATABASE_URL: postgresql+asyncpg://vpnshop:test_password@db:5432/vpnshop
-      REDIS_URL: redis://redis:6379/0
-      METRICS_TOKEN: integration-test-token
+      APP_ENV: test
       COOKIE_SECURE: "false"
       COOKIE_SAMESITE: lax
       API_DOMAIN: localhost
@@ -17,9 +11,40 @@ services:
       APP_DOMAIN: localhost
   worker:
     environment:
-      APP_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-      DATABASE_URL: postgresql+asyncpg://vpnshop:test_password@db:5432/vpnshop
-      REDIS_URL: redis://redis:6379/0
+      APP_ENV: test
       COOKIE_SECURE: "false"
       COOKIE_SAMESITE: lax
-      WORKER_ROLE: integration
+      WORKER_ROLE: worker
+
+  integration_tests:
+    profiles: [integration-tests]
+    build:
+      context: ./services/backend
+      additional_contexts:
+        runtime: service:backend
+      dockerfile_inline: |
+        FROM runtime
+        USER root
+        RUN apt-get update && apt-get install -y --no-install-recommends git nodejs && rm -rf /var/lib/apt/lists/* \
+            && git config --system --add safe.directory /project
+        COPY requirements-test.txt /tmp/integration-requirements.txt
+        RUN python -m venv --system-site-packages /opt/integration-tests \
+            && /opt/integration-tests/bin/python -m pip install --no-cache-dir -r /tmp/integration-requirements.txt
+        ENV PATH=/opt/integration-tests/bin:/usr/local/bin:/usr/bin:/bin
+        USER 10001:10001
+    working_dir: /project
+    env_file: .env
+    environment:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://vpnshop:${DB_PASSWORD:?}@db:5432/integration_pytest
+      AUDIT_TEST_DATABASE_URL: postgresql+asyncpg://vpnshop:${DB_PASSWORD:?}@db:5432/integration_pytest
+      REDIS_URL: redis://redis:6379/1
+      HOME: /tmp
+    volumes:
+      - .:/project:ro
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    entrypoint: ["/opt/integration-tests/bin/python", "-m", "pytest", "-p", "no:cacheprovider", "-q"]
+    command: ["tests"]

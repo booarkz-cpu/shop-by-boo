@@ -106,6 +106,25 @@ test('a maintenance commit exits before polling CI for an earlier published sour
   assert.deepEqual(state.uploads, []);
 });
 
+test('a 500 while rechecking main cannot publish packages after the branch moves', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false}], assets: {}, uploads: []};
+  const api = fakeGitHub('current', state);
+  const delays = [];
+  let calls = 0;
+  api.rest.repos.getBranch = async ({branch}) => {
+    assert.equal(branch, 'main');
+    calls++;
+    if (calls === 2) throw Object.assign(new Error('branch read returned 500'), {status: 500});
+    return {data: {commit: {sha: calls === 1 ? 'current' : 'new-main'}}};
+  };
+  api.rest.actions.listWorkflowRuns = async () => assert.fail('polled CI for a superseded commit');
+  const notices = await run(workspace('1.4.0'), state, 'current', api, (next, delay) => { delays.push(delay); next(); });
+  assert.match(notices.join(' '), /Main moved/);
+  assert.equal(calls, 3);
+  assert.deepEqual(delays, [1000]);
+  assert.deepEqual(state.uploads, []);
+});
+
 test('transient read failures recover within the bound, permission errors and exhausted reads stop before writes', async () => {
   for (const statuses of [[500, 503], [500, 502, 504], [403]]) {
     const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};

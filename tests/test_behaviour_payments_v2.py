@@ -266,3 +266,162 @@ async def test_reconciliation_recovers_a_lost_yookassa_answer_by_the_order_id(da
     row = await database.scalar(select(Payment).where(Payment.order_id == "lost-order").execution_options(populate_existing=True))
     assert (row.provider_payment_id, row.status, row.fulfillment_terminal) == ("yk-found", "pending", False)
     assert row.checkout_url == "https://pay.example.test/yk-found"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("entry", ["subscription", "retry", "topup"])
+@pytest.mark.parametrize("reply", ["accepted", "timeout"])
+async def test_checkout_preserves_a_payment_settled_before_creation_returns(database, monkeypatch, entry, reply):
+    from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    await _checkout_env(database, monkeypatch, ["yookassa"])
+    from app import payments_api
+    monkeypatch.setattr(shop, "_release_payment_side_effect_lock", payments_api._release_payment_side_effect_lock)
+    key = f"early-paid-{entry}-{reply}"
+    request = checkout([(b"idempotency-key", key.encode())])
+    payload = {"amount": "100", "provider": "yookassa"} if entry == "topup" else {"plan_id": 1, "provider": "yookassa"}
+    create = shop.wallet_topup if entry == "topup" else shop.create_payment
+    if entry == "retry":
+        with pytest.raises(HTTPException) as first:
+            await create(payload, request, database)
+        assert first.value.status_code == 503
+    calls = []
+
+    class EarlyCallback:
+        async def create(self, amount, order_id, description, return_url):
+            async with AsyncSession(database.bind) as callback:
+                payment = await callback.scalar(select(Payment).where(Payment.order_id == order_id))
+                await shop.bind_provider_payment_id(callback, payment, "verified-payment")
+                payment.status = "paid"
+                payment.fulfillment_status = "completed"
+                payment.fulfillment_terminal = True
+                await callback.commit()
+            calls.append(order_id)
+            if reply == "timeout":
+                raise TimeoutError("create response was lost")
+            return {"id": "verified-payment", "url": "https://checkout.example/used", "status": "pending"}
+
+    monkeypatch.setattr(shop, "YooKassaProvider", EarlyCallback)
+    out = await create(payload, request, database)
+    assert out["status"] == "paid" and out["id"] == "verified-payment"
+    assert out.get("url") is None
+    stored = await database.scalar(select(Payment).where(Payment.idempotency_key == key).execution_options(populate_existing=True))
+    assert (stored.status, stored.fulfillment_status, stored.fulfillment_terminal) == ("paid", "completed", True)
+    assert (await create(payload, request, database))["status"] == "paid"
+    assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("status", "same_id", "save_url", "save_method"), [
+    ("pending", True, True, True), ("pending", False, False, False),
+    ("paid", True, False, True), ("refunded", True, False, False),
+])
+async def test_late_checkout_metadata_stays_bound_to_the_verified_payment(
+        database, monkeypatch, status, same_id, save_url, save_method):
+    from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from app.models import AuditLog, AutoRenewMethod
+
+    await _checkout_env(database, monkeypatch, ["yookassa"])
+    monkeypatch.setattr(shop, "encrypt_secret", lambda _: "test-encrypted")
+    class GatewayWithMetadata:
+        async def create(self, amount, order_id, description, return_url):
+            async with AsyncSession(database.bind) as callback:
+                payment = await callback.scalar(select(Payment).where(Payment.order_id == order_id))
+                await shop.bind_provider_payment_id(callback, payment, "verified")
+                payment.status = status
+                await callback.commit()
+            return {"id": "verified" if same_id else "different", "url": "https://checkout.example/page",
+                    "status": "succeeded", "recurring_token": "test-token"}
+
+    monkeypatch.setattr(shop, "YooKassaProvider", GatewayWithMetadata)
+    result = await shop.create_payment({"plan_id": 1}, checkout([(b"idempotency-key", b"metadata")]), database)
+    assert (result["id"], result["status"]) == ("verified", status)
+    assert (result["url"] == "https://checkout.example/page") is save_url
+    method = await database.scalar(select(AutoRenewMethod).where(AutoRenewMethod.user_id == 1))
+    assert (method is not None) is save_method
+    if save_method:
+        assert method.external_token_encrypted == "test-encrypted"
+    conflict = await database.scalar(select(AuditLog).where(AuditLog.action == "payment.creation.identifier_mismatch"))
+    assert (conflict is None) is same_id
+
+
+@pytest.mark.asyncio
+async def test_verified_wallet_webhook_credits_once_if_create_times_out(database, monkeypatch):
+    from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from app.models import FinancialLedger, PaymentProviderEvent, User
+
+    if database.bind.dialect.name != "postgresql":
+        pytest.skip("the production event journal uses PostgreSQL")
+    await _checkout_env(database, monkeypatch, ["yookassa"])
+    monkeypatch.setattr(shop, "engine", database.bind)
+    monkeypatch.setattr(shop.settings, "yookassa_webhook_ip_allowlist", "10.1.2.3/32")
+    notifications = []
+    class EarlyWalletPayment:
+        async def verify_succeeded(self, payment_id, amount, currency, order_id):
+            return (payment_id, amount, currency, order_id) == ("wallet-verified", Decimal("100"), "RUB", notifications[0]["object"]["metadata"]["order_id"])
+
+        async def create(self, amount, order_id, description, return_url):
+            event = {"id": "wallet-success", "event": "payment.succeeded",
+                     "object": {"id": "wallet-verified", "metadata": {"order_id": order_id}}}
+            notifications.append(event)
+            async with AsyncSession(database.bind, expire_on_commit=False) as callback:
+                assert (await shop.yookassa_webhook(webhook(event), callback))["ok"]
+            raise TimeoutError("create response was lost")
+
+    monkeypatch.setattr(shop, "YooKassaProvider", EarlyWalletPayment)
+    request = checkout([(b"idempotency-key", b"wallet-callback")])
+    payload = {"amount": "100", "provider": "yookassa"}
+    assert (await shop.wallet_topup(payload, request, database))["status"] == "paid"
+    async with AsyncSession(database.bind, expire_on_commit=False) as callback:
+        assert (await shop.yookassa_webhook(webhook(notifications[0]), callback))["duplicate"]
+    assert (await shop.wallet_topup(payload, request, database))["status"] == "paid"
+    user = await database.get(User, 1, populate_existing=True)
+    assert user.wallet_balance == Decimal("1100") and len(notifications) == 1
+    entries = (await database.scalars(select(FinancialLedger.kind).order_by(FinancialLedger.id))).all()
+    assert entries == ["payment", "wallet_topup"]
+    event = await database.scalar(select(PaymentProviderEvent))
+    assert (event.status, event.attempts) == ("processed", 1)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("found", ["matching", "missing", "other-currency"])
+async def test_retry_of_an_old_yookassa_intent_only_reads_existing_payments(database, monkeypatch, found):
+    from datetime import datetime, timedelta
+    from sqlalchemy import select
+    from app import payments_api
+
+    await _checkout_env(database, monkeypatch, ["yookassa"])
+    monkeypatch.setattr(shop, "_release_payment_side_effect_lock", payments_api._release_payment_side_effect_lock)
+    key = "old-checkout"
+    request = checkout([(b"idempotency-key", key.encode())])
+    payload = {"plan_id": 1, "provider": "yookassa"}
+    with pytest.raises(HTTPException):
+        await shop.create_payment(payload, request, database)
+    row = await database.scalar(select(Payment).where(Payment.idempotency_key == key))
+    row.created_at = datetime.utcnow() - timedelta(days=2)
+    await database.commit()
+    looked_up, creates = [], []
+    class RecoveryGateway:
+        async def find_by_order_id(self, order_id, created_at):
+            looked_up.append(order_id)
+            if found == "missing":
+                return None
+            return {"id": "already-created", "metadata": {"order_id": order_id},
+                    "status": "pending", "amount": {"value": "100.00", "currency": "USD" if found == "other-currency" else "RUB"}}
+
+        async def create(self, *args):
+            creates.append(args)
+            return {"id": "new-checkout", "status": "pending"}
+
+    monkeypatch.setattr(shop, "YooKassaProvider", RecoveryGateway)
+    if found == "matching":
+        out = await shop.create_payment(payload, request, database)
+        assert (out["id"], out["status"]) == ("already-created", "pending")
+    else:
+        with pytest.raises(HTTPException) as err:
+            await shop.create_payment(payload, request, database)
+        assert err.value.status_code == 503
+    assert looked_up == [row.order_id] and creates == []
