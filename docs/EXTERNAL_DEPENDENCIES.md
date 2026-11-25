@@ -55,7 +55,7 @@
 
 ### Версии и лицензии программ в контейнерах
 
-Снимок проверен 26 ноября 2026 года по 15 файлам конфигурации, Dockerfile и скриптам переноса. Для каждого из 17 закреплений проверены SHA-256 самого OCI-индекса и дочерних манифестов и конфигураций linux/amd64 и linux/arm64. В таблице указан индекс, используемый при сборке или запуске. [Проверенная ревизия](https://github.com/booarkz-cpu/shop-by-boo/tree/6fd0aa3a37ec10478761dba31dd22a54528b50a8).
+Снимок проверен 26 ноября 2026 года по 15 файлам конфигурации, Dockerfile и скриптам переноса. Для каждого из 17 закреплений проверены SHA-256 самого OCI-индекса и дочерних манифестов и конфигураций linux/amd64 и linux/arm64. В таблице указан индекс, используемый при сборке или запуске; связность таблицы и трёх Dockerfile проверяет `tests/test_v32_operations.py`.
 
 | Использование | Программа и версия | SHA-256 OCI-индекса | Лицензия программы |
 | --- | --- | --- | --- |
@@ -65,7 +65,7 @@
 | Чтение старых томов при переносе | PostgreSQL 16.15 | `721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea` | [PostgreSQL License](https://github.com/postgres/postgres/blob/REL_16_15/COPYRIGHT) |
 | Отдельная база плана Remnawave | PostgreSQL 18.4 | `a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636` | [PostgreSQL License](https://github.com/postgres/postgres/blob/REL_18_4/COPYRIGHT) |
 | Магазин и Support Pro | Redis Open Source 8.10.3 | `71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80` | [RSALv2, SSPLv1 или GNU AGPLv3 по выбору](https://github.com/redis/redis/blob/8.10.3/LICENSE.txt) |
-| Сборка трёх веб-приложений | Node.js 26.13.0 | `c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94` | [MIT для Node.js](https://github.com/nodejs/node/blob/v26.13.0/LICENSE) |
+| Сборка трёх веб-приложений | Node.js 26.13.1 | `6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5` | [MIT для Node.js](https://github.com/nodejs/node/blob/v26.13.1/LICENSE) |
 | Обслуживание трёх веб-приложений | nginx 1.30.7 | `3bc3836dc0be3b811f238210360bf8e7ca8a2d0effdae46160bf1f3578710051` | [BSD-2-Clause](https://github.com/nginx/nginx/blob/release-1.30.7/LICENSE) |
 | Автономный Support Pro, снимок до #470 | nginx 1.30.5 | `985220252f3863977e468f611ef118ebd01421289dd86ee1ae99cb068c3bce2b` | [BSD-2-Clause](https://github.com/nginx/nginx/blob/release-1.30.5/LICENSE) |
 | Входной прокси | Caddy 2.11.9 | `78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9` | [Apache-2.0](https://github.com/caddyserver/caddy/blob/v2.11.9/LICENSE) |
