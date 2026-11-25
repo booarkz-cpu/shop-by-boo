@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import errno
 import json
 import os
 import re
@@ -339,7 +340,10 @@ def prepare_control_dir() -> None:
     os.chmod(CONTROL_DIR, 0o770)
     try:
         os.chown(CONTROL_DIR, 0, BACKEND_UID)  # root owns it; the backend group may write requests
-    except PermissionError as exc:
+    except OSError as exc:
+        # An unprivileged user namespace can lack a mapping for root or the backend group.
+        if not isinstance(exc, PermissionError) and not (exc.errno == errno.EINVAL and os.geteuid() != 0):
+            raise
         print(f"Не удалось назначить владельца {CONTROL_DIR}: {exc}", file=sys.stderr)
 
 

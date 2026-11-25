@@ -1,5 +1,6 @@
 """Агент автообновления на сервере (scripts/auto_update.py): настройки из админ-панели, «Обновить сейчас»,
 защита от повторной установки неудачного выпуска, состояние для панели. systemd и обновление подменены."""
+import errno
 import importlib.util
 import json
 from pathlib import Path
@@ -46,6 +47,26 @@ def agent(tmp_path, monkeypatch):
 
 def status(mod):
     return json.loads(mod.STATUS.read_text())
+
+
+@pytest.mark.parametrize(("euid", "error", "can_continue"), [
+    (1000, errno.EINVAL, True), (0, errno.EINVAL, False), (1000, errno.EIO, False),
+])
+def test_control_directory_handles_unmapped_ids_only_for_an_unprivileged_build(agent, monkeypatch, euid, error, can_continue):
+    calls = []
+    def chown(path, uid, gid):
+        calls.append((path, uid, gid))
+        raise OSError(error, "ownership not applied")
+    monkeypatch.setattr(agent.os, "geteuid", lambda: euid)
+    monkeypatch.setattr(agent.os, "chown", chown)
+    if can_continue:
+        agent.prepare_control_dir()
+        assert agent.CONTROL_DIR.stat().st_mode & 0o777 == 0o770
+    else:
+        with pytest.raises(OSError) as failed:
+            agent.prepare_control_dir()
+        assert failed.value.errno == error
+    assert calls == [(agent.CONTROL_DIR, 0, agent.BACKEND_UID)]
 
 
 def request(mod, **fields):

@@ -10,14 +10,16 @@
 Оба файла проходят в песочнице на текущем коммите.
 
 ```bash
-cd services/backend && MEDIA_DIR=/tmp/media APP_SECRET=ci-only-secret APP_ENV=test \
-  python -m pytest -q ../tests/test_auto_update_api.py ../tests/test_auto_update_agent.py
+MEDIA_DIR=/tmp/media APP_ENV=test PYTHONPATH=services/backend:tests \
+  python -m pytest -q tests/test_auto_update_api.py tests/test_auto_update_agent.py
 ```
 
 | Файл | Что проверяет |
 | --- | --- |
 | `tests/test_auto_update_api.py` | Формат запроса, права, `409` при параллельном запуске, `pending_run`, `503` при недоступном каталоге, отсутствие живого агента |
 | `tests/test_auto_update_agent.py` | Чтение и валидация запроса (только `enabled`/`time`/`check_now`), устойчивость к битому JSON, генерация юнитов, расписание, режим восстановления |
+
+Команда запускается из корня репозитория. В непривилегированном пространстве имён Linux каталог управления сохраняет режим `0770`, даже если ядро возвращает `EINVAL` при назначении отсутствующего UID или GID. Установщик с правами root получает эту ошибку и останавливается. Тест проверяет оба режима и отдельно проверяет распространение ошибки ввода-вывода.
 
 Дополнительно профильные проверки:
 
