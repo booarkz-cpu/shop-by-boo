@@ -85,7 +85,7 @@
 
 - Источник: Часть I → Balanced Development → Documents (строка 855). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет.
+- Названные файлы: `docs/PROJECT_BALANCED_DEVELOPMENT.md` — есть (`docs/PROJECT_BALANCED_DEVELOPMENT.md`); `docs/PROJECT_COMPLETION_MATRIX.md` — есть (`docs/PROJECT_COMPLETION_MATRIX.md`); `docs/PROJECT_WORKLOAD_MATRIX.md` — есть (`docs/PROJECT_WORKLOAD_MATRIX.md`).
 - Примечание: docs/PROJECT_BALANCED_DEVELOPMENT.md, PROJECT_WORKLOAD_MATRIX.md, PROJECT_COMPLETION_MATRIX.md ещё нет.
 
 > docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md.
@@ -132,7 +132,7 @@
 ### REQ-GOV-0012 — `NOT_TESTED`
 
 - Источник: Часть I → State Tracking → Files (строка 908). Продукт: Все три.
-- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет; `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — есть (`docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md`); `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`); `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — нет; `docs/PROJECT_COMPLETION_MATRIX.md` — нет; `docs/PROJECT_WORKLOAD_MATRIX.md` — нет; `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
+- Названные файлы: `AUTOMATION_LOG.md` — есть (`docs/AUTOMATION_LOG.md`); `IMPLEMENTATION_STATUS.md` — есть (`docs/ru/new/IMPLEMENTATION_STATUS.md`); `KNOWN_LIMITATIONS.md` — есть (`docs/ru/new/KNOWN_LIMITATIONS.md`); `MASTER_ROADMAP.md` — нет; `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — есть (`docs/ADMIN_FEATURE_PARITY_MATRIX.md`); `docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md` — есть (`docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md`); `docs/AUTO_SELECTION.md` — есть (`docs/AUTO_SELECTION.md`); `docs/CODE_REUSE_REGISTER.md` — есть (`docs/CODE_REUSE_REGISTER.md`); `docs/MASQUE_IMPLEMENTATION_REPORT.md` — есть (`docs/MASQUE_IMPLEMENTATION_REPORT.md`); `docs/PAYMENT_TESTING.md` — есть (`docs/ru/new/PAYMENT_TESTING.md`); `docs/PROJECT_BALANCED_DEVELOPMENT.md` — есть (`docs/PROJECT_BALANCED_DEVELOPMENT.md`); `docs/PROJECT_COMPLETION_MATRIX.md` — есть (`docs/PROJECT_COMPLETION_MATRIX.md`); `docs/PROJECT_WORKLOAD_MATRIX.md` — есть (`docs/PROJECT_WORKLOAD_MATRIX.md`); `docs/REFERENCE_REPOSITORIES.md` — есть (`docs/REFERENCE_REPOSITORIES.md`); `docs/SCREENSHOT_COVERAGE.md` — нет.
 
 > IMPLEMENTATION_STATUS.md; MASTER_ROADMAP.md; AUTOMATION_LOG.md; KNOWN_LIMITATIONS.md; docs/ADMIN_FEATURE_PARITY_MATRIX.md; docs/SCREENSHOT_COVERAGE.md; docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md; docs/PROJECT_BALANCED_DEVELOPMENT.md; docs/PROJECT_WORKLOAD_MATRIX.md; docs/PROJECT_COMPLETION_MATRIX.md; docs/MASQUE_IMPLEMENTATION_REPORT.md; docs/CODE_REUSE_REGISTER.md; docs/REFERENCE_REPOSITORIES.md; docs/PAYMENT_TESTING.md; docs/AUTO_SELECTION.md.
 
@@ -1862,7 +1862,7 @@
 ### REQ-ADMIN-0004 — `NOT_IMPLEMENTED`
 
 - Источник: Часть I → Products → Lucy Admin → Parity Document (строка 197). Продукт: Админка.
-- Названные файлы: `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — нет.
+- Названные файлы: `docs/ADMIN_FEATURE_PARITY_MATRIX.md` — есть (`docs/ADMIN_FEATURE_PARITY_MATRIX.md`).
 - Примечание: Документа docs/ADMIN_FEATURE_PARITY_MATRIX.md нет. Есть матрица разделов веб-панели и API: docs/ru/new/ADMIN_CONTROL_MATRIX.md.
 
 > docs/ADMIN_FEATURE_PARITY_MATRIX.md
@@ -4315,7 +4315,7 @@
 
 - Источник: Часть IV → 37. Полный каталог документов и артефактов (строка 2448). Продукт: Все три.
 - Платформы: all products.
-- Названные файлы: `docs/SLO_BASELINE.md` — нет.
+- Названные файлы: `docs/SLO_BASELINE.md` — есть (`docs/SLO_BASELINE.md`).
 - Примечание: docs/SLO_BASELINE.md ещё нет; пишется только по проверенному коду (REQ-DOC-0037).
 
 > - `docs/SLO_BASELINE.md`

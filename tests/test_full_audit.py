@@ -184,3 +184,18 @@ def test_acceptance_inventory_cli_regenerates_deterministically(tmp_path, monkey
     assert calls == [False, False]
     assert not (tmp_path / "artifacts").exists()
     audit.validate_acceptance_inventory(tmp_path, rows)
+
+
+def test_completion_matrix_counts_default_status_and_ignores_input_order(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts/audit"))
+    matrix = audit.module(ROOT, "project_completion")
+    register = [{"id": "REQ-QA-0002"}, {"id": "REQ-API-0001"}, {"id": "REQ-QA-0001"}]
+    status = {"REQ-QA-0002": {"status": "PARTIAL"}, "REQ-QA-0001": {"status": "PASS"}}
+    result = matrix.render(register, status)
+    assert "| API | 0 | 0 | 1 | 1 |" in result
+    assert "| QA | 1 | 1 | 0 | 2 |" in result
+    assert "| **Итого** | 1 | 1 | 1 | 3 |" in result
+    assert "33,33 %" in result
+    assert result == matrix.render(list(reversed(register)), dict(reversed(status.items())))
+    with pytest.raises(ValueError, match="REQ-QA-0001"):
+        matrix.render(register, {**status, "REQ-QA-0001": {"status": "UNKNOWN"}})

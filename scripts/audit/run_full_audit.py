@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CHECKS = (
     ("requirements", "scripts/audit/requirements_register.py", "--check"),
     ("source-traceability", "scripts/audit/source_traceability.py", "--check"),
+    ("project-completion", "scripts/audit/project_completion.py", "--check"),
     ("project-map", "scripts/generate-project-map.py", "--check"),
     ("release-notes", "scripts/audit/check_release_changelog.py"),
     ("documentation-links", "scripts/check-doc-links.py"),

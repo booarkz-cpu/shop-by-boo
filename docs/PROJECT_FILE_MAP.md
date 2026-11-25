@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2757**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2763**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -756,6 +756,7 @@
 | [docker-compose.test.yml](../docker-compose.test.yml) | Корень проекта |
 | [docker-compose.yml](../docker-compose.yml) | Корень проекта |
 | [docs/ACCESSIBILITY_AUDIT.md](../docs/ACCESSIBILITY_AUDIT.md) | Документация |
+| [docs/ADMIN_FEATURE_PARITY_MATRIX.md](../docs/ADMIN_FEATURE_PARITY_MATRIX.md) | Документация |
 | [docs/API_ENDPOINTS.md](../docs/API_ENDPOINTS.md) | Документация |
 | [docs/AUDIT_LOG_INTEGRITY.md](../docs/AUDIT_LOG_INTEGRITY.md) | Документация |
 | [docs/AUTOMATION_LOG.md](../docs/AUTOMATION_LOG.md) | Документация |
@@ -795,9 +796,12 @@
 | [docs/POSTGRES19_MIGRATION_PREFLIGHT.md](../docs/POSTGRES19_MIGRATION_PREFLIGHT.md) | Документация |
 | [docs/PRIVACY_DATA_MAP.md](../docs/PRIVACY_DATA_MAP.md) | Документация |
 | [docs/PROJECT_ARCHITECTURE.md](../docs/PROJECT_ARCHITECTURE.md) | Документация |
+| [docs/PROJECT_BALANCED_DEVELOPMENT.md](../docs/PROJECT_BALANCED_DEVELOPMENT.md) | Документация |
+| [docs/PROJECT_COMPLETION_MATRIX.md](../docs/PROJECT_COMPLETION_MATRIX.md) | Документация |
 | [docs/PROJECT_FILE_MAP.md](../docs/PROJECT_FILE_MAP.md) | Документация |
 | [docs/PROJECT_INVENTORY.md](../docs/PROJECT_INVENTORY.md) | Документация |
 | [docs/PROJECT_MAP_RU.md](../docs/PROJECT_MAP_RU.md) | Документация |
+| [docs/PROJECT_WORKLOAD_MATRIX.md](../docs/PROJECT_WORKLOAD_MATRIX.md) | Документация |
 | [docs/PROTOCOL_SWITCH.md](../docs/PROTOCOL_SWITCH.md) | Документация |
 | [docs/REFERENCE_REPOSITORIES.md](../docs/REFERENCE_REPOSITORIES.md) | Документация |
 | [docs/RELEASE_CHANGELOG_POLICY.md](../docs/RELEASE_CHANGELOG_POLICY.md) | Документация |
@@ -814,6 +818,7 @@
 | [docs/SECURITY_BASELINE.md](../docs/SECURITY_BASELINE.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
+| [docs/SLO_BASELINE.md](../docs/SLO_BASELINE.md) | Документация |
 | [docs/SOURCE_TRACEABILITY_MATRIX.md](../docs/SOURCE_TRACEABILITY_MATRIX.md) | Документация |
 | [docs/SPELLING_AUDIT.md](../docs/SPELLING_AUDIT.md) | Документация |
 | [docs/TECH_STACK.md](../docs/TECH_STACK.md) | Документация |
@@ -1812,6 +1817,7 @@
 | [scripts/audit/check_release_changelog.py](../scripts/audit/check_release_changelog.py) | Эксплуатация и релиз |
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
+| [scripts/audit/project_completion.py](../scripts/audit/project_completion.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit/run_full_audit.py](../scripts/audit/run_full_audit.py) | Эксплуатация и релиз |
 | [scripts/audit/source_traceability.py](../scripts/audit/source_traceability.py) | Эксплуатация и релиз |
