@@ -445,10 +445,10 @@ jobs:
           "$RUNNER_TEMP/sbom-validator/bin/python" scripts/ci/check-sbom.py "$RUNNER_TEMP/sbom/sbom.cdx.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: sbom
+          name: repository-sbom-input
           path: ${{ runner.temp }}/sbom/sbom.cdx.json
           if-no-files-found: error
-          retention-days: 90
+          retention-days: 3
       - name: Dependency licences
         # A strong copyleft or source-available licence among the shipped dependencies blocks the merge
         # (scripts/ci/check-licenses.py; weak copyleft — LGPL, MPL — is allowed for a library used as is).
@@ -765,6 +765,62 @@ jobs:
           bash scripts/ci/gradle-warm.sh --exec apps/vpn-shop/android -- assembleDebug --no-daemon
           # Compare the packaged libgojni.so for each ABI against the AAR.
           bash scripts/mobile/build-xray-aar.sh --verify-apk apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Share the verified release engine with the SBOM job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: android-sbom-engine
+          path: apps/vpn-shop/android/app/libs/libv2ray.aar
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 3
+
+  release-sbom:
+    name: Release SBOM • repository and three Android products
+    runs-on: ubuntu-24.04
+    needs: [security, android-engine]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.15'
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.4'
+          cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: android-sbom-engine
+          path: apps/vpn-shop/android/app/libs
+          digest-mismatch: error
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: repository-sbom-input
+          path: ${{ runner.temp }}/repository-sbom
+          digest-mismatch: error
+      - name: Resolve, verify and join the release dependency graphs
+        run: |
+          for product in vpn-shop vpn-client lucy-admin; do
+            bash scripts/ci/gradle-warm.sh --exec "apps/$product/android" -- \
+              --init-script "$GITHUB_WORKSPACE/scripts/ci/android-sbom.gradle" :app:verifyReleaseSbomInputs --no-daemon
+          done
+          mkdir -p "$RUNNER_TEMP/release-sbom"
+          python -m pip install --only-binary=:all: 'cyclonedx-python-lib[json-validation]==11.12.0' 'license-expression==30.4.4'
+          python scripts/ci/android-sbom.py "$RUNNER_TEMP/repository-sbom/sbom.cdx.json" "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
+          python scripts/ci/check-sbom.py "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: sbom
+          path: ${{ runner.temp }}/release-sbom/sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 90
 
   android-ui:
     # Compose UI tests of both apps on an emulator, in the demo mode of the debug builds.
@@ -952,7 +1008,7 @@ jobs:
     # A new job must be added to `needs` — otherwise the gate does not wait for it.
     name: CI gate
     if: always()
-    needs: [native-python-containers, python315-native-arm64, python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    needs: [native-python-containers, python315-native-arm64, python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, release-sbom, android-ui, ios-ui, ios, ios-extensions]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

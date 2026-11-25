@@ -1,0 +1,64 @@
+import groovy.json.JsonOutput
+import org.cyclonedx.Version
+import org.cyclonedx.gradle.CyclonedxPlugin
+import org.cyclonedx.model.Component
+import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
+
+// Loaded only for the release SBOM. Normal Android builds keep their usual classpath.
+initscript {
+    repositories { gradlePluginPortal() }
+    dependencies { classpath 'org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.6.1' }
+}
+
+rootProject { root ->
+    root.apply plugin: CyclonedxPlugin
+    def app = root.project(':app')
+    app.afterEvaluate {
+        def config = app.configurations.getByName('releaseRuntimeClasspath')
+        def android = app.extensions.getByName('android').defaultConfig
+        def output = app.layout.buildDirectory.dir('reports/cyclonedx-direct')
+        app.tasks.named('cyclonedxDirectBom') {
+            includeConfigs = [config.name]
+            failOnUnresolvedDependencies = true
+            schemaVersion = Version.VERSION_17
+            projectType = Component.Type.APPLICATION
+            componentName = android.applicationId
+            componentVersion = android.versionName
+            xmlOutput.unsetConvention()
+        }
+        // This second report is generated directly by Gradle. It checks that the SBOM
+        // preserves every selected module and edge, including transitive dependencies.
+        app.tasks.register('verifyReleaseSbomInputs') {
+            dependsOn ':app:cyclonedxDirectBom'
+            doLast {
+                def resolution = config.incoming.resolutionResult
+                def coordinate = { id ->
+                    if (id == resolution.root.id) return '@app'
+                    if (!(id instanceof ModuleComponentIdentifier)) {
+                        throw new GradleException("Unexpected release component: ${id.displayName}")
+                    }
+                    return [id.group, id.module, id.version].join(':')
+                }
+                def edges = new TreeMap()
+                resolution.allComponents.each { node ->
+                    def key = coordinate(node.id)
+                    def children = new TreeSet()
+                    node.dependencies.findAll { !it.constraint }.each { dep ->
+                        if (!(dep instanceof ResolvedDependencyResult)) {
+                            throw new GradleException("Unresolved release dependency: ${dep.requested}")
+                        }
+                        if (dep.selected.id != node.id) children.add(coordinate(dep.selected.id))
+                    }
+                    edges[key] = children
+                }
+                def files = config.allDependencies.withType(FileCollectionDependency).collectMany { it.files.files.toList() }
+                def report = [applicationId: android.applicationId, version: android.versionName, edges: edges,
+                              files: files.collect { it.canonicalPath }.sort()]
+                def target = output.get().file('resolution.json').asFile
+                target.text = JsonOutput.toJson(report)
+            }
+        }
+    }
+}
