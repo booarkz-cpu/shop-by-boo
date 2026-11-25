@@ -674,7 +674,7 @@ def node_compose(secret_key: str, node_port: int, selfsteal: bool = False, xray_
                  geo: bool = False) -> str:
     """``hysteria`` — the node has a TLS-certificate transport (Hysteria2 or VLESS + TCP + TLS)."""
     from .provisioner import node_compose as official
-    text = official(secret_key, node_port).replace("image: remnawave/node:3.4.6", f"image: {IMAGES['node']}")
+    text = official(secret_key, node_port)
     volumes = []
     if selfsteal:
         # Xray reaches the SelfSteal site through the socket in /dev/shm (shared with the Caddy container).

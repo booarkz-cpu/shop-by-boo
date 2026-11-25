@@ -18,6 +18,7 @@ The Remnawave calls (keygen, node create with a config profile, node delete) are
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 from datetime import datetime, timedelta
@@ -28,6 +29,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
+from .provisioner import DOCKER_INSTALL, NODE_IMAGE
 from .security import require_permission
 
 logger = logging.getLogger("vpnshop.autoscale")
@@ -143,14 +145,14 @@ def decide(config: dict, nodes: list[dict], state: dict, now: datetime, cpu: flo
 
 
 def cloud_init(config: dict, secret: str) -> str:
-    secret = secret.replace("'", "")
-    return "\n".join([
-        "#cloud-config",
-        "runcmd:",
-        "  - curl -fsSL https://get.docker.com | sh",
-        f"  - docker run -d --name remnanode --restart always --network host -e NODE_PORT={int(config['node_port'])} "
-        f"-e 'SECRET_KEY={secret}' remnawave/node:3.4.6",
-    ]) + "\n"
+    port = int(config["node_port"])
+    if not 1 <= port <= 65535 or not secret or len(secret) > 8192 or "\x00" in secret:
+        raise ValueError("Invalid node port or secret")
+    launch = ["docker", "run", "-d", "--name", "remnanode", "--restart", "always", "--network", "host",
+              "-e", f"NODE_PORT={port}", "-e", f"SECRET_KEY={secret}", NODE_IMAGE]
+    # cloud-init shell-quotes list arguments. A failed signature check must also stop the following command.
+    commands = ["set -e", ["/bin/sh", "-ec", DOCKER_INSTALL], launch]
+    return "#cloud-config\n" + json.dumps({"runcmd": commands}) + "\n"
 
 
 async def _hetzner(method: str, path: str, client: httpx.AsyncClient | None = None, **kwargs) -> dict:

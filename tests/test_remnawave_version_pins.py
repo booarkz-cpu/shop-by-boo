@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import yaml
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 PANEL_VERSION = "3.4.11"
 NODE_VERSION = "3.4.6"
@@ -37,17 +40,30 @@ def test_live_contract_uses_exact_releases_and_checks_digests():
 
 
 def test_runtime_and_provisioning_use_the_same_pins():
+    from app import node_autoscale, provisioner, rw_plan
+
     plan = read("services/backend/app/rw_plan.py")
-    provisioner = read("services/backend/app/provisioner.py")
-    autoscale = read("services/backend/app/node_autoscale.py")
     for image in (PANEL_IMAGE, NODE_IMAGE, SUBPAGE_IMAGE):
         assert image in plan
     assert f'"panel": "{PANEL_VERSION}"' in plan
     assert f'"node": "{NODE_VERSION}"' in plan
     assert f'"subscription_page": "{SUBPAGE_VERSION}"' in plan
-    assert f'NODE_IMAGE = "remnawave/node:{NODE_VERSION}"' in provisioner
-    assert f"remnawave/node:{NODE_VERSION}" in autoscale
-    assert "remnawave/node:latest" not in provisioner + autoscale
+    for render in (provisioner.node_compose, rw_plan.node_compose):
+        service = yaml.safe_load(render("fixture-key", 2828))["services"]["remnanode"]
+        assert service["image"] == NODE_IMAGE
+    cloud = yaml.safe_load(node_autoscale.cloud_init({"node_port": 2828}, "fixture's key"))
+    assert cloud["runcmd"][:-1] == ["set -e", ["/bin/sh", "-ec", provisioner.DOCKER_INSTALL]]
+    command = cloud["runcmd"][-1]
+    assert command[:2] == ["docker", "run"] and command[-1] == NODE_IMAGE
+    assert "NODE_PORT=2828" in command and "SECRET_KEY=fixture's key" in command
+
+
+@pytest.mark.parametrize("port,secret", [(0, "key"), (65536, "key"), (2222, ""), (2222, "x" * 8193)])
+def test_invalid_node_settings_stop_before_cloud_init_is_built(port, secret):
+    from app.node_autoscale import cloud_init
+
+    with pytest.raises(ValueError, match="Invalid node"):
+        cloud_init({"node_port": port}, secret)
 
 
 def test_compatibility_matrix_matches_executable_pins():

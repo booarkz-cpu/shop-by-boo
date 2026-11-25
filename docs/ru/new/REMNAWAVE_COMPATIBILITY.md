@@ -19,7 +19,7 @@ Prisma-миграции Remnawave выполняет официальный back
 ## Единый источник версий
 
 - эксплуатационные образы: `services/backend/app/rw_plan.py`;
-- node-only provisioning: `services/backend/app/provisioner.py` и `node_autoscale.py`;
+- SSH-установка, мастер и автоскейлер берут для каждой новой ноды полный образ `IMAGES["node"]` из `rw_plan.py`, включая digest. Автоскейлер передаёт аргументы через cloud-init и устанавливает Docker тем же способом, что и SSH-установщик, с проверкой отпечатка ключа официального apt-репозитория;
 - живой контракт: `scripts/ci/remnawave-live.sh`;
 - защита от рассинхронизации: `tests/test_remnawave_version_pins.py`.
 
