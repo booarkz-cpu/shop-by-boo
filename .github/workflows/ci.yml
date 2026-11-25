@@ -40,6 +40,8 @@ jobs:
             "$py" -m pip install --only-binary=:all: -r "services/$service/requirements.txt" -r "services/$service/$extra"
             "$py" -m pip check
             "$py" -c 'import asyncpg, cryptography, PIL, yaml, uvloop, httptools, pydantic_core; assert yaml.safe_load("ok: true") == {"ok": True}'
+            "$py" -c 'from cryptography.hazmat.primitives.ciphers.aead import AESGCM; from PIL import Image; from io import BytesIO; key = AESGCM.generate_key(bit_length=256); cipher = AESGCM(key); nonce = bytes(12); assert cipher.decrypt(nonce, cipher.encrypt(nonce, b"smoke", None), None) == b"smoke"; buf = BytesIO(); Image.new("RGB", (2, 2)).save(buf, format="PNG"); buf.seek(0); assert Image.open(buf).size == (2, 2)'
+            "$py" -c 'import asyncio, uvloop; loop = uvloop.new_event_loop(); assert loop.run_until_complete(asyncio.sleep(0, result=42)) == 42; loop.close()'
             if [ "$service" = backend ]; then "$py" -c 'import reportlab, maxminddb'; fi
           done
 
