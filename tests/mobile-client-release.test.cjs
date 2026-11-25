@@ -79,18 +79,58 @@ function workspace(clientVersion) {
   return dir;
 }
 
-async function run(dir, state, sha = 'c0ffee') {
+async function run(dir, state, sha = 'c0ffee', github = fakeGitHub(sha, state), timer = setTimeout) {
   const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
   const notices = [];
   const core = {notice: m => notices.push(m), summary: {addRaw: () => ({write: () => undefined})}};
   const cwd = process.cwd();
   process.chdir(dir);
   try {
-    await new AsyncFunction('github', 'context', 'core', 'require', publishScript())(
-      fakeGitHub(sha, state), {repo: {owner: 'o', repo: 'r'}, sha, runId: 1}, core, require);
+    await new AsyncFunction('github', 'context', 'core', 'require', 'setTimeout', publishScript())(
+      github, {repo: {owner: 'o', repo: 'r'}, sha, runId: 1}, core, require, timer);
   } finally { process.chdir(cwd); }
   return notices;
 }
+
+test('a maintenance commit exits before polling CI for an earlier published source tag', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false}], assets: {}, uploads: []};
+  const api = fakeGitHub('current', state);
+  api.rest.git.getRef = async () => ({data: {object: {type: 'tag', sha: 'annotation'}}});
+  api.rest.git.getTag = async ({tag_sha}) => {
+    assert.equal(tag_sha, 'annotation');
+    return {data: {object: {type: 'commit', sha: 'earlier'}}};
+  };
+  api.rest.actions.listWorkflowRuns = async () => assert.fail('maintenance commit polled release CI');
+  const notices = await run(workspace('1.4.0'), state, 'current', api);
+  assert.match(notices.join(' '), /another commit/);
+  assert.deepEqual(state.uploads, []);
+});
+
+test('transient read failures recover within the bound, permission errors and exhausted reads stop before writes', async () => {
+  for (const statuses of [[500, 503], [500, 502, 504], [403]]) {
+    const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+    const api = fakeGitHub('current', state);
+    const list = api.rest.actions.listWorkflowRuns;
+    const delays = [];
+    let calls = 0;
+    api.rest.actions.listWorkflowRuns = async args => {
+      assert.equal(args.head_sha, 'current');
+      const status = statuses[calls++];
+      if (status) throw Object.assign(new Error('GitHub ' + status), {status});
+      return list(args);
+    };
+    const promise = run(workspace('1.4.0'), state, 'current', api, (next, delay) => { delays.push(delay); next(); });
+    if (statuses.length === 2) {
+      await promise;
+      assert.ok(state.uploads.length);
+    } else {
+      await assert.rejects(promise, /GitHub (504|403)/);
+      assert.deepEqual(state.uploads, []);
+    }
+    assert.equal(calls, statuses[0] === 403 ? 1 : 3);
+    assert.deepEqual(delays, statuses[0] === 403 ? [] : [1000, 2000]);
+  }
+});
 
 test('the client gets its own release once, never as «latest», with a manifest pointing at that release', async () => {
   const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
@@ -114,6 +154,18 @@ test('the client gets its own release once, never as «latest», with a manifest
   assert.equal(state.releases.filter(r => r.tag_name.startsWith('client-v')).length, 1);
   assert.equal(state.uploads.filter(u => u.startsWith(`${own.id}/`)).length, before);
   assert.ok(notices.some(n => n.includes('already published')), 'a different build of the same version is kept, not replaced');
+});
+
+test('an uncertain upload response is surfaced and never automatically repeated', async () => {
+  const state = {releases: [{id: 1, tag_name: 'v28.89.0', draft: false, body: 'notes'}], assets: {}, uploads: []};
+  const api = fakeGitHub('current', state);
+  let attempts = 0;
+  api.rest.repos.uploadReleaseAsset = async () => {
+    attempts++;
+    throw Object.assign(new Error('unknown upload outcome'), {status: 500});
+  };
+  await assert.rejects(run(workspace('1.4.0'), state, 'current', api), /unknown upload outcome/);
+  assert.equal(attempts, 1);
 });
 
 test('the client manifest of its own release points at that release', async () => {

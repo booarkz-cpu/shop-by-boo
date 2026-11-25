@@ -41,6 +41,11 @@ distribution_tag в [release-manifest.template.json](../release-manifest.templat
 CI и принадлежность тега тому же исходному коммиту. `Main moved` означает, что
 пакеты остались workflow artifacts; это не подтверждение полного выпуска.
 
+Если опубликованный тег уже принадлежит прежнему коммиту, Mobile packages сохраняет
+сборки в артефактах своего запуска и сразу завершает шаг публикации. При временной
+ошибке GitHub API (HTTP 500, 502, 503 или 504) чтение метаданных выполняется до трёх раз.
+Загрузка файлов в релиз имеет отдельную проверку размера и SHA-256.
+
 `mobile-production-status.json` фиксирует версию семейства, source_commit,
 workflow_run и состояния android/ios. Android без ключа имеет
 blocked_missing_signing_key, iOS без Apple identity — blocked_missing_apple_identity.
