@@ -100,13 +100,16 @@ jobs:
             if python -m pip download --only-binary=:all: --python-version 3.15 --implementation cp --abi cp315 --platform "manylinux_2_17_$TARGET_ARCH" --platform "manylinux2014_$TARGET_ARCH" --platform "manylinux_2_28_$TARGET_ARCH" --platform "manylinux_2_34_$TARGET_ARCH" --dest "$RUNNER_TEMP/wheels/$service" -r "services/$service/requirements.txt" -r "services/$service/$extra"; then
               echo "$service: binary resolution succeeded for $TARGET_ARCH" >> "$GITHUB_STEP_SUMMARY"
             else
-              echo "::warning::$service binary resolution failed for $TARGET_ARCH; wheel acceptance remains unverified"
+              echo "::error::$service binary resolution failed for $TARGET_ARCH; wheel acceptance remains unverified"
               echo "$service: binary resolution FAILED for $TARGET_ARCH" >> "$GITHUB_STEP_SUMMARY"
               failed=1
             fi
           done
-          # Diagnostic until all upstream wheels are available; do not claim acceptance.
-          if [ "$failed" = 1 ]; then echo "Wheel acceptance is NOT confirmed." >> "$GITHUB_STEP_SUMMARY"; fi
+          # Both architectures must resolve all binary dependencies before CI can pass.
+          if [ "$failed" = 1 ]; then
+            echo "Wheel acceptance is NOT confirmed." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
   backend:
     # v28.75.0: the suite runs in two halves on separate runners (each with its own PostgreSQL and Redis): one
