@@ -18,7 +18,15 @@ function pull(number, ecosystem, createdAt, extra = {}) {
     state: 'open',
     base: {ref: 'main', sha: 'b'.repeat(40)},
     mergeable: true,
-    head: {ref: `dependabot/${slug}/dir/${ecosystem}-${number}`, sha: `${number}`.padStart(40, 'a')},
+    head: {ref: `dependabot/${slug}/dir/${ecosystem}-${number}`, sha: `${number}`.padStart(40, 'a'), repo: {full_name: 'shop/queue'}},
+  };
+}
+
+function ciFor(pull, runAttempt = 1, extra = {}) {
+  return {
+    id: 301, run_number: 19, run_attempt: runAttempt, path: '.github/workflows/ci.yml', event: 'pull_request',
+    status: 'completed', conclusion: 'failure', head_sha: pull.head.sha, head_branch: pull.head.ref,
+    head_repository: pull.head.repo, pull_requests: [{number: pull.number}], ...extra,
   };
 }
 
@@ -56,6 +64,7 @@ const failed = plan({
   openPulls: [batch[6]],
   state: {...first.state, active: {...first.state.active, attempts: 2}},
   checksByNumber: {7: [{name: 'CI', status: 'completed', conclusion: 'failure'}]},
+  ciRuns: [ciFor(batch[6], 3)],
   now: '2026-11-23T13:00:00Z',
 });
 assert.ok(failed.actions.some((action) => action.type === 'close' && action.number === 7));
@@ -127,19 +136,22 @@ assert.deepEqual(repeated.actions, []);
 
  // Retry history survives pending observations and deferral, but not a new SHA.
 const candidate = batch[0];
-const observe = (state, checks = [], openPulls = [candidate]) => plan({
-  state, openPulls, checksByNumber: {1: checks}, now: monday,
+const observe = (state, checks = [], openPulls = [candidate], ciRuns = []) => plan({
+  state, openPulls, checksByNumber: {1: checks}, ciRuns, now: monday,
 });
 const badChecks = [{status: 'completed', conclusion: 'failure'}];
 const pendingChecks = [{status: 'in_progress'}];
-const retry1 = observe(null, badChecks);
-assert.equal(retry1.state.active.attempts, 1);
-const pending = observe(retry1.state, pendingChecks);
+const retry1 = observe(null, badChecks, [candidate], [ciFor(candidate)]);
+assert.equal(retry1.state.active.attempts, 0);
+assert.equal(retry1.state.active.retry.phase, 'requested');
+assert.deepEqual(observe(retry1.state, badChecks, [candidate], [ciFor(candidate)]).actions, []);
+const pending = observe(retry1.state, pendingChecks, [candidate], [ciFor(candidate, 2, {status: 'in_progress', conclusion: null})]);
 assert.equal(pending.state.active.attempts, 1);
-const retry2 = observe(pending.state, badChecks);
-assert.equal(retry2.state.active.attempts, 2);
-const exhausted = observe(observe(retry2.state, pendingChecks).state, badChecks);
+const retry2 = observe(pending.state, badChecks, [candidate], [ciFor(candidate, 2)]);
+assert.equal(retry2.state.active.attempts, 1);
+const exhausted = observe(retry2.state, badChecks, [candidate], [ciFor(candidate, 3)]);
 assert.equal(exhausted.state.deferred.find(item => item.number === 1).status, 'failed');
+assert.equal(exhausted.state.deferred[0].attempts, 2);
 const dirtyCandidate = {...candidate, mergeable: false};
 const rebased = observe(null, [], [dirtyCandidate]);
 assert.equal(rebased.state.active.conflicts, 1);
@@ -150,8 +162,9 @@ assert.equal(reopenedConflict.state.active.conflicts, 1);
 const exhaustedConflict = observe(reopenedConflict.state, [], [dirtyCandidate]);
 assert.equal(exhaustedConflict.state.deferred[0].status, 'conflict');
 const changed = {...candidate, head: {...candidate.head, sha: 'f'.repeat(40)}};
-const freshRetry = observe(retry2.state, badChecks, [changed]);
-assert.equal(freshRetry.state.active.attempts, 1);
+const freshRetry = observe(retry2.state, badChecks, [changed], [ciFor(changed, 1, {id: 366, run_number: 58})]);
+assert.equal(freshRetry.state.active.attempts, 0);
+assert.equal(freshRetry.state.active.retry.runId, 366);
 assert.equal(freshRetry.state.active.sha, changed.head.sha);
 const freshConflict = observe(rebased.state, [], [{...changed, mergeable: false}]);
 assert.equal(freshConflict.state.active.conflicts, 1);
@@ -237,4 +250,164 @@ test('an uncomputed PR cannot stall independent intake or spend a retry on a lis
     assert.deepEqual(result.actions.map(a => a.type), ['close']);
     assert.equal(result.state.deferred.length, 1);
   }
+});
+
+// Exercise the same github-script entry point as Actions, including the two
+// durable ref updates surrounding the POST. Only GitHub and time are replaced.
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const workflowScript = workflow.split('          script: |\n')[1];
+assert.ok(workflowScript);
+const intake = new AsyncFunction('github', 'context', 'core', 'require', 'process', 'Date', workflowScript);
+
+function queueApi() {
+  let state = {schema: 1, active: null, deferred: [], history: []};
+  let blob;
+  const writes = [];
+  const posts = [];
+  const mock = {runs: [ciFor(candidate)], detail: candidate, checks: badChecks, now: monday};
+  function commitState() {
+    if (mock.failSavePhase && blob.active?.retry?.phase === mock.failSavePhase) throw new Error('ref update failed');
+    state = structuredClone(blob);
+    writes.push(state);
+    return {data: {}};
+  }
+  const github = {rest: {
+    git: {
+      getRef: async () => ({data: {object: {sha: 'parent'}}}),
+      getCommit: async () => ({data: {tree: {sha: 'tree'}}}),
+      getTree: async () => ({data: {tree: [{path: 'docs/dependabot-queue.json', sha: 'blob'}]}}),
+      getBlob: async () => ({data: {content: Buffer.from(JSON.stringify(state)).toString('base64')}}),
+      createBlob: async args => { blob = JSON.parse(args.content); return {data: {sha: 'blob'}}; },
+      createTree: async () => ({data: {sha: 'tree'}}),
+      createCommit: async () => ({data: {sha: 'commit'}}),
+      updateRef: async () => commitState(),
+    },
+    pulls: {list: () => {}, get: async () => ({data: state.active?.retry && mock.dispatchDetail || mock.detail})},
+    checks: {listForRef: () => {}},
+    actions: {listWorkflowRuns: () => {}, reRunWorkflowFailedJobs: async args => {
+      assert.deepEqual(args, {...repo, run_id: state.active.retry.runId});
+      assert.equal(state.active.retry.phase, 'requested');
+      posts.push(args.run_id);
+      if (mock.postError) throw mock.postError;
+      return {status: 201};
+    }},
+  }, paginate: async (method, args) => {
+    if (method === github.rest.pulls.list) return [candidate];
+    if (method === github.rest.checks.listForRef) return mock.checks;
+    assert.equal(method, github.rest.actions.listWorkflowRuns);
+    assert.deepEqual(args, {...repo, workflow_id: 'ci.yml', event: 'pull_request', branch: candidate.head.ref, head_sha: candidate.head.sha, per_page: 100});
+    if (mock.readError) throw mock.readError;
+    return state.active?.retry && mock.dispatchRuns || mock.runs;
+  }};
+  const workspace = path.resolve(__dirname, '..');
+  const clock = class extends Date { constructor() { super(mock.now); } };
+  return {mock, writes, posts, state: () => state, run: () =>
+    intake(github, {repo}, {info() {}}, require, {env: {GITHUB_WORKSPACE: workspace}}, clock)};
+}
+
+test('POST acceptance waits for a later run attempt and survives repeated observations', async () => {
+  const api = queueApi();
+  await api.run();
+  assert.deepEqual(api.writes.map(s => s.active.retry.phase), ['requested', 'accepted']);
+  assert.equal(api.state().active.attempts, 0);
+  api.mock.now = '2026-11-23T13:00:00Z';
+  await api.run();
+  assert.deepEqual(api.posts, [301]);
+  api.mock.runs = [ciFor(candidate, 2, {status: 'queued', conclusion: null})];
+  api.mock.checks = pendingChecks;
+  await api.run();
+  await api.run();
+  assert.equal(api.state().active.attempts, 1);
+  assert.equal(api.state().history.filter(h => h.action === 'retry-confirmed').length, 1);
+});
+
+test('a missing run, an unrelated failure or a superseding success cannot spend the budget', async () => {
+  const api = queueApi();
+  for (const runs of [
+    [], [ciFor(candidate, 1, {path: '.github/workflows/other.yml'})],
+    [ciFor(candidate, 1, {head_sha: 'f'.repeat(40)})], [ciFor(candidate, 1, {event: 'push'})],
+    [ciFor(candidate, 1, {head_branch: 'main'})], [ciFor(candidate, 1, {head_repository: {full_name: 'other/queue'}})],
+    [ciFor(candidate, 1, {pull_requests: [{number: 89}]})],
+    [ciFor(candidate), ciFor(candidate, 1, {id: 302, run_number: 20, conclusion: 'success'})],
+  ]) {
+    api.mock.runs = runs;
+    await api.run();
+    assert.deepEqual(api.posts, []);
+    assert.equal(api.state().active.attempts, 0);
+    assert.equal(api.state().active.retry, undefined);
+  }
+  api.mock.readError = new Error('Actions offline');
+  const before = api.writes.length;
+  await assert.rejects(api.run(), /Actions offline/);
+  assert.equal(api.writes.length, before);
+});
+
+test('crashes before dispatch and after POST recover from durable state', async () => {
+  const api = queueApi();
+  api.mock.failSavePhase = 'requested';
+  await assert.rejects(api.run(), /ref update failed/);
+  assert.deepEqual(api.posts, []);
+  api.mock.failSavePhase = 'accepted';
+  await assert.rejects(api.run(), /ref update failed/);
+  assert.equal(api.state().active.retry.phase, 'requested');
+  assert.equal(api.state().active.attempts, 0);
+  delete api.mock.failSavePhase;
+  await api.run();
+  assert.deepEqual(api.posts, [301]);
+  api.mock.runs = [ciFor(candidate, 2, {conclusion: 'success'})];
+  await api.run();
+  assert.equal(api.state().active.attempts, 1);
+  assert.deepEqual(api.posts, [301]);
+});
+
+test('a refused POST keeps the request and revalidates it before a delayed replay', async () => {
+  const api = queueApi();
+  api.mock.postError = new Error('Actions refused rerun');
+  await assert.rejects(api.run(), /refused rerun/);
+  await api.run();
+  assert.equal(api.state().active.attempts, 0);
+  assert.deepEqual(api.posts, [301]);
+  delete api.mock.postError;
+  api.mock.now = '2026-11-23T09:11:00Z';
+  await api.run();
+  assert.deepEqual(api.posts, [301, 301]);
+  assert.equal(api.state().active.retry.phase, 'accepted');
+  assert.equal(api.state().active.attempts, 0);
+});
+
+test('a changed PR or newer run between saving and dispatch receives no rerun', async () => {
+  const api = queueApi();
+  api.mock.dispatchDetail = changed;
+  await assert.rejects(api.run(), /changed before CI retry/);
+  assert.equal(api.state().active.attempts, 0);
+  assert.deepEqual(api.posts, []);
+  const newer = queueApi();
+  newer.mock.dispatchRuns = [ciFor(candidate, 1, {id: 302, run_number: 20, conclusion: 'success'}), ciFor(candidate)];
+  await newer.run();
+  assert.deepEqual(newer.posts, []);
+  assert.equal(newer.state().active.retry.phase, 'requested');
+  await newer.run();
+  assert.equal(newer.state().active.retry, undefined);
+  assert.equal(newer.state().active.attempts, 0);
+});
+
+test('a new run can replace a missing run without inheriting undocumented attempts', () => {
+  const replacement = ciFor(candidate, 1, {id: 377, run_number: 20});
+  const result = observe(retry1.state, badChecks, [candidate], [replacement]);
+  assert.equal(result.state.active.retry.runId, 377);
+  assert.equal(result.state.active.attempts, 0);
+  assert.equal(result.state.history.filter(h => h.action === 'retry-superseded').length, 1);
+  assert.deepEqual(result.actions.map(a => a.type), ['rerun']);
+});
+
+test('old observation counts are archived once; conflicts and deferred requests survive serialization', () => {
+  const previous = {...first.state, schema: 1, active: {...first.state.active, attempts: 3, conflicts: 1}};
+  const upgraded = plan({state: previous, openPulls: [batch[6]], now: monday});
+  assert.equal(upgraded.state.active.attempts, 0);
+  assert.equal(upgraded.state.active.conflicts, 1);
+  assert.deepEqual(upgraded.state.history.at(-1), {at: monday, action: 'legacy-retry-count', number: 7, sha: batch[6].head.sha, attempts: 3});
+  assert.deepEqual(plan({state: upgraded.state, openPulls: [batch[6]], now: monday}).state, upgraded.state);
+  const deferred = observe(retry1.state, [], [human, candidate]);
+  const reopened = observe(deferred.state, [], []);
+  assert.deepEqual(reopened.state.active.retry, retry1.state.active.retry);
 });
