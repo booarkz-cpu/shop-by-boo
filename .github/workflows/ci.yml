@@ -19,6 +19,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  python315-native-arm64:
+    name: Python 3.15 native ARM64 dependency smoke
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+      - name: Install and import on native ARM64
+        run: |
+          test "$(uname -m)" = aarch64
+          for service in backend support-pro; do
+            extra=requirements-test.txt
+            if [ "$service" = support-pro ]; then extra=requirements-dev.txt; fi
+            python -m venv "$RUNNER_TEMP/$service"
+            py="$RUNNER_TEMP/$service/bin/python"
+            "$py" -m pip install --upgrade pip
+            "$py" -m pip install --only-binary=:all: -r "services/$service/requirements.txt" -r "services/$service/$extra"
+            "$py" -m pip check
+            "$py" -c 'import asyncpg, cryptography, PIL, yaml, uvloop, httptools, pydantic_core; assert yaml.safe_load("ok: true") == {"ok": True}'
+            "$py" -c 'from cryptography.hazmat.primitives.ciphers.aead import AESGCM; from PIL import Image; from io import BytesIO; key = AESGCM.generate_key(bit_length=256); cipher = AESGCM(key); nonce = bytes(12); assert cipher.decrypt(nonce, cipher.encrypt(nonce, b"smoke", None), None) == b"smoke"; buf = BytesIO(); Image.new("RGB", (2, 2)).save(buf, format="PNG"); buf.seek(0); assert Image.open(buf).size == (2, 2)'
+            "$py" -c 'import asyncio, uvloop; loop = uvloop.new_event_loop(); assert loop.run_until_complete(asyncio.sleep(0, result=42)) == 42; loop.close()'
+            if [ "$service" = backend ]; then
+              "$py" -c 'import maxminddb; from reportlab.pdfgen import canvas; from io import BytesIO; buf = BytesIO(); pdf = canvas.Canvas(buf); pdf.drawString(20, 20, "ARM64 smoke"); pdf.save(); assert buf.getvalue().startswith(b"%PDF-")'
+            fi
+          done
+
   python315-wheels:
     name: Python 3.15 wheel availability (${{ matrix.arch }})
     runs-on: ubuntu-24.04
@@ -880,7 +908,7 @@ jobs:
     # A new job must be added to `needs` — otherwise the gate does not wait for it.
     name: CI gate
     if: always()
-    needs: [python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    needs: [python315-native-arm64, python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
