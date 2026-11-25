@@ -27,6 +27,24 @@ function isDependabot(pull) {
   return login === 'dependabot[bot]' && String(pull.head && pull.head.ref || '').startsWith('dependabot/');
 }
 
+// pulls.list describes queue membership. Only pulls.get computes mergeability.
+// With multiple open PRs, serialize intake first using the list alone.
+async function inspectOpenPulls(github, repo, delay = ms => new Promise(resolve => setTimeout(resolve, ms))) {
+  const pulls = await github.paginate(github.rest.pulls.list, {...repo, state: 'open', per_page: 100});
+  if (pulls.length !== 1 || !isDependabot(pulls[0])) return pulls;
+  const [listed] = pulls;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await delay(1000 * attempt);
+    const {data} = await github.rest.pulls.get({...repo, pull_number: listed.number});
+    if (data.state !== 'open' || data.number !== listed.number || !isDependabot(data) ||
+        data.head.sha !== listed.head.sha || data.base.sha !== listed.base.sha || data.base.ref !== listed.base.ref) {
+      throw new Error(`PR #${listed.number} changed during queue inspection`);
+    }
+    if (typeof data.mergeable === 'boolean') return [data];
+  }
+  throw new Error(`GitHub has not computed mergeability for #${listed.number} after 3 reads. Queue unchanged; the next intake will retry.`);
+}
+
 function isSecurity(pull) {
   const labels = (pull.labels || []).map((label) => String(label.name || label).toLowerCase());
   const text = `${pull.title || ''}\n${pull.body || ''}`;
@@ -118,9 +136,10 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
 
   const ranked = dependabot.map((pull) => ({pull, item: remember(pull, 'active', {})})).sort((a, b) => byPriority(a.item, b.item));
   let winner = ranked[0] || null;
-  if (winner) {
+  if (winner && open.length === 1) {
     const checks = (checksByNumber || {})[winner.pull.number] || [];
-    const dirty = winner.pull.mergeable_state === 'dirty';
+    if (typeof winner.pull.mergeable !== 'boolean') throw new Error(`Unknown mergeability for #${winner.pull.number}`);
+    const dirty = !winner.pull.mergeable;
     if (dirty) {
       const conflicts = winner.item.conflicts || 0;
       if (conflicts >= 1) {
@@ -189,5 +208,5 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
 
 module.exports = {
   ECOSYSTEMS, MAX_ATTEMPTS, emptyState, ecosystemOf, isDependabot, isSecurity,
-  plan, checksFailed,
+  plan, checksFailed, inspectOpenPulls,
 };

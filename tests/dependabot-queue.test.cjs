@@ -2,7 +2,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {plan, ecosystemOf, isSecurity} = require('../scripts/dependabot-queue.cjs');
+const test = require('node:test');
+const {plan, ecosystemOf, isSecurity, inspectOpenPulls} = require('../scripts/dependabot-queue.cjs');
 
 const monday = '2026-11-23T09:00:00Z';
 function pull(number, ecosystem, createdAt, extra = {}) {
@@ -14,7 +15,9 @@ function pull(number, ecosystem, createdAt, extra = {}) {
     created_at: createdAt,
     user: {login: 'dependabot[bot]'},
     labels: extra.labels || [{name: 'dependencies'}],
-    mergeable_state: extra.mergeable_state || 'clean',
+    state: 'open',
+    base: {ref: 'main', sha: 'b'.repeat(40)},
+    mergeable: true,
     head: {ref: `dependabot/${slug}/dir/${ecosystem}-${number}`, sha: `${number}`.padStart(40, 'a')},
   };
 }
@@ -60,7 +63,7 @@ assert.equal(failed.actions.find((action) => action.type === 'reopen').number, 1
 assert.ok(failed.state.deferred.some((item) => item.number === 7 && item.status === 'failed'));
 
 const conflict = plan({
-  openPulls: [{...batch[6], mergeable_state: 'dirty'}],
+  openPulls: [{...batch[6], mergeable: false}],
   state: {...first.state, active: {...first.state.active, conflicts: 1}},
   checksByNumber: {},
   now: '2026-11-23T14:00:00Z',
@@ -137,7 +140,7 @@ const retry2 = observe(pending.state, badChecks);
 assert.equal(retry2.state.active.attempts, 2);
 const exhausted = observe(observe(retry2.state, pendingChecks).state, badChecks);
 assert.equal(exhausted.state.deferred.find(item => item.number === 1).status, 'failed');
-const dirtyCandidate = {...candidate, mergeable_state: 'dirty'};
+const dirtyCandidate = {...candidate, mergeable: false};
 const rebased = observe(null, [], [dirtyCandidate]);
 assert.equal(rebased.state.active.conflicts, 1);
 const deferredConflict = observe(rebased.state, [], [human, dirtyCandidate]);
@@ -150,7 +153,7 @@ const changed = {...candidate, head: {...candidate.head, sha: 'f'.repeat(40)}};
 const freshRetry = observe(retry2.state, badChecks, [changed]);
 assert.equal(freshRetry.state.active.attempts, 1);
 assert.equal(freshRetry.state.active.sha, changed.head.sha);
-const freshConflict = observe(rebased.state, [], [{...changed, mergeable_state: 'dirty'}]);
+const freshConflict = observe(rebased.state, [], [{...changed, mergeable: false}]);
 assert.equal(freshConflict.state.active.conflicts, 1);
 
  // Deferral actions must use normalized security and creation-time priority.
@@ -168,3 +171,70 @@ for (const order of [priorityBatch, [...priorityBatch].reverse()]) {
     [40, 30, 20, 21, 10].map(number => ['close', number]));
   assert.deepEqual(result.state.deferred.map(item => item.number), [40, 30, 20, 21, 10]);
 }
+
+const repo = {owner: 'shop', repo: 'queue'};
+function pullApi(listed, responses) {
+  const delays = [];
+  const list = () => {};
+  let reads = 0;
+  const github = {
+    paginate: async (method, args) => {
+      assert.equal(method, list);
+      assert.deepEqual(args, {...repo, state: 'open', per_page: 100});
+      return listed;
+    },
+    rest: {pulls: {list, get: async args => {
+      assert.deepEqual(args, {...repo, pull_number: listed[0].number});
+      const value = responses[reads++];
+      if (value instanceof Error) throw value;
+      assert.ok(value, 'unexpected additional PR read');
+      return {data: value};
+    }}},
+  };
+  return {github, inspect: () => inspectOpenPulls(github, repo, async ms => delays.push(ms)), delays, reads: () => reads};
+}
+
+test('a conflict from the PR detail triggers a rebase after GitHub finishes computing it', async () => {
+  const listed = {...candidate, mergeable: undefined, mergeable_state: 'clean'};
+  const api = pullApi([listed], [{...candidate, mergeable: null}, {...candidate, mergeable: false, mergeable_state: 'dirty'}]);
+  const openPulls = await api.inspect();
+  const result = plan({openPulls, now: monday});
+  assert.deepEqual(result.actions.map(action => action.comment), ['@dependabot rebase']);
+  assert.equal(result.state.active.conflicts, 1);
+  assert.deepEqual(api.delays, [1000]);
+});
+
+test('unknown mergeability has a bounded read budget and a later intake can recover', async () => {
+  const unknown = {...candidate, mergeable: null, mergeable_state: 'unknown'};
+  const api = pullApi([candidate], [unknown, unknown, unknown, candidate]);
+  await assert.rejects(api.inspect(), /after 3 reads/);
+  assert.deepEqual(api.delays, [1000, 2000]);
+  const result = plan({openPulls: await api.inspect(), now: monday});
+  assert.deepEqual(result.actions, []);
+  assert.equal(result.state.active.conflicts, 0);
+  assert.equal(api.reads(), 4);
+});
+
+test('changed head, base, PR state or an API error aborts before planning', async () => {
+  for (const detail of [
+    {...candidate, head: {...candidate.head, sha: 'f'.repeat(40)}},
+    {...candidate, base: {...candidate.base, sha: 'c'.repeat(40)}},
+    {...candidate, base: {...candidate.base, ref: 'another-branch'}},
+    {...candidate, state: 'closed'},
+    new Error('unavailable'),
+  ]) {
+    const api = pullApi([candidate], [detail]);
+    await assert.rejects(api.inspect(), /changed during|unavailable/);
+    assert.equal(api.reads(), 1);
+  }
+});
+
+test('an uncomputed PR cannot stall independent intake or spend a retry on a list snapshot', async () => {
+  for (const listed of [[human, candidate], [candidate, batch[1]]]) {
+    const api = pullApi(listed.map(p => ({...p, mergeable: null})), []);
+    const result = plan({openPulls: await api.inspect(), checksByNumber: {1: badChecks}, now: monday});
+    assert.equal(api.reads(), 0);
+    assert.deepEqual(result.actions.map(a => a.type), ['close']);
+    assert.equal(result.state.deferred.length, 1);
+  }
+});
