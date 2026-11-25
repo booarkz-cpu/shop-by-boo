@@ -12,8 +12,8 @@
 |---|---|---|---|
 | `apps/vpn-client/android` | бывш. `mobile/android-client` | 1 | **перенесено в v28.149.0** |
 | `apps/vpn-client/ios` | — (клиента iOS нет) | — | не создаётся: пустой модуль |
-| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | бывш. `mobile/android-user`; `mobile/ios-user` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
-| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | бывш. `mobile/android-admin`; `mobile/ios-admin` | 2а / 2б | Android перенесён в v28.151.0; iOS — следующим выпуском |
+| `apps/vpn-shop/android`, `apps/vpn-shop/ios` | прежние Android- и iOS-каталоги магазина | 2а / 2б | Android в v28.151.0, iOS в v28.152.0 |
+| `apps/lucy-admin/android`, `apps/lucy-admin/ios` | прежние Android- и iOS-каталоги администратора | 2а / 2б | Android в v28.151.0, iOS в v28.152.0 |
 | `apps/lucy-admin/web` | бывш. `admin` | 3 | **перенесено в v28.153.0** |
 | `apps/user-cabinet` | бывш. `cabinet` | 3 | **перенесено в v28.153.0** |
 | `apps/telegram-mini-app` | бывш. `miniapp` | 3 | **перенесено в v28.153.0** |
@@ -21,13 +21,27 @@
 | `services/backend` (вместо `services/api` и остальных сервисов промпта) | бывш. `backend` — один FastAPI с модулями (`auth*`, `payment*`, `subscription*`, `remnawave*`, `rw_*`, `autoselect*`, `masque*`, `notification*` …) | 5 | **перенесено в v28.158.0** целиком, без деления на службы; по старому пути остался `backend/app/main.py` — только номер версии для обновления установленных серверов |
 | `services/support-pro` | бывш. `support-pro` | 5 | **перенесено в v28.158.0**; настройки установленного сервера остались в `support-pro/.env` |
 | `packages/localization` | бывш. `mobile/l10n` | 2а | **перенесено в v28.151.0** |
-| `packages/*` (shared-ui, shared-api, …) | — (общего кода между приложениями нет) | — | не создаются, пока нет общего кода |
+| Общие зависимости | каталоги локализации, AAR движка VPN, исходники кабинета для Mini App | 2–3 | фактические потребители перечислены ниже |
 | `infrastructure/deployment` (установщик, сборка, WireGuard, сертификат почты), `infrastructure/reverse-proxy` (Caddy, nginx), `infrastructure/monitoring` (Prometheus, Grafana) | бывш. `deploy` | 4 | **перенесено в v28.154.0**; в `deploy/` остались пять переходников (`install-vps.sh`, `install-docker.sh`, `install-status.sh`, `resume-vps-after-pin.sh`, `build-production.sh`) |
 | `infrastructure/provisioning` | бывш. `terraform` | 4 | **перенесено в v28.154.0** |
 | `database/migrations` | `services/backend/alembic`, `services/support-pro/alembic` | 5 | вместе с сервисами |
 | `scripts/…`, `tests/…`, `docs/…`, `.github/workflows` | уже на месте | — | без изменений |
 
-Остальное (`browser-extension`, `desktop`, `corgi-cli`, `screenshots`) — в `apps/` на этапе 3, если это действующий код.
+В корне также находятся расширение браузера (`browser-extension`), описания настольных клиентов и CLI (`desktop`, `corgi-cli`) и снимки экранов (`screenshots`).
+
+## Границы трёх продуктов
+
+Монорепозиторий [shop-by-boo](https://github.com/booarkz-cpu/shop-by-boo) содержит следующие точки сборки и контракты.
+
+| Продукт | Сборка | Данные и API |
+|---|---|---|
+| VPN Shop | Android и iOS в `apps/vpn-shop`, кабинет и Telegram Mini App собираются из собственных каталогов | Клиентская сессия открывает маршруты `/api/me`. Заказы, подписки и платежи принадлежат Backend. Support Pro обращается к собственной базе, связь с магазином проходит по HTTP. |
+| Corgi Lucy Client | Отдельный Gradle-проект `apps/vpn-client/android`, application ID `shop.corgi.client`, собственная версия и APK | Профили и настройки хранятся на устройстве. `Vault.kt` защищает значения ключом Android Keystore. Клиент принимает ссылки подписок. |
+| Lucy Admin | Android и iOS в `apps/lucy-admin`, Next.js в `apps/lucy-admin/web` | Административные сессии и права проверяются при обращении к `/api/admin`. Операционные изменения выполняет Backend. |
+
+`packages/localization` содержит общие каталоги строк. VPN Shop и Client используют один `libv2ray.aar` из `apps/vpn-shop/android/app/libs`. Mini App использует исходники кабинета. Границы доступа описаны в [карте доменов](architecture/DOMAIN_BOUNDARIES.md), маршруты и авторизация — в [каталоге API](architecture/API_CATALOG.md), обмен данными — в [описании потоков](architecture/DATA_FLOW.md). Миграции магазина и Support Pro находятся в каталогах Alembic соответствующих служб.
+
+25.11.2026 проверены семь файлов тестов по совместимости раскладок, архитектуре, правам административных маршрутов, клиентским контрактам, мобильным проектам и выпускному архиву. Все 41 тест прошли. На коммите `7dcdcf3631345387800c56f21666370bf0044012` прошли также [27 заданий основного CI](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45619459472/attempts/2) и [три задания мобильных пакетов](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45619459805). В [выпуске v28.161.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) отдельно проверены SHA-256 APK магазина, клиента и администратора и двух unsigned IPA.
 
 ## Порядок и проверка каждого этапа
 
