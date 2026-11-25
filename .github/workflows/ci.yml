@@ -19,6 +19,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  python315-wheels:
+    name: Python 3.15 wheel availability (${{ matrix.arch }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+      - name: Audit binary dependency resolution
+        env:
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          python -m pip install --upgrade pip
+          failed=0
+          for service in backend support-pro; do
+            extra=requirements-test.txt
+            if [ "$service" = support-pro ]; then extra=requirements-dev.txt; fi
+            if python -m pip download --only-binary=:all: --python-version 3.15 --implementation cp --abi cp315 --platform "manylinux_2_17_$TARGET_ARCH" --platform "manylinux2014_$TARGET_ARCH" --platform "manylinux_2_28_$TARGET_ARCH" --platform "manylinux_2_34_$TARGET_ARCH" --dest "$RUNNER_TEMP/wheels/$service" -r "services/$service/requirements.txt" -r "services/$service/$extra"; then
+              echo "$service: binary resolution succeeded for $TARGET_ARCH" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning::$service binary resolution failed for $TARGET_ARCH; wheel acceptance remains unverified"
+              echo "$service: binary resolution FAILED for $TARGET_ARCH" >> "$GITHUB_STEP_SUMMARY"
+              failed=1
+            fi
+          done
+          # Diagnostic until all upstream wheels are available; do not claim acceptance.
+          if [ "$failed" = 1 ]; then echo "Wheel acceptance is NOT confirmed." >> "$GITHUB_STEP_SUMMARY"; fi
+
   backend:
     # v28.75.0: the suite runs in two halves on separate runners (each with its own PostgreSQL and Redis): one
     # runner took 25–30 minutes and a slow one hit the step limit.
@@ -847,7 +880,7 @@ jobs:
     # A new job must be added to `needs` — otherwise the gate does not wait for it.
     name: CI gate
     if: always()
-    needs: [backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    needs: [python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
