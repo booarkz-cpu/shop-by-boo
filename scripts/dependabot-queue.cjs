@@ -96,7 +96,7 @@ function plan({openPulls, state, checksByNumber, now, mergedNumbers}) {
   if (others.length) {
     current.active = null;
     const deferred = [];
-    for (const pull of dependabot.sort(byPriority)) {
+    for (const pull of dependabot.sort((a, b) => byPriority(recordOf(a), recordOf(b)))) {
       const item = remember(pull, 'waiting', {note: 'deferred while another pull request is open'});
       deferred.push(item);
       actions.push({type: 'close', number: pull.number,
