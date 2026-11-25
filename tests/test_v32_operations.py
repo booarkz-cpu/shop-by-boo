@@ -52,4 +52,5 @@ def test_build_stage_images_are_pinnable():
         assert 'ARG NODE_BASE_IMAGE' in text
         assert 'ARG NGINX_BASE_IMAGE' in text
     dependencies = read(ROOT/'docs/EXTERNAL_DEPENDENCIES.md')
-    assert f'| Сборка трёх веб-приложений | Node.js 26.13.1 | \`{node_image.rsplit("@sha256:", 1)[1]}\` |' in dependencies
+    node_digest = node_image.rsplit("@sha256:", 1)[1]
+    assert f"| Сборка трёх веб-приложений | Node.js 26.13.1 | `{node_digest}` |" in dependencies
