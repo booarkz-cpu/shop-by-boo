@@ -255,6 +255,65 @@ test('an uncomputed PR cannot stall independent intake or spend a retry on a lis
 // Exercise the same github-script entry point as Actions, including the two
 // durable ref updates surrounding the POST. Only GitHub and time are replaced.
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const lintScript = lint.split('      - name: At most one active pull request\n')[1]
+  .split('          script: |\n')[1].split('\n      - ')[0];
+const checkOpenPulls = new AsyncFunction('github', 'context', 'core', 'setTimeout', lintScript);
+
+async function observeLint(...snapshots) {
+  const errors = [];
+  let reads = 0, waited = 0;
+  const repo = {owner: 'owner', repo: 'shop'};
+  const list = () => {};
+  const github = {rest: {pulls: {list}}, async paginate(method, args) {
+    assert.equal(method, list);
+    assert.deepEqual(args, {...repo, state: 'open', per_page: 100});
+    const current = snapshots[Math.min(reads++, snapshots.length - 1)];
+    if (current instanceof Error) throw current;
+    return current;
+  }};
+  await checkOpenPulls(github, {repo}, {info() {}, setFailed(message) { errors.push(message); }}, (resume, ms) => {
+    assert.ok(ms > 0);
+    waited += ms;
+    resume();
+  });
+  return {reads, waited, errors};
+}
+
+test('the PR count is checked again after Dependabot serializes a batch', async () => {
+  for (const winner of [human, batch[6]]) {
+    const result = await observeLint([winner, ...batch.slice(0, 5)], [winner, batch[0]], [winner]);
+    assert.deepEqual(result.errors, []);
+    assert.equal(result.reads, 3);
+    assert.ok(result.waited > 0);
+  }
+  assert.deepEqual(await observeLint([human]), {reads: 1, waited: 0, errors: []});
+  assert.deepEqual(await observeLint([]), {reads: 1, waited: 0, errors: []});
+});
+
+test('the PR count includes drafts and rejects two non-queued PRs immediately', async () => {
+  // Neither a bot-like branch nor a bot login alone qualifies for intake.
+  for (const other of [
+    {...batch[0], draft: true, user: human.user},
+    {...batch[0], draft: true, head: {ref: 'feature/ordinary'}},
+  ]) {
+    const result = await observeLint([human, other, batch[1]]);
+    assert.equal(result.reads, 1);
+    assert.equal(result.waited, 0);
+    assert.match(result.errors[0], /#50, #1, #2/);
+  }
+});
+
+test('unresolved overlap, a newly opened ordinary PR and an unreadable list fail the gate', async () => {
+  const stalled = await observeLint([human, batch[0]]);
+  assert.equal(stalled.waited, 5 * 60 * 1000);
+  assert.match(stalled.errors[0], /#50, #1/);
+  const second = {...human, number: 51, draft: true};
+  const changed = await observeLint([human, batch[0]], [human, second]);
+  assert.equal(changed.reads, 2);
+  assert.match(changed.errors[0], /#50, #51/);
+  await assert.rejects(observeLint([human, batch[0]], new Error('unavailable')), /unavailable/);
+});
+
 const workflowScript = workflow.split('          script: |\n')[1];
 assert.ok(workflowScript);
 const intake = new AsyncFunction('github', 'context', 'core', 'require', 'process', 'Date', workflowScript);
