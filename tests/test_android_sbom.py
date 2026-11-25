@@ -198,3 +198,26 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
         apps[0]["components"] = []
     with pytest.raises(ValueError):
         validator["require_release_inventory"](bom)
+
+
+def test_versioned_wrapper_checks_the_commit_query_and_linked_module_version(monkeypatch):
+    import json
+
+    name = "github.com/2dust/AndroidLibXrayLite"
+    version = "v0.0.0-20261110063532-aaaaaaaaaaaa"
+    component = {"name": name, "version": version, "properties": [{"name": "go:module:h1", "value": "h1:expected"}]}
+    values = {"Path": name, "Version": version, "Sum": "h1:expected", "Origin": {"Hash": "c" * 40}}
+    queries = []
+
+    def output(command, **kwargs):
+        queries.append(command[-1])
+        return json.dumps(values)
+
+    monkeypatch.setattr(MODULE["subprocess"], "check_output", output)
+    with pytest.raises(ValueError, match="wrapper revision"):
+        MODULE["add_go_license_evidence"](component, COMMIT)
+    values["Origin"]["Hash"] = COMMIT
+    values["Version"] = "v1.0.0"
+    with pytest.raises(ValueError, match="source version"):
+        MODULE["add_go_license_evidence"](component, COMMIT)
+    assert queries == [f"{name}@{COMMIT}"] * 2

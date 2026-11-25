@@ -100,19 +100,20 @@ def go_source_evidence(archive_path, prefix, expected_sum):
 
 def add_go_license_evidence(component, commit):
     name, version = component["name"], component["version"]
-    local_wrapper = name == "github.com/2dust/AndroidLibXrayLite" and version == commit
+    wrapper = name == "github.com/2dust/AndroidLibXrayLite"
+    query = commit if wrapper else version
     # Resolve published module archives only. A local replacement in the binary is accepted
     # solely for the wrapper, whose actual upstream revision is recorded when building the AAR.
     env = {**os.environ, "GO111MODULE": "on", "GOWORK": "off", "GOTOOLCHAIN": "local",
            "GOPROXY": "https://proxy.golang.org", "GOSUMDB": "sum.golang.org",
            "GONOSUMDB": "none", "GONOPROXY": "none", "GOPRIVATE": "", "GOVCS": "*:off"}
-    info = json.loads(subprocess.check_output(["go", "mod", "download", "-json", f"{name}@{version}"],
+    info = json.loads(subprocess.check_output(["go", "mod", "download", "-json", f"{name}@{query}"],
                                               env=env, text=True, timeout=120))
     if info.get("Path") != name or not info.get("Sum"):
         raise ValueError(f"Unexpected Go source module for {name}")
-    if local_wrapper:
-        if info.get("Origin", {}).get("Hash") != commit:
-            raise ValueError("Go source does not match the pinned Android wrapper revision")
+    if wrapper and info.get("Origin", {}).get("Hash") != commit:
+        raise ValueError("Go source does not match the pinned Android wrapper revision")
+    if wrapper and version == commit:
         expected = info["Sum"]
     else:
         expected = next(p["value"] for p in component["properties"] if p["name"] == "go:module:h1")
