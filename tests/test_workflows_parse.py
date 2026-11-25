@@ -115,5 +115,7 @@ def test_security_scanners_block_the_merge():
     assert ignored and all(" exp:20" in line for line in ignored) and len(ignored) <= 3
     # The scanner itself is pinned: a moved tag must not change what is run.
     assert ci.count("aquasec/trivy@sha256:") == 3 and "aquasec/trivy:" not in ci
+    load_workflow = next(path for path in WORKFLOWS if path.name == "load-security.yml")
+    assert re.search(r"ghcr\.io/zaproxy/zaproxy:[\w.-]+@sha256:[0-9a-f]{64}\s", load_workflow.read_text())
     for job in ("security", "containers"):
         assert not any(step.get("continue-on-error") for step in jobs[job]["steps"]), job

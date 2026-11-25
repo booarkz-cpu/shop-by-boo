@@ -86,12 +86,13 @@
 
 ### Образы инструментов сборки и CI
 
-Оба тега закреплены по SHA-256 OCI-индекса. Для каждого проверены манифесты и конфигурации linux/amd64 и linux/arm64.
+Для каждого инструмента закреплён SHA-256 OCI-индекса и проверены манифесты и конфигурации linux/amd64 и linux/arm64.
 
 | Использование | Версия программы | SHA-256 OCI-индекса | Лицензия программы |
 | --- | --- | --- | --- |
 | Компиляция входного прокси Caddy | Go 1.27.4, Alpine | `70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280` | [BSD-3-Clause](https://github.com/golang/go/blob/go1.27.4/LICENSE) |
 | Проверка и тестирование правил оповещения | Prometheus promtool 3.5.0 | `63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996` | [Apache-2.0](https://github.com/prometheus/prometheus/blob/v3.5.0/LICENSE) |
+| Пассивная проверка локального тестового стенда | OWASP ZAP, сборка `528bdf4c8c80` | `9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af` | [Apache-2.0](https://github.com/zaproxy/zaproxy/blob/528bdf4c8c808342cb1f12314a2492c8d3e0b551/LICENSE) |
 
 ### Схемы баз данных
 
