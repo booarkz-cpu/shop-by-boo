@@ -88,3 +88,5 @@ flowchart LR
 | UI-тесты | `app/src/androidTest`: экраны в демо-режиме, подсказка о батарее (`BatteryGuardTest`); CI «Android • UI tests» |
 | Сценарии Maestro | `mobile/maestro/flows`, `bash scripts/mobile/maestro-screens.sh`; CI «Android journeys (Maestro)» |
 | Скриншоты | workflow «Mobile screenshots» (демо-режим: `--ez corgi_demo true --es corgi_tab …`) |
+
+Скрипт Maestro один раз останавливает отладочное приложение и очищает данные пакета `shop.remnawave.user.preview` перед запуском набора. Каждый сценарий запускает новый процесс со своими демонстрационными данными и проверяет заданный экран. Повторная очистка в середине набора на эмуляторе API 34 приводила к отложенному завершению нового процесса при удалении предыдущей задачи. Ошибка любого сценария завершает задание с ошибкой. JUnit, иерархия экрана и logcat доступны в артефакте `maestro-android`.

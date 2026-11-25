@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
   pull_request:
-    paths: ['apps/vpn-shop/android/**', 'apps/vpn-shop/ios/**', 'apps/lucy-admin/android/**', 'apps/lucy-admin/ios/**', 'packages/localization/**', 'mobile/maestro/**', '.github/workflows/mobile-screenshots.yml']
+    paths: ['apps/vpn-shop/android/**', 'apps/vpn-shop/ios/**', 'apps/lucy-admin/android/**', 'apps/lucy-admin/ios/**', 'packages/localization/**', 'mobile/maestro/**', 'scripts/mobile/maestro-screens.sh', '.github/workflows/mobile-screenshots.yml']
 
 permissions:
   contents: read
@@ -130,12 +130,7 @@ jobs:
           script: |
             bash scripts/mobile/emulator-quiet.sh
             adb install -r apps/vpn-shop/android/app/build/outputs/apk/debug/app-debug.apk
-            # The CI emulator starts a freshly installed debug build slowly («failed to attach»): compile it ahead
-            # of time and open it once, so every flow's cold start fits Maestro's wait.
             adb shell cmd package compile -m speed -f shop.remnawave.user.preview || true
-            adb shell am start -W -n shop.remnawave.user.preview/shop.remnawave.user.MainActivity --ez corgi_demo true || true
-            sleep 8
-            adb shell am force-stop shop.remnawave.user.preview || true
             bash scripts/mobile/maestro-screens.sh
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
