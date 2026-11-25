@@ -47,6 +47,13 @@ jobs:
           done
           docker run --rm --network none --read-only --entrypoint pg_dump local/backend:ci --version | grep -E 'PostgreSQL\) 19\.'
 
+      - name: Exercise Support Pro uploads with native ClamAV
+        working-directory: services/support-pro
+        run: |
+          cp .env.example .env
+          image="$(docker compose --env-file .env --profile antivirus config --images clamav)"
+          python3 ../../scripts/ci/check-support-clamav.py "$image"
+
   python315-native-arm64:
     name: Python 3.15 native ARM64 dependency smoke
     runs-on: ubuntu-24.04-arm
