@@ -91,7 +91,7 @@
 | Компонент | Что делает |
 | --- | --- |
 | GitHub Actions | 21 workflow обеспечивает CI, сборку контейнеров и приложений, публикацию, проверку зависимостей и эксплуатационные проверки |
-| `actions/checkout` 7.0.1, `setup-java` 6.3.0, `setup-go` 7.1.0 | закреплены по SHA во всех workflow; для Java сохранены аннотации компилятора (`problem-matcher: true`) |
+| [`actions/checkout` 7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) (`3d3c42e5aac5ba805825da76410c181273ba90b1`), [`setup-java` 6.3.0](https://github.com/actions/setup-java/releases/tag/v6.3.0) (`d1374f8ac74474200d16ef8ecee22c7ae7a51880`), [`setup-go` 7.1.0](https://github.com/actions/setup-go/releases/tag/v7.1.0) (`d8cbb8045d7f43706b9177cceb36c1f91a6644d5`) | официальные stable закреплены по immutable commit SHA во всех workflow; лицензия каждого action — MIT; для Java сохранены аннотации компилятора (`problem-matcher: true`) |
 | `actions/setup-python@v7`, `setup-node@v7`, `github-script@v9` | подготовка Python и Node.js, вызовы GitHub API |
 | concurrency | группы привязаны к коммиту: `ci-${ref}-${sha}`, `docker-${ref}-${sha}` |
 | permissions | минимальные: `contents: read`, `packages: write` только в Docker |
