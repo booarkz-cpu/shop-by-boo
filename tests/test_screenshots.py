@@ -3,7 +3,12 @@
 The set is rebuilt by ``apps/lucy-admin/web/scripts/screenshots-catalog.mjs`` (Playwright on the browser fixture with demo data);
 numbers of existing sections are kept, new sections get the next numbers."""
 import re
+import runpy
+import shutil
+import subprocess
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "screenshots/admin_panel"
@@ -32,3 +37,25 @@ def test_readme_images_exist():
             continue
         for ref in re.findall(r"!\[[^\]]*\]\(((?:docs/)?screenshots/[^)\s]+)\)", path.read_text()):
             assert (ROOT / ref).is_file(), f"{doc}: {ref} is missing"
+
+
+def test_inventory_counts_identical_tracked_frames_once_and_ignores_local_captures(tmp_path, monkeypatch):
+    render = runpy.run_path(str(ROOT / "scripts/audit/check_screenshots.py"))["render"]
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    group = tmp_path / "screenshots"
+    group.mkdir()
+    source = ROOT / "screenshots/storefront_user/03_overview.png"
+    for name in ("first.png", "copy.png", "untracked.png"):
+        shutil.copyfile(source, group / name)
+    scenario = tmp_path / "scenario.js"
+    scenario.touch()
+    subprocess.run(["git", "add", "screenshots/first.png", "screenshots/copy.png", "scenario.js"], cwd=tmp_path, check=True)
+    monkeypatch.setitem(render.__globals__, "GROUPS", (("Кабинет", "screenshots/*.png", "scenario.js"),))
+    output = render(tmp_path)
+    assert output == render(tmp_path)
+    assert "| Кабинет | 2 | 1440×900 (2) |" in output
+    assert "screenshots/copy.png" in output and "screenshots/first.png" in output
+    assert "untracked.png" not in output
+    (group / "first.png").write_bytes(b"invalid screenshot")
+    with pytest.raises(ValueError, match="Invalid PNG"):
+        render(tmp_path)

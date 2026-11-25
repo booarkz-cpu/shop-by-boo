@@ -298,13 +298,17 @@ const cabinet = [
     if (name === '04_plans') {
       // Checkout result: pay for the first plan from the plans page.
       await page.evaluate(csrfFetch);
-      await page.evaluate(async () => {
+      const confirmation = await page.evaluate(async () => {
         const plans = await window.__api('/api/plans');
-        await window.__buy(plans[0].id);
+        return window.__buy(plans[0].id);
       });
-      const overview = page.locator('aside, nav').getByRole('button', {name: 'Обзор', exact: true}).first();
-      await overview.click();
-      await page.waitForTimeout(1500);
+      if (!confirmation.ok || !Number.isSafeInteger(confirmation.payment_id) || confirmation.payment_id < 1) {
+        throw new Error('Sandbox checkout did not return a confirmed payment ID');
+      }
+      await page.locator('aside, nav').getByRole('button', {name: 'Платежи', exact: true}).first().click();
+      const receipt = page.locator(`a[href$="/api/me/payments/${confirmation.payment_id}/invoice"]`);
+      await receipt.waitFor({state: 'visible'});
+      await receipt.scrollIntoViewIfNeeded();
       await page.screenshot({path: path.join(userDir, '05_checkout_success.png')});
     }
   }

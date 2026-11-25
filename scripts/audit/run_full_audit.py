@@ -19,6 +19,7 @@ CHECKS = (
     ("requirements", "scripts/audit/requirements_register.py", "--check"),
     ("source-traceability", "scripts/audit/source_traceability.py", "--check"),
     ("project-map", "scripts/generate-project-map.py", "--check"),
+    ("screenshot-inventory", "scripts/audit/check_screenshots.py", "--check"),
     ("release-notes", "scripts/audit/check_release_changelog.py"),
     ("documentation-links", "scripts/check-doc-links.py"),
     ("runtime-placeholders", "scripts/check-runtime-placeholders.py"),

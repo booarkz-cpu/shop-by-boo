@@ -341,8 +341,10 @@ jobs:
           # Only the generated admin block of README changes; the rest of README stays as on the branch.
           commit() {
             python3 scripts/screenshots/readme_admin.py "$shots"/admin-screenshots/admin-screenshots-index.json
+            git add screenshots
+            python3 scripts/audit/check_screenshots.py
             python3 scripts/generate-project-map.py
-            git add screenshots README.md docs/PROJECT_FILE_MAP.md
+            git add README.md docs/PROJECT_FILE_MAP.md docs/SCREENSHOT_COVERAGE.md
             git diff --cached --quiet && { echo "No changes"; return 0; }
             git commit -q -m "Скриншоты: приложения Android/iOS, админ-панель и кабинет (workflow Mobile screenshots)"
           }

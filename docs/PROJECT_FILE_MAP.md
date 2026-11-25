@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2756**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2758**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -811,6 +811,7 @@
 | [docs/ROADMAP_UI_AND_SCREENSHOTS.md](../docs/ROADMAP_UI_AND_SCREENSHOTS.md) | Документация |
 | [docs/RW_DRIFT.md](../docs/RW_DRIFT.md) | Документация |
 | [docs/SBOM_AND_LICENSES.md](../docs/SBOM_AND_LICENSES.md) | Документация |
+| [docs/SCREENSHOT_COVERAGE.md](../docs/SCREENSHOT_COVERAGE.md) | Документация |
 | [docs/SECURITY_BASELINE.md](../docs/SECURITY_BASELINE.md) | Документация |
 | [docs/SECURITY_FINDINGS.md](../docs/SECURITY_FINDINGS.md) | Документация |
 | [docs/SERVER_PORTS.md](../docs/SERVER_PORTS.md) | Документация |
@@ -1811,6 +1812,7 @@
 | [scripts/audit/check_payment_provider_registry.py](../scripts/audit/check_payment_provider_registry.py) | Эксплуатация и релиз |
 | [scripts/audit/check_release_changelog.py](../scripts/audit/check_release_changelog.py) | Эксплуатация и релиз |
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |
+| [scripts/audit/check_screenshots.py](../scripts/audit/check_screenshots.py) | Эксплуатация и релиз |
 | [scripts/audit/check_spelling.py](../scripts/audit/check_spelling.py) | Эксплуатация и релиз |
 | [scripts/audit/requirements_register.py](../scripts/audit/requirements_register.py) | Эксплуатация и релиз |
 | [scripts/audit/run_full_audit.py](../scripts/audit/run_full_audit.py) | Эксплуатация и релиз |
