@@ -13,13 +13,12 @@ import pytest_asyncio
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi import HTTPException
 from sqlalchemy import select, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from app import db as app_db
 from app import e2e_v2, main
 from app.config import settings
 from app.models import AdminUser, Base, E2ECase, E2ERun, E2EWebhookCapture, Payment, Plan, RefundRequest, Subscription
-from test_subscription_commerce import database
+from test_subscription_commerce import database, isolated_payment_background
 
 ADMIN = SimpleNamespace(id=1, email="root@example.test", role="admin", disabled=False)
 NOW = datetime(2026, 10, 24, 12, 0, tzinfo=timezone.utc)
@@ -217,10 +216,6 @@ async def shop(monkeypatch):
             yield session
     main.app.dependency_overrides[main.get_db] = get_db_override
     monkeypatch.setattr(main, "engine", engine)
-    # Purchase conversions open their own session after the payment commits.
-    monkeypatch.setattr(app_db, "SessionLocal", async_sessionmaker(engine, expire_on_commit=False))
-    background_tasks = set()
-    monkeypatch.setattr(main, "_BACKGROUND_TASKS", background_tasks)
     monkeypatch.setattr(main, "redis_client", redis)
     monkeypatch.setattr(main, "YooKassaProvider", FakeYooKassa)
     monkeypatch.setattr(main, "RemnawaveClient", FakeRemnawave)
@@ -233,11 +228,11 @@ async def shop(monkeypatch):
     monkeypatch.setattr(e2e_v2.Runner, "webhook_grace", 1.0)
     FakeYooKassa.state = {"paid": False, "payment_id": None, "refunds": 0}
     FakeRemnawave.users = {}
-    yield engine
-    main.app.dependency_overrides.pop(main.get_db, None)
     try:
-        await asyncio.gather(*background_tasks)
+        async with isolated_payment_background(engine, monkeypatch):
+            yield engine
     finally:
+        main.app.dependency_overrides.pop(main.get_db, None)
         await redis.aclose()
         await engine.dispose()
         async with root.begin() as conn:
