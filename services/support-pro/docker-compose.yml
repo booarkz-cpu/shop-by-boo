@@ -100,7 +100,7 @@ services:
     tmpfs: [/tmp]
     sysctls:
       net.ipv4.ip_unprivileged_port_start: "0"
-    image: nginx:stable-alpine@sha256:985220252f3863977e468f611ef118ebd01421289dd86ee1ae99cb068c3bce2b
+    image: nginx:stable-alpine@sha256:8eb2b5540eae779603cc3db84b3986a15ecb5308b54303146eee9837c137b51a
     restart: unless-stopped
     ports: ["80:80", "443:443"]
     volumes:
