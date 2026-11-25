@@ -883,7 +883,8 @@ jobs:
     # Hosted arm64 jobs were cancelled before acquisition during the capacity incident.
     # Standard Intel macOS 26 supplies the same XCUITest scenario; arm64 build jobs remain separate.
     runs-on: macos-26-intel
-    timeout-minutes: 45
+    # A runner startup timeout took 33 minutes. Allow time to boot and test once more.
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Runner and Xcode identity
@@ -902,17 +903,18 @@ jobs:
           xcrun simctl bootstatus "$device" -b
           result_bundle="$RUNNER_TEMP/xcuitest-first.xcresult"
           run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; }
+          report_failure() {
+            grep -Eim30 'error:|failed|XCTAssert|XCTDaemonErrorDomain' "$RUNNER_TEMP/xcuitest.log" || tail -n 8 "$RUNNER_TEMP/xcuitest.log"
+            echo "::error title=XCUITest::xcodebuild failed; the full log is in the job artifact"
+          }
           if ! run_tests; then
-            # A busy macOS runner sometimes cannot launch the app at all («does not have a process ID», «Failed to launch»).
-            # Only that infrastructure failure gets one more try on a freshly erased simulator; a failed assertion does not.
-            if grep -qE "does not have a process ID|Failed to launch|Failed to get background assertion" "$RUNNER_TEMP/xcuitest.log" \
-               && ! grep -qE "XCTAssert" "$RUNNER_TEMP/xcuitest.log"; then
-              echo "::warning title=XCUITest::the simulator could not launch the app; retrying once"
+            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"); then
+              echo "::warning title=XCUITest::$reason; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
               result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"
-              run_tests || { grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1; }
+              run_tests || { report_failure; exit 1; }
             else
-              grep -E "error:|failed|XCTAssert" "$RUNNER_TEMP/xcuitest.log" | head -30 | sed 's/^/::error title=XCUITest::/'; exit 1
+              report_failure; exit 1
             fi
           fi
 

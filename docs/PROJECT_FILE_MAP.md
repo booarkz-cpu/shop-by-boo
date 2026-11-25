@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2760**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2761**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1863,6 +1863,7 @@
 | [scripts/ci/verify-pg-upgrade-fixture.py](../scripts/ci/verify-pg-upgrade-fixture.py) | Эксплуатация и релиз |
 | [scripts/ci/verify_xcuitest_results.py](../scripts/ci/verify_xcuitest_results.py) | Эксплуатация и релиз |
 | [scripts/ci/wizard-caddy-check.sh](../scripts/ci/wizard-caddy-check.sh) | Эксплуатация и релиз |
+| [scripts/ci/xcuitest_retry.py](../scripts/ci/xcuitest_retry.py) | Эксплуатация и релиз |
 | [scripts/ci/zap-summary.py](../scripts/ci/zap-summary.py) | Эксплуатация и релиз |
 | [scripts/cleanup-branches.sh](../scripts/cleanup-branches.sh) | Эксплуатация и релиз |
 | [scripts/compose-build.sh](../scripts/compose-build.sh) | Эксплуатация и релиз |
