@@ -13,8 +13,9 @@ import pytest_asyncio
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi import HTTPException
 from sqlalchemy import select, text
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app import db as app_db
 from app import e2e_v2, main
 from app.config import settings
 from app.models import AdminUser, Base, E2ECase, E2ERun, E2EWebhookCapture, Payment, Plan, RefundRequest, Subscription
@@ -216,6 +217,10 @@ async def shop(monkeypatch):
             yield session
     main.app.dependency_overrides[main.get_db] = get_db_override
     monkeypatch.setattr(main, "engine", engine)
+    # Purchase conversions open their own session after the payment commits.
+    monkeypatch.setattr(app_db, "SessionLocal", async_sessionmaker(engine, expire_on_commit=False))
+    background_tasks = set()
+    monkeypatch.setattr(main, "_BACKGROUND_TASKS", background_tasks)
     monkeypatch.setattr(main, "redis_client", redis)
     monkeypatch.setattr(main, "YooKassaProvider", FakeYooKassa)
     monkeypatch.setattr(main, "RemnawaveClient", FakeRemnawave)
@@ -230,11 +235,14 @@ async def shop(monkeypatch):
     FakeRemnawave.users = {}
     yield engine
     main.app.dependency_overrides.pop(main.get_db, None)
-    await redis.aclose()
-    await engine.dispose()
-    async with root.begin() as conn:
-        await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
-    await root.dispose()
+    try:
+        await asyncio.gather(*background_tasks)
+    finally:
+        await redis.aclose()
+        await engine.dispose()
+        async with root.begin() as conn:
+            await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
+        await root.dispose()
 
 
 async def _wait_stage(engine, run_id, stage):

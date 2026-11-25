@@ -15,8 +15,9 @@ import pytest
 import pytest_asyncio
 from fastapi import HTTPException
 from sqlalchemy import func, select, text
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app import db as app_db
 from app import main as shop
 from app.models import Base, FinancialLedger, Payment, Plan, Subscription, User
 
@@ -83,14 +84,21 @@ async def stack(monkeypatch):
                            duration_days_snapshot=30, traffic_limit_gb_snapshot=100, device_limit_snapshot=2))
         await db.commit()
     panel = Panel()
+    # Purchase conversions open their own session after the payment commits.
+    monkeypatch.setattr(app_db, "SessionLocal", async_sessionmaker(engine, expire_on_commit=False))
+    background_tasks = set()
+    monkeypatch.setattr(shop, "_BACKGROUND_TASKS", background_tasks)
     monkeypatch.setattr(shop, "redis_client", redis)
     monkeypatch.setattr(shop, "RemnawaveClient", lambda: panel)
     yield engine, panel
-    await redis.aclose()
-    await engine.dispose()
-    async with root.begin() as conn:
-        await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
-    await root.dispose()
+    try:
+        await asyncio.gather(*background_tasks)
+    finally:
+        await redis.aclose()
+        await engine.dispose()
+        async with root.begin() as conn:
+            await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
+        await root.dispose()
 
 
 async def _deliver(engine, payment_id, stats):
