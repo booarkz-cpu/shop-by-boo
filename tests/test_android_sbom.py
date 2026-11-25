@@ -114,3 +114,56 @@ def test_native_modules_use_embedded_version_and_preserve_go_checksum():
     for changed in (deps[:1], [*deps, deps[-1]], [*deps, {"Path": "local/unpinned", "Version": "(devel)"}]):
         with pytest.raises(ValueError):
             MODULE["go_modules"]({"Deps": copy.deepcopy(changed)}, COMMIT)
+
+
+def test_go_source_evidence_preserves_unmodified_terms_and_ancillary_notices(tmp_path):
+    import base64
+    import hashlib
+    from zipfile import ZipFile
+
+    source = tmp_path / "module.zip"
+    files = {"LICENSE": b"Licence including a special exception.\r\n", "NOTICE": b"Attribution\n",
+             "sub/COPYING": b"Additional terms.\n", "license_test.go": b"package demo\n",
+             "LICENSES/generate.py": b"print('generator')\n"}
+    prefix = "example.com/demo@v1.0.0/"
+    with ZipFile(source, "w") as archive:
+        for path, data in reversed(list(files.items())):
+            archive.writestr(prefix + path, data)
+    lines = [hashlib.sha256(data).hexdigest() + "  " + prefix + path + "\n" for path, data in sorted(files.items())]
+    expected = "h1:" + base64.b64encode(hashlib.sha256("".join(lines).encode()).digest()).decode()
+    evidence, properties = MODULE["go_source_evidence"](source, prefix, expected)
+    assert {x["license"]["name"]: base64.b64decode(x["license"]["text"]["content"]) for x in evidence} == {
+        path: files[path] for path in ("LICENSE", "sub/COPYING")
+    }
+    assert {p["name"]: p["value"] for p in properties} == {
+        f"go:source-file:sha256:{path}": hashlib.sha256(files[path]).hexdigest()
+        for path in ("LICENSE", "NOTICE", "sub/COPYING")
+    }
+    with pytest.raises(ValueError, match="checksum"):
+        MODULE["go_source_evidence"](source, prefix, "h1:unrelated")
+    with ZipFile(source, "a") as archive:
+        archive.writestr(prefix + "extra.go", "package demo\n")
+    with pytest.raises(ValueError, match="checksum"):
+        MODULE["go_source_evidence"](source, prefix, expected)
+
+
+@pytest.mark.parametrize("change,wrapper,error", [
+    ({"Path": "other.example/module"}, False, "source module"),
+    ({"Version": "v1.0.1"}, False, "source version"),
+    ({"Sum": "h1:different"}, False, "checksum"),
+    ({"Origin": {"Hash": "b" * 40}}, True, "wrapper revision"),
+])
+def test_go_source_lookup_rejects_mismatched_provenance(monkeypatch, change, wrapper, error):
+    import json
+
+    name = "github.com/2dust/AndroidLibXrayLite" if wrapper else "example.com/demo"
+    component = {"name": name, "version": COMMIT if wrapper else "v1.0.0",
+                 "properties": [{"name": "go:module:h1", "value": "h1:expected"}]}
+
+    def output(*args, **kwargs):
+        return json.dumps({"Path": name, "Version": "v1.0.0", "Sum": "h1:expected",
+                           "Origin": {"Hash": COMMIT}, **change})
+
+    monkeypatch.setattr(MODULE["subprocess"], "check_output", output)
+    with pytest.raises(ValueError, match=error):
+        MODULE["add_go_license_evidence"](component, COMMIT)

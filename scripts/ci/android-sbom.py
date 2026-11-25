@@ -1,7 +1,9 @@
 """Join the three releaseRuntimeClasspath graphs and the shared AAR to the repository CycloneDX BOM."""
 import argparse
+import base64
 import hashlib
 import json
+import os
 import re
 import runpy
 import shutil
@@ -54,6 +56,79 @@ def go_modules(info, commit):
     return modules
 
 
+def go_source_evidence(archive_path, prefix, expected_sum):
+    """Authenticate all ZIP entries using Go's h1 algorithm, including non-licence source files."""
+    checksum = hashlib.sha256()
+    licenses, properties = [], []
+    with ZipFile(archive_path) as archive:
+        names = sorted(archive.namelist())
+        if len(set(names)) != len(names):
+            raise ValueError("Duplicate file in Go source archive")
+        for name in names:
+            relative = name.removeprefix(prefix)
+            if relative == name or relative.startswith("/") or "\n" in name or ".." in relative.split("/"):
+                raise ValueError("Invalid Go source archive path")
+            with archive.open(name) as member:
+                digest = hashlib.file_digest(member, "sha256").hexdigest()
+            checksum.update(f"{digest}  {name}\n".encode())
+            if name.endswith("/"):
+                continue
+            filename = relative.rsplit("/", 1)[-1]
+            if Path(filename).suffix.lower() in {".go", ".c", ".h", ".py", ".sh", ".js", ".java"}:
+                continue
+            is_license = (re.fullmatch(r"(?:licen[cs]e|copying|unlicen[cs]e)(?:[._-].+)?"
+                                       r"|(?:MIT|BSD|APACHE)[_-]LICEN[CS]E(?:[._-].+)?", filename, re.I)
+                          or "/licenses/" in f"/{relative.lower()}/")
+            is_notice = re.fullmatch(r"(?:notice|patents|copyright)(?:[._-].+)?", filename, re.I)
+            if is_license or is_notice:
+                properties.append({"name": f"go:source-file:sha256:{relative}", "value": digest})
+            if is_license:
+                data = archive.read(name)
+                if not data.strip() or b"\x00" in data:
+                    raise ValueError(f"Invalid licence text in {prefix}{relative}")
+                content = base64.b64encode(data).decode("ascii")
+                licenses.append({"license": {"name": relative, "text": {
+                    "contentType": "text/plain", "encoding": "base64", "content": content}}})
+    calculated = "h1:" + base64.b64encode(checksum.digest()).decode("ascii")
+    if calculated != expected_sum:
+        raise ValueError("Go source checksum does not match the linked module")
+    if not licenses:
+        raise ValueError(f"No licence text in Go source archive {prefix}")
+    return licenses, properties
+
+
+def add_go_license_evidence(component, commit):
+    name, version = component["name"], component["version"]
+    local_wrapper = name == "github.com/2dust/AndroidLibXrayLite" and version == commit
+    # Resolve published module archives only. A local replacement in the binary is accepted
+    # solely for the wrapper, whose actual upstream revision is recorded when building the AAR.
+    env = {**os.environ, "GO111MODULE": "on", "GOWORK": "off", "GOTOOLCHAIN": "local",
+           "GOPROXY": "https://proxy.golang.org", "GOSUMDB": "sum.golang.org",
+           "GONOSUMDB": "none", "GONOPROXY": "none", "GOPRIVATE": "", "GOVCS": "*:off"}
+    info = json.loads(subprocess.check_output(["go", "mod", "download", "-json", f"{name}@{version}"],
+                                              env=env, text=True, timeout=120))
+    if info.get("Path") != name or not info.get("Sum"):
+        raise ValueError(f"Unexpected Go source module for {name}")
+    if local_wrapper:
+        if info.get("Origin", {}).get("Hash") != commit:
+            raise ValueError("Go source does not match the pinned Android wrapper revision")
+        expected = info["Sum"]
+    else:
+        expected = next(p["value"] for p in component["properties"] if p["name"] == "go:module:h1")
+        if info["Version"] != version or info["Sum"] != expected:
+            raise ValueError(f"Unexpected Go source version or checksum for {name}")
+    zip_path = Path(info["Zip"])
+    licenses, properties = go_source_evidence(zip_path, f"{name}@{info['Version']}/", expected)
+    # Go's module proxy escapes upper-case letters as an exclamation mark plus lower-case.
+    escaped = re.sub("[A-Z]", lambda m: "!" + m[0].lower(), name)
+    escaped_version = re.sub("[A-Z]", lambda m: "!" + m[0].lower(), info["Version"])
+    url = f"https://proxy.golang.org/{quote(escaped, safe='/!')}/@v/{quote(escaped_version, safe='!')}.zip"
+    component.setdefault("externalReferences", []).append({"type": "distribution", "url": url,
+        "hashes": [{"alg": "SHA-256", "content": hashed(zip_path)}]})
+    component["evidence"] = {"licenses": licenses}
+    component.setdefault("properties", []).extend(properties)
+
+
 def engine_inventory(aar, commit):
     abis = XRAY["payload"](aar, "jni", XRAY["revision"](commit))
     package = {"type": "file", "name": "libv2ray.aar", "version": commit, "bom-ref": ENGINE_REF,
@@ -76,6 +151,8 @@ def engine_inventory(aar, commit):
                            "properties": [{"name": "go:compiler", "value": info["GoVersion"]}]})
             edges.append({"ref": ref, "dependsOn": sorted(linked)})
     edges.append({"ref": ENGINE_REF, "dependsOn": [item["bom-ref"] for item in native]})
+    for component in modules.values():
+        add_go_license_evidence(component, commit)
     return [package, *native, *(modules[k] for k in sorted(modules))], edges
 
 
