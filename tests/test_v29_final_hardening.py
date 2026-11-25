@@ -196,6 +196,10 @@ if args[0] == "compose" and "port" in args:
     assert len(projects) == 1 and re.fullmatch(r"corgi-integration-[a-f0-9]{32}", projects.pop())
     assert all(Path(cwd) != repo and not Path(cwd).exists() for cwd, *_ in calls)
     assert "down" in commands[-1] and "--volumes" in commands[-1]
+    build = next(args for args in commands if "build" in args)
+    assert {"backend", "worker", "integration_tests"} <= set(build[build.index("build") + 1:])
+    assert commands.index(build) < next(i for i, args in enumerate(commands) if "up" in args)
+    assert all("--build" not in args for args in commands if "run" in args)
     settings = fixture.read_text()
     values = dict(line.split("=", 1) for line in settings.splitlines() if line and not line.startswith("#"))
     assert "external-sentinel" not in settings and not any("CHANGE_ME" in value for value in values.values())

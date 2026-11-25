@@ -99,7 +99,9 @@ for service in model["services"].values():
             raise SystemExit("Static integration network address")
 PY
 started=1
-"${compose[@]}" build backend worker
+# The test image consumes service:backend as a BuildKit context. Build both named
+# targets in one graph before running the already-built test image with --no-deps.
+"${compose[@]}" build backend worker integration_tests
 "${compose[@]}" up -d --wait --wait-timeout 240 db redis backend worker
 "${compose[@]}" exec -T backend alembic current --check-heads
 address="$("${compose[@]}" port backend 8000)"
@@ -107,6 +109,6 @@ address="$("${compose[@]}" port backend 8000)"
 curl --fail --max-time 10 "http://$address/health" >/dev/null
 # The suite can recreate tables. Give it a separate database from the API and worker.
 "${compose[@]}" exec -T db createdb -U vpnshop integration_pytest
-"${compose[@]}" run --rm --build --no-deps -T --workdir /app --entrypoint alembic integration_tests upgrade head
+"${compose[@]}" run --rm --no-deps -T --workdir /app --entrypoint alembic integration_tests upgrade head
 "${compose[@]}" run --rm --no-deps -T integration_tests "$@"
 printf 'Integration smoke test passed.\n'
