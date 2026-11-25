@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import re
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -28,8 +29,8 @@ def main() -> None:
     if args.sbom:
         raw = args.sbom.read_bytes()
         bom = json.loads(raw)
-        if bom.get("bomFormat") != "CycloneDX" or not bom.get("components"):
-            raise SystemExit("Expected a CycloneDX SBOM with components")
+        validate_release = runpy.run_path(str(root / "scripts/ci/check-sbom.py"))["require_release_inventory"]
+        validate_release(bom)
         sbom_name = artifact.removesuffix(".zip") + ".cdx.json"
         (root / sbom_name).write_bytes(raw)
         manifest["sbom"] = {"name": sbom_name, "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw)}

@@ -16,10 +16,11 @@ from zipfile import ZipFile
 from license_expression import AND, OR, ExpressionError, get_spdx_licensing
 
 ROOT = Path(__file__).resolve().parents[2]
-PRODUCTS = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client", "lucy-admin": "shop.remnawave.admin"}
+CONTRACT = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+PRODUCTS = CONTRACT["PRODUCTS"]
 LICENCE = runpy.run_path(str(ROOT / "scripts/ci/check-licenses.py"))
 XRAY = runpy.run_path(str(ROOT / "scripts/mobile/xray-artifact.py"))
-ENGINE_REF = "corgi:android:libv2ray.aar"
+ENGINE_REF = CONTRACT["ENGINE_REF"]
 SPDX = get_spdx_licensing()
 
 
@@ -268,7 +269,7 @@ def main():
     pin = (ROOT / "scripts/mobile/build-xray-aar.sh").read_text()
     commit, = re.findall(r"XRAY_AAR_COMMIT:-([0-9a-f]{40})", pin)
     inputs = {}
-    validate_schema = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))["validate_schema"]
+    validate_schema = CONTRACT["validate_schema"]
     for product in PRODUCTS:
         folder = ROOT / "apps" / product / "android/app/build/reports/cyclonedx-direct"
         inputs[product] = (validate_schema((folder / "bom.json").read_text()), json.loads((folder / "resolution.json").read_text()))

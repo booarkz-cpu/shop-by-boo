@@ -5,7 +5,8 @@ from pathlib import Path
 
 import pytest
 
-MODULE = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/ci/android-sbom.py"))
+ROOT = Path(__file__).resolve().parents[1]
+MODULE = runpy.run_path(str(ROOT / "scripts/ci/android-sbom.py"))
 AAR = Path("/example/shared/libv2ray.aar")
 COMMIT = "a" * 40
 
@@ -167,3 +168,33 @@ def test_go_source_lookup_rejects_mismatched_provenance(monkeypatch, change, wra
     monkeypatch.setattr(MODULE["subprocess"], "check_output", output)
     with pytest.raises(ValueError, match=error):
         MODULE["add_go_license_evidence"](component, COMMIT)
+
+
+@pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven"])
+def test_packaging_requires_all_android_apps_and_native_links(damage):
+    validator = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+    shared = MODULE["ENGINE_REF"]
+    abis = {f"{shared}/{abi}" for abi in MODULE["XRAY"]["ABIS"]}
+    apps = [{"type": "application", "name": name, "bom-ref": product,
+             "components": [{"purl": "pkg:maven/example/lib@1", "bom-ref": product + "-lib"}]}
+            for product, name in MODULE["PRODUCTS"].items()]
+    files = [{"type": "file", "bom-ref": ref} for ref in [shared, *sorted(abis)]]
+    links = [{"ref": "root", "dependsOn": [app["bom-ref"] for app in apps]},
+             {"ref": shared, "dependsOn": sorted(abis)}]
+    for product in MODULE["PRODUCTS"]:
+        links.append({"ref": product, "dependsOn": [product + "-lib"] + ([] if product == "lucy-admin" else [shared])})
+    bom = {"bomFormat": "CycloneDX", "specVersion": "1.7", "metadata": {"component": {"bom-ref": "root"}},
+           "components": apps + files, "dependencies": links}
+    validator["require_release_inventory"](bom)
+    if damage == "repository-only":
+        bom["components"] = files
+    elif damage == "detached":
+        links[0]["dependsOn"].pop()
+    elif damage == "missing-engine":
+        links[2]["dependsOn"].remove(shared)
+    elif damage == "missing-abi":
+        links[1]["dependsOn"].pop()
+    else:
+        apps[0]["components"] = []
+    with pytest.raises(ValueError):
+        validator["require_release_inventory"](bom)
