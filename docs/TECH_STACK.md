@@ -90,8 +90,9 @@
 
 | Компонент | Что делает |
 | --- | --- |
-| GitHub Actions | 15 workflows: CI, Docker, публикация релиза, деплой, мобильные сборки, нагрузка, security, ночные контракты |
-| `actions/checkout@v5`, `setup-python@v6`, `setup-node@v7`, `github-script@v9` | актуальные мажоры |
+| GitHub Actions | 21 workflow обеспечивает CI, сборку контейнеров и приложений, публикацию, проверку зависимостей и эксплуатационные проверки |
+| `actions/checkout` 7.0.1, `setup-java` 6.3.0, `setup-go` 7.1.0 | закреплены по SHA во всех workflow; для Java сохранены аннотации компилятора (`problem-matcher: true`) |
+| `actions/setup-python@v7`, `setup-node@v7`, `github-script@v9` | подготовка Python и Node.js, вызовы GitHub API |
 | concurrency | группы привязаны к коммиту: `ci-${ref}-${sha}`, `docker-${ref}-${sha}` |
 | permissions | минимальные: `contents: read`, `packages: write` только в Docker |
 | gate публикации | `publish-release.yml` требует зелёных `ci.yml` **и** `docker.yml` на том же SHA |
