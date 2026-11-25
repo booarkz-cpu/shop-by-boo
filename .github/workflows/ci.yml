@@ -46,6 +46,19 @@ jobs:
             docker run --rm --network none --read-only --entrypoint python "local/$image:ci" -c 'import os, platform, sys, asyncpg, cryptography, PIL, yaml; assert os.getuid() == 10001; assert sys.version_info[:2] == (3, 15); assert platform.machine() == sys.argv[1]; assert not os.access("/", os.W_OK)' "$EXPECTED_ARCH"
           done
           docker run --rm --network none --read-only --entrypoint pg_dump local/backend:ci --version | grep -E 'PostgreSQL\) 19\.'
+      - name: Verify the six installer images against the release Compose file
+        run: |
+          export APP_DIR="$RUNNER_TEMP/installer-pins"
+          mkdir -p "$APP_DIR"
+          cp docker-compose.yml "$APP_DIR/"
+          echo 'INSTALL_PIN_CHECK=preserved' > "$APP_DIR/.env"
+          bash scripts/pin-images.sh
+          cp "$APP_DIR/.env" "$APP_DIR/first.env"
+          bash scripts/pin-images.sh
+          cmp "$APP_DIR/first.env" "$APP_DIR/.env"
+          grep -Fxq 'INSTALL_PIN_CHECK=preserved' "$APP_DIR/.env"
+          test "$(wc -l < "$APP_DIR/.env.images")" -eq 6
+          test "$(stat -c %a "$APP_DIR/.env")" = 600
       - name: Check the standalone Support Pro nginx bootstrap
         working-directory: services/support-pro
         run: |

@@ -38,7 +38,7 @@ def test_build_stage_images_are_pinnable():
     assert compose.count(python_image) == 4
     for script in ('install-vps.sh', 'resume-vps-after-pin.sh'):
         deployment = read(ROOT/'infrastructure/deployment'/script)
-        assert 'resolve_build python:3.15-slim' in deployment
-        assert 'resolve_build python:3.14-slim' not in deployment
+        assert 'bash scripts/pin-images.sh' in deployment
+        assert 'resolve_build' not in deployment
     assert 'ARG NODE_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
     assert 'ARG NGINX_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
