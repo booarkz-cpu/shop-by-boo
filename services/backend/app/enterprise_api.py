@@ -220,14 +220,21 @@ async def v41_incident_create(payload:IncidentCreateIn,db:AsyncSession=Depends(g
 
 @shop.app.post("/api/admin/v41/incidents/{incident_id}/resolve")
 async def v41_incident_resolve(incident_id:int,db:AsyncSession=Depends(get_db),admin=Depends(require_permission("ops.incidents"))):
-    x=await db.get(shop.SecurityIncidentEvent,incident_id)
-    if not x: raise shop.HTTPException(404,"Инцидент не найден")
-    was_open=x.status!="resolved"
-    x.status="resolved"; x.resolved_at=shop.datetime.utcnow(); await shop.audit(db,"incident.resolved",admin.email,str(incident_id)); await db.commit()
-    if was_open and x.category=="service":
-        from .status_page import notify
-        try: await notify(db,x,False)
-        except Exception as exc: shop.logger.warning("Status news was not sent: %s", exc)
+    from datetime import UTC, datetime
+    from .status_page import notify, resolve_open_incident
+
+    incident = await resolve_open_incident(db, incident_id, datetime.now(UTC).replace(tzinfo=None))
+    if incident is None:
+        if await db.get(shop.SecurityIncidentEvent, incident_id) is None:
+            raise shop.HTTPException(404, "Инцидент не найден")
+        return {"ok": True}
+    await shop.audit(db, "incident.resolved", admin.email, str(incident_id))
+    await db.commit()
+    if incident.category == "service":
+        try:
+            await notify(db, incident, False)
+        except Exception as exc:
+            shop.logger.warning("Status news was not sent: %s", exc)
     return {"ok":True}
 
 @shop.app.get("/api/admin/v41/backups/verification")

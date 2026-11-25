@@ -21,11 +21,12 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .db import get_db
+from .models import SecurityIncidentEvent
 from .security import require_permission
 
 logger = logging.getLogger("vpnshop.status_page")
@@ -151,9 +152,17 @@ async def notify(db: AsyncSession, incident, opened: bool, sender=None) -> int:
     return len(users)
 
 
+async def resolve_open_incident(db: AsyncSession, incident_id: int, now: datetime) -> SecurityIncidentEvent | None:
+    """Only the transaction that claims the transition should audit or notify."""
+    statement = (update(SecurityIncidentEvent)
+                 .where(SecurityIncidentEvent.id == incident_id, SecurityIncidentEvent.status != "resolved")
+                 .values(status="resolved", resolved_at=now)
+                 .returning(SecurityIncidentEvent))
+    return (await db.scalars(statement, execution_options={"populate_existing": True})).one_or_none()
+
+
 async def watch(db: AsyncSession, nodes: list[dict] | None = None, now: datetime | None = None, sender=None) -> dict:
     """Open a «service» incident for a region down past ``outage_minutes``; resolve it when a server is back."""
-    from .models import SecurityIncidentEvent
     now = now or datetime.utcnow()
     cfg = {**DEFAULT, **(await _load(db, CONFIG_KEY, DEFAULT))}
     if nodes is None:
@@ -181,9 +190,8 @@ async def watch(db: AsyncSession, nodes: list[dict] | None = None, now: datetime
         else:
             item.pop("down_since", None)
             if item.get("incident"):
-                inc = await db.get(SecurityIncidentEvent, item.pop("incident"))
-                if inc and inc.status != "resolved":
-                    inc.status, inc.resolved_at = "resolved", now
+                inc = await resolve_open_incident(db, item.pop("incident"), now)
+                if inc is not None:
                     closed.append(inc)
         state[cc] = item
     await _save(db, STATE_KEY, state)
