@@ -18,6 +18,7 @@ from .cashera import CasheraProvider
 from .cloudpayments import CloudPaymentsProvider
 from .lava import LavaProvider
 from .mulenpay import MulenPayProvider
+from .overpay import OverpayProvider
 from .pal24 import Pal24Provider
 from .paritypay import ParityPayProvider
 from .wata import WataProvider
@@ -68,6 +69,8 @@ GATEWAYS: dict[str, Gateway] = {g.name: g for g in (
             "X-Api-Key + X-Secret", "GET /integration/transactions/{uuid}", since="v28.43"),
     Gateway("paritypay", "ParityPay", ParityPayProvider, ("paritypay_shop_id", "paritypay_secret_key", "paritypay_callback_secret"),
             "X-SIGNATURE (HMAC-SHA256 значений)", "GET /v2/invoice/status", since="v28.43"),
+    Gateway("overpay", "Overpay", OverpayProvider, ("overpay_shop_id", "overpay_secret_key", "overpay_public_key"),
+            "HTTP Basic и RSA-SHA256 (Content-Signature)", "GET /ctp/api/checkouts/{token}", methods=frozenset({"card"})),
 )}
 
 
@@ -89,4 +92,4 @@ def configured_map() -> dict[str, bool]:
 
 
 __all__ = ["GATEWAYS", "Gateway", "factories", "instances", "configured_map", "refunders", "AnoreProvider", "AntilopayProvider", "AuraPayProvider",
-           "CasheraProvider", "CloudPaymentsProvider", "LavaProvider", "MulenPayProvider", "Pal24Provider", "ParityPayProvider", "WataProvider"]
+           "CasheraProvider", "CloudPaymentsProvider", "LavaProvider", "MulenPayProvider", "OverpayProvider", "Pal24Provider", "ParityPayProvider", "WataProvider"]

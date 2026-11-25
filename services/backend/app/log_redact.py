@@ -35,6 +35,7 @@ SECRET = re.compile(
 BOT_TOKEN = re.compile(r"\b\d{6,12}:[A-Za-z0-9_-]{30,}\b")
 PEM = re.compile(r"-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY-----.*?-----END [A-Z0-9 ]{0,40}PRIVATE KEY-----", re.DOTALL)
 VPN_URI = re.compile(r"(?i)\b((?:vless|vmess|trojan|ss|ssr|hysteria2|hy2|tuic|wireguard)://)\S+")
+OVERPAY_STATUS_TOKEN = re.compile(r"(?i)(https://checkout\.overpay\.io/ctp/api/checkouts/)[A-Za-z0-9_-]+")
 
 
 def redact_patterns(text: str) -> str:
@@ -42,6 +43,7 @@ def redact_patterns(text: str) -> str:
     text = BOT_TOKEN.sub(MASK, text)
     text = SCHEME.sub(lambda m: m.group(1) + m.group(2) + MASK, text)
     text = VPN_URI.sub(lambda m: m.group(1) + MASK, text)
+    text = OVERPAY_STATUS_TOKEN.sub(lambda m: m.group(1) + MASK, text)
     return SECRET.sub(lambda m: m.group(1) + m.group(2) + MASK, text)
 
 MASK = "***"

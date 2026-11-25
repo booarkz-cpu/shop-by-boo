@@ -28,6 +28,7 @@
 | Касса | Код | Подпись уведомления | Подтверждение перед выдачей | Возврат через API | Автоплатёж | Sandbox | Тесты | Живая проверка |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | YooKassa | `payments.py` | список IP ЮKassa | `GET /payments/{id}` | да | да | тестовый магазин (свои shop_id и ключ) | `test_behaviour_payments*`, `test_money_review` | BLOCKED_SECRETS |
+| Overpay | `gateways/overpay.py` | HTTP Basic магазина и подпись исходных байтов RSA-SHA256 | `GET /ctp/api/checkouts/{token}`, затем сверка UID операции, заказа, суммы, валюты, магазина и режима | нет | нет | тестовый магазин, `OVERPAY_TEST_MODE=true` на стенде | `test_overpay.py`, контракт | BLOCKED_SECRETS |
 | Platega | `payments.py` | X-MerchantId + X-Secret | API статуса | да | нет | нет (по документации кассы) | `test_behaviour_payments*` | BLOCKED_SECRETS |
 | RollyPay | `payments.py` | X-Signature (HMAC) + время | API статуса | да | нет | `ROLLYPAY_TEST_MODE` (только не в production) | `test_behaviour_payments*` | BLOCKED_SECRETS |
 | CryptoBot | `payments.py` | crypto-pay-api-signature (HMAC-SHA256) | `getInvoices` | нет | нет | сеть `testnet` в настройках | `test_cryptobot.py` | BLOCKED_SECRETS |

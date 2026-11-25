@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2757**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2759**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -2158,6 +2158,7 @@
 | [services/backend/app/gateways/common.py](../services/backend/app/gateways/common.py) | API, бот, worker и Support Pro |
 | [services/backend/app/gateways/lava.py](../services/backend/app/gateways/lava.py) | API, бот, worker и Support Pro |
 | [services/backend/app/gateways/mulenpay.py](../services/backend/app/gateways/mulenpay.py) | API, бот, worker и Support Pro |
+| [services/backend/app/gateways/overpay.py](../services/backend/app/gateways/overpay.py) | API, бот, worker и Support Pro |
 | [services/backend/app/gateways/pal24.py](../services/backend/app/gateways/pal24.py) | API, бот, worker и Support Pro |
 | [services/backend/app/gateways/paritypay.py](../services/backend/app/gateways/paritypay.py) | API, бот, worker и Support Pro |
 | [services/backend/app/gateways/wata.py](../services/backend/app/gateways/wata.py) | API, бот, worker и Support Pro |
@@ -2595,6 +2596,7 @@
 | [tests/test_observability.py](../tests/test_observability.py) | Проверки |
 | [tests/test_ops_alerts.py](../tests/test_ops_alerts.py) | Проверки |
 | [tests/test_ops_weekly.py](../tests/test_ops_weekly.py) | Проверки |
+| [tests/test_overpay.py](../tests/test_overpay.py) | Проверки |
 | [tests/test_pagination.py](../tests/test_pagination.py) | Проверки |
 | [tests/test_panel_gate.py](../tests/test_panel_gate.py) | Проверки |
 | [tests/test_partners.py](../tests/test_partners.py) | Проверки |

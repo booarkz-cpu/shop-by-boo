@@ -77,6 +77,13 @@ async def _settle(db: AsyncSession, provider_name: str, provider, order_id: str,
         raise HTTPException(403, "Amount mismatch")
     if not await provider.verify_succeeded(p.provider_payment_id or order_id, Decimal(str(p.amount)), p.currency, p.order_id):
         raise HTTPException(503, "Payment verification unavailable")
+    return await finish_verified_payment(db, p, event_id)
+
+
+async def finish_verified_payment(db: AsyncSession, p, event_id: str) -> str:
+    """Claim and fulfil an independently verified payment once, retaining failures for retry."""
+    from .. import main as shop
+    provider_name = p.provider
     if not await shop.register_provider_event(db, provider_name, event_id, p.id):
         await db.rollback()
         return "duplicate"

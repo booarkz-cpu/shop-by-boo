@@ -13,7 +13,7 @@
 Статус — по шкале владельца. `IMPLEMENTED`: адаптер есть и покрыт тестами. До `CONFIGURED`, `SANDBOX_VERIFIED`
 и `PRODUCTION_VERIFIED` не дошла ни одна касса: для них нужны ключи. Прочерк — адаптера нет.
 
-Из 35 названий владельца в коде есть **25**, нет **10**: Heleket, Kassa AI, RioPay, SeverPay, Overpay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay.
+Из 35 названий владельца в коде есть **26**, нет **9**: Heleket, Kassa AI, RioPay, SeverPay, Etoplatezhi, Jupiter, Donut, CisPay, TabPay.
 
 | Провайдер | ID | Статус | Где в коде | Что умеет в коде | Что ждёт владелец | Тесты |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -22,30 +22,30 @@
 | CryptoBot | `cryptobot` | `IMPLEMENTED` | Касса в очереди оплаты | crypto | — | `test_cryptobot.py`, `test_e2e_journeys.py`, `test_payment_failover_chain.py` и ещё 2 |
 | Heleket | `heleket` | — | **Нет в коде** | — | — | — |
 | YooKassa | `yookassa` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · автопродление, возврат | card; sbp | `test_admin_coverage_payments.py`, `test_admin_customer_operations.py`, `test_app_config.py` и ещё 68 |
-| MulenPay | `mulenpay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_pal24_mulenpay.py` |
-| Pal24 | `pal24` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_pal24_mulenpay.py` |
+| MulenPay | `mulenpay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payments_pal24_mulenpay.py` |
+| Pal24 | `pal24` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card | `test_gateway_ops.py`, `test_payments_pal24_mulenpay.py` |
 | Platega | `platega` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · возврат | динамические — проверить | `test_app_config.py`, `test_audit_v2009_runtime.py`, `test_behaviour_payment_guards.py` и ещё 17 |
-| WATA | `wata` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
+| WATA | `wata` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | — | `test_gateway_ops.py`, `test_payment_contract.py`, `test_payments_wata_antilopay.py` |
 | FreeKassa | `freekassa` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card | `test_freekassa.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
 | FreeKassa SBP | `freekassa_sbp` | `IMPLEMENTED` | Способ оплаты кассы `freekassa` | sbp | — | `test_freekassa.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
 | FreeKassa Card | `freekassa_card` | `IMPLEMENTED` | Способ оплаты кассы `freekassa` | card | — | `test_freekassa.py`, `test_payment_contract.py`, `test_payment_failover_chain.py` и ещё 1 |
-| CloudPayments | `cloudpayments` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · автопродление, возврат | выбор на странице провайдера | `test_cloudpayments_refund_recurring.py`, `test_gateway_ops.py`, `test_payment_failover_chain.py` и ещё 2 |
+| CloudPayments | `cloudpayments` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · автопродление, возврат | выбор на странице провайдера | `test_cloudpayments_refund_recurring.py`, `test_gateway_ops.py`, `test_payments_extra.py` и ещё 1 |
 | Kassa AI | `kassa_ai` | — | **Нет в коде** | — | sbp; card; sberpay | — |
 | RioPay | `riopay` | — | **Нет в коде** | — | — | — |
 | SeverPay | `severpay` | — | **Нет в коде** | — | — | — |
 | RollyPay | `rollypay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp · возврат | sbp; card; crypto | `test_audit_v2009_runtime.py`, `test_behaviour_payments_yookassa.py`, `test_behaviour_public_urls.py` и ещё 11 |
-| Overpay | `overpay` | — | **Нет в коде** | — | динамические — проверить | — |
-| AuraPay | `aurapay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_aurapay_anore.py` и ещё 1 |
+| Overpay | `overpay` | `IMPLEMENTED` | Касса в очереди оплаты | card | динамические — проверить | `test_overpay.py`, `test_payment_failover_chain.py` |
+| AuraPay | `aurapay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_gateway_ops.py`, `test_payments_aurapay_anore.py`, `test_payments_cashera_paritypay.py` |
 | Etoplatezhi | `etoplatezhi` | — | **Нет в коде** | — | card; sbp | — |
-| Antilopay | `antilopay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp; sberpay | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_wata_antilopay.py` |
+| Antilopay | `antilopay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp; sberpay | `test_gateway_ops.py`, `test_payments_wata_antilopay.py` |
 | Jupiter | `jupiter` | — | **Нет в коде** | — | sbp | — |
 | Donut | `donut` | — | **Нет в коде** | — | card; sbp; sbp_qr | — |
-| Lava | `lava` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_feedback_digest_cohorts.py`, `test_gateway_ops.py`, `test_payment_contract.py` и ещё 2 |
+| Lava | `lava` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_feedback_digest_cohorts.py`, `test_gateway_ops.py`, `test_payment_contract.py` и ещё 1 |
 | CisPay | `cispay` | — | **Нет в коде** | — | card; sbp; crypto | — |
-| Anore | `anore` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card; yoomoney; crypto | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_aurapay_anore.py` |
+| Anore | `anore` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | sbp; card; yoomoney; crypto | `test_gateway_ops.py`, `test_payments_aurapay_anore.py` |
 | TabPay | `tabpay` | — | **Нет в коде** | — | card; sbp | — |
-| ParityPay | `paritypay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_cashera_paritypay.py` |
-| Cashera | `cashera` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | динамические — проверить | `test_gateway_ops.py`, `test_payment_failover_chain.py`, `test_payments_cashera_paritypay.py` |
+| ParityPay | `paritypay` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | card; sbp | `test_gateway_ops.py`, `test_payments_cashera_paritypay.py` |
+| Cashera | `cashera` | `IMPLEMENTED` | Касса в очереди оплаты | card; sbp | динамические — проверить | `test_gateway_ops.py`, `test_payments_cashera_paritypay.py` |
 | Stripe | `stripe` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс StripePlatform | — | `test_audit_v2009_runtime.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 5 |
 | PayPal | `paypal` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс PayPalPlatform | — | `test_app_config.py`, `test_behaviour_store_and_webhooks.py`, `test_critical_audit_v2002.py` и ещё 7 |
 | Apple StoreKit | `apple` | `IMPLEMENTED` | `services/backend/app/payment_platform.py` | Класс AppleStorePlatform: проверка покупки на сервере | — | `test_behaviour_store_and_webhooks.py`, `test_mobile_store_expiry.py`, `test_store_billing.py` |

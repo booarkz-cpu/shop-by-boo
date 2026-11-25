@@ -42,7 +42,9 @@ def test_every_configuration_field_has_one_explicit_runtime_classification():
     assert hot.isdisjoint(workflows)
     assert deployment.isdisjoint(workflows)
     assert hot | deployment | workflows == set(Settings.model_fields)
-    assert len(hot) == 143  # v28.89.0: store purchases switch and the Google Play notifications token
+    assert len(hot) == 147
+    assert {"overpay_shop_id", "overpay_secret_key", "overpay_public_key", "overpay_test_mode"} <= hot
+    assert runtime.DEFINITION_BY_KEY["overpay_secret_key"].secret is True
 
 
 def test_integer_limits_are_checked_without_float_rounding():
