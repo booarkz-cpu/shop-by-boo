@@ -853,9 +853,10 @@ jobs:
           result_bundle="$RUNNER_TEMP/xcuitest-first.xcresult"
           run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; }
           if ! run_tests; then
-            # A busy macOS runner sometimes cannot launch the app at all («does not have a process ID», «Failed to launch»).
-            # Only that infrastructure failure gets one more try on a freshly erased simulator; a failed assertion does not.
-            if grep -qE "does not have a process ID|Failed to launch|Failed to get background assertion" "$RUNNER_TEMP/xcuitest.log" \
+            # A busy macOS runner sometimes cannot launch the app or initialize the simulator's
+            # Accessibility service. Only those infrastructure failures get one more try on a
+            # freshly erased simulator; a failed assertion does not.
+            if grep -qE "does not have a process ID|Failed to launch|Failed to get background assertion|Timed out while loading Accessibility|failed to initialize for UI testing" "$RUNNER_TEMP/xcuitest.log" \
                && ! grep -qE "XCTAssert" "$RUNNER_TEMP/xcuitest.log"; then
               echo "::warning title=XCUITest::the simulator could not launch the app; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b

@@ -62,6 +62,22 @@ def test_ci_gate_waits_for_every_job():
     assert gate.get("if") == "always()", "the gate must run even when a job above failed, to report it"
 
 
+def test_ios_ui_retries_simulator_accessibility_startup_failures():
+    """A simulator that times out loading Accessibility never starts the test process.
+
+    This is a runner startup failure, not an XCTest assertion, so the existing
+    clean-simulator retry must cover it while still refusing to retry assertions.
+    """
+    ci = pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml"
+    ios_ui = "\n".join(
+        str(step.get("run", "")) for step in yaml.safe_load(ci.read_text(encoding="utf-8"))["jobs"]["ios-ui"]["steps"]
+    )
+    assert "Timed out while loading Accessibility" in ios_ui
+    assert "failed to initialize for UI testing" in ios_ui
+    assert 'grep -qE "XCTAssert"' in ios_ui
+    assert 'xcrun simctl erase "$device"' in ios_ui
+
+
 def test_every_action_is_pinned_to_a_commit():
     """A tag of an action can be moved to other code; a commit cannot (master prompt v6, «pin action versions»).
 
