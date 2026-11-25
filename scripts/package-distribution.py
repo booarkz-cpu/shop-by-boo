@@ -14,6 +14,7 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--ci-run", default="")
+    parser.add_argument("--sbom", type=Path, help="CycloneDX JSON from the successful CI run for this commit")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "release-manifest.template.json").read_text())
@@ -24,6 +25,14 @@ def main() -> None:
     detached = artifact.removesuffix(".zip") + "_manifest.json"
     if manifest["artifact"] != artifact or manifest["detached_manifest"] != detached:
         raise SystemExit("Distribution filenames do not match its tag")
+    if args.sbom:
+        raw = args.sbom.read_bytes()
+        bom = json.loads(raw)
+        if bom.get("bomFormat") != "CycloneDX" or not bom.get("components"):
+            raise SystemExit("Expected a CycloneDX SBOM with components")
+        sbom_name = artifact.removesuffix(".zip") + ".cdx.json"
+        (root / sbom_name).write_bytes(raw)
+        manifest["sbom"] = {"name": sbom_name, "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw)}
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root).decode().strip()
     subprocess.run([sys.executable, str(root / "scripts/package-source.py"), artifact], cwd=root, check=True)
     digest = hashlib.sha256((root / artifact).read_bytes()).hexdigest()

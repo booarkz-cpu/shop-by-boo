@@ -20,6 +20,13 @@ async function publish({github, context, core, root = process.cwd()}) {
   if (manifest.commit !== sha || manifest.distribution_tag !== tag ||
       manifest.sha256 !== digest(files[0].data).slice(7)) throw new Error('Detached manifest does not match the release commit and archive');
   if (files[1].data.toString('utf8').trim() !== `${manifest.sha256}  ${artifact}`) throw new Error('Invalid checksum file');
+  const sbomName = artifact.replace(/\.zip$/, '.cdx.json');
+  if (manifest.sbom?.name !== sbomName) throw new Error('Missing or invalid SBOM name in detached manifest');
+  const sbom = fs.readFileSync(path.join(root, sbomName));
+  if (!sbom.length || manifest.sbom.size !== sbom.length || manifest.sbom.sha256 !== digest(sbom).slice(7))
+    throw new Error('SBOM does not match the detached manifest');
+  files.push({name: sbomName, data: sbom});
+  const contentTypes = {[artifact]: 'application/zip', [detached]: 'application/json', [sbomName]: 'application/vnd.cyclonedx+json'};
   const main = async () => (await github.rest.repos.getBranch({...repo, branch: 'main'})).data.commit.sha;
   if (await main() !== sha) throw new Error('Verified commit is no longer current main');
   const notesPath = path.resolve(root, template.release_notes);
@@ -64,7 +71,7 @@ async function publish({github, context, core, root = process.cwd()}) {
     if (!release.draft) throw new Error(`Published release is missing ${file.name}`);
     const uploaded = (await github.rest.repos.uploadReleaseAsset({
       ...repo, release_id: release.id, name: file.name, data: file.data,
-      headers: {'content-type': file.name.endsWith('.zip') ? 'application/zip' : 'text/plain',
+      headers: {'content-type': contentTypes[file.name] || 'text/plain',
         'content-length': file.data.length}
     })).data;
     if (uploaded.digest !== expectedDigest || uploaded.size !== file.data.length)

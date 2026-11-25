@@ -440,11 +440,14 @@ jobs:
           docker run --rm -v "$PWD:/src" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb fs --quiet --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 /src
           mkdir -p "$RUNNER_TEMP/sbom"
           docker run --rm -v "$PWD:/src" -v "$RUNNER_TEMP/sbom:/out" aquasec/trivy@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb fs --quiet --format cyclonedx --output /out/sbom.cdx.json /src
-          python3 -c "import json,sys; d=json.load(open(sys.argv[1])); n=len(d.get('components') or []); print(f'SBOM: {n} components'); assert n > 100" "$RUNNER_TEMP/sbom/sbom.cdx.json"
+          python -m venv "$RUNNER_TEMP/sbom-validator"
+          "$RUNNER_TEMP/sbom-validator/bin/python" -m pip install --only-binary=:all: 'cyclonedx-python-lib[json-validation]==11.12.0'
+          "$RUNNER_TEMP/sbom-validator/bin/python" scripts/ci/check-sbom.py "$RUNNER_TEMP/sbom/sbom.cdx.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sbom
           path: ${{ runner.temp }}/sbom/sbom.cdx.json
+          if-no-files-found: error
           retention-days: 90
       - name: Dependency licences
         # A strong copyleft or source-available licence among the shipped dependencies blocks the merge

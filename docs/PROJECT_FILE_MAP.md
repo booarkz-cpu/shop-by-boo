@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2756**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2757**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1841,6 +1841,7 @@
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/check-licenses.py](../scripts/ci/check-licenses.py) | Эксплуатация и релиз |
+| [scripts/ci/check-sbom.py](../scripts/ci/check-sbom.py) | Эксплуатация и релиз |
 | [scripts/ci/crowdsec-check.sh](../scripts/ci/crowdsec-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
