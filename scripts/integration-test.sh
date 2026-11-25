@@ -13,8 +13,8 @@ project="corgi-integration-$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
 engine=(env -i "HOME=$HOME" "PATH=$PATH" "DOCKER_HOST=$endpoint")
 if [[ -n "${DOCKER_CONFIG:-}" ]]; then engine+=("DOCKER_CONFIG=$DOCKER_CONFIG"); fi
 engine+=(docker)
-compose=("${engine[@]}" compose --project-name "$project" --profile integration-tests --env-file .env
-  -f docker-compose.yml -f docker-compose.integration.yml -f "$work/network.yml")
+compose=("${engine[@]}" compose --project-name "$project" --profile integration-tests --env-file "$work/fixtures.env"
+  -f docker-compose.yml -f docker-compose.integration.yml -f "$work/isolated.yml")
 started=0
 cleanup() {
   local status=$?
@@ -34,10 +34,15 @@ git -c advice.detachedHead=false checkout -q --detach "$base"
 git -C "$ROOT" diff --binary "$base" -- | git apply --allow-empty -
 # This smoke test connects straight to the API. Let the daemon allocate the test
 # networks so production and concurrent tests can keep their own ingress ranges.
-cat > "$work/network.yml" <<'YAML'
+cat > "$work/isolated.yml" <<'YAML'
 services:
   backend:
+    env_file: !override [../fixtures.env]
     networks: !override [default, ingress]
+  worker:
+    env_file: !override [../fixtures.env]
+  integration_tests:
+    env_file: !override [../fixtures.env]
   backend_standby:
     networks: !override [default, ingress]
   support_pro:
@@ -60,8 +65,12 @@ for placeholder in ("CHANGE_ME_DB_PASSWORD", "CHANGE_ME_APP_SECRET_AT_LEAST_32_C
 text = text.replace("REDIS_PASSWORD=\n", f"REDIS_PASSWORD={secrets.token_hex(32)}\n")
 for name in ("SUPPORT_PRO_DB_PASSWORD", "SUPPORT_PRO_SSO_SECRET", "SUPPORT_REDIS_PASSWORD"):
     text += f"\n{name}={secrets.token_hex(32)}"
-Path(".env").write_text(text + "\nSUPPORT_PRO_DOMAIN=support.example.test\nINTEGRATION_API_PORT=\n")
-Path("support-pro/.env").write_text("")
+Path("../fixtures.env").write_text(text + "\nSUPPORT_PRO_DOMAIN=support.example.test\nINTEGRATION_API_PORT=\n")
+# Docker supplies the private settings as environment variables. Dotenv readers
+# in the non-root test container may safely open only empty placeholders.
+for placeholder in (Path(".env"), Path("support-pro/.env")):
+    placeholder.write_text("")
+    placeholder.chmod(0o644)
 PY
 
 # Refuse to adopt either running or stopped resources. Register teardown before 'up'

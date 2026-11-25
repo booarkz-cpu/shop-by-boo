@@ -164,7 +164,12 @@ if args[0] == "compose" and "config" in args:
 if args[0] == "compose" and "up" in args:
     model = Path(args[args.index("up") - 1])
     assert "ipam: !reset" in model.read_text() and "networks: !override" in model.read_text()
-    Path({str(fixture)!r}).write_bytes(Path(".env").read_bytes())
+    env_file = Path(args[args.index("--env-file") + 1]).resolve()
+    assert not env_file.is_relative_to(Path.cwd())
+    assert env_file.stat().st_mode & 0o777 == 0o600
+    for placeholder in (Path(".env"), Path("support-pro/.env")):
+        assert placeholder.read_bytes() == b"" and placeholder.stat().st_mode & 0o004
+    Path({str(fixture)!r}).write_bytes(env_file.read_bytes())
     sys.exit(37 if {scenario!r} == "partial-start" else 0)
 if args[0] == "compose" and "port" in args:
     print("127.0.0.1:44123")
