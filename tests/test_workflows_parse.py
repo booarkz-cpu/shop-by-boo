@@ -62,6 +62,21 @@ def test_ci_gate_waits_for_every_job():
     assert gate.get("if") == "always()", "the gate must run even when a job above failed, to report it"
 
 
+def test_ios_ui_restart_uses_the_classifier_and_still_requires_all_four_tests():
+    ci = pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml"
+    job = yaml.safe_load(ci.read_text(encoding="utf-8"))["jobs"]["ios-ui"]
+    step = next(step for step in job["steps"] if step.get("name") == "XCUITest on a simulator")
+    run = step["run"]
+    assert not step.get("continue-on-error")
+    classify = run.index('scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"')
+    erase = run.index('xcrun simctl erase "$device"')
+    retry = run.index('result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"')
+    verify = run.index("scripts/ci/verify_xcuitest_results.py")
+    assert classify < erase < retry < verify
+    assert run.count('xcrun simctl erase "$device"') == 1
+    assert "--expected-tests 4" in run[verify:]
+
+
 def test_every_action_is_pinned_to_a_commit():
     """A tag of an action can be moved to other code; a commit cannot (master prompt v6, «pin action versions»).
 
