@@ -19,6 +19,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  native-python-containers:
+    name: Python containers (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Build and smoke-test native images without publishing
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          test "$(uname -m)" = "$EXPECTED_ARCH"
+          docker build -t local/backend:ci -f services/backend/Dockerfile services/backend
+          docker build -t local/bot:ci -f services/backend/Dockerfile.bot services/backend
+          docker build -t local/support:ci -f services/support-pro/app/Dockerfile services/support-pro
+          for image in backend bot support; do
+            test "$(docker image inspect --format '{{.Architecture}}' "local/$image:ci")" = "$(case "$EXPECTED_ARCH" in x86_64) echo amd64;; aarch64) echo arm64;; *) exit 1;; esac)"
+            docker run --rm --network none --read-only --entrypoint python "local/$image:ci" -c 'import os, platform, sys, asyncpg, cryptography, PIL, yaml; assert os.getuid() == 10001; assert sys.version_info[:2] == (3, 15); assert platform.machine() == sys.argv[1]; assert not os.access("/", os.W_OK)' "$EXPECTED_ARCH"
+          done
+          docker run --rm --network none --read-only --entrypoint pg_dump local/backend:ci --version | grep -E 'PostgreSQL\) 19\.'
+
   python315-native-arm64:
     name: Python 3.15 native ARM64 dependency smoke
     runs-on: ubuntu-24.04-arm
@@ -908,7 +936,7 @@ jobs:
     # A new job must be added to `needs` — otherwise the gate does not wait for it.
     name: CI gate
     if: always()
-    needs: [python315-native-arm64, python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
+    needs: [native-python-containers, python315-native-arm64, python315-wheels, backend, lint, passkey-browser, support, security, frontend, compose, containers, android, android-engine, android-ui, ios-ui, ios, ios-extensions]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
