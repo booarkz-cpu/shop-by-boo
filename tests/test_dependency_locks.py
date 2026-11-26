@@ -55,8 +55,8 @@ def test_dependabot_watches_the_files_that_are_installed():
     assert pip_dirs == {"/services/backend", "/services/support-pro"}
 
 
-@pytest.mark.parametrize("name", ["pydantic", "pydantic-core"])
-def test_dependabot_can_offer_support_pydantic_updates(name):
+@pytest.mark.parametrize("name", ["pydantic", "pydantic-core", "redis"])
+def test_dependabot_can_offer_support_updates(name):
     config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
     support, = (
         entry for entry in config["updates"]
@@ -71,11 +71,14 @@ def test_dependabot_can_offer_support_pydantic_updates(name):
         assert versions or update_types, f"{name}: all updates are ignored"
         assert "version-update:semver-patch" not in update_types, f"{name}: patch updates are ignored"
         for expression in versions:
+            excluded = SpecifierSet(expression)
+            if name == "redis":
+                assert installed not in excluded, f"{name}: {expression} excludes the tested release {installed}"
             # A bounded exclusion can skip a bad release. A lower bound at or below
             # the installed version, with no upper bound, suppresses every upgrade.
             hides_every_upgrade = all(
                 bound.operator in {">", ">="} and Version(bound.version) <= installed
-                for bound in SpecifierSet(expression)
+                for bound in excluded
             )
             assert not hides_every_upgrade, f"{name} {expression} masks every newer version"
 
@@ -84,7 +87,12 @@ def test_support_pro_python_315_runtime_dependency_contract():
     locked = pins("services/support-pro/requirements.txt")
     assert locked["fastapi"] == "0.165.0"
     assert locked["sqlalchemy"] == "2.1.9"
-    assert locked["aiogram"] == "3.33.0"
+    assert Version(locked["aiogram"]) >= Version("3.34.0")
+    assert Version(locked["certifi"]) >= Version("2026.11.20")
+    assert Version(locked["redis"]) >= Version("8.2.0")
+    # Earlier fakeredis cannot construct an async client with redis-py 8.2.
+    dev = pins("services/support-pro/requirements-dev.txt")
+    assert Version(dev["fakeredis"]) >= Version("2.41.0")
     assert locked["pydantic"] == "2.14.4"
     assert locked["pydantic-core"] == "2.50.5"
     assert Version(locked["opentelemetry-api"]) >= Version("1.44.0")
