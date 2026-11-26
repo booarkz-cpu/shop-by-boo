@@ -63,7 +63,8 @@ async def test_status_check_and_commands(database, telegram):
     assert TOKEN_A not in json.dumps(out) and out["token_fingerprint_settings"] == telegram_bot.fingerprint(TOKEN_A)
     assert out["stats"]["telegram_users"] == 1
 
-    await telegram_bot.report(db, state="running", username="corgi_lucy_bot", last_ok_at=datetime.utcnow(), updates=5)
+    await telegram_bot.report(db, state="running", username="corgi_lucy_bot", last_ok_at=datetime.utcnow(),
+                              token_fingerprint=telegram_bot.fingerprint(TOKEN_A), updates=5)
     out = await telegram_bot.status(db, ADMIN)
     assert out["connected"] and out["check"]["status"] == "ok" and out["updates_total"] == 5
 
@@ -105,6 +106,31 @@ async def test_status_check_and_commands(database, telegram):
     with pytest.raises(HTTPException) as err:
         await telegram_bot.check(db, ADMIN)
     assert err.value.status_code == 502 and "Unauthorized" in err.value.detail
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("previous", [None, TOKEN_A], ids=["unrecorded", "rotated"])
+async def test_health_follows_the_configured_token(database, monkeypatch, previous):
+    # BotFather can replace the token while the bot ID and username stay the same.
+    replacement = TOKEN_A.partition(":")[0] + ":" + "C" * 35
+    monkeypatch.setattr(settings, "bot_token", replacement)
+    await telegram_bot.report(database, state="running", username="corgi_lucy_bot", last_ok_at=datetime.utcnow(),
+                              token_fingerprint=telegram_bot.fingerprint(previous) if previous else None)
+
+    async def check_both(expected):
+        status = await telegram_bot.status(database, ADMIN)
+        assert status["check"]["status"] == expected
+        assert status["connected"] is (expected == "ok")
+        assert (await system_status.telegram_db_check(database))["status"] == expected
+        assert replacement not in json.dumps(status)
+
+    await check_both("warn")
+    await telegram_bot.report(database, last_ok_at=datetime.utcnow() - timedelta(minutes=10))
+    await check_both("error")
+    await telegram_bot.report(database, token_fingerprint=telegram_bot.fingerprint(replacement), last_ok_at=datetime.utcnow())
+    await check_both("ok")
+    settings.bot_token = ""
+    await check_both("off")
 
 
 class FakeBot:
@@ -185,7 +211,7 @@ async def test_supervisor_reconnects_on_a_new_token(database, monkeypatch):
 def test_system_status_reads_the_bot_state(monkeypatch):
     monkeypatch.setattr(settings, "bot_token", TOKEN_A)
     stale = SimpleNamespace(state="running", last_ok_at=datetime.utcnow() - timedelta(minutes=10), bot_id=1, username="b", first_name="",
-                            token_fingerprint="", started_at=None, last_update_at=None, updates_total=0, last_error=None,
+                            token_fingerprint=telegram_bot.fingerprint(TOKEN_A), started_at=None, last_update_at=None, updates_total=0, last_error=None,
                             last_error_at=None, commands_applied_at=None)
     assert system_status.telegram_check(telegram_bot.state_view(stale))["status"] == "error"
     stale.last_ok_at = datetime.utcnow()

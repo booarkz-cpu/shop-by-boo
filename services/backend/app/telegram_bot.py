@@ -106,11 +106,13 @@ async def current_state(db: AsyncSession) -> dict:
     return state_view(await db.get(TelegramBotState, 1))
 
 
-def status_check(state: dict, token_set: bool, username: str) -> tuple[str, str]:
-    """«Состояние системы»: ok only when the bot process talked to Telegram within the last minutes."""
-    if not token_set:
+def status_check(state: dict, configured_fingerprint: str, username: str) -> tuple[str, str]:
+    """Report a healthy connection only for a recent reply to the configured credential."""
+    if not configured_fingerprint:
         return "off", "Бот не настроен: укажите BOT_TOKEN в «Настройки без перезапуска → Telegram»."
     if state.get("connected"):
+        if state.get("token_fingerprint") != configured_fingerprint:
+            return "warn", "Ожидается подтверждение связи с Telegram по текущему токену."
         return "ok", f"@{state.get('username') or username.lstrip('@')} на связи с Telegram (ответ {state.get('last_ok_at')})."
     if state.get("state") == "error":
         return "error", f"Бот не может работать с Telegram: {state.get('last_error') or 'ошибка'}."
@@ -128,8 +130,10 @@ async def status(db: AsyncSession = Depends(get_db), admin=Depends(require_permi
     since = datetime.utcnow() - timedelta(days=1)
     telegram_users = int(await db.scalar(select(func.count()).select_from(User).where(User.telegram_id.is_not(None))) or 0)
     new_day = int(await db.scalar(select(func.count()).select_from(User).where(User.telegram_id.is_not(None), User.created_at >= since)) or 0)
-    level, detail = status_check(state, bool(settings.bot_token), settings.bot_username or "")
-    return {**state, "token_set": bool(settings.bot_token), "token_fingerprint_settings": fingerprint(settings.bot_token),
+    configured_fingerprint = fingerprint(settings.bot_token)
+    level, detail = status_check(state, configured_fingerprint, settings.bot_username or "")
+    return {**state, "connected": level == "ok", "token_set": bool(configured_fingerprint),
+            "token_fingerprint_settings": configured_fingerprint,
             "bot_username_setting": settings.bot_username or None, "check": {"status": level, "detail": detail},
             "stats": {"telegram_users": telegram_users, "new_last_day": new_day}}
 

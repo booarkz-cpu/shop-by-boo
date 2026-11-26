@@ -248,8 +248,8 @@ async def payments_check(db: AsyncSession, paused: bool) -> dict:
 
 def telegram_check(state: dict | None = None) -> dict:
     """v28.71.0: whether the bot process talks to Telegram (telegram_bot_state, written by bot.py every minute)."""
-    from .telegram_bot import status_check
-    level, detail = status_check(state or {}, bool(settings.bot_token), settings.bot_username or "")
+    from .telegram_bot import fingerprint, status_check
+    level, detail = status_check(state or {}, fingerprint(settings.bot_token), settings.bot_username or "")
     return check("telegram", "Telegram-бот", level, detail, "telegramBot")
 
 
