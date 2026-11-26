@@ -388,7 +388,9 @@ class ShopApi(private val base: String, private val token: String, private val l
         val trimmed = text.trim()
         val result: Any = if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(if (trimmed.isBlank()) "{}" else trimmed)
         if (verifier != null && result is JSONObject && result.has("authorization_code")) {
-            val proof = CorgiTrust.integrityHeaders(base) { get(it) as JSONObject }
+            val proof = CorgiTrust.integrityHeaders {
+                post("/api/mobile/integrity/challenge", JSONObject()) as JSONObject
+            }
             val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier), headers = proof) as JSONObject
             result.remove("authorization_code")
             result.put("access_token", exchanged.getString("access_token"))
