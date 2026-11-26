@@ -108,6 +108,64 @@ def test_existing_bundle_with_no_export_cannot_be_retried(tmp_path):
     assert not verifier.summary_allows_startup_retry(bundle)
 
 
+RUNNER_AX_LOG = "VpnShopUserUITests-Runner[31426:89970] [Default] " + AX_FUTURE_TIMEOUT
+
+
+@pytest.fixture
+def accessibility_runner_summary():
+    runner = "VpnShopUserUITests-Runner (31426) encountered an error"
+    return {
+        "result": "Failed", "totalTestCount": 1, "passedTests": 0,
+        "failedTests": 1, "skippedTests": 0, "expectedFailures": 0,
+        "testFailures": [{
+            "targetName": "VpnShopUserUITests", "testName": runner,
+            "testIdentifierString": runner,
+            "failureText": ("The test runner failed to initialize for UI testing. "
+                            "(Underlying Error: Timed out while loading Accessibility.)"),
+        }],
+    }
+
+
+@pytest.mark.parametrize(("log", "allowed"), [
+    (RUNNER_AX_LOG, True),
+    ("Failed to launch test application", False),
+    (RUNNER_KILLED, False),
+    (AX_TIMEOUT, False),
+    (RUNNER_AX_LOG.replace("31426", "31427"), False),
+    (RUNNER_AX_LOG.replace("Code=1000", "Code=1001") + "\nFailed to launch", False),
+    ("VpnShopUserUITests-Runner[31426:1]\n" + AX_FUTURE_TIMEOUT, False),
+    (RUNNER_AX_LOG + "\nTest Case '-[UITests testLogin]' started.", False),
+    (RUNNER_AX_LOG + "\nXCTAssertEqual failed", False),
+])
+def test_synthetic_runner_failure_requires_a_matching_log(tmp_path, accessibility_runner_summary, log, allowed):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    Path(f"{bundle}.summary.json").write_text(json.dumps(accessibility_runner_summary), encoding="utf-8")
+    log_path = tmp_path / "xcuitest.log"
+    log_path.write_text(log, encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/ci/xcuitest_retry.py"), str(log_path), str(bundle)],
+        capture_output=True, text=True, check=False,
+    )
+    assert (result.returncode == 0) == allowed, result.stderr
+    assert bool(result.stdout.strip()) == allowed
+
+
+@pytest.mark.parametrize("patch", [
+    {"targetName": "VpnShopUserUITests.testLogin"},
+    {"testName": "testLogin"},
+    {"testIdentifierString": "testLogin"},
+    {"testIdentifierString": "VpnShopUserUITests-Runner (31427) encountered an error"},
+    {"failureText": "XCTAssertEqual failed"},
+])
+def test_real_or_ambiguous_test_failure_cannot_use_runner_retry(tmp_path, accessibility_runner_summary, patch):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    accessibility_runner_summary["testFailures"][0].update(patch)
+    Path(f"{bundle}.summary.json").write_text(json.dumps(accessibility_runner_summary), encoding="utf-8")
+    assert not verifier.summary_allows_startup_retry(bundle, RUNNER_AX_LOG)
+
+
 @pytest.mark.parametrize("field", verifier.COUNTS)
 @pytest.mark.parametrize("value", [None, True, "4", 4.0, -1])
 def test_incomplete_or_untyped_counts_are_refused(field, value):
