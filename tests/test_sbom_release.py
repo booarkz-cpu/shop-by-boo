@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -90,6 +91,20 @@ def test_merge_is_deterministic_and_preserves_android_relationships_and_licenses
     assert checksum.read_text() == f"{hashlib.sha256(first).hexdigest()}  sbom.cdx.json\n"
 
 
+def test_sbom_plugin_classpath_uses_the_central_mirror_for_transitive_modules():
+    script = (ROOT / "scripts/ci/android-sbom.gradle").read_text()
+    repositories = script.split("initscript {", 1)[1].split("dependencies {", 1)[0]
+    mirror = "https://maven-central.storage-download.googleapis.com/maven2/"
+    assert mirror in repositories
+    assert repositories.index(mirror) < repositories.index("mavenCentral()")
+    portal = repositories.split("gradlePluginPortal {", 1)[1].split("}", 1)[0]
+    assert "content {" in portal
+    assert set(re.findall(r"includeModule\('([^']+)', '([^']+)'\)", portal)) == {
+        ("org.cyclonedx.bom", "org.cyclonedx.bom.gradle.plugin"),
+        ("org.cyclonedx", "cyclonedx-gradle-plugin"),
+    }
+
+
 def test_ci_builds_full_android_sbom_and_release_downloads_exact_ci_artifact():
     ci = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
     job = ci["jobs"]["release-sbom"]
@@ -146,3 +161,51 @@ def test_reordered_scanner_aliases_do_not_change_the_release_identity():
     result = builder.merge_documents([bom(root, aliases, edges)], source_date_epoch=1)
     assert len(result["components"]) == 1
     assert builder.merge_documents([bom(root, aliases[::-1], edges)], source_date_epoch=1) == result
+
+
+
+def test_equal_package_versions_preserve_distinct_resolved_dependencies():
+    builder = load_script()
+
+    def scan(prefix):
+        def ref(name):
+            return prefix + name
+
+        apps = [{"type": "application", "name": f"{name}/package-lock.json", "bom-ref": ref(name)}
+                for name in ("admin", "cabinet")]
+        components = list(apps)
+        edges = [{"ref": ref("repo"), "dependsOn": [app["bom-ref"] for app in apps]}]
+        for name in ("admin", "cabinet"):
+            for package in ("wrapper", "next", "react"):
+                components.append(component(ref(name + package), package, "1", f"pkg:npm/{package}@1"))
+            edges.append({"ref": ref(name), "dependsOn": [ref(name + "wrapper")]})
+            edges.append({"ref": ref(name + "wrapper"), "dependsOn": [ref(name + "next")]})
+            children = [ref(name + "react"), ref(name + "wrapper")]
+            if name == "admin":
+                children.append(ref("playwright"))
+            edges.append({"ref": ref(name + "next"), "dependsOn": children})
+        components.append(component(ref("playwright"), "playwright", "1", "pkg:npm/playwright@1"))
+        report = bom({"type": "application", "name": "repo", "bom-ref": ref("repo")}, components, edges)
+        report["vulnerabilities"] = [{"id": "sample", "affects": [{"ref": ref("adminnext")}]}]
+        return report
+
+    report = builder.merge_documents([scan("first-")], source_date_epoch=1)
+    reordered = scan("fresh-")
+    reordered["components"].reverse()
+    reordered["dependencies"].reverse()
+    assert builder.merge_documents([reordered], source_date_epoch=1) == report
+
+    nodes = {item["bom-ref"]: item for item in report["components"]}
+    links = {row["ref"]: row["dependsOn"] for row in report["dependencies"]}
+    next_refs = {}
+    for app in ("admin", "cabinet"):
+        manifest, = [ref for ref, item in nodes.items() if item["name"] == f"{app}/package-lock.json"]
+        wrapper, = links[manifest]
+        next_ref, = links[wrapper]
+        next_refs[app] = next_ref
+        children = {nodes[child]["name"] for child in links[next_ref]}
+        assert children == ({"react", "wrapper", "playwright"} if app == "admin" else {"react", "wrapper"})
+        assert wrapper in links[next_ref]
+    assert next_refs["admin"] != next_refs["cabinet"]
+    assert report["vulnerabilities"][0]["affects"] == [{"ref": next_refs["admin"]}]
+    assert sum(item["name"] == "react" for item in nodes.values()) == 1
