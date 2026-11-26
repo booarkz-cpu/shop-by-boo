@@ -7,6 +7,7 @@ from pathlib import Path
 
 PRODUCTS = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client", "lucy-admin": "shop.remnawave.admin"}
 ENGINE_REF = "corgi:android:libv2ray.aar"
+ENGINE_MODULES = {"github.com/2dust/androidlibxraylite", "github.com/xtls/xray-core"}
 PROJECT_NAME = "VPN Shop by Corgi Lucy"
 
 
@@ -23,6 +24,44 @@ def validate_schema(raw: str) -> dict:
     if problem is not None:
         raise SystemExit(f"Invalid CycloneDX {version} SBOM: {problem}")
     return bom
+
+
+def has_sha256(record: dict) -> bool:
+    values = [item.get("content") for item in record.get("hashes", []) if item.get("alg") == "SHA-256"]
+    if len(values) != 1 or not isinstance(values[0], str):
+        return False
+    return re.fullmatch(r"[0-9a-fA-F]{64}", values[0]) is not None
+
+
+def require_native_inventory(components: list, links: dict) -> None:
+    abi_names = runpy.run_path(str(Path(__file__).resolve().parents[1] / "mobile/xray-artifact.py"))["ABIS"]
+    native = {f"{ENGINE_REF}/{abi}" for abi in abi_names}
+    if links.get(ENGINE_REF) != native:
+        raise ValueError("Release is missing the shared AAR or a native ABI")
+    by_ref = {item["bom-ref"]: item for item in components if "bom-ref" in item}
+    for ref in {ENGINE_REF} | native:
+        item = by_ref.get(ref, {})
+        if item.get("type") != "file" or not has_sha256(item):
+            raise ValueError(f"Release requires a file with a SHA-256 digest for {ref}")
+
+    linked_modules = set()
+    for abi in native:
+        modules = links.get(abi, set())
+        names = {by_ref[ref]["name"].lower() for ref in modules if ref in by_ref}
+        if not ENGINE_MODULES <= names:
+            raise ValueError(f"Release is missing the Android wrapper or Xray-core for {abi}")
+        linked_modules.update(modules)
+
+    for ref in linked_modules:
+        module = by_ref.get(ref, {})
+        if module.get("type") != "library" or not module.get("purl", "").startswith("pkg:golang/"):
+            raise ValueError(f"Release is missing a linked Go module: {ref}")
+        licenses = module.get("evidence", {}).get("licenses", [])
+        if not any(entry.get("license", {}).get("text", {}).get("content") for entry in licenses):
+            raise ValueError(f"Release is missing the Go module licence text for {ref}")
+        sources = module.get("externalReferences", [])
+        if not any(source.get("type") == "distribution" and has_sha256(source) for source in sources):
+            raise ValueError(f"Release is missing the Go source archive digest for {ref}")
 
 
 def require_release_inventory(bom: dict, *, expected_commit: str | None = None) -> None:
@@ -51,11 +90,7 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None) 
             raise ValueError(f"Release is missing the Maven graph for {name}")
         if (ENGINE_REF in direct) != (product != "lucy-admin"):
             raise ValueError(f"Unexpected native engine linkage for {name}")
-    abi_names = runpy.run_path(str(Path(__file__).resolve().parents[1] / "mobile/xray-artifact.py"))["ABIS"]
-    native = {f"{ENGINE_REF}/{abi}" for abi in abi_names}
-    files = {item["bom-ref"] for item in components if item.get("type") == "file" and item.get("bom-ref")}
-    if links.get(ENGINE_REF) != native or not ({ENGINE_REF} | native) <= files:
-        raise ValueError("Release is missing the shared AAR or a native ABI")
+    require_native_inventory(components, links)
 
 
 def main(path: Path, release: bool = False) -> None:

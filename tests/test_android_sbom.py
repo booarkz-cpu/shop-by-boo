@@ -196,26 +196,44 @@ def test_go_source_lookup_rejects_mismatched_provenance(monkeypatch, change, wra
         MODULE["add_go_license_evidence"](component, COMMIT)
 
 
-@pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven",
-                                    "wrong-commit", "missing-commit", "scan-path"])
-def test_packaging_requires_all_android_apps_and_native_links(damage):
-    validator = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+def release_inventory():
     shared = MODULE["ENGINE_REF"]
     abis = {f"{shared}/{abi}" for abi in MODULE["XRAY"]["ABIS"]}
     apps = [{"type": "application", "name": name, "bom-ref": product,
-             "components": [{"purl": "pkg:maven/example/lib@1", "bom-ref": product + "-lib"}]}
+             "components": [{"type": "library", "name": "lib", "purl": "pkg:maven/example/lib@1",
+                             "bom-ref": product + "-lib"}]}
             for product, name in MODULE["PRODUCTS"].items()]
-    files = [{"type": "file", "bom-ref": ref} for ref in [shared, *sorted(abis)]]
+    files = [{"type": "file", "name": ref.split("/")[-1], "bom-ref": ref,
+              "hashes": [{"alg": "SHA-256", "content": "1" * 64}]} for ref in [shared, *sorted(abis)]]
+    modules = []
+    for name in ("github.com/2dust/AndroidLibXrayLite", "github.com/xtls/xray-core", "example.org/arch"):
+        purl = f"pkg:golang/{name}@v1.0.0"
+        modules.append({"type": "library", "name": name, "purl": purl, "bom-ref": purl,
+                        "evidence": {"licenses": [{"license": {"name": "LICENSE", "text": {"content": "Terms"}}}]},
+                        "externalReferences": [{"type": "distribution", "url": "https://example.org/module.zip",
+                                                "hashes": [{"alg": "SHA-256", "content": "2" * 64}]}]})
     links = [{"ref": "root", "dependsOn": [app["bom-ref"] for app in apps]},
              {"ref": shared, "dependsOn": sorted(abis)}]
     for product in MODULE["PRODUCTS"]:
         links.append({"ref": product, "dependsOn": [product + "-lib"] + ([] if product == "lucy-admin" else [shared])})
-    root = {"bom-ref": "root", "name": "VPN Shop by Corgi Lucy", "version": SOURCE_REVISION}
-    bom = {"bomFormat": "CycloneDX", "specVersion": "1.7", "metadata": {"component": root},
-           "components": apps + files, "dependencies": links}
+    for abi in sorted(abis):
+        linked = modules if abi.endswith("/arm64-v8a") else modules[:2]
+        links.append({"ref": abi, "dependsOn": [module["bom-ref"] for module in linked]})
+    root = {"type": "application", "bom-ref": "root", "name": "VPN Shop by Corgi Lucy", "version": SOURCE_REVISION}
+    return {"bomFormat": "CycloneDX", "specVersion": "1.7", "version": 1, "metadata": {"component": root},
+            "components": apps + files + modules, "dependencies": links}
+
+
+@pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven",
+                                    "wrong-commit", "missing-commit", "scan-path"])
+def test_packaging_requires_all_android_apps_and_native_links(damage):
+    validator = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+    bom = release_inventory()
+    root, links = bom["metadata"]["component"], bom["dependencies"]
+    shared = MODULE["ENGINE_REF"]
     validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
     if damage == "repository-only":
-        bom["components"] = files
+        bom["components"] = [item for item in bom["components"] if item["type"] != "application"]
     elif damage == "detached":
         links[0]["dependsOn"].pop()
     elif damage == "missing-engine":
@@ -223,7 +241,7 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
     elif damage == "missing-abi":
         links[1]["dependsOn"].pop()
     elif damage == "no-maven":
-        apps[0]["components"] = []
+        bom["components"][0]["components"] = []
     elif damage == "wrong-commit":
         root["version"] = "c" * 40
     elif damage == "missing-commit":
@@ -232,6 +250,37 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
         root["name"] = "/src"
     with pytest.raises(ValueError):
         validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("damage", [
+    "aar-hash", "jni-hash", "no-go-dependencies", "missing-wrapper", "missing-core",
+    "dangling-module", "lost-license", "unhashed-source",
+])
+def test_packaging_rejects_incomplete_native_inventory(damage):
+    bom = release_inventory()
+    shared = MODULE["ENGINE_REF"]
+    abi = f"{shared}/arm64-v8a"
+    components = {item["bom-ref"]: item for item in bom["components"]}
+    links = {row["ref"]: row["dependsOn"] for row in bom["dependencies"]}
+    wrapper, core, extra = links[abi]
+    if damage == "aar-hash":
+        del components[shared]["hashes"]
+    elif damage == "jni-hash":
+        components[abi]["hashes"] = [{"alg": "SHA-1", "content": "a" * 40}]
+    elif damage == "no-go-dependencies":
+        links[abi].clear()
+    elif damage == "missing-wrapper":
+        links[abi].remove(wrapper)
+    elif damage == "missing-core":
+        links[abi].remove(core)
+    elif damage == "dangling-module":
+        links[abi].append("absent")
+    elif damage == "lost-license":
+        del components[extra]["evidence"]
+    else:
+        del components[extra]["externalReferences"][0]["hashes"]
+    with pytest.raises(ValueError):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
 def test_versioned_wrapper_checks_the_commit_query_and_linked_module_version(monkeypatch):

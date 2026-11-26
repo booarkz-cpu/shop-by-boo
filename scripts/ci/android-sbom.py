@@ -52,7 +52,7 @@ def go_modules(info, commit):
         if purl in modules:
             raise ValueError(f"Duplicate Go module {purl}")
         modules[purl] = item
-    if not {"github.com/2dust/androidlibxraylite", "github.com/xtls/xray-core"} <= {m["name"].lower() for m in modules.values()}:
+    if not CONTRACT["ENGINE_MODULES"] <= {m["name"].lower() for m in modules.values()}:
         raise ValueError("Android engine is missing the pinned wrapper or Xray-core")
     return modules
 

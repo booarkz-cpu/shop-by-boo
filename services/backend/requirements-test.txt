@@ -3,3 +3,4 @@ pytest-asyncio==1.5.0
 aiosqlite==0.22.1
 pytest-timeout==2.4.0
 license-expression==30.4.4
+cyclonedx-python-lib[json-validation]==11.12.0
