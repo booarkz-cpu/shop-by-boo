@@ -6,8 +6,10 @@ because docker-compose builds Support Pro with the ``support-pro`` directory as 
 """
 import json
 import re
+from fnmatch import fnmatchcase
 from pathlib import Path
 
+import pytest
 import yaml
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
@@ -53,20 +55,29 @@ def test_dependabot_watches_the_files_that_are_installed():
     assert pip_dirs == {"/services/backend", "/services/support-pro"}
 
 
-def test_dependabot_can_update_the_installed_support_pydantic_versions():
+@pytest.mark.parametrize("name", ["pydantic", "pydantic-core"])
+def test_dependabot_can_offer_support_pydantic_updates(name):
     config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
-    support, = (item for item in config["updates"] if item.get("directory") == "/services/support-pro"
-                and item["package-ecosystem"] == "pip")
-    locked = pins("services/support-pro/requirements.txt")
+    support, = (
+        entry for entry in config["updates"]
+        if entry.get("directory") == "/services/support-pro" and entry["package-ecosystem"] == "pip"
+    )
+    installed = Version(pins("services/support-pro/requirements.txt")[name])
     for rule in support.get("ignore", []):
-        name = rule["dependency-name"].lower().replace("_", "-")
-        if name not in {"pydantic", "pydantic-core"}:
+        if not fnmatchcase(name, rule["dependency-name"].lower().replace("_", "-")):
             continue
-        assert rule.get("versions") or rule.get("update-types"), f"{name}: all updates are ignored"
-        for expression in rule.get("versions", []):
-            bounds = SpecifierSet(expression)
-            if all(bound.operator in {">", ">="} for bound in bounds):
-                assert Version(locked[name]) not in bounds, f"{name} {expression} masks every newer version"
+        versions = rule.get("versions", [])
+        update_types = rule.get("update-types", [])
+        assert versions or update_types, f"{name}: all updates are ignored"
+        assert "version-update:semver-patch" not in update_types, f"{name}: patch updates are ignored"
+        for expression in versions:
+            # A bounded exclusion can skip a bad release. A lower bound at or below
+            # the installed version, with no upper bound, suppresses every upgrade.
+            hides_every_upgrade = all(
+                bound.operator in {">", ">="} and Version(bound.version) <= installed
+                for bound in SpecifierSet(expression)
+            )
+            assert not hides_every_upgrade, f"{name} {expression} masks every newer version"
 
 
 def test_support_pro_python_315_runtime_dependency_contract():

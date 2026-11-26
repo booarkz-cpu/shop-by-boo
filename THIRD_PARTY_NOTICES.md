@@ -20,6 +20,11 @@
 
 Поле `license` в lock-файле помогает составить список, но не заменяет полный LICENSE/COPYING установленного пакета. Проверяйте пакет из закреплённой версии, сохраняйте полный текст и copyright, а не только короткое имя лицензии. Установленные в тестовой среде версии не обязательно совпадают с production lock-файлом.
 
+Для выпускного CycloneDX состава CI использует
+[CycloneDX Gradle Plugin 3.6.1](https://plugins.gradle.org/plugin/org.cyclonedx.bom/3.6.1), Apache-2.0.
+Это инструмент сборки: он разрешает прямые и транзитивные графы трёх Android-приложений и в APK/AAB не входит.
+Версия закреплена в `scripts/ci/android-sbom.gradle`. Издатель проверяет полный JSON и отдельный файл SHA-256 перед публикацией.
+
 ## PostgreSQL 19.0
 
 Контейнеры магазина, Support Pro и тестовых профилей используют официальный образ
@@ -89,7 +94,7 @@ shadcn-совместимые компоненты используют Radix To
 - [legiz-ru/Orion](https://github.com/legiz-ru/Orion) — MIT, Copyright (c) 2025 legiz-ru. Шаблон страницы подписки Remnawave (v28.77.0). Не входит в дистрибутив: мастер скачивает `index.html` закреплённого коммита `d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd`, сверяет SHA-256 и записывает на сервер страницы подписки только по выбору администратора.
 - [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) — GPL-3.0. Портал входа перед страницами панели Remnawave (v28.86.0). Не входит в дистрибутив и не связывается с кодом магазина: мастер установки запускает отдельный контейнер `ghcr.io/tinyauthapp/tinyauth:v5.2.0`, закреплённый по SHA-256, только по выбору администратора («Доступ к панели → Вход через TinyAuth»). Идея — модуль `tinyauth.sh` из eGamesAPI/remnawave-reverse-proxy (MIT, Copyright (c) 2025 eGames); конфигурация Caddy (`forward_auth`) написана для магазина.
 - [zxing/zxing](https://github.com/zxing/zxing) core 3.5.3 — Apache-2.0. Рисование QR-кода подписки в приложении «Корги Люси: клиент» (v28.86.0).
-- Google code scanner (`play-services-code-scanner`) — условия Google Play services. Сканирование QR без разрешения камеры в приложении «Корги Люси: клиент»; код в дистрибутив не входит, подключается из Google Maven при сборке.
+- Google code scanner (`play-services-code-scanner`) сканирует QR без разрешения камеры в приложении «Корги Люси: клиент». Gradle получает библиотеку из Google Maven. Классы клиентского API входят в собранный Android-пакет. Декларации и ссылки на условия приведены в [составе Android](docs/SBOM_AND_LICENSES.md).
 
 ## Сводная таблица: что взято извне и на каких условиях (редакция лицензии 2.9, 2026-11-07)
 
