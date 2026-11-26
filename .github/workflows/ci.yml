@@ -1003,7 +1003,7 @@ jobs:
             echo "::error title=XCUITest::xcodebuild failed; the full log is in the job artifact"
           }
           if ! run_tests; then
-            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log" "$result_bundle.summary.json"); then
+            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log" "$result_bundle"); then
               echo "::warning title=XCUITest::$reason; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
               result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"

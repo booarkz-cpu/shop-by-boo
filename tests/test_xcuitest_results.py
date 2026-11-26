@@ -86,17 +86,26 @@ def complete():
 def test_startup_retry_considers_the_result_bundle(tmp_path, summary, allowed):
     log = tmp_path / "xcuitest.log"
     log.write_text(RUNNER_KILLED)
+    bundle = tmp_path / "first.xcresult"
     path = tmp_path / "first.xcresult.summary.json"
+    if summary is not None:
+        bundle.mkdir()
     if isinstance(summary, dict):
         path.write_text(json.dumps({**complete(), "result": "Failed", **summary}))
     elif summary is not None:
         path.write_text(summary)
     proc = subprocess.run(
-        [sys.executable, str(ROOT / "scripts/ci/xcuitest_retry.py"), str(log), str(path)],
+        [sys.executable, str(ROOT / "scripts/ci/xcuitest_retry.py"), str(log), str(bundle)],
         capture_output=True, text=True, check=False,
     )
     assert (proc.returncode == 0) == allowed, proc.stderr
     assert bool(proc.stdout.strip()) == allowed
+
+
+def test_existing_bundle_with_no_export_cannot_be_retried(tmp_path):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    assert not verifier.summary_allows_startup_retry(bundle)
 
 
 @pytest.mark.parametrize("field", verifier.COUNTS)

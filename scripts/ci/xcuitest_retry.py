@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("log", type=Path)
-    parser.add_argument("summary", type=Path, nargs="?")
+    parser.add_argument("result_bundle", type=Path, nargs="?")
     args = parser.parse_args()
-    if args.summary is not None and not summary_allows_startup_retry(args.summary):
+    if args.result_bundle is not None and not summary_allows_startup_retry(args.result_bundle):
         raise SystemExit("XCUITest summary does not confirm zero test cases")
     reason = retry_reason(args.log.read_text(encoding="utf-8", errors="replace"))
     if reason is None:

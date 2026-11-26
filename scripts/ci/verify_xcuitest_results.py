@@ -11,13 +11,14 @@ from pathlib import Path
 COUNTS = ("totalTestCount", "passedTests", "failedTests", "skippedTests", "expectedFailures")
 
 
-def summary_allows_startup_retry(path: Path) -> bool:
+def summary_allows_startup_retry(bundle: Path) -> bool:
     """Only a failure before XCTest ran any cases is eligible for a clean simulator."""
+    path = Path(f"{bundle}.summary.json")
     try:
         summary = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        # Xcode can fail before it produces a result bundle. The log must still identify a startup failure.
-        return True
+        # A missing export from an existing bundle leaves the number of executed tests unknown.
+        return not bundle.exists()
     except (OSError, ValueError):
         return False
     return (isinstance(summary, dict) and summary.get("testFailures") == []
