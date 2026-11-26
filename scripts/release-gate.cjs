@@ -35,6 +35,7 @@ async function requireVerifiedMain({github, context, core}) {
     if (workflow_id === 'ci.yml') evidence = run;
   }
   core.setOutput('ci_run', evidence.html_url);
+  core.setOutput('ci_run_id', String(evidence.id));
   core.setOutput('ready', 'true');
 }
 

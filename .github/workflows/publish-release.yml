@@ -45,6 +45,25 @@ jobs:
           python3 scripts/audit/requirements_register.py --check
           python3 scripts/audit/check_release_readiness.py --new-release-only
           python3 scripts/package-distribution.py --ci-run '${{ steps.gate.outputs.ci_run }}'
+      - name: Download the exact CI SBOM
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sbom
+          path: dist/release-sbom
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.gate.outputs.ci_run_id }}
+      - name: Stage versioned SBOM release assets
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          tag=$(python3 -c 'import json; print(json.load(open("release-manifest.template.json"))["distribution_tag"])')
+          name="remnawave_vpn_shop_${tag//./_}_sbom.cdx.json"
+          cp dist/release-sbom/sbom.cdx.json "$name"
+          digest=$(sha256sum "$name" | cut -d' ' -f1)
+          expected=$(cut -d' ' -f1 dist/release-sbom/sbom.cdx.json.sha256)
+          test "$digest" = "$expected"
+          printf '%s  %s\n' "$digest" "$name" > "$name.sha256"
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

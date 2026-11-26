@@ -13,13 +13,20 @@ async function publish({github, context, core, root = process.cwd()}) {
   if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Invalid distribution tag');
   const artifact = `remnawave_vpn_shop_${tag.replaceAll('.', '_')}_full_release.zip`;
   const detached = artifact.replace(/\.zip$/, '_manifest.json');
+  const sbom = `remnawave_vpn_shop_${tag.replaceAll('.', '_')}_sbom.cdx.json`;
   if (template.artifact !== artifact || template.detached_manifest !== detached) throw new Error('Invalid artifact names');
-  const names = [artifact, artifact + '.sha256', detached];
+  const names = [artifact, artifact + '.sha256', detached, sbom, sbom + '.sha256'];
   const files = names.map(name => ({name, data: fs.readFileSync(path.join(root, name))}));
   const manifest = JSON.parse(files[2].data.toString('utf8'));
   if (manifest.commit !== sha || manifest.distribution_tag !== tag ||
       manifest.sha256 !== digest(files[0].data).slice(7)) throw new Error('Detached manifest does not match the release commit and archive');
   if (files[1].data.toString('utf8').trim() !== `${manifest.sha256}  ${artifact}`) throw new Error('Invalid checksum file');
+  const sbomDocument = JSON.parse(files[3].data.toString('utf8'));
+  if (sbomDocument.bomFormat !== 'CycloneDX' || !Array.isArray(sbomDocument.components) ||
+      !Array.isArray(sbomDocument.dependencies)) throw new Error('Invalid CycloneDX SBOM');
+  const sbomDigest = digest(files[3].data).slice(7);
+  if (files[4].data.toString('utf8').trim() !== `${sbomDigest}  ${sbom}`)
+    throw new Error('Invalid SBOM checksum file');
   const main = async () => (await github.rest.repos.getBranch({...repo, branch: 'main'})).data.commit.sha;
   if (await main() !== sha) throw new Error('Verified commit is no longer current main');
   const notesPath = path.resolve(root, template.release_notes);
@@ -64,7 +71,8 @@ async function publish({github, context, core, root = process.cwd()}) {
     if (!release.draft) throw new Error(`Published release is missing ${file.name}`);
     const uploaded = (await github.rest.repos.uploadReleaseAsset({
       ...repo, release_id: release.id, name: file.name, data: file.data,
-      headers: {'content-type': file.name.endsWith('.zip') ? 'application/zip' : 'text/plain',
+      headers: {'content-type': file.name.endsWith('.zip') ? 'application/zip' :
+        file.name.endsWith('.json') ? 'application/json' : 'text/plain',
         'content-length': file.data.length}
     })).data;
     if (uploaded.digest !== expectedDigest || uploaded.size !== file.data.length)

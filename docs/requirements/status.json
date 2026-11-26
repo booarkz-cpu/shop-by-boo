@@ -3145,10 +3145,16 @@
     "evidence": [
       "docs/SBOM_AND_LICENSES.md",
       "THIRD_PARTY_NOTICES.md",
-      "scripts/ci/check-licenses.py"
+      "scripts/ci/check-licenses.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/publish-release.yml",
+      "scripts/ci/cyclonedx.init.gradle.kts",
+      "scripts/ci/merge-cyclonedx.py",
+      "scripts/publish-github-release.cjs",
+      "tests/test_sbom_release.py"
     ],
     "platforms": "all products",
-    "note": "SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом."
+    "note": "Кандидат строит CycloneDX из Trivy и прямых/транзитивных Gradle-графов трёх Android-приложений, сохраняет лицензии и SHA-256 и требует эти файлы как неизменяемые assets следующего выпуска. Статус остаётся PARTIAL до успешного exact-head CI и фактической публикации и проверки SBOM реального следующего выпуска."
   },
   "REQ-DOC-0025": {
     "status": "PASS",

@@ -120,9 +120,11 @@ def test_security_scanners_block_the_merge():
     ci = (pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     jobs = yaml.safe_load(ci)["jobs"]
     security = "\n".join(str(step.get("run", "")) for step in jobs["security"]["steps"])
+    sbom = "\n".join(str(step.get("run", "")) for step in jobs["sbom"]["steps"])
     containers = "\n".join(str(step.get("run", "")) for step in jobs["containers"]["steps"])
     assert "fs --quiet --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1" in security
-    assert "--format cyclonedx" in security and "pip-audit" in security and "bandit" in security and "npm audit" in security
+    assert "--format cyclonedx" in sbom and "merge-cyclonedx.py" in sbom
+    assert "pip-audit" in security and "bandit" in security and "npm audit" in security
     assert "image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --ignorefile /.trivyignore --exit-code 1" in containers
     # Every exception has an expiry date: it cannot stay forever unnoticed.
     ignored = [line for line in (pathlib.Path(__file__).resolve().parents[1] / ".trivyignore").read_text().splitlines()
