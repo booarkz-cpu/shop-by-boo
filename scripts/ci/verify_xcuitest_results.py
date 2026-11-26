@@ -12,7 +12,7 @@ from pathlib import Path
 COUNTS = ("totalTestCount", "passedTests", "failedTests", "skippedTests", "expectedFailures")
 
 
-def _is_accessibility_runner_startup_failure(summary: object) -> bool:
+def _is_accessibility_runner_startup_failure(summary: object, log: str) -> bool:
     """Recognize Xcode's synthetic runner failure before any UI test method starts."""
     if not isinstance(summary, dict):
         return False
@@ -25,20 +25,24 @@ def _is_accessibility_runner_startup_failure(summary: object) -> bool:
     if not isinstance(failures, list) or len(failures) != 1 or not isinstance(failures[0], dict):
         return False
     failure = failures[0]
-    runner = r"^VpnShopUserUITests-Runner \(\d+\) encountered an error$"
-    text = failure.get("failureText")
-    return (
-        summary.get("result") == "Failed"
-        and failure.get("targetName") == "VpnShopUserUITests"
-        and re.fullmatch(runner, str(failure.get("testName", ""))) is not None
-        and re.fullmatch(runner, str(failure.get("testIdentifierString", ""))) is not None
-        and isinstance(text, str)
-        and text.startswith("The test runner failed to initialize for UI testing.")
-        and "Timed out while loading Accessibility." in text
-    )
+    runner = failure.get("testName")
+    if not isinstance(runner, str) or failure.get("testIdentifierString") != runner:
+        return False
+    process = re.fullmatch(r"VpnShopUserUITests-Runner \(([0-9]+)\) encountered an error", runner)
+    if (process is None or summary.get("result") != "Failed"
+            or failure.get("targetName") != "VpnShopUserUITests"
+            or failure.get("failureText") != (
+                "The test runner failed to initialize for UI testing. "
+                "(Underlying Error: Timed out while loading Accessibility.)"
+            )):
+        return False
+    log_process = f"VpnShopUserUITests-Runner[{process.group(1)}:"
+    message = ('Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture '
+               'Code=1000 "Timed out while loading Accessibility."')
+    return any(log_process in line and message in line for line in log.splitlines())
 
 
-def summary_allows_startup_retry(bundle: Path) -> bool:
+def summary_allows_startup_retry(bundle: Path, log: str = "") -> bool:
     """Only a failure before XCTest ran any cases is eligible for a clean simulator."""
     path = Path(f"{bundle}.summary.json")
     try:
@@ -50,10 +54,9 @@ def summary_allows_startup_retry(bundle: Path) -> bool:
         return False
     no_test_activity = (isinstance(summary, dict) and summary.get("testFailures") == []
                         and all(type(summary.get(name)) is int and summary[name] == 0 for name in COUNTS))
-    # Xcode 26.6 can count its own runner-initialization error as one failed "test" even
-    # though no application test method started. retry_reason() separately requires the
-    # matching Accessibility timeout in the full log before this permits one clean retry.
-    return no_test_activity or _is_accessibility_runner_startup_failure(summary)
+    # Xcode 26.6 can count a runner startup error as a failed test. Correlate the
+    # runner in its result bundle with the diagnostic from the same process.
+    return no_test_activity or _is_accessibility_runner_startup_failure(summary, log)
 
 
 def validate(summary: object, expected: int) -> dict:
@@ -104,4 +107,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

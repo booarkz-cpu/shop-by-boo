@@ -108,48 +108,62 @@ def test_existing_bundle_with_no_export_cannot_be_retried(tmp_path):
     assert not verifier.summary_allows_startup_retry(bundle)
 
 
-def test_xcode_accessibility_runner_failure_can_be_retried_once(tmp_path):
-    bundle = tmp_path / "first.xcresult"
-    bundle.mkdir()
-    summary = {
+RUNNER_AX_LOG = "VpnShopUserUITests-Runner[31426:89970] [Default] " + AX_FUTURE_TIMEOUT
+
+
+@pytest.fixture
+def accessibility_runner_summary():
+    runner = "VpnShopUserUITests-Runner (31426) encountered an error"
+    return {
         "result": "Failed", "totalTestCount": 1, "passedTests": 0,
         "failedTests": 1, "skippedTests": 0, "expectedFailures": 0,
         "testFailures": [{
-            "targetName": "VpnShopUserUITests",
-            "testName": "VpnShopUserUITests-Runner (31426) encountered an error",
-            "testIdentifierString": "VpnShopUserUITests-Runner (31426) encountered an error",
+            "targetName": "VpnShopUserUITests", "testName": runner,
+            "testIdentifierString": runner,
             "failureText": ("The test runner failed to initialize for UI testing. "
                             "(Underlying Error: Timed out while loading Accessibility.)"),
         }],
     }
-    Path(f"{bundle}.summary.json").write_text(json.dumps(summary), encoding="utf-8")
-    assert verifier.summary_allows_startup_retry(bundle)
+
+
+@pytest.mark.parametrize(("log", "allowed"), [
+    (RUNNER_AX_LOG, True),
+    ("Failed to launch test application", False),
+    (RUNNER_KILLED, False),
+    (AX_TIMEOUT, False),
+    (RUNNER_AX_LOG.replace("31426", "31427"), False),
+    (RUNNER_AX_LOG.replace("Code=1000", "Code=1001") + "\nFailed to launch", False),
+    ("VpnShopUserUITests-Runner[31426:1]\n" + AX_FUTURE_TIMEOUT, False),
+    (RUNNER_AX_LOG + "\nTest Case '-[UITests testLogin]' started.", False),
+    (RUNNER_AX_LOG + "\nXCTAssertEqual failed", False),
+])
+def test_synthetic_runner_failure_requires_a_matching_log(tmp_path, accessibility_runner_summary, log, allowed):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    Path(f"{bundle}.summary.json").write_text(json.dumps(accessibility_runner_summary), encoding="utf-8")
+    log_path = tmp_path / "xcuitest.log"
+    log_path.write_text(log, encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/ci/xcuitest_retry.py"), str(log_path), str(bundle)],
+        capture_output=True, text=True, check=False,
+    )
+    assert (result.returncode == 0) == allowed, result.stderr
+    assert bool(result.stdout.strip()) == allowed
 
 
 @pytest.mark.parametrize("patch", [
     {"targetName": "VpnShopUserUITests.testLogin"},
     {"testName": "testLogin"},
     {"testIdentifierString": "testLogin"},
+    {"testIdentifierString": "VpnShopUserUITests-Runner (31427) encountered an error"},
     {"failureText": "XCTAssertEqual failed"},
 ])
-def test_real_or_ambiguous_test_failure_cannot_use_runner_retry(tmp_path, patch):
+def test_real_or_ambiguous_test_failure_cannot_use_runner_retry(tmp_path, accessibility_runner_summary, patch):
     bundle = tmp_path / "first.xcresult"
     bundle.mkdir()
-    failure = {
-        "targetName": "VpnShopUserUITests",
-        "testName": "VpnShopUserUITests-Runner (31426) encountered an error",
-        "testIdentifierString": "VpnShopUserUITests-Runner (31426) encountered an error",
-        "failureText": ("The test runner failed to initialize for UI testing. "
-                        "(Underlying Error: Timed out while loading Accessibility.)"),
-        **patch,
-    }
-    summary = {
-        "result": "Failed", "totalTestCount": 1, "passedTests": 0,
-        "failedTests": 1, "skippedTests": 0, "expectedFailures": 0,
-        "testFailures": [failure],
-    }
-    Path(f"{bundle}.summary.json").write_text(json.dumps(summary), encoding="utf-8")
-    assert not verifier.summary_allows_startup_retry(bundle)
+    accessibility_runner_summary["testFailures"][0].update(patch)
+    Path(f"{bundle}.summary.json").write_text(json.dumps(accessibility_runner_summary), encoding="utf-8")
+    assert not verifier.summary_allows_startup_retry(bundle, RUNNER_AX_LOG)
 
 
 @pytest.mark.parametrize("field", verifier.COUNTS)
@@ -208,4 +222,3 @@ def test_failed_second_check_replaces_a_previous_success_artifact(tmp_path, monk
 def test_a_non_object_report_is_not_a_test_result(summary):
     with pytest.raises(ValueError):
         verifier.validate(summary, 4)
-

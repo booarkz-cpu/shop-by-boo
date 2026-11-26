@@ -38,9 +38,10 @@ if __name__ == "__main__":
     parser.add_argument("log", type=Path)
     parser.add_argument("result_bundle", type=Path, nargs="?")
     args = parser.parse_args()
-    if args.result_bundle is not None and not summary_allows_startup_retry(args.result_bundle):
-        raise SystemExit("XCUITest summary does not confirm zero test cases")
-    reason = retry_reason(args.log.read_text(encoding="utf-8", errors="replace"))
+    log = args.log.read_text(encoding="utf-8", errors="replace")
+    if args.result_bundle is not None and not summary_allows_startup_retry(args.result_bundle, log):
+        raise SystemExit("XCUITest summary does not confirm a simulator startup failure")
+    reason = retry_reason(log)
     if reason is None:
         raise SystemExit(1)
     print(reason)
