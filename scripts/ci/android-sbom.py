@@ -41,6 +41,8 @@ def go_modules(info, commit):
             path, version = source["Path"], source["Version"]
             if not version.startswith("v") or not source.get("Sum", "").startswith("h1:"):
                 raise ValueError(f"Unidentified Go module {path} in Android engine")
+        if path == "github.com/gorilla/websocket" and version == "v1.5.3":
+            raise ValueError(f"Android JNI includes {path} {version}, affected by GO-2026-6278")
         purl = f"pkg:golang/{quote(path, safe='/')}@{quote(version, safe='')}"
         item = {"type": "library", "name": path, "version": version, "purl": purl, "bom-ref": purl}
         if source.get("Sum"):

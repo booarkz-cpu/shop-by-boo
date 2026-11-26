@@ -145,6 +145,21 @@ def test_native_modules_use_embedded_version_and_preserve_go_checksum():
             MODULE["go_modules"]({"Deps": copy.deepcopy(changed)}, COMMIT)
 
 
+def test_native_inventory_rejects_the_unfixed_websocket_dependency():
+    module = "github.com/gorilla/websocket"
+    core = {"Path": "github.com/xtls/xray-core", "Version": "v1.0.0", "Sum": "h1:core"}
+    wrapper = {"Path": "github.com/2dust/AndroidLibXrayLite", "Replace": {
+        "Path": "../../wrapper", "Version": "(devel)"}}
+    unfixed = {"Path": module, "Version": "v1.5.3", "Sum": "h1:old"}
+    with pytest.raises(ValueError, match="GO-2026-6278"):
+        MODULE["go_modules"]({"Deps": [wrapper, core, unfixed]}, COMMIT)
+    fixed = {"Path": module, "Version": "v1.5.4-0.20240701034025-d67f41855da4",
+             "Sum": "h1:PYKzliEgITjLJoJqbV90S0YRaG8LNAsICH6fp6MApC0="}
+    graph = MODULE["go_modules"]({"Deps": [wrapper, core, fixed]}, COMMIT)
+    record = graph[f"pkg:golang/{module}@{fixed['Version']}"]
+    assert {"name": "go:module:h1", "value": fixed["Sum"]} in record["properties"]
+
+
 def test_go_source_evidence_preserves_unmodified_terms_and_ancillary_notices(tmp_path):
     from zipfile import ZipFile
 
