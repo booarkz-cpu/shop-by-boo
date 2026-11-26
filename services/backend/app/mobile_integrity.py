@@ -53,6 +53,8 @@ def check_nonce(nonce: str) -> bool:
         return False
 
 
+# VPN Shop clients shipped in v28.161.0 request this stateless challenge with GET.
+@router.get("/api/mobile/integrity/challenge", deprecated=True, summary="Integrity Challenge for legacy mobile apps")
 @router.post("/api/mobile/integrity/challenge")
 async def integrity_challenge(response: Response):
     response.headers["Cache-Control"] = "no-store"

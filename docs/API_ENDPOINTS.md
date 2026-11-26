@@ -932,6 +932,7 @@ production gate остаётся закрытым без полного applicat
 | `DELETE` | `/api/me/wg-configs/{config_id}` | My Wg Release | сессия клиента |
 | `GET` | `/api/me/widget` | Widget Summary | сессия клиента |
 | `POST` | `/api/mobile/events` | Collect Events | сессия клиента |
+| `GET` | `/api/mobile/integrity/challenge` | Integrity Challenge for legacy mobile apps | открытый |
 | `POST` | `/api/mobile/integrity/challenge` | Integrity Challenge | открытый |
 | `GET` | `/api/mobile/layout` | Mobile Layout | открытый |
 | `GET` | `/api/mobile/push-style` | Public Push Style | открытый |

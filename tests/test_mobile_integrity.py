@@ -1,8 +1,9 @@
 """Genuine app / device checks of native sign-ins (Play Integrity, DeviceCheck)."""
 import base64
 
+import httpx
 import pytest
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 
 from app import mobile_integrity as integrity
@@ -19,6 +20,29 @@ def payload(nonce, **over):
     for key, value in over.items():
         data[key] = {**data[key], **value}
     return data
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("method", "body"), [
+    pytest.param("POST", {}, id="android"),
+    pytest.param("POST", None, id="ios"),
+    pytest.param("GET", None, id="released-clients"),
+])
+@pytest.mark.parametrize("configured_mode", ["off", "report", "enforce"])
+async def test_challenge_for_current_and_released_clients(method, body, configured_mode, monkeypatch):
+    monkeypatch.setattr(settings, "mobile_integrity_mode", configured_mode)
+    api = FastAPI()
+    api.include_router(integrity.router)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=api), base_url="http://testserver") as client:
+        response = await client.request(method, "/api/mobile/integrity/challenge", json=body)
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    challenge = response.json()
+    assert challenge["mode"] == configured_mode
+    if configured_mode == "off":
+        assert challenge["nonce"] == ""
+    else:
+        assert integrity.check_nonce(challenge["nonce"])
 
 
 def test_nonce_is_signed_and_expires(monkeypatch):
