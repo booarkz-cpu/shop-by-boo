@@ -9,7 +9,7 @@ name: Claude roadmap checks
 
 on:
   schedule:
-    # 02:20 UTC — one hour before the nightly auto-update window (03:00 Europe/Moscow).
+    # 02:20 UTC is 05:20 in Europe/Moscow.
     - cron: "20 2 * * *"
   workflow_dispatch:
 

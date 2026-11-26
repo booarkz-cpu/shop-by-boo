@@ -4,6 +4,8 @@
 
 GitHub CI проверяет Python/backend с PostgreSQL и миграциями, Support Pro, аудит зависимостей, три web-сборки, настоящий Chromium WebAuthn, Compose/контейнеры с Redis AUTH, Android и iOS. Локальные SQLite-тесты не заменяют PostgreSQL-проверки конкуренции.
 
+Для ночного аудита и проверки обновления Android смотрите время назначения runner и результат задания. [Расписание и выполненные проверки](docs/AUTONOMOUS_AUDIT.md#плановые-запуски-и-фактическое-выполнение).
+
 После полного успешного push CI точного `main` workflow `publish-release.yml` упаковывает исходники, создаёт SHA256 и detached manifest, проверяет загрузку и публикует релиз. Публикация уже существующего релиза не заменяет его вложения. Каждый новый выпуск получает собственный тег.
 
 Docker workflow публикует пять образов: backend, bot, admin, cabinet, miniapp. Stable использует `latest`, alpha — `preview`. Для воспроизводимости сохраняйте digest нужного образа.
