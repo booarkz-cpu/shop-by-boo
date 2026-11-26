@@ -1,19 +1,7 @@
 {
   "schema": 2,
   "updatedAt": "2026-11-26T11:30:47.086Z",
-  "active": {
-    "number": 483,
-    "ref": "dependabot/npm_and_yarn/apps/user-cabinet/cabinet-minor-a4946c28d0",
-    "sha": "248b94e4b8a92f31aadc444a37beedd794dffe19",
-    "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/user-cabinet in the cabinet-minor group",
-    "ecosystem": "npm_and_yarn",
-    "security": false,
-    "createdAt": "2026-11-26T08:39:55Z",
-    "status": "active",
-    "attempts": 0,
-    "conflicts": 0,
-    "note": "waiting for the active update"
-  },
+  "active": null,
   "deferred": [
     {
       "number": 481,
@@ -55,6 +43,20 @@
       "attempts": 0,
       "conflicts": 0,
       "note": "waiting for the active update"
+    },
+    {
+      "number": 483,
+      "ref": "dependabot/npm_and_yarn/apps/user-cabinet/cabinet-minor-a4946c28d0",
+      "sha": "248b94e4b8a92f31aadc444a37beedd794dffe19",
+      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/user-cabinet in the cabinet-minor group",
+      "ecosystem": "npm_and_yarn",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:55Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "GitHub refused to reopen (HTTP 422)",
+      "reopenAfter": "2026-11-27T11:30:47.086Z"
     }
   ],
   "history": [
@@ -165,6 +167,12 @@
       "action": "reopen-requested",
       "number": 483,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-26T11:30:47.086Z",
+      "action": "reopen-refused",
+      "number": 483,
+      "reopenAfter": "2026-11-27T11:30:47.086Z"
     }
   ]
 }
