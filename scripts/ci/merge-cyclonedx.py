@@ -33,6 +33,42 @@ def _canonical_ref(key: tuple[str, ...]) -> str:
     return "urn:shop-by-boo:component:" + hashlib.sha256(value.encode()).hexdigest()
 
 
+def _resolved_keys(candidates: list[dict], dependencies: list[dict]) -> dict[str, tuple[str, ...]]:
+    keys = {}
+    for item in candidates:
+        ref = item.get("bom-ref")
+        if ref:
+            key = _key(item)
+            if keys.setdefault(ref, key) != key:
+                raise ValueError(f"conflicting CycloneDX reference {ref}")
+
+    children = defaultdict(set)
+    for row in dependencies:
+        children[row.get("ref")].update(row.get("dependsOn") or [])
+
+    # Trivy can report the same package version twice with different optional
+    # dependencies. Split such instances, then propagate the split to their parents.
+    # Each pass only subdivides groups, including when the graph contains cycles.
+    while True:
+        refs = {ref: _canonical_ref(key) for ref, key in keys.items()}
+        groups = defaultdict(lambda: defaultdict(list))
+        for ref, key in keys.items():
+            try:
+                outgoing = tuple(sorted({refs[child] for child in children.get(ref, ())}))
+            except KeyError as exc:
+                raise ValueError(f"unresolved CycloneDX dependency {exc.args[0]}") from exc
+            groups[key][outgoing].append(ref)
+        changes = {}
+        for key, variants in groups.items():
+            if len(variants) > 1:
+                for outgoing, members in variants.items():
+                    variant = (*key, "dependsOn", _canonical_ref(outgoing))
+                    changes.update(dict.fromkeys(members, variant))
+        if not changes:
+            return keys
+        keys.update(changes)
+
+
 def _merge_lists(left: list[Any], right: list[Any]) -> list[Any]:
     values = {json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")): value
               for value in [*left, *right]}
@@ -73,7 +109,7 @@ def merge_documents(
     components: dict[tuple[str, ...], dict[str, Any]] = {}
     refs_by_document: list[dict[str, str]] = []
     roots: list[str] = []
-    selected_root: dict[str, Any] | None = None
+    selected_root_key: tuple[str, ...] | None = None
 
     metadata = {}
     vulnerabilities = []
@@ -83,18 +119,17 @@ def merge_documents(
         metadata_root = (document.get("metadata") or {}).get("component")
         if metadata_root:
             candidates.append(metadata_root)
+        resolved = _resolved_keys(candidates, document.get("dependencies") or [])
         # Trivy orders components by random IDs. Identical PURLs can have different display
         # names (e.g. SQLAlchemy/sqlalchemy), so choose their metadata in a stable order.
         ordered = sorted(candidates, key=lambda item: json.dumps(
             {key: value for key, value in item.items() if key != "bom-ref"}, ensure_ascii=False, sort_keys=True))
         for candidate in ordered:
             candidate = copy.deepcopy(candidate)
-            key = _key(candidate)
-            ref = _canonical_ref(key)
             old_ref = candidate.get("bom-ref")
+            key = resolved[old_ref] if old_ref else _key(candidate)
+            ref = _canonical_ref(key)
             if old_ref:
-                if old_ref in mapping and mapping[old_ref] != ref:
-                    raise ValueError(f"conflicting CycloneDX reference {old_ref}")
                 mapping[old_ref] = ref
             candidate["bom-ref"] = ref
             if key in components:
@@ -102,10 +137,10 @@ def merge_documents(
             else:
                 components[key] = candidate
         if metadata_root:
-            root_ref = mapping.get(metadata_root.get("bom-ref"), _canonical_ref(_key(metadata_root)))
-            roots.append(root_ref)
-            if selected_root is None or metadata_root.get("name") == "shop-by-boo":
-                selected_root = components[_key(metadata_root)]
+            root_key = resolved.get(metadata_root.get("bom-ref"), _key(metadata_root))
+            roots.append(_canonical_ref(root_key))
+            if selected_root_key is None or metadata_root.get("name") == "shop-by-boo":
+                selected_root_key = root_key
         refs_by_document.append(mapping)
         source_metadata = document.get("metadata", {})
         metadata = _merge_component(metadata, {k: v for k, v in source_metadata.items()
@@ -128,12 +163,12 @@ def merge_documents(
             "purl": f"pkg:github/booarkz-cpu/{root_name}@{root_version or 'unspecified'}",
         }
         root_key = _key(synthetic_root)
+        selected_root_key = root_key
         synthetic_root["bom-ref"] = _canonical_ref(root_key)
         if root_key in components:
             components[root_key] = _merge_component(components[root_key], synthetic_root)
         else:
             components[root_key] = synthetic_root
-        selected_root = components[root_key]
 
     relationships: dict[str, set[str]] = defaultdict(set)
     for document, mapping in zip(documents, refs_by_document, strict=True):
@@ -146,13 +181,12 @@ def merge_documents(
                     raise ValueError(f"unresolved CycloneDX dependency {item}")
                 relationships[ref].add(mapping[item])
 
-    if selected_root is None:
+    if selected_root_key is None:
         raise ValueError("every input is missing metadata.component")
+    # The product root belongs in metadata.component and in dependencies.
+    selected_root = components.pop(selected_root_key)
     root_ref = selected_root["bom-ref"]
     relationships[root_ref].update(ref for ref in roots if ref != root_ref)
-    # CycloneDX represents the product root in metadata.component and its dependency node,
-    # not a second time in the top-level components array.
-    components.pop(_key(selected_root), None)
     for component in components.values():
         relationships.setdefault(component["bom-ref"], set())
 
