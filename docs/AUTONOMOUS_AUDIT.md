@@ -37,6 +37,8 @@ Workflow запускается для PR, при push в main, вручную �
 | [Аудит](../.github/workflows/autonomous-audit.yml) | 02:23 UTC / 05:23 МСК | 14:06:03 | В загруженном `checklist-results.json` совпали SHA коммита и номер запуска. Все семь проверок согласованности прошли, в отчёте 657 уникальных требований. [Задание аудита](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45807443215/job/139866286052) |
 | [Проверка обновления AndroidLibXrayLite](../.github/workflows/xray-core-watch.yml) | 03:17 UTC / 06:17 МСК | 15:29:36 | Тег `v26.11.26` указывал на закреплённую ревизию `e23aca42e775ea9c31dc4e37a3472927caa3b9cf`. В журнале шага проверки записано `up-to-date`. [Задание обновления](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45819915923/job/139909208792) |
 
+Архив аудита №15110321670 содержит `checklist-results.json`, отчёт Markdown и семь журналов команд. SHA-256 архива — `55e7353c8b938271647aa089dbc90d1cbd5dad1b13c2f9c569d9e36b79393c11`. В JSON указан коммит `2cdf72092d174849b4d9fc9ae1dcd48739b5a304`. [Запуск с артефактом](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45807443215).
+
 ## Границы доказательств
 
 Заявленный PASS в реестре не становится результатом проверки этого запуска. Поле `execution_in_this_audit` у требования остаётся null. Неизвестные критерии, зависимости и релизные связи остаются null или пустыми; исходная формулировка не сокращается.
