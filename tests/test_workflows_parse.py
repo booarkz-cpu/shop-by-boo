@@ -93,12 +93,15 @@ def test_ios_ui_restart_uses_the_classifier_and_still_requires_all_four_tests():
     step = next(step for step in job["steps"] if step.get("name") == "XCUITest on a simulator")
     run = step["run"]
     assert not step.get("continue-on-error")
-    classify = run.index('scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"')
+    classify = run.index('scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log" "$result_bundle"')
     erase = run.index('xcrun simctl erase "$device"')
     retry = run.index('result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"')
     verify = run.index("scripts/ci/verify_xcuitest_results.py")
     assert classify < erase < retry < verify
     assert run.count('xcrun simctl erase "$device"') == 1
+    assert '-destination "id=$device" -parallel-testing-enabled NO' in run
+    artifacts = next(step for step in job["steps"] if step.get("name") == "Retain XCUITest summary and logs")
+    assert "xcuitest-*.xcresult.summary.json" in artifacts["with"]["path"]
     assert "--expected-tests 4" in run[verify:]
 
 

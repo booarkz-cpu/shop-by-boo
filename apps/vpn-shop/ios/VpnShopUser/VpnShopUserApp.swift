@@ -87,7 +87,7 @@ enum CorgiTrust {
 
     /// DeviceCheck token for the native token exchange; empty when the shop does not ask.
     static func integrityHeaders(_ client: ShopClient) -> [String: String] {
-        guard let challenge = try? client.call("GET", "/api/mobile/integrity/challenge") as? [String: Any],
+        guard let challenge = try? client.call("POST", "/api/mobile/integrity/challenge") as? [String: Any],
               (challenge["mode"] as? String ?? "off") != "off", DCDevice.current.isSupported else { return [:] }
         let semaphore = DispatchSemaphore(value: 0)
         let answer = Handoff("")
