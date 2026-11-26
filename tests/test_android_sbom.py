@@ -298,6 +298,17 @@ def test_packaging_requires_each_shipped_repository_manifest(manifest):
         MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
+@pytest.mark.parametrize("prepend", [True, False])
+def test_packaging_rejects_conflicting_dependency_records_in_either_order(prepend):
+    bom = release_inventory()
+    rows = bom["dependencies"]
+    engine = next(row for row in rows if row["ref"] == MODULE["ENGINE_REF"])
+    conflicting = {"ref": engine["ref"], "dependsOn": engine["dependsOn"][:1]}
+    rows.insert(0 if prepend else len(rows), conflicting)
+    with pytest.raises(ValueError, match="Duplicate dependency record.*libv2ray"):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
 @pytest.mark.parametrize("damage", ["detached", "duplicate", "empty", "wrong-ecosystem", "dangling-transitive"])
 def test_packaging_requires_connected_repository_graphs(damage):
     bom = release_inventory()
@@ -315,6 +326,52 @@ def test_packaging_requires_connected_repository_graphs(damage):
         links["pkg:pypi/shared@1"].append("absent-child")
     with pytest.raises(ValueError, match="absent-child" if damage == "dangling-transitive" else manifest):
         MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("damage", [None, "missing", "other-service", "transitive-only", "extra",
+                                    "wrong-version", "wrong-purl", "unreadable-pin"])
+def test_python_runtime_pins_belong_to_each_service(tmp_path, damage):
+    bom = release_inventory()
+    backend = "services/backend/requirements.txt"
+    support = "services/support-pro/requirements.txt"
+    for path, version in ((backend, "8.1.0"), (support, "8.2.0")):
+        lock = tmp_path / path
+        lock.parent.mkdir(parents=True)
+        lock.write_text(f"# runtime pins\nRedis == {version}\nExample_Pkg[asyncio]==2.0+local  # wheel\n")
+    rows = {row["ref"]: row["dependsOn"] for row in bom["dependencies"]}
+    packages = [
+        {"type": "library", "bom-ref": ref, "name": name, "version": version, "purl": purl}
+        for ref, name, version, purl in (
+            ("old", "redis", "8.1.0", "pkg:pypi/redis@8.1.0"),
+            ("new", "redis", "8.2.0", "pkg:pypi/redis@8.2.0"),
+            ("common", "Example-Pkg", "2.0+local", "pkg:pypi/example-pkg@2.0%2Blocal"),
+        )
+    ]
+    bom["components"].extend(packages)
+    rows[backend][:] = ["old", "common"]
+    rows[support][:] = ["new", "common"]
+    if damage == "missing":
+        rows[support].remove("new")
+    elif damage == "other-service":
+        rows[support][:] = rows[backend]
+    elif damage == "transitive-only":
+        rows[support].remove("new")
+        bom["dependencies"].append({"ref": "common", "dependsOn": ["new"]})
+    elif damage == "extra":
+        rows[support].append("old")
+    elif damage == "wrong-version":
+        packages[1]["version"] = "8.1.0"
+    elif damage == "wrong-purl":
+        packages[1]["purl"] = "pkg:pypi/unrelated@8.2.0"
+    elif damage == "unreadable-pin":
+        (tmp_path / support).write_text("-r another-list.txt\n")
+
+    verify = MODULE["CONTRACT"]["require_release_inventory"]
+    if damage is None:
+        verify(bom, expected_commit=SOURCE_REVISION, source_root=tmp_path)
+    else:
+        with pytest.raises(ValueError, match=support):
+            verify(bom, expected_commit=SOURCE_REVISION, source_root=tmp_path)
 
 
 @pytest.mark.parametrize("damage", ["unknown-direct", "missing-component", "orphan", "other-product",

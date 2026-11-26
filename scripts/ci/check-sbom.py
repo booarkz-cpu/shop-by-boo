@@ -3,7 +3,10 @@ import argparse
 import json
 import re
 import runpy
+import subprocess
+from collections.abc import Collection
 from pathlib import Path
+from urllib.parse import unquote
 
 PRODUCTS = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client", "lucy-admin": "shop.remnawave.admin"}
 REPOSITORY_MANIFESTS = {
@@ -70,7 +73,7 @@ def require_native_inventory(components: list, links: dict) -> None:
             raise ValueError(f"Release is missing the Go source archive digest for {ref}")
 
 
-def reachable_packages(name: str, direct: set, links: dict, modules: set) -> set:
+def reachable_packages(name: str, direct: set, links: dict, modules: Collection[str]) -> set:
     if not direct:
         raise ValueError(f"Release is missing the dependency graph for {name}")
     reached = set()
@@ -86,15 +89,52 @@ def reachable_packages(name: str, direct: set, links: dict, modules: set) -> set
     return reached
 
 
-def require_repository_inventory(components: list, direct: set, links: dict) -> None:
+def require_python_pins(manifest: str, source_root: Path, packages: list[dict]) -> None:
+    def coordinate(name: str, version: str) -> str:
+        normalized = re.sub(r"[-_.]+", "-", name).lower()
+        return f"pkg:pypi/{normalized}@{version}"
+
+    expected = set()
+    for number, line in enumerate((source_root / manifest).read_text(encoding="utf-8").splitlines(), 1):
+        requirement = line.partition("#")[0].strip()
+        if not requirement:
+            continue
+        # The distributed files pin all target platforms. An extra selects features of the same wheel.
+        spec = requirement.partition(";")[0].strip()
+        pin = re.fullmatch(r"([A-Za-z0-9][A-Za-z0-9._-]*)(?:\s*\[[^\]]+\])?\s*==\s*"
+                           r"([0-9][A-Za-z0-9.!+_-]*)", spec)
+        if not pin:
+            raise ValueError(f"{manifest}:{number}: cannot verify an exact runtime dependency: {requirement}")
+        expected.add(coordinate(*pin.groups()))
+
+    actual = set()
+    for item in packages:
+        version = item.get("version")
+        if item.get("type") != "library" or not version:
+            raise ValueError(f"{manifest}: expected a versioned PyPI library for {item['bom-ref']}")
+        package = coordinate(item["name"], version)
+        purl = item["purl"].split("#", 1)[0].split("?", 1)[0]
+        if unquote(purl) != package:
+            raise ValueError(f"{manifest}: {item['purl']} does not identify {package}")
+        actual.add(package)
+    if expected != actual:
+        raise ValueError(f"{manifest}: missing PyPI pins {sorted(expected - actual)}, "
+                         f"unexpected direct packages {sorted(actual - expected)}")
+
+
+def require_repository_inventory(components: list, direct: set, links: dict,
+                                 source_root: Path | None = None) -> None:
     for manifest, ecosystem in REPOSITORY_MANIFESTS.items():
         manifests = [item.get("bom-ref") for item in components
                      if item.get("type") == "application" and item.get("name") == manifest]
         if len(manifests) != 1 or manifests[0] not in direct:
             raise ValueError(f"Release requires one linked repository manifest for {manifest}")
-        packages = {item["bom-ref"] for item in components if item.get("bom-ref")
+        packages = {item["bom-ref"]: item for item in components if item.get("bom-ref")
                     and item.get("purl", "").startswith(f"pkg:{ecosystem}/")}
-        reachable_packages(manifest, links.get(manifests[0], set()), links, packages)
+        declared = links.get(manifests[0], set())
+        reachable_packages(manifest, declared, links, packages.keys())
+        if ecosystem == "pypi" and source_root is not None:
+            require_python_pins(manifest, source_root, [packages[ref] for ref in sorted(declared)])
 
 
 def require_maven_inventory(app: dict, direct: set, links: dict) -> None:
@@ -115,11 +155,16 @@ def require_maven_inventory(app: dict, direct: set, links: dict) -> None:
         raise ValueError(f"Release contains unreachable Maven components in {name}: {sorted(modules - reached)}")
 
 
-def require_release_inventory(bom: dict, *, expected_commit: str | None = None) -> None:
+def require_release_inventory(bom: dict, *, expected_commit: str | None = None, source_root: Path | None = None) -> None:
     if (bom.get("bomFormat"), bom.get("specVersion")) != ("CycloneDX", "1.7"):
         raise ValueError("Release requires CycloneDX 1.7")
     components = bom.get("components", [])
-    links = {row["ref"]: set(row.get("dependsOn", [])) for row in bom.get("dependencies", [])}
+    links = {}
+    for row in bom.get("dependencies", []):
+        ref = row["ref"]
+        if ref in links:
+            raise ValueError(f"Duplicate dependency record for {ref}")
+        links[ref] = set(row.get("dependsOn", []))
     product_root = bom.get("metadata", {}).get("component", {})
     if product_root.get("name") != PROJECT_NAME:
         raise ValueError("Release SBOM has the wrong product name")
@@ -129,7 +174,7 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None) 
     if expected_commit is not None and revision != expected_commit:
         raise ValueError(f"Release SBOM belongs to {revision}, expected {expected_commit}")
     root = product_root.get("bom-ref")
-    require_repository_inventory(components, links.get(root, set()), links)
+    require_repository_inventory(components, links.get(root, set()), links, source_root)
     for product, name in PRODUCTS.items():
         apps = [item for item in components if item.get("type") == "application" and item.get("name") == name]
         if len(apps) != 1:
@@ -145,7 +190,7 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None) 
     require_native_inventory(components, links)
 
 
-def main(path: Path, release: bool = False) -> None:
+def main(path: Path, release: bool = False, source_root: Path | None = None) -> None:
     bom = validate_schema(path.read_text(encoding="utf-8"))
     # Android applications own their resolved components in the CycloneDX hierarchy.
     pending = list(bom.get("components", []))
@@ -157,7 +202,10 @@ def main(path: Path, release: bool = False) -> None:
     if count <= 100:
         raise SystemExit(f"Repository SBOM has only {count} components")
     if release:
-        require_release_inventory(bom)
+        revision = None
+        if source_root is not None:
+            revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source_root, text=True).strip()
+        require_release_inventory(bom, expected_commit=revision, source_root=source_root)
     print(f"CycloneDX {bom['specVersion']}: {count} components")
 
 
@@ -165,5 +213,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path)
     parser.add_argument("--release", action="store_true")
+    parser.add_argument("--source-root", type=Path, help="Compare release PyPI dependencies with this source checkout")
     args = parser.parse_args()
-    main(args.path, args.release)
+    if args.source_root is not None and not args.release:
+        parser.error("--source-root requires --release")
+    main(args.path, args.release, args.source_root)
