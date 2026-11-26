@@ -19,8 +19,8 @@ def test_installer_generates_lockfiles_and_never_requires_manual_lockfile_editin
 
 def test_pinned_images_are_written_to_compose_env():
     text = (ROOT / "scripts/pin-images.sh").read_text()
-    assert "cat .env.images >> \"$tmp\"" in text
-    assert "awk '!/^(REDIS_IMAGE|POSTGRES_IMAGE|CADDY_IMAGE)=/'" in text
+    assert 'cat "$pins" >> "$tmp"' in text
+    assert 'mv -f -- "$tmp" .env' in text
 
 
 def test_money_inputs_use_decimal():
