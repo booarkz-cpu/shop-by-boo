@@ -1,6 +1,8 @@
 """A successful process exit must not turn missing, partial or skipped mobile tests into a green check."""
 import importlib.util
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -67,6 +69,31 @@ def complete():
     # The customer demo UI contains four mandatory test methods.
     return {"result": "Passed", "totalTestCount": 4, "passedTests": 4,
             "failedTests": 0, "skippedTests": 0, "expectedFailures": 0, "testFailures": []}
+
+
+@pytest.mark.parametrize("summary,allowed", [
+    (None, True),
+    ({"totalTestCount": 0, "passedTests": 0}, True),
+    ({"totalTestCount": 1, "passedTests": 0, "failedTests": 1}, False),
+    ({"totalTestCount": 0, "passedTests": 0, "skippedTests": 1}, False),
+    ({"totalTestCount": 0, "passedTests": 0, "testFailures": [{"testName": "testLogin"}]}, False),
+    ({"totalTestCount": False, "passedTests": 0}, False),
+    ("incomplete JSON", False),
+])
+def test_startup_retry_considers_the_result_bundle(tmp_path, summary, allowed):
+    log = tmp_path / "xcuitest.log"
+    log.write_text(RUNNER_KILLED)
+    path = tmp_path / "first.xcresult.summary.json"
+    if isinstance(summary, dict):
+        path.write_text(json.dumps({**complete(), "result": "Failed", **summary}))
+    elif summary is not None:
+        path.write_text(summary)
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/ci/xcuitest_retry.py"), str(log), str(path)],
+        capture_output=True, text=True, check=False,
+    )
+    assert (proc.returncode == 0) == allowed, proc.stderr
+    assert bool(proc.stdout.strip()) == allowed
 
 
 @pytest.mark.parametrize("field", verifier.COUNTS)

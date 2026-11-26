@@ -1,6 +1,6 @@
 """Identify Xcode simulator startup failures eligible for one fresh simulator."""
+import argparse
 import re
-import sys
 from pathlib import Path
 
 
@@ -27,7 +27,15 @@ def retry_reason(log: str) -> str | None:
 
 
 if __name__ == "__main__":
-    reason = retry_reason(Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace"))
+    from verify_xcuitest_results import summary_allows_startup_retry
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("log", type=Path)
+    parser.add_argument("summary", type=Path, nargs="?")
+    args = parser.parse_args()
+    if args.summary is not None and not summary_allows_startup_retry(args.summary):
+        raise SystemExit("XCUITest summary does not confirm zero test cases")
+    reason = retry_reason(args.log.read_text(encoding="utf-8", errors="replace"))
     if reason is None:
         raise SystemExit(1)
     print(reason)

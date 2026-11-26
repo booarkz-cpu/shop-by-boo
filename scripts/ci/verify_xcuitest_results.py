@@ -11,6 +11,19 @@ from pathlib import Path
 COUNTS = ("totalTestCount", "passedTests", "failedTests", "skippedTests", "expectedFailures")
 
 
+def summary_allows_startup_retry(path: Path) -> bool:
+    """Only a failure before XCTest ran any cases is eligible for a clean simulator."""
+    try:
+        summary = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        # Xcode can fail before it produces a result bundle. The log must still identify a startup failure.
+        return True
+    except (OSError, ValueError):
+        return False
+    return (isinstance(summary, dict) and summary.get("testFailures") == []
+            and all(type(summary.get(name)) is int and summary[name] == 0 for name in COUNTS))
+
+
 def validate(summary: object, expected: int) -> dict:
     if type(expected) is not int or expected < 1:
         raise ValueError("Expected test count must be a positive integer")
