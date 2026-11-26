@@ -23,6 +23,6 @@ def test_v290_apk_script_notes_and_clients():
     assert "localHttpHosts" in (ROOT / "apps/vpn-shop/ios/VpnShopUser/ContentView.swift").read_text()
     for role in ("user", "admin"):
         gradle = (ROOT / {"user": "apps/vpn-shop/android", "admin": "apps/lucy-admin/android"}[role] / "app/build.gradle.kts").read_text()
-        assert re.search(r'^\s*versionName = "3\.9\.0"$', gradle, re.M)
-        assert re.search(r'^\s*versionCode = 3900$', gradle, re.M)
+        assert re.search(r'^\s*versionName = "3\.9\.1"$', gradle, re.M)
+        assert re.search(r'^\s*versionCode = 3910$', gradle, re.M)
     assert "scripts/package-source.py" in (ROOT / "scripts/build-release.sh").read_text()
