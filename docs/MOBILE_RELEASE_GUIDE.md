@@ -85,6 +85,10 @@ CORGI_SHOP_URL берётся из vars либо mobile/shop-url.txt и долж
 
 Публичный эталон сертификата находится в
 [mobile/android-signing-cert.sha256](../mobile/android-signing-cert.sha256).
+При сборке подписанного пакета нужен отпечаток из 64 шестнадцатеричных цифр.
+Для APK сборка проверяет подпись командой `apksigner verify --verbose --print-certs`
+и сравнивает SHA-256 сертификата единственного подписанта с эталоном. Android Build
+Tools 35 и 36 обозначают подписанта по номеру, а версия 37 указывает схему подписи.
 APK проверяется apksigner, AAB — jarsigner/keytool. Workflow проверяет release
 badging/version и отклоняет debuggable/debug certificate. Локальная функция
 verify_signature при отсутствии эталона допускает skip с предупреждением:

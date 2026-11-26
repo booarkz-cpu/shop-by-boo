@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/apk-signer-digest.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -84,7 +84,7 @@ jobs:
           bash scripts/mobile/build-xray-aar.sh --verify-apk "$client" dist/mobile/corgi_lusi_android_user_*.apk
           if [[ "$state" == signed ]]; then
             "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$client" > "$RUNNER_TEMP/client-cert.txt"
-            digest="$(sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' "$RUNNER_TEMP/client-cert.txt" | head -1)"
+            digest="$(python3 scripts/mobile/apk-signer-digest.py < "$RUNNER_TEMP/client-cert.txt")"
             [[ "$digest" == "$(grep -Eo '^[0-9a-f]{64}' mobile/android-signing-cert.sha256)" ]] || { echo "Client app: unexpected signing key ($digest)"; exit 1; }
             cp "$client" dist/mobile/corgi-lusi-client.apk
             (cd dist/mobile && sha256sum corgi-lusi-client.apk > corgi-lusi-client.apk.sha256)
