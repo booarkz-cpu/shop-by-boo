@@ -1,19 +1,7 @@
 {
   "schema": 2,
   "updatedAt": "2026-11-26T10:07:06.039Z",
-  "active": {
-    "number": 482,
-    "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
-    "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
-    "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
-    "ecosystem": "npm_and_yarn",
-    "security": false,
-    "createdAt": "2026-11-26T08:39:53Z",
-    "status": "active",
-    "attempts": 0,
-    "conflicts": 0,
-    "note": "waiting for the active update"
-  },
+  "active": null,
   "deferred": [
     {
       "number": 481,
@@ -54,6 +42,20 @@
       "attempts": 0,
       "conflicts": 0,
       "note": "waiting for the active update"
+    },
+    {
+      "number": 482,
+      "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
+      "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
+      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
+      "ecosystem": "npm_and_yarn",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:53Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "GitHub refused to reopen (HTTP 422)",
+      "reopenAfter": "2026-11-27T10:07:06.039Z"
     }
   ],
   "history": [
@@ -152,6 +154,12 @@
       "action": "reopen-requested",
       "number": 482,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-26T10:07:06.039Z",
+      "action": "reopen-refused",
+      "number": 482,
+      "reopenAfter": "2026-11-27T10:07:06.039Z"
     }
   ]
 }
