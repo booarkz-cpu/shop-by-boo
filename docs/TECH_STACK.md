@@ -64,12 +64,21 @@
 
 | Платформа | Стек | Каталоги |
 | --- | --- | --- |
-| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
-| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
-| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
-| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `apps/lucy-admin/ios` |
+| VPN Shop Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Corgi Lucy Client Android 1.10.1 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
+| Lucy Admin Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
+| VPN Shop iOS 3.9.0 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| Lucy Admin iOS 3.9.0 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
 
-Версия приложений — **3.8.0** (`versionName`, `MARKETING_VERSION`).
+Lucy Admin Android использует AGP 9.5.3; VPN Shop и Corgi Lucy Client пока остаются на AGP 9.5.2 до отдельной платформенной приёмки. Все три Android-приложения используют Gradle 9.9.2 и Compose BOM 2026.11.01, собираются с API 37.1, минимальным API 26 и целевым API 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
+
+| Android build chain | Проверенный upstream | Совместимость | Лицензия |
+| --- | --- | --- | --- |
+| Android Gradle Plugin | [9.5.3](https://developer.android.com/reference/tools/gradle-api) | Gradle не ниже 9.6; API 37 | Apache-2.0 |
+| Gradle | [9.9.2](https://gradle.org/releases/) | JDK 17+; проект проверяет официальный `-bin` SHA-256 | Apache-2.0 |
+| Kotlin / Compose compiler | [2.4.21](https://github.com/JetBrains/kotlin/releases/tag/v2.4.21) | закреплён одинаково во всех трёх проектах | Apache-2.0 |
+| Jetpack Compose BOM | [2026.11.01](https://developer.android.com/develop/ui/compose/bom/bom-mapping?from=2026.09.00&to=2026.11.01) | согласованный набор AndroidX Compose | Apache-2.0 |
+
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
 
 ## Данные и инфраструктура
