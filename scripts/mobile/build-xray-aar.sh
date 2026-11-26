@@ -10,7 +10,8 @@
 # the LGPL requires; its sources are the pinned commit below.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-REPO="https://github.com/2dust/AndroidLibXrayLite"
+MODULE="github.com/2dust/AndroidLibXrayLite"
+REPO="https://$MODULE"
 COMMIT="${XRAY_AAR_COMMIT:-e23aca42e775ea9c31dc4e37a3472927caa3b9cf}"
 MOBILE_VERSION="v0.0.0-20261011034528-197770444867"
 OUT="$ROOT/apps/vpn-shop/android/app/libs"
@@ -23,6 +24,15 @@ fi
 WORK="${RUNNER_TEMP:-/tmp}/xray-aar-$COMMIT"
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
 [[ -n "$ANDROID_NDK_HOME" ]] || { echo "ANDROID_NDK_HOME is not set" >&2; exit 1; }
+if [[ ${1:-} == --toolchain-key ]]; then
+  go_toolchain="$(go env GOVERSION GOHOSTOS GOHOSTARCH)"
+  java_toolchain="$(javac -version 2>&1)"
+  ndk_revision="$(sed -n 's/^Pkg.Revision[[:space:]]*=[[:space:]]*//p' "$ANDROID_NDK_HOME/source.properties")"
+  [[ -n "$ndk_revision" ]] || { echo "Cannot identify Android NDK revision" >&2; exit 1; }
+  printf 'Android engine uses %s, %s, NDK %s\n' "$(go env GOVERSION)" "$java_toolchain" "$ndk_revision" >&2
+  printf '%s\n' "$go_toolchain" "$java_toolchain" "$ndk_revision" | sha256sum | cut -d' ' -f1
+  exit 0
+fi
 if [[ ! -d "$WORK/.git" ]]; then
   git init -q "$WORK"
   git -C "$WORK" remote add origin "$REPO"
@@ -31,15 +41,25 @@ git -C "$WORK" fetch -q --depth 1 origin "$COMMIT"
 git -C "$WORK" checkout -q FETCH_HEAD
 cd "$WORK"
 [[ "$(git rev-parse HEAD)" == "$COMMIT" ]] || { echo "Fetched source does not match $COMMIT" >&2; exit 1; }
-# Build in a fresh export so a failed dependency update cannot alter the cached checkout or the next run.
-staged_source="$(mktemp -d "${RUNNER_TEMP:-/tmp}/xray-aar-source.XXXXXXXX")"
-trap 'rm -rf "$staged_source"' EXIT
-git archive "$COMMIT" | tar -xf - -C "$staged_source"
-cd "$staged_source"
+# Keep upstream's dependency graph. Binding the canonical module keeps the builder's
+# absolute checkout path out of the linked Go build information in all four ELFs.
+BIND="$(mktemp -d "${RUNNER_TEMP:-/tmp}/xray-bind.XXXXXXXX")"
+trap 'rm -rf -- "$BIND"' EXIT
+git show "$COMMIT:go.mod" > "$BIND/go.mod"
+git show "$COMMIT:go.sum" > "$BIND/go.sum"
+cd "$BIND"
+export GOWORK=off
 export PATH="$(go env GOPATH)/bin:$PATH"
 go install "golang.org/x/mobile/cmd/gomobile@${MOBILE_VERSION}"
 go install "golang.org/x/mobile/cmd/gobind@${MOBILE_VERSION}"
 gomobile init
+go mod edit -json > upstream.json
+go mod download -json "$MODULE@$COMMIT" > module.json
+VERSION="$(python3 "$CHECK" module-version "$COMMIT" module.json upstream.json)"
+go mod edit -module=example.invalid/corgi-android-binding -require="$MODULE@$VERSION"
+go mod download "$MODULE"
+selected_wrapper="$(go list -mod=readonly -m -f '{{if .Replace}}replaced{{else}}{{.Version}}{{end}}' "$MODULE")"
+[[ "$selected_wrapper" == "$VERSION" ]] || { echo "Go selected another Android wrapper version" >&2; exit 1; }
 go mod download
 # The latest stable Gorilla tag v1.5.3 predates its mask-key fix (GO-2026-6278).
 # Only replace that selected version. Preserve a future upstream upgrade or removal.
@@ -58,8 +78,8 @@ if [[ "$ws_selected" == v1.5.3 ]]; then
     exit 1
   fi
 fi
-gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar ./
-python3 "$CHECK" stamp "$COMMIT" libv2ray.aar
+gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar "$MODULE"
+python3 "$CHECK" stamp "$COMMIT" libv2ray.aar --module-info module.json
 mkdir -p "$OUT"
 cp libv2ray.aar "$OUT/libv2ray.aar"
 sha256sum "$OUT/libv2ray.aar"
