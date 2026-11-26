@@ -18,7 +18,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 
 ![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.165-009688?logo=fastapi&logoColor=white)
-![aiogram](https://img.shields.io/badge/aiogram-3.31-2CA5E0?logo=telegram&logoColor=white)
+![aiogram](https://img.shields.io/badge/aiogram-3.34.0-2CA5E0?logo=telegram&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.6-4169E1?logo=postgresql&logoColor=white)
@@ -1354,7 +1354,7 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 | API и backend | Python 3.15.2, FastAPI 0.165.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
 | ORM и БД | SQLAlchemy 2.1.9, Alembic 1.20.1, PostgreSQL 19.0 | модели, миграции, транзакции |
 | Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
-| Telegram-бот | aiogram 3.33.0 | `/start`, меню, покупка, поддержка, уведомления |
+| Telegram-бот | aiogram 3.34.0 | `/start`, меню, покупка, поддержка, уведомления |
 | Админ-панель | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 (strict), Node.js 26 LTS | управление магазином |
 | Кабинет и Mini App | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 | личный кабинет клиента и Telegram Mini App |
 | Стили и шрифты | Tailwind CSS 4.3, Inter, JetBrains Mono | тёмная тема, типографика |
@@ -1511,7 +1511,7 @@ flowchart LR
 | `mail_receiver` (профиль `mail`) | Необязательный приём почты для служебных адресов |
 
 **Стек.**
-- Backend: Python 3.15.2, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.33.
+- Backend: Python 3.15.2, FastAPI 0.162, SQLAlchemy 2.1 (async, asyncpg), Alembic 1.20, Pydantic 2, httpx, aiogram 3.34.0.
 - Frontend: Next.js 16, React 19, TypeScript 7 strict, Tailwind CSS 4, shadcn/Radix; сборка на Node.js 26 LTS.
 - Мобильные приложения: Kotlin (Android) и Swift (iOS).
 - База данных: PostgreSQL 18.6 (магазин и Support Pro), Redis 8.10.

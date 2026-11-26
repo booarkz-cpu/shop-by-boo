@@ -35,7 +35,7 @@
 
 ## Support Pro: критические runtime-зависимости
 
-Support Pro на Python 3.15 использует FastAPI 0.165.0, SQLAlchemy 2.1.9, aiogram 3.33.0,
+Support Pro на Python 3.15 использует FastAPI 0.165.0, SQLAlchemy 2.1.9, aiogram 3.34.0,
 Pydantic 2.14.4 и pydantic-core 2.50.5 (MIT). Требуемый FastAPI пакет
 `opentelemetry-api==1.45.2` распространяется по Apache-2.0. Полный воспроизводимый состав
 закреплён в `services/support-pro/requirements.txt`; тесты не позволяют Pydantic и его core

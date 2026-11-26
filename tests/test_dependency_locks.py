@@ -56,7 +56,7 @@ def test_support_pro_python_315_runtime_dependency_contract():
     locked = pins("services/support-pro/requirements.txt")
     assert locked["fastapi"] == "0.165.0"
     assert locked["sqlalchemy"] == "2.1.9"
-    assert locked["aiogram"] == "3.33.0"
+    assert locked["aiogram"] == pins("services/backend/requirements.txt")["aiogram"] == "3.34.0"
     assert locked["pydantic"] == "2.14.4"
     assert locked["pydantic-core"] == "2.50.5"
     assert Version(locked["opentelemetry-api"]) >= Version("1.44.0")

@@ -135,7 +135,7 @@
 | Инструмент | Версия в проекте | Где используется |
 | --- | --- | --- |
 | Python | backend production — 3.15.2-slim с digest; backend CI — 3.14 + 3.15; Support Pro production — 3.15; lint, audit, Docker, docs и живые проверки — 3.15 | production переключён после полного matrix gate; 3.14 сохранён только в матрице backend-тестов для обратной совместимости и отката |
-| Support Pro runtime | FastAPI 0.165.0; SQLAlchemy 2.1.9; aiogram 3.33.0; Pydantic 2.14.4 / core 2.50.5; OpenTelemetry API 1.45.2 | закреплённый Python 3.15 dependency graph; unit/integration, Alembic, PostgreSQL/Redis и container tests |
+| Support Pro runtime | FastAPI 0.165.0; SQLAlchemy 2.1.9; aiogram 3.34.0; Pydantic 2.14.4 / core 2.50.5; OpenTelemetry API 1.45.2 | закреплённый Python 3.15 dependency graph; unit/integration, Alembic, PostgreSQL/Redis и container tests |
 | Node.js | 26 LTS (CI и образы) | admin, cabinet, miniapp |
 | Web runtime и тесты | Next.js 16.4.6; React 19.3.1; TypeScript 7.0.2; lucide-react 1.77.0; Playwright 1.65.1; jsdom 31.0.1 | Lucy Admin, кабинет и общий dependency graph Telegram Mini App |
 | ruff | 0.17.3 | lint |
@@ -143,6 +143,11 @@
 | alembic | 1.20.1 | 92 миграции, head `0094_store_subscriptions` |
 | Gradle / Android SDK | `mobile/android-*` | сборка APK/AAB |
 | Xcode | `mobile/ios-*` | сборка IPA |
+
+Магазин и Support Pro используют aiogram 3.34.0 с Telegram Bot API 10.5. Метод `getMe`
+возвращает модель `BotFullInfo`, из которой магазин берёт ID, имя и имя пользователя бота.
+Для собственного сервера Bot API вызову `getMe` требуется версия 10.5 или новее.
+[Примечания aiogram к версии 3.34.0](https://github.com/aiogram/aiogram/releases/tag/v3.34.0)
 
 ## 5. Что нельзя проверить без доступа
 

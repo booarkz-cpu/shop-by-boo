@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
+from aiogram.methods import GetMe
 from fastapi import HTTPException
 from pydantic import ValidationError
 from sqlalchemy import select
@@ -123,7 +124,16 @@ class FakeBot:
     async def get_me(self):
         if self.token.startswith("111"):
             raise RuntimeError(f"Unauthorized for token {self.token}")
-        return SimpleNamespace(id=int(self.token.split(":")[0]), username=f"bot{self.token[:3]}", first_name="Люси")
+        # Decode the Bot API response with the same model that aiogram returns to the supervisor.
+        return GetMe.__returning__.model_validate({
+            "id": int(self.token.split(":")[0]), "is_bot": True, "first_name": "Люси",
+            "username": f"bot{self.token[:3]}", "can_join_groups": True,
+            "can_read_all_group_messages": False, "supports_guest_queries": False,
+            "supports_inline_queries": False, "needs_inline_query_location": False,
+            "can_connect_to_business": False, "has_main_web_app": True, "has_topics_enabled": False,
+            "allows_users_to_create_topics": False, "has_topic_sidebar": False,
+            "can_manage_bots": False, "supports_join_request_queries": False,
+        })
 
     async def delete_webhook(self, drop_pending_updates=False):
         return True
