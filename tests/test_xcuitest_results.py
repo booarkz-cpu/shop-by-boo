@@ -108,6 +108,50 @@ def test_existing_bundle_with_no_export_cannot_be_retried(tmp_path):
     assert not verifier.summary_allows_startup_retry(bundle)
 
 
+def test_xcode_accessibility_runner_failure_can_be_retried_once(tmp_path):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    summary = {
+        "result": "Failed", "totalTestCount": 1, "passedTests": 0,
+        "failedTests": 1, "skippedTests": 0, "expectedFailures": 0,
+        "testFailures": [{
+            "targetName": "VpnShopUserUITests",
+            "testName": "VpnShopUserUITests-Runner (31426) encountered an error",
+            "testIdentifierString": "VpnShopUserUITests-Runner (31426) encountered an error",
+            "failureText": ("The test runner failed to initialize for UI testing. "
+                            "(Underlying Error: Timed out while loading Accessibility.)"),
+        }],
+    }
+    Path(f"{bundle}.summary.json").write_text(json.dumps(summary), encoding="utf-8")
+    assert verifier.summary_allows_startup_retry(bundle)
+
+
+@pytest.mark.parametrize("patch", [
+    {"targetName": "VpnShopUserUITests.testLogin"},
+    {"testName": "testLogin"},
+    {"testIdentifierString": "testLogin"},
+    {"failureText": "XCTAssertEqual failed"},
+])
+def test_real_or_ambiguous_test_failure_cannot_use_runner_retry(tmp_path, patch):
+    bundle = tmp_path / "first.xcresult"
+    bundle.mkdir()
+    failure = {
+        "targetName": "VpnShopUserUITests",
+        "testName": "VpnShopUserUITests-Runner (31426) encountered an error",
+        "testIdentifierString": "VpnShopUserUITests-Runner (31426) encountered an error",
+        "failureText": ("The test runner failed to initialize for UI testing. "
+                        "(Underlying Error: Timed out while loading Accessibility.)"),
+        **patch,
+    }
+    summary = {
+        "result": "Failed", "totalTestCount": 1, "passedTests": 0,
+        "failedTests": 1, "skippedTests": 0, "expectedFailures": 0,
+        "testFailures": [failure],
+    }
+    Path(f"{bundle}.summary.json").write_text(json.dumps(summary), encoding="utf-8")
+    assert not verifier.summary_allows_startup_retry(bundle)
+
+
 @pytest.mark.parametrize("field", verifier.COUNTS)
 @pytest.mark.parametrize("value", [None, True, "4", 4.0, -1])
 def test_incomplete_or_untyped_counts_are_refused(field, value):
@@ -164,3 +208,4 @@ def test_failed_second_check_replaces_a_previous_success_artifact(tmp_path, monk
 def test_a_non_object_report_is_not_a_test_result(summary):
     with pytest.raises(ValueError):
         verifier.validate(summary, 4)
+

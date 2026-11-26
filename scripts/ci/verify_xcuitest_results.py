@@ -5,10 +5,37 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
 COUNTS = ("totalTestCount", "passedTests", "failedTests", "skippedTests", "expectedFailures")
+
+
+def _is_accessibility_runner_startup_failure(summary: object) -> bool:
+    """Recognize Xcode's synthetic runner failure before any UI test method starts."""
+    if not isinstance(summary, dict):
+        return False
+    counts = {"totalTestCount": 1, "passedTests": 0, "failedTests": 1,
+              "skippedTests": 0, "expectedFailures": 0}
+    if any(type(summary.get(name)) is not int or summary[name] != value
+           for name, value in counts.items()):
+        return False
+    failures = summary.get("testFailures")
+    if not isinstance(failures, list) or len(failures) != 1 or not isinstance(failures[0], dict):
+        return False
+    failure = failures[0]
+    runner = r"^VpnShopUserUITests-Runner \(\d+\) encountered an error$"
+    text = failure.get("failureText")
+    return (
+        summary.get("result") == "Failed"
+        and failure.get("targetName") == "VpnShopUserUITests"
+        and re.fullmatch(runner, str(failure.get("testName", ""))) is not None
+        and re.fullmatch(runner, str(failure.get("testIdentifierString", ""))) is not None
+        and isinstance(text, str)
+        and text.startswith("The test runner failed to initialize for UI testing.")
+        and "Timed out while loading Accessibility." in text
+    )
 
 
 def summary_allows_startup_retry(bundle: Path) -> bool:
@@ -21,8 +48,12 @@ def summary_allows_startup_retry(bundle: Path) -> bool:
         return not bundle.exists()
     except (OSError, ValueError):
         return False
-    return (isinstance(summary, dict) and summary.get("testFailures") == []
-            and all(type(summary.get(name)) is int and summary[name] == 0 for name in COUNTS))
+    no_test_activity = (isinstance(summary, dict) and summary.get("testFailures") == []
+                        and all(type(summary.get(name)) is int and summary[name] == 0 for name in COUNTS))
+    # Xcode 26.6 can count its own runner-initialization error as one failed "test" even
+    # though no application test method started. retry_reason() separately requires the
+    # matching Accessibility timeout in the full log before this permits one clean retry.
+    return no_test_activity or _is_accessibility_runner_startup_failure(summary)
 
 
 def validate(summary: object, expected: int) -> dict:
@@ -73,3 +104,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
