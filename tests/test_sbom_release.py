@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -88,6 +89,20 @@ def test_merge_is_deterministic_and_preserves_android_relationships_and_licenses
 
     checksum = output.with_suffix(output.suffix + ".sha256")
     assert checksum.read_text() == f"{hashlib.sha256(first).hexdigest()}  sbom.cdx.json\n"
+
+
+def test_sbom_plugin_classpath_uses_the_central_mirror_for_transitive_modules():
+    script = (ROOT / "scripts/ci/android-sbom.gradle").read_text()
+    repositories = script.split("initscript {", 1)[1].split("dependencies {", 1)[0]
+    mirror = "https://maven-central.storage-download.googleapis.com/maven2/"
+    assert mirror in repositories
+    assert repositories.index(mirror) < repositories.index("mavenCentral()")
+    portal = repositories.split("gradlePluginPortal {", 1)[1].split("}", 1)[0]
+    assert "content {" in portal
+    assert set(re.findall(r"includeModule\('([^']+)', '([^']+)'\)", portal)) == {
+        ("org.cyclonedx.bom", "org.cyclonedx.bom.gradle.plugin"),
+        ("org.cyclonedx", "cyclonedx-gradle-plugin"),
+    }
 
 
 def test_ci_builds_full_android_sbom_and_release_downloads_exact_ci_artifact():
