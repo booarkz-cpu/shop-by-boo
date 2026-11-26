@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app import main as shop
 from app.models import Base, FinancialLedger, Payment, Plan, Subscription, User
+from test_subscription_commerce import isolated_payment_background
 
 PAYMENTS = int(os.environ.get("LOAD_PAYMENTS", "40"))
 DUPLICATES = int(os.environ.get("LOAD_DUPLICATES", "6"))
@@ -85,12 +86,15 @@ async def stack(monkeypatch):
     panel = Panel()
     monkeypatch.setattr(shop, "redis_client", redis)
     monkeypatch.setattr(shop, "RemnawaveClient", lambda: panel)
-    yield engine, panel
-    await redis.aclose()
-    await engine.dispose()
-    async with root.begin() as conn:
-        await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
-    await root.dispose()
+    try:
+        async with isolated_payment_background(engine, monkeypatch):
+            yield engine, panel
+    finally:
+        await redis.aclose()
+        await engine.dispose()
+        async with root.begin() as conn:
+            await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
+        await root.dispose()
 
 
 async def _deliver(engine, payment_id, stats):

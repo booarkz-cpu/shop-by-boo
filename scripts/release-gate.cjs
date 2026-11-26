@@ -34,7 +34,12 @@ async function requireVerifiedMain({github, context, core}) {
     }
     if (workflow_id === 'ci.yml') evidence = run;
   }
+  if (!Number.isSafeInteger(evidence.id) || evidence.id <= 0) {
+    core.info('The successful CI run has no usable artifact source ID.');
+    return;
+  }
   core.setOutput('ci_run', evidence.html_url);
+  core.setOutput('ci_run_id', evidence.id);
   core.setOutput('ready', 'true');
 }
 

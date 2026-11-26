@@ -17,7 +17,7 @@ Telegram-бот и Mini App · личный кабинет · приложени
 [![License](https://img.shields.io/badge/license-Corgi%20Lusi%20Source%202.9-FF8A1F)](LICENSE)
 
 ![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.165-009688?logo=fastapi&logoColor=white)
 ![aiogram](https://img.shields.io/badge/aiogram-3.31-2CA5E0?logo=telegram&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
@@ -1351,8 +1351,8 @@ Remnawave. Вы устанавливаете его на свой сервер, 
 
 | Компонент | Технология | Назначение |
 | --- | --- | --- |
-| API и backend | Python 3.15.2, FastAPI 0.162.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
-| ORM и БД | SQLAlchemy 2.1.6, Alembic 1.20.1, PostgreSQL 18.6 | модели, миграции, транзакции |
+| API и backend | Python 3.15.2, FastAPI 0.165.0, Uvicorn | REST API, выдача подписок, webhook, фоновые задачи |
+| ORM и БД | SQLAlchemy 2.1.9, Alembic 1.20.1, PostgreSQL 19.0 | модели, миграции, транзакции |
 | Очереди и кэш | Redis 8.10 | блокировки, идемпотентность, кэш статусов |
 | Telegram-бот | aiogram 3.33.0 | `/start`, меню, покупка, поддержка, уведомления |
 | Админ-панель | Next.js 16.4.4, React 19.3.1, TypeScript 7.0.2 (strict), Node.js 26 LTS | управление магазином |

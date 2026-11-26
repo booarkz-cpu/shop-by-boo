@@ -528,17 +528,11 @@ systemctl enable --now fail2ban >/dev/null 2>&1 || true
 dpkg-reconfigure -f noninteractive unattended-upgrades >/dev/null 2>&1 || true
 
 status_stage images
-log "Фиксирую build-stage image digests..."
-resolve_build(){
-  local image="$1" digest
-  docker pull "$image" >/dev/null
-  digest="$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')"
-  [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || die "Не получен immutable digest для $image"
-  printf '%s\n' "$digest"
-}
-PYTHON_BASE_IMAGE="$(resolve_build python:3.15-slim)"
-NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
-NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
+log "Загружаю закреплённые образы релиза..."
+bash scripts/pin-images.sh
+set -a
+. ./.env.images
+set +a
 log "Генерирую frontend lock-файлы автоматически (ручное редактирование не требуется)..."
 for app in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
   [[ -f "$app/package.json" ]] || die "Не найден $app/package.json"
@@ -547,15 +541,6 @@ for app in apps/lucy-admin/web apps/telegram-mini-app apps/user-cabinet; do
   [[ -s "$app/package-lock.json" ]] || die "Не удалось создать $app/package-lock.json"
 done
 
-log "Фиксирую production image digests..."
-bash scripts/pin-images.sh
-# Compose normally reads .env, not .env.images. pin-images.sh also writes the
-# pinned values into .env, so the runtime cannot silently fall back to mutable tags.
-set -a
-. ./.env.images
-set +a
-{ printf "PYTHON_BASE_IMAGE=%s\n" "$PYTHON_BASE_IMAGE"; printf "NODE_BASE_IMAGE=%s\n" "$NODE_BASE_IMAGE"; printf "NGINX_BASE_IMAGE=%s\n" "$NGINX_BASE_IMAGE"; } >> .env
-chmod 600 .env
 log "Проверяю Docker Compose..."
 docker compose config >/dev/null
 

@@ -16,11 +16,17 @@ retry_spec.loader.exec_module(retry)
 AX_TIMEOUT = 'Failed to initialize for UI testing: Error Domain=XCTDaemonErrorDomain Code=18 "Timed out waiting for AX loaded notification"'
 AX_FUTURE_TIMEOUT = ('Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture '
                      'Code=1000 "Timed out while loading Accessibility."')
+RUNNER_KILLED = (
+    "VpnShopUserUITests-Runner (27690) encountered an error (Early unexpected exit, "
+    "operation never finished bootstrapping - no restart will be attempted. "
+    "(Underlying Error: Test crashed with signal kill before establishing connection.))"
+)
 
 
 @pytest.mark.parametrize("log", [
     AX_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
     AX_FUTURE_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
+    RUNNER_KILLED + "\n** TEST FAILED **\nTesting started",
     "Application does not have a process ID",
     "Failed to get background assertion",
     "Failed to launch test application",
@@ -44,6 +50,14 @@ def test_simulator_startup_can_be_retried(log):
     "Test Case '-[UITests testLogin]' started.\n" + AX_FUTURE_TIMEOUT,
     "Test case 'UITests.testLogin()' skipped on iPhone\n" + AX_FUTURE_TIMEOUT,
     AX_FUTURE_TIMEOUT + "\nXCTAssertEqual failed",
+    RUNNER_KILLED.replace("VpnShopUserUITests-Runner", "VpnShopUser"),
+    RUNNER_KILLED.replace("signal kill", "signal segv"),
+    RUNNER_KILLED.replace("before establishing connection", "after establishing connection"),
+    "Test crashed with signal kill before establishing connection.",
+    "Test Case '-[UITests testLogin]' started.\n" + RUNNER_KILLED,
+    RUNNER_KILLED + "\nTest case 'UITests.testLogin()' passed on 'iPhone'",
+    "Test Case '-[UITests testLogin]' skipped.\nFailed to launch test application",
+    RUNNER_KILLED + "\nXCTFail(Unexpected)",
 ])
 def test_ambiguous_or_test_case_failures_require_investigation(log):
     assert retry.retry_reason(log) is None

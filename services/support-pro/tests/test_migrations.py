@@ -1,8 +1,14 @@
+import asyncio
 import os
 from pathlib import Path
 import sqlite3
 import subprocess
 import sys
+import uuid
+
+import asyncpg
+import pytest
+from sqlalchemy.engine import make_url
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -132,3 +138,62 @@ def test_totp_column_keeps_plaintext_and_refuses_to_truncate_ciphertext(tmp_path
     assert blocked.returncode != 0 and 'Encrypted TOTP seeds exist' in blocked.stdout + blocked.stderr
     with sqlite3.connect(path) as c:
         assert c.execute('SELECT totp_secret FROM operators').fetchone()[0].startswith('sp1:')
+
+
+@pytest.mark.asyncio
+async def test_postgres_totp_upgrade_and_blocked_downgrade_preserve_schema_and_value():
+    configured = os.environ.get("AUDIT_TEST_SUPPORT_DATABASE_URL")
+    if not configured:
+        pytest.skip("Requires the PostgreSQL test service")
+    base = make_url(configured)
+    name = "support_revision_" + uuid.uuid4().hex
+    test_url = base.set(database=name)
+    root = await asyncpg.connect(base.set(drivername="postgresql").render_as_string(hide_password=False))
+
+    async def migrate_revision(direction, target):
+        process = await asyncio.create_subprocess_exec(
+            sys.executable, "-m", "alembic", direction, target, cwd=ROOT,
+            env={**os.environ, "DATABASE_URL": test_url.render_as_string(hide_password=False)},
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
+        )
+        log, _ = await process.communicate()
+        return process.returncode, log.decode(errors="replace")
+
+    column = ("SELECT data_type, character_maximum_length FROM information_schema.columns "
+              "WHERE table_schema='public' AND table_name='operators' AND column_name='totp_secret'")
+    revision = "SELECT version_num FROM alembic_version"
+    secret = "SELECT totp_secret FROM operators WHERE login='migration_fixture'"
+    try:
+        await root.execute(f'CREATE DATABASE "{name}"')
+        try:
+            conn = await asyncpg.connect(test_url.set(drivername="postgresql").render_as_string(hide_password=False))
+            try:
+                code, log = await migrate_revision("upgrade", "0008")
+                assert code == 0, log
+                assert tuple(await conn.fetchrow(column)) == ("character varying", 64)
+                await conn.execute("INSERT INTO operators(login,password_hash,role,totp_secret) "
+                                   "VALUES('migration_fixture','fixture','admin','short-fixture')")
+                code, log = await migrate_revision("upgrade", "0009")
+                assert code == 0, log
+                assert tuple(await conn.fetchrow(column)) == ("text", None)
+                assert await conn.fetchval(secret) == "short-fixture"
+                fixture = "sp1:" + "A" * 80
+                await conn.execute("UPDATE operators SET totp_secret=$1 WHERE login='migration_fixture'", fixture)
+                code, log = await migrate_revision("downgrade", "0008")
+                assert code != 0 and "Encrypted TOTP seeds exist" in log
+                assert await conn.fetchval(revision) == "0009"
+                assert tuple(await conn.fetchrow(column)) == ("text", None)
+                assert await conn.fetchval(secret) == fixture
+                # Only this new fixture database is changed to exercise a permitted downgrade.
+                await conn.execute("UPDATE operators SET totp_secret='short-fixture' WHERE login='migration_fixture'")
+                code, log = await migrate_revision("downgrade", "0008")
+                assert code == 0, log
+                assert await conn.fetchval(revision) == "0008"
+                assert tuple(await conn.fetchrow(column)) == ("character varying", 64)
+                assert await conn.fetchval(secret) == "short-fixture"
+            finally:
+                await conn.close()
+        finally:
+            await root.execute(f'DROP DATABASE "{name}"')
+    finally:
+        await root.close()
