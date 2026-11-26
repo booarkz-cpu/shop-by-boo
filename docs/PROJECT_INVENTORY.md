@@ -1,11 +1,37 @@
 # Инвентаризация проекта — VPN Shop by Corgi Lucy
 
-Дистрибутив `v28.161.0`, runtime/API `21.5.1`, миграция магазина `0094_store_subscriptions`,
-Support Pro `0008`, мобильные приложения 3.8.0.
+Актуальные пути приложений, сервисов и хранилищ приведены в [архитектуре проекта](PROJECT_ARCHITECTURE.md).
+Версии внешних компонентов, лицензии и контрольные суммы образов собраны в [реестре зависимостей](EXTERNAL_DEPENDENCIES.md).
 
-Все числа в этом документе получены из репозитория на коммите `e3b9387` (`main`), а не из README:
-`git ls-files`, таблица маршрутов собранного приложения, `alembic heads`, `docker-compose.yml`.
-Дата снимка — 2026-11-01.
+## Мобильные пакеты от 26 ноября 2026 года
+
+Пакеты собраны из коммита `925e6180d183670c007ea807f6808740a636a81a` ветки `main`.
+Для APK сверены манифест, подпись и SHA-256. Для iOS проверены SHA-256, платформа и `Info.plist`
+внутри обоих IPA и обоих пакетов симулятора. [Запуск Mobile packages №45759099802](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45759099802)
+
+| Приложение | Исходники | Идентификатор пакета | Версия | Номер сборки | ОС в манифесте |
+| --- | --- | --- | --- | ---: | --- |
+| VPN Shop для Android | `apps/vpn-shop/android` | `shop.remnawave.user` | 3.9.0 | 3900 | API 26 и выше, целевой API 36 |
+| Корги Люси — Клиент для Android | `apps/vpn-client/android` | `shop.corgi.client` | 1.10.1 | 1101 | API 26 и выше, целевой API 36 |
+| Lucy Admin для Android | `apps/lucy-admin/android` | `shop.remnawave.admin` | 3.9.0 | 3900 | API 26 и выше, целевой API 36 |
+| VPN Shop для iOS | `apps/vpn-shop/ios` | `shop.remnawave.user` | 3.9.0 | 3900 | iOS 16.0 и выше |
+| Lucy Admin для iOS | `apps/lucy-admin/ios` | `shop.remnawave.admin` | 3.9.0 | 3900 | iOS 16.0 и выше |
+
+В APK магазина и самостоятельного клиента проверены восемь экземпляров `libgojni.so`.
+Для каждой архитектуры (arm64-v8a, armeabi-v7a, x86 и x86_64) хеш библиотеки совпал в обоих APK.
+SHA-256 скачанного архива из задания Android — `1077e84e8a4bddcf2b713600918ee86dd624d7f892ae56379bbda00f06e3831c`.
+[Артефакт mobile-android](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45759099802/artifacts/15089111778)
+
+Задание iOS записало статус `blocked_missing_apple_identity`. В IPA для iPhone и пакетах симулятора собраны
+основные приложения. Запуск Packet Tunnel на устройстве требует подписанного приложения с расширением и
+профилем Network Extension. Сборку с расширениями проверяет отдельное задание «iOS • tunnel and rich push extensions».
+SHA-256 скачанного архива iOS — `0c3612bec7cc47286040832a10119e6f0ca555898d02052db7c65e0a4b812a5f`.
+[Артефакт mobile-ios](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45759099802/artifacts/15088962215) · [CI коммита](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45759099927)
+
+## Исторический снимок за 1–2 ноября 2026 года
+
+Разделы 1–11 ниже описывают рабочее дерево `e3b9387` периода выпуска `v28.57.0`. Подсчёты основаны на
+`git ls-files`, таблице маршрутов приложения, `alembic heads` и `docker-compose.yml`.
 
 ## 1. Состояние репозитория
 
