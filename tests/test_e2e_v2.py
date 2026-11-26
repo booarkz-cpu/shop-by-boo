@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from app import e2e_v2, main
 from app.config import settings
 from app.models import AdminUser, Base, E2ECase, E2ERun, E2EWebhookCapture, Payment, Plan, RefundRequest, Subscription
-from test_subscription_commerce import database
+from test_subscription_commerce import database, isolated_payment_background
 
 ADMIN = SimpleNamespace(id=1, email="root@example.test", role="admin", disabled=False)
 NOW = datetime(2026, 10, 24, 12, 0, tzinfo=timezone.utc)
@@ -228,13 +228,16 @@ async def shop(monkeypatch):
     monkeypatch.setattr(e2e_v2.Runner, "webhook_grace", 1.0)
     FakeYooKassa.state = {"paid": False, "payment_id": None, "refunds": 0}
     FakeRemnawave.users = {}
-    yield engine
-    main.app.dependency_overrides.pop(main.get_db, None)
-    await redis.aclose()
-    await engine.dispose()
-    async with root.begin() as conn:
-        await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
-    await root.dispose()
+    try:
+        async with isolated_payment_background(engine, monkeypatch):
+            yield engine
+    finally:
+        main.app.dependency_overrides.pop(main.get_db, None)
+        await redis.aclose()
+        await engine.dispose()
+        async with root.begin() as conn:
+            await conn.execute(text(f"DROP SCHEMA {schema} CASCADE"))
+        await root.dispose()
 
 
 async def _wait_stage(engine, run_id, stage):
