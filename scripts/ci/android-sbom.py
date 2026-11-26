@@ -82,15 +82,18 @@ def go_source_evidence(archive_path, prefix, expected_sum):
                                        r"|(?:MIT|BSD|APACHE)[_-]LICEN[CS]E(?:[._-].+)?", filename, re.I)
                           or "/licenses/" in f"/{relative.lower()}/")
             is_notice = re.fullmatch(r"(?:notice|patents|copyright)(?:[._-].+)?", filename, re.I)
-            if is_license or is_notice:
-                properties.append({"name": f"go:source-file:sha256:{relative}", "value": digest})
+            if not (is_license or is_notice):
+                continue
+            data = archive.read(name)
+            if not data.strip() or b"\x00" in data:
+                raise ValueError(f"Invalid licence or notice text in {prefix}{relative}")
+            content = base64.b64encode(data).decode("ascii")
+            properties.append({"name": CONTRACT["GO_SOURCE_DIGEST"] + relative, "value": digest})
             if is_license:
-                data = archive.read(name)
-                if not data.strip() or b"\x00" in data:
-                    raise ValueError(f"Invalid licence text in {prefix}{relative}")
-                content = base64.b64encode(data).decode("ascii")
                 licenses.append({"license": {"name": relative, "text": {
                     "contentType": "text/plain", "encoding": "base64", "content": content}}})
+            else:
+                properties.append({"name": CONTRACT["GO_NOTICE_TEXT"] + relative, "value": content})
     calculated = "h1:" + base64.b64encode(checksum.digest()).decode("ascii")
     if calculated != expected_sum:
         raise ValueError("Go source checksum does not match the linked module")

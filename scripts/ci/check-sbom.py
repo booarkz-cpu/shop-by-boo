@@ -1,5 +1,7 @@
 """Validate repository and release inventories before packaging."""
 import argparse
+import base64
+import hashlib
 import json
 import re
 import runpy
@@ -14,6 +16,8 @@ REPOSITORY_MANIFESTS = {
 }
 ENGINE_REF = "corgi:android:libv2ray.aar"
 ENGINE_MODULES = {"github.com/2dust/androidlibxraylite", "github.com/xtls/xray-core"}
+GO_SOURCE_DIGEST = "go:source-file:sha256:"
+GO_NOTICE_TEXT = "go:notice:base64:"
 PROJECT_NAME = "VPN Shop by Corgi Lucy"
 
 
@@ -39,6 +43,44 @@ def has_sha256(record: dict) -> bool:
     return re.fullmatch(r"[0-9a-fA-F]{64}", values[0]) is not None
 
 
+def go_file_properties(module: dict, prefix: str) -> dict:
+    files = {}
+    for item in module.get("properties", []):
+        name = item["name"]
+        if name.startswith(prefix):
+            path = name.removeprefix(prefix)
+            if not path or path in files:
+                raise ValueError(f"Invalid or duplicate Go file property in {module['name']}: {name}")
+            files[path] = item["value"]
+    return files
+
+
+def require_go_source_texts(module: dict) -> None:
+    digests = go_file_properties(module, GO_SOURCE_DIGEST)
+    texts = go_file_properties(module, GO_NOTICE_TEXT)
+    licenses = module.get("evidence", {}).get("licenses", [])
+    if not licenses:
+        raise ValueError(f"Missing Go module licence text for {module['name']}")
+    for entry in licenses:
+        licence = entry.get("license", {})
+        path, text = licence.get("name"), licence.get("text", {})
+        if not path or path in texts or text.get("encoding") != "base64":
+            raise ValueError(f"Invalid Go licence evidence in {module['name']}: {path}")
+        texts[path] = text.get("content")
+
+    if texts.keys() != digests.keys():
+        missing = sorted(texts.keys() ^ digests.keys())
+        raise ValueError(f"Unpaired Go source texts and SHA-256 in {module['name']}: {missing}")
+    for path, encoded in texts.items():
+        try:
+            data = base64.b64decode(encoded, validate=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid base64 in {module['name']}: {path}") from exc
+        expected = digests[path]
+        if not data.strip() or b"\x00" in data or not isinstance(expected, str) or hashlib.sha256(data).hexdigest() != expected.lower():
+            raise ValueError(f"Invalid Go source text or SHA-256 in {module['name']}: {path}")
+
+
 def require_native_inventory(components: list, links: dict) -> None:
     abi_names = runpy.run_path(str(Path(__file__).resolve().parents[1] / "mobile/xray-artifact.py"))["ABIS"]
     native = {f"{ENGINE_REF}/{abi}" for abi in abi_names}
@@ -62,9 +104,7 @@ def require_native_inventory(components: list, links: dict) -> None:
         module = by_ref.get(ref, {})
         if module.get("type") != "library" or not module.get("purl", "").startswith("pkg:golang/"):
             raise ValueError(f"Release is missing a linked Go module: {ref}")
-        licenses = module.get("evidence", {}).get("licenses", [])
-        if not any(entry.get("license", {}).get("text", {}).get("content") for entry in licenses):
-            raise ValueError(f"Release is missing the Go module licence text for {ref}")
+        require_go_source_texts(module)
         sources = module.get("externalReferences", [])
         if not any(source.get("type") == "distribution" and has_sha256(source) for source in sources):
             raise ValueError(f"Release is missing the Go source archive digest for {ref}")
