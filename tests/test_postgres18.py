@@ -41,7 +41,6 @@ def test_postgres_19_image_is_pinned_and_18_stays_available_for_rollback():
         "docker-compose.yml",
         "docker-compose.test.yml",
         "services/support-pro/docker-compose.yml",
-        "scripts/pin-images.sh",
         ".github/workflows/ci.yml",
         ".github/workflows/resolve-image-digests.yml",
         ".github/workflows/mobile-screenshots.yml",
@@ -50,6 +49,7 @@ def test_postgres_19_image_is_pinned_and_18_stays_available_for_rollback():
         text = (ROOT / path).read_text()
         assert "postgres:18.6-alpine" not in text, path
         assert POSTGRES_TAG in text, path
+    assert "POSTGRES_IMAGE" in (ROOT / "scripts/pin-images.sh").read_text()
     docs = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
     notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
     assert POSTGRES_DIGEST in docs

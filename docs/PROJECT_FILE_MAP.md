@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2758**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2761**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1840,7 +1840,9 @@
 | [scripts/check-migration-heads.py](../scripts/check-migration-heads.py) | Эксплуатация и релиз |
 | [scripts/check-runtime-placeholders.py](../scripts/check-runtime-placeholders.py) | Эксплуатация и релиз |
 | [scripts/ci/caddy-on-demand-live.sh](../scripts/ci/caddy-on-demand-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/check-compose-profiles.py](../scripts/ci/check-compose-profiles.py) | Эксплуатация и релиз |
 | [scripts/ci/check-licenses.py](../scripts/ci/check-licenses.py) | Эксплуатация и релиз |
+| [scripts/ci/check-support-clamav.py](../scripts/ci/check-support-clamav.py) | Эксплуатация и релиз |
 | [scripts/ci/crowdsec-check.sh](../scripts/ci/crowdsec-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/geo-check.sh](../scripts/ci/geo-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
@@ -1858,6 +1860,7 @@
 | [scripts/ci/secret-leak-check.py](../scripts/ci/secret-leak-check.py) | Эксплуатация и релиз |
 | [scripts/ci/test-shard.py](../scripts/ci/test-shard.py) | Эксплуатация и релиз |
 | [scripts/ci/tinyauth-live.sh](../scripts/ci/tinyauth-live.sh) | Эксплуатация и релиз |
+| [scripts/ci/verify-pg-upgrade-fixture.py](../scripts/ci/verify-pg-upgrade-fixture.py) | Эксплуатация и релиз |
 | [scripts/ci/verify_xcuitest_results.py](../scripts/ci/verify_xcuitest_results.py) | Эксплуатация и релиз |
 | [scripts/ci/wizard-caddy-check.sh](../scripts/ci/wizard-caddy-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/xcuitest_retry.py](../scripts/ci/xcuitest_retry.py) | Эксплуатация и релиз |
