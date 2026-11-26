@@ -41,8 +41,8 @@ android {
         applicationId = "shop.corgi.client"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1101
-        versionName = "1.10.1"
+        versionCode = 1102
+        versionName = "1.10.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "XRAY_AAR_COMMIT", "\"${packagedRevision ?: "unknown"}\"")
     }
