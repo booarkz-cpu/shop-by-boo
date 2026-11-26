@@ -1,10 +1,12 @@
 """«Сверка с панелью»: what the shop set on the Remnawave panel against what the panel has now (REQ-RW-0007)."""
+import json
 from datetime import datetime, timezone
 
 import pytest
 from fastapi import HTTPException
 
 from app import rw_drift
+from test_subscription_commerce import database  # noqa: F401
 
 NOW = datetime(2026, 11, 12, 9, 0, tzinfo=timezone.utc)
 DE, CZ = "00000001-0000-4000-8000-000000000000", "00000002-0000-4000-8000-000000000000"
@@ -62,6 +64,30 @@ def test_state_remembers_the_last_clean_check_and_survives_a_failure():
     failed = rw_drift.remember(drifted, None, "Remnawave: нет ответа", NOW.replace(hour=11))
     assert failed["items"] == drifted["items"] and failed["checked_at"] == drifted["checked_at"]
     assert failed["error"] == "Remnawave: нет ответа" and failed["failed_at"] == "2026-11-12T11:00:00+00:00"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("items", [None, [], [{"object": "de-1", "actual": "выключен"}]],
+                         ids=["no-history", "last-clean", "last-difference"])
+async def test_empty_manual_check_preserves_observation_history(database, items):
+    from app.models import AppSetting
+    from app.node_health import _save
+
+    previous = None if items is None else rw_drift.remember(rw_drift.DEFAULT, items, None, NOW)
+    if previous is not None:
+        await _save(database, rw_drift.STATE_KEY, previous)
+        await database.commit()
+
+    view = await rw_drift.check(db=database, admin=None)
+    assert not rw_drift.watching(view["watched"])
+    assert view["in_sync"] is False
+    assert view["checked_at"] == (previous or {}).get("checked_at")
+    assert view["items"] == (items or [])
+    assert await rw_drift.meta(db=database, admin=None) == view
+
+    database.expire_all()
+    stored = await database.get(AppSetting, rw_drift.STATE_KEY)
+    assert (json.loads(stored.value) if stored else None) == previous
 
 
 class Db:

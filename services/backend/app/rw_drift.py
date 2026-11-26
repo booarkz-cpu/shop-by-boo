@@ -153,7 +153,8 @@ async def _check(db: AsyncSession, watched: dict) -> list[dict]:
 def _view(state: dict, watched: dict) -> dict:
     return {"checked_at": state.get("checked_at"), "ok_at": state.get("ok_at"), "error": state.get("error"),
             "failed_at": state.get("failed_at"), "items": state.get("items") or [], "watched": watched,
-            "in_sync": state.get("checked_at") is not None and not state.get("items") and not state.get("error")}
+            "in_sync": watching(watched) and state.get("checked_at") is not None
+                       and not state.get("items") and not state.get("error")}
 
 
 async def _watched(db: AsyncSession) -> dict:
@@ -229,6 +230,8 @@ async def check(db: AsyncSession = Depends(get_db), admin=Depends(require_permis
 
     previous = await _load(db, STATE_KEY, DEFAULT)
     watched = await _watched(db)
+    if not watching(watched):
+        return _view(previous, watched)
     try:
         items, error = await _check(db, watched), None
     except HTTPException as exc:
