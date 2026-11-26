@@ -25,6 +25,62 @@ def test_generated_api_catalogue_matches_application():
     assert (ROOT/'docs/API_ENDPOINTS.md').read_text()==module.render()
 
 
+def test_external_links_in_acceptance_evidence_are_checked_separately_from_source_quotes(tmp_path):
+    import runpy
+    import shutil
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    checker = tmp_path / "scripts" / "check-external-links.py"
+    checker.parent.mkdir()
+    shutil.copyfile(ROOT / "scripts/check-external-links.py", checker)
+    register = docs / "AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    register.write_text(
+        "Guide https://guide.invalid/intro\n"
+        "| REQ-MIG-0009 | original \\| https://old.invalid/client https://shared.invalid/ref "
+        "| migration | see [evidence](https://records.invalid/proof) |\n", encoding="utf-8")
+    (docs / "operator.md").write_text("https://shared.invalid/ref\n", encoding="utf-8")
+
+    links = runpy.run_path(str(checker))["collect"]("")
+    assert set(links) == {"https://guide.invalid/intro", "https://records.invalid/proof", "https://shared.invalid/ref"}
+    assert links["https://records.invalid/proof"] == [str(register.relative_to(tmp_path))]
+    assert links["https://shared.invalid/ref"] == [str((docs / "operator.md").relative_to(tmp_path))]
+
+
+def test_mobile_guide_uses_platform_specific_happ_sources():
+    text = (ROOT / "docs/ru/MOBILE_GUIDE.md").read_text(encoding="utf-8")
+    assert "[Happ для Android](https://github.com/Happ-proxy/happ-android)" in text
+    assert "[Happ для iOS](https://github.com/Happ-proxy/happ-ios)" in text
+
+
+
+@pytest.mark.parametrize("bad_configuration", [True, False], ids=["invalid-proxy", "no-http-response"])
+def test_external_link_check_requires_a_working_http_transport(tmp_path, bad_configuration):
+    import os
+    import shutil
+    import socket
+    import subprocess
+    import sys
+
+    script = tmp_path / "scripts" / "check-external-links.py"
+    script.parent.mkdir()
+    shutil.copyfile(ROOT / "scripts/check-external-links.py", script)
+    (tmp_path / "README.md").write_text("[Guide](https://guide.invalid/)", encoding="utf-8")
+    with socket.socket() as unused_port:
+        unused_port.bind(("127.0.0.1", 0))
+        scheme = "invalid-proxy" if bad_configuration else "http"
+        proxy = f"{scheme}://127.0.0.1:{unused_port.getsockname()[1]}"
+        env = {k: v for k, v in os.environ.items() if k.lower() not in {"http_proxy", "https_proxy", "all_proxy", "no_proxy"}}
+        result = subprocess.run(
+            [sys.executable, str(script), "--retries", "1", "--timeout", "1"],
+            env={**env, "HTTPS_PROXY": proxy}, capture_output=True, text=True, timeout=15,
+        )
+    assert result.returncode == 2, result.stdout + result.stderr
+    expected = "HTTP client setup failed" if bad_configuration else "No HTTP response"
+    assert expected in result.stderr
+    assert "BROKEN" not in result.stdout
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guides_do_not_reference_invented_prerelease_tags(filename):
     manifest=json.loads((ROOT/'release-manifest.template.json').read_text())
