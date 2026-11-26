@@ -8,7 +8,18 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 // Loaded only for the release SBOM. Normal Android builds keep their usual classpath.
 initscript {
-    repositories { gradlePluginPortal() }
+    repositories {
+        // The marker and plugin are published on the portal. Its redirect for
+        // Central libraries would bypass the mirror used by the Android builds.
+        gradlePluginPortal {
+            content {
+                includeModule('org.cyclonedx.bom', 'org.cyclonedx.bom.gradle.plugin')
+                includeModule('org.cyclonedx', 'cyclonedx-gradle-plugin')
+            }
+        }
+        maven { url = uri('https://maven-central.storage-download.googleapis.com/maven2/') }
+        mavenCentral()
+    }
     dependencies { classpath 'org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.6.1' }
 }
 
