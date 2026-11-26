@@ -80,7 +80,7 @@ def main() -> None:
     if len(table_rows) < 45:
         raise SystemExit(f"coverage matrix unexpectedly short: {len(table_rows)} rows")
 
-    print(f"current documentation contract OK: distribution {DISTRIBUTION_TAG}, runtime {TAG}, shop {SHOP_HEAD}, support {SUPPORT_HEAD}")
+    print(f"published distribution documentation OK: {DISTRIBUTION_TAG}, runtime {TAG}, shop {SHOP_HEAD}, support {SUPPORT_HEAD}")
 
 
 if __name__ == "__main__":

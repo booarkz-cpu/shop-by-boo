@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import get_db
+from .rw_plan import IMAGES
 from .security import require_permission
 
 logger = logging.getLogger("vpnshop.autoscale")
@@ -149,7 +150,7 @@ def cloud_init(config: dict, secret: str) -> str:
         "runcmd:",
         "  - curl -fsSL https://get.docker.com | sh",
         f"  - docker run -d --name remnanode --restart always --network host -e NODE_PORT={int(config['node_port'])} "
-        f"-e 'SECRET_KEY={secret}' remnawave/node:3.4.6",
+        f"-e 'SECRET_KEY={secret}' {IMAGES['node']}",
     ]) + "\n"
 
 

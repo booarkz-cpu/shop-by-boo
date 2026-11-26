@@ -19,8 +19,8 @@ import re
 import sys
 
 # Strong copyleft and source-available licences. LGPL and MPL are weak copyleft: allowed for a library used as is.
-DENIED = re.compile(r"(?<![A-Za-z])(AGPL|GPL|SSPL|BUSL|Business Source|Commons Clause|Elastic License|RSAL|Affero)", re.I)
-WEAK = re.compile(r"(?<![A-Za-z])(LGPL|Lesser General Public)", re.I)
+DENIED = re.compile(r"(?<![A-Za-z])(AGPL|GPL|GNU General Public License|SSPL|BUSL|Business Source|Commons Clause|Elastic License|RSAL|Affero)", re.I)
+WEAK = re.compile(r"(?<![A-Za-z])(LGPL|(?:GNU )?(?:Lesser|Library) General Public)", re.I)
 # package name → reason. Keep it empty unless a human decided so.
 ALLOWED: dict[str, str] = {}
 

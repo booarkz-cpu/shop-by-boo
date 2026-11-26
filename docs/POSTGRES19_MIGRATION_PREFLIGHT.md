@@ -23,7 +23,12 @@ A missing source or existing destination produces a nonzero exit code.
 Default pairs: `db:postgres18_data:postgres19_data` and
 `support_db:support_postgres18_data:support_postgres19_data`.
 For a standalone Support Pro deployment set
-`PG19_PREFLIGHT_SPEC=db:pgdata18:pgdata19` and the matching `APP_DIR`.
+`PG19_PREFLIGHT_SPEC=db:pgdata18:pgdata19` and point `APP_DIR` at the
+directory containing its Compose file and `.env`. The upgrade itself needs
+`PG19_UPGRADE_SPEC=db:pgdata18:pgdata19:support:support` with the supplied
+environment defaults. Substitute the deployed `POSTGRES_USER` and
+`POSTGRES_DB` for the final two fields when they have been customized.
+Preserve the Compose project name used to create the original volume.
 
 Before any future cutover, separately verify PG_VERSION=18 using a safe
 read-only procedure, inventory extensions and roles, create and **restore-test**
@@ -39,6 +44,13 @@ and https://www.postgresql.org/docs/current/upgrading.html
 
 ### Non-destructive migration safeguards
 
+For a custom deployment, set `PG19_UPGRADE_SPEC` to a comma-separated list of
+`service:source_volume:destination_volume:database_user:database_name` mappings.
+The upgrade validates the whole list before inspecting volumes or stopping the
+stack. Each service must exist in the selected Compose project and each volume
+name can appear only once across the list. The default mappings refer to the
+integrated shop's volume names and skip services absent from its Compose model.
+
 The PostgreSQL 19 migration refuses identical source and destination volumes,
 existing destination relations (including empty tables and migration metadata),
 and insufficient or indeterminate storage capacity. The legacy
@@ -51,3 +63,19 @@ This comparison is not proof that the dump is recoverable. The rollback flag
 checks only the PostgreSQL 18 version marker, not actual recovery. Do not
 resume production traffic until data and application health are verified.
 A failed restore must be investigated without deleting the source volume.
+
+### Verify the application migrations after restore
+
+For each service, restore the PostgreSQL 18 dump into an isolated PostgreSQL 19
+database. Record its `alembic_version` and check representative application
+records against the source. Apply the service's migrations to this database
+and to a separate empty PostgreSQL 19 database. Compare their final revision,
+columns, indexes and constraints. Run `alembic upgrade head` again on the
+restored database and verify that the catalog and the saved records are intact.
+The [revision table](EXTERNAL_DEPENDENCIES.md) identifies the release and working-tree heads.
+
+In the 18.7 to 19.0 rehearsal, PostgreSQL printed the casts in four shop
+`CHECK` constraints differently after restore. The constraints govern ledger
+direction and payout, refund and withdrawal statuses. Compare their behavior
+using the allowed values from the migrations, values outside those lists and
+`NULL`. The Support Pro catalog matched the clean database entry for entry.

@@ -84,7 +84,7 @@ services:
       db: {condition: service_healthy}
     entrypoint: ["/bin/sh", "/backup.sh"]
   clamav:
-    image: clamav/clamav:stable@sha256:6d87c712e3391e13c1ba6e05dfb074d4b1ddb5a6834b23bb9da990d2a4ef042a
+    image: clamav/clamav-debian:1.5.5@sha256:85f35b3eee903dbd96c5ca250c5aa13d230d97987c0f876f7d46f001f9414239
     profiles: [antivirus]
     restart: unless-stopped
     volumes: [clamdata:/var/lib/clamav]
@@ -100,7 +100,7 @@ services:
     tmpfs: [/tmp]
     sysctls:
       net.ipv4.ip_unprivileged_port_start: "0"
-    image: nginx:stable-alpine@sha256:985220252f3863977e468f611ef118ebd01421289dd86ee1ae99cb068c3bce2b
+    image: nginx:stable-alpine@sha256:8eb04fe3b385090e9aa02961f77398ad09b6bf33ab07f6669a5bb7acce22c0d3
     restart: unless-stopped
     ports: ["80:80", "443:443"]
     volumes:

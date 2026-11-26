@@ -48,10 +48,12 @@ mobile/**/build/
 mobile/**/.gradle/
 mobile/**/local.properties
 mobile/**/.cxx/
-apps/vpn-client/android/.gradle/
-apps/vpn-client/android/build/
-apps/vpn-client/android/app/build/
-apps/vpn-client/android/local.properties
+apps/*/android/.gradle/
+apps/*/android/.kotlin/
+apps/*/android/.cxx/
+apps/*/android/build/
+apps/*/android/app/build/
+apps/*/android/local.properties
 
 # OS
 Thumbs.db
@@ -78,6 +80,8 @@ DerivedData/
 # Generated source-release files belong in GitHub Release assets.
 /remnawave_vpn_shop_*_full_release.zip
 /remnawave_vpn_shop_*_full_release.zip.sha256
+/remnawave_vpn_shop_*_sbom.cdx.json
+/remnawave_vpn_shop_*_sbom.cdx.json.sha256
 /remnawave_vpn_shop_*_full_release_manifest.json
 
 # Next.js

@@ -3156,10 +3156,20 @@
     "evidence": [
       "docs/SBOM_AND_LICENSES.md",
       "THIRD_PARTY_NOTICES.md",
-      "scripts/ci/check-licenses.py"
+      "scripts/ci/check-licenses.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/publish-release.yml",
+      "scripts/ci/android-sbom.gradle",
+      "scripts/ci/android-sbom.py",
+      "scripts/ci/check-sbom.py",
+      "scripts/package-distribution.py",
+      "scripts/ci/merge-cyclonedx.py",
+      "scripts/publish-github-release.cjs",
+      "tests/test_sbom_release.py",
+      "tests/test_android_sbom.py"
     ],
     "platforms": "all products",
-    "note": "SBOM CycloneDX и проверка лицензий в CI; зависимостей Android-приложений в SBOM нет (нет gradle.lockfile), SBOM не прикреплён к выпуску файлом."
+    "note": "Кандидат объединяет Trivy, проверенные Gradle-графы трёх Android-приложений и встроенные Xray AAR, JNI и Go. Для JSON проверяются коммит, размер и SHA-256. Статус PARTIAL до успешной приёмки CI, публикации и проверки обоих SBOM-файлов следующего выпуска и условий распространения именованных лицензий."
   },
   "REQ-DOC-0025": {
     "status": "PASS",

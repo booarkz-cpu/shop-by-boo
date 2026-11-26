@@ -1,10 +1,23 @@
 """Exercise the release config writer and the destructive update boundary."""
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def docker_accepting_release_pins(fakebin):
+    docker = fakebin / "docker"
+    docker.write_text(
+        "#!/bin/sh\n"
+        "case \"$1 $2\" in\n"
+        "  'image inspect') for arg do :; done; printf '%s\\n' 'other@sha256:0' \"$arg\" ;;\n"
+        "  'pull '*) case \"$2\" in *@sha256:*) ;; *) exit 7 ;; esac ;;\n"
+        "esac\n"
+    )
+    docker.chmod(0o755)
 
 
 def test_pin_images_can_run_from_non_executable_release_copy(tmp_path):
@@ -14,20 +27,26 @@ def test_pin_images_can_run_from_non_executable_release_copy(tmp_path):
         assert (ROOT / "scripts" / name).stat().st_mode & 0o111
 
     (tmp_path / ".env").write_text("BOT_TOKEN='preserved-secret'\n")
+    shutil.copyfile(ROOT / "docker-compose.yml", tmp_path / "docker-compose.yml")
     pin = tmp_path / "pin-images.sh"
     shutil.copyfile(ROOT / "scripts/pin-images.sh", pin)
     pin.chmod(0o644)  # Reproduce the mode in the failing v20.0.22 release.
     fakebin = tmp_path / "bin"
     fakebin.mkdir()
-    docker = fakebin / "docker"
-    docker.write_text("#!/bin/sh\ncase \"$*\" in *'image inspect'*) echo 'image@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';; esac\n")
-    docker.chmod(0o755)
+    docker_accepting_release_pins(fakebin)
     run = subprocess.run(["bash", str(pin)], cwd=tmp_path,
                          env={**os.environ, "APP_DIR": str(tmp_path), "PATH": f"{fakebin}:{os.environ['PATH']}"},
                          capture_output=True, text=True)
     assert run.returncode == 0, run.stderr
     assert "BOT_TOKEN='preserved-secret'" in (tmp_path / ".env").read_text()
-    assert "REDIS_IMAGE=image@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" in (tmp_path / ".env.images").read_text()
+    pins = (tmp_path / ".env.images").read_text().splitlines()
+    assert len(pins) == 6
+    compose = (ROOT / "docker-compose.yml").read_text()
+    for pin in pins:
+        key, image = pin.split("=", 1)
+        assert re.search(r"@sha256:[0-9a-f]{64}$", image)
+        assert "${" + key + ":-" + image + "}" in compose
+        assert pin in (tmp_path / ".env").read_text().splitlines()
 
 
 def test_resume_after_pin_preserves_credentials_and_finishes(tmp_path):
@@ -37,12 +56,10 @@ def test_resume_after_pin_preserves_credentials_and_finishes(tmp_path):
     (tmp_path / "scripts/pin-images.sh").chmod(0o644)
     (tmp_path / ".env").write_text("APP_VERSION='20.0.22'\nBOT_TOKEN='preserved-secret'\n")
     (tmp_path / "support-pro/.env").write_text("ADMIN_PASSWORD='preserved-admin'\n")
-    (tmp_path / "docker-compose.yml").write_text("services: {}\n")
+    shutil.copyfile(ROOT / "docker-compose.yml", tmp_path / "docker-compose.yml")
     fakebin = tmp_path / "bin"
     fakebin.mkdir()
-    docker = fakebin / "docker"
-    docker.write_text("#!/bin/sh\ncase \"$*\" in *'image inspect'*) echo 'image@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';; esac\n")
-    docker.chmod(0o755)
+    docker_accepting_release_pins(fakebin)
     resume = (ROOT / "infrastructure/deployment/resume-vps-after-pin.sh").read_text()
     # Run the production continuation body with a fake Docker CLI; its root-only
     # guard is checked separately by the actual script before this point.
@@ -64,6 +81,23 @@ cd "$ROOT"
     for key in ("PYTHON_BASE_IMAGE", "NODE_BASE_IMAGE", "NGINX_BASE_IMAGE"):
         assert shop.count(key + "=") == 1
     assert (tmp_path / ".env").stat().st_mode & 0o777 == 0o600
+
+
+def test_conflicting_release_image_defaults_preserve_both_existing_files(tmp_path):
+    compose = (ROOT / "docker-compose.yml").read_text()
+    compose = compose.replace("${NGINX_BASE_IMAGE:-nginx:", "${NGINX_BASE_IMAGE:-example/nginx:", 1)
+    (tmp_path / "docker-compose.yml").write_text(compose)
+    (tmp_path / ".env").write_text("INSTALL_MARKER=preserved\n")
+    (tmp_path / ".env.images").write_text("PREVIOUS_MARKER=preserved\n")
+    fakebin = tmp_path / "bin"
+    fakebin.mkdir()
+    docker_accepting_release_pins(fakebin)
+    run = subprocess.run(["bash", str(ROOT / "scripts/pin-images.sh")], cwd=tmp_path,
+                         env={**os.environ, "APP_DIR": str(tmp_path), "PATH": f"{fakebin}:{os.environ['PATH']}"},
+                         capture_output=True, text=True)
+    assert run.returncode != 0 and "NGINX_BASE_IMAGE" in run.stderr
+    assert (tmp_path / ".env").read_text() == "INSTALL_MARKER=preserved\n"
+    assert (tmp_path / ".env.images").read_text() == "PREVIOUS_MARKER=preserved\n"
 
 
 def test_installer_produces_both_env_files_without_corrupting_secrets(tmp_path):

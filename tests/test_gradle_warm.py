@@ -1,4 +1,5 @@
 """The Android runtime preflight retries a repository miss and still fails a real one."""
+import hashlib
 import os
 import subprocess
 from pathlib import Path
@@ -9,6 +10,28 @@ import pytest
 WARM = Path(__file__).resolve().parents[1] / "scripts/ci/gradle-warm.sh"
 TASK = ":app:processDebugNavigationResources"
 MIRROR = "https://maven-central.storage-download.googleapis.com/maven2/"
+
+
+@pytest.mark.parametrize("project", ["vpn-shop", "vpn-client", "lucy-admin"])
+def test_distribution_checksum_is_configured(project):
+    wrapper_dir = WARM.parents[2] / "apps" / project / "android/gradle/wrapper"
+    entries = dict(
+        line.split("=", 1)
+        for line in (wrapper_dir / "gradle-wrapper.properties").read_text().splitlines()
+        if "=" in line
+    )
+    assert entries["distributionUrl"].endswith("/gradle-9.9.2-bin.zip"), project
+    assert entries.get("distributionSha256Sum") == (
+        "971fcd7150ca4ba04852c0b2ca0d2d0ab9468e14b03473eab19528809914c76b"
+    ), project
+    assert hashlib.sha256((wrapper_dir / "gradle-wrapper.jar").read_bytes()).hexdigest() == (
+        "621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8"
+    ), project
+
+
+def test_lucy_admin_uses_current_stable_agp():
+    build = WARM.parents[2] / "apps/lucy-admin/android/build.gradle.kts"
+    assert 'id("com.android.application") version "9.5.3" apply false' in build.read_text()
 
 
 @pytest.fixture
