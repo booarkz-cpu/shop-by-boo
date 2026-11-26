@@ -189,7 +189,7 @@ jobs:
     timeout-minutes: 40
     services:
       postgres:
-        image: postgres:19.0-alpine
+        image: postgres:19.0-alpine@sha256:cac45fb483caee3668946088a1c0532db89d5285c28dbfeac889b4068296e06f
         env:
           POSTGRES_USER: shots
           POSTGRES_PASSWORD: shots-password
@@ -201,7 +201,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis:
-        image: redis:8.10-alpine
+        image: redis:8.10-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
         ports: ["6379:6379"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

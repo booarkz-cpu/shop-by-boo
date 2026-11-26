@@ -9,6 +9,44 @@ ROOT = Path(__file__).parents[1]
 spec = importlib.util.spec_from_file_location("verify_xcuitest_results", ROOT / "scripts/ci/verify_xcuitest_results.py")
 verifier = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(verifier)
+retry_spec = importlib.util.spec_from_file_location("xcuitest_retry", ROOT / "scripts/ci/xcuitest_retry.py")
+retry = importlib.util.module_from_spec(retry_spec)
+retry_spec.loader.exec_module(retry)
+
+AX_TIMEOUT = 'Failed to initialize for UI testing: Error Domain=XCTDaemonErrorDomain Code=18 "Timed out waiting for AX loaded notification"'
+AX_FUTURE_TIMEOUT = ('Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture '
+                     'Code=1000 "Timed out while loading Accessibility."')
+
+
+@pytest.mark.parametrize("log", [
+    AX_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
+    AX_FUTURE_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
+    "Application does not have a process ID",
+    "Failed to get background assertion",
+    "Failed to launch test application",
+])
+def test_simulator_startup_can_be_retried(log):
+    assert retry.retry_reason(log)
+
+
+@pytest.mark.parametrize("log", [
+    "build failed",
+    "Timed out waiting for AX loaded notification",
+    AX_TIMEOUT.replace("Code=18", "Code=19"),
+    AX_TIMEOUT + "\nXCTAssertEqual failed",
+    "Failed to launch\nXCTFail(Unexpected result)",
+    "Failed to launch\nTest Case '-[UITests testLogin]' failed (3.0 seconds).",
+    "Test Case '-[UITests testLogin]' started.\n" + AX_TIMEOUT,
+    "Test case 'UITests.testLogin()' passed on iPhone\n" + AX_TIMEOUT,
+    AX_FUTURE_TIMEOUT.replace("Code=1000", "Code=10001"),
+    AX_FUTURE_TIMEOUT.replace("XCTest.XCTFuture", "application.bootstrap"),
+    "Timed out while loading Accessibility.",
+    "Test Case '-[UITests testLogin]' started.\n" + AX_FUTURE_TIMEOUT,
+    "Test case 'UITests.testLogin()' skipped on iPhone\n" + AX_FUTURE_TIMEOUT,
+    AX_FUTURE_TIMEOUT + "\nXCTAssertEqual failed",
+])
+def test_ambiguous_or_test_case_failures_require_investigation(log):
+    assert retry.retry_reason(log) is None
 
 
 def complete():

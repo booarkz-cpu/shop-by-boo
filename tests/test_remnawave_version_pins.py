@@ -1,4 +1,7 @@
+import shlex
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PANEL_VERSION = "3.4.11"
@@ -37,17 +40,26 @@ def test_live_contract_uses_exact_releases_and_checks_digests():
 
 
 def test_runtime_and_provisioning_use_the_same_pins():
-    plan = read("services/backend/app/rw_plan.py")
-    provisioner = read("services/backend/app/provisioner.py")
-    autoscale = read("services/backend/app/node_autoscale.py")
-    for image in (PANEL_IMAGE, NODE_IMAGE, SUBPAGE_IMAGE):
-        assert image in plan
-    assert f'"panel": "{PANEL_VERSION}"' in plan
-    assert f'"node": "{NODE_VERSION}"' in plan
-    assert f'"subscription_page": "{SUBPAGE_VERSION}"' in plan
-    assert f'NODE_IMAGE = "remnawave/node:{NODE_VERSION}"' in provisioner
-    assert f"remnawave/node:{NODE_VERSION}" in autoscale
-    assert "remnawave/node:latest" not in provisioner + autoscale
+    from app import node_autoscale, provisioner, rw_plan
+
+    for name, version, image in (
+        ("panel", PANEL_VERSION, PANEL_IMAGE),
+        ("node", NODE_VERSION, NODE_IMAGE),
+        ("subscription_page", SUBPAGE_VERSION, SUBPAGE_IMAGE),
+    ):
+        assert rw_plan.VERSIONS[name] == version
+        assert rw_plan.IMAGES[name] == image
+
+    for compose in (
+        provisioner.node_compose("test-key", 2223),
+        rw_plan.node_compose("test-key", 2223),
+        rw_plan.node_compose("test-key", 2223, selfsteal=True, xray_core=True, hysteria=True, geo=True),
+    ):
+        assert yaml.safe_load(compose)["services"]["remnanode"]["image"] == NODE_IMAGE
+
+    cloud_config = yaml.safe_load(node_autoscale.cloud_init({"node_port": 2223}, "test-key"))
+    commands = [shlex.split(cmd) for cmd in cloud_config["runcmd"]]
+    assert [args[-1] for args in commands if args[:2] == ["docker", "run"]] == [NODE_IMAGE]
 
 
 def test_compatibility_matrix_matches_executable_pins():

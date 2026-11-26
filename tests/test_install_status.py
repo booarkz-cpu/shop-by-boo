@@ -1,7 +1,12 @@
 """REQ-INFRA-0008: the installer's stages are written to a machine-readable file — where it is and where it stopped."""
 import json
+import os
 import pathlib
+import re
+import shutil
 import subprocess
+
+from test_production_installer_v2016 import docker_accepting_release_pins
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -57,10 +62,8 @@ def test_the_installer_goes_through_every_stage_in_order():
     assert text.rstrip().endswith('status_done\nrm -f "$RESUME_FILE"') and "trap status_on_exit EXIT" in text
 
 
-def test_a_stopped_installation_continues_from_where_it_stopped():
+def test_a_stopped_installation_continues_from_where_it_stopped(tmp_path):
     """v28.145.0 (owner's decision of 2026-11-14): a second run after a failure goes on, it does not refuse."""
-    import re
-
     text = (ROOT / "infrastructure/deployment/install-vps.sh").read_text()
     resume = text.index("if (( RESUME )); then")
     block_end = text.index('done > "$RESUME_FILE" )\nfi\n')
@@ -69,12 +72,32 @@ def test_a_stopped_installation_continues_from_where_it_stopped():
                    "status_stage secrets", "} > .env"):
         assert resume < text.index(marker) < block_end, marker
     assert block_end < text.index("status_stage firewall")
-    # Every variable the later stages read is kept for the continued run.
+    # A resumed run gets its answers from the saved file and image names from the release.
     saved = set(re.search(r"for name in ([A-Z_ \\\n]+); do", text[block_end - 600:block_end]).group(1).split()) - {"\\"}
     later = text[block_end:]
-    assigned_later = set(re.findall(r"^\s*([A-Z][A-Z0-9_]*)=", later, re.M)) | {"ROOT", "INSTALL_STATUS", "INSTALLER_VERSION", "RESUME_FILE", "SSH_CONNECTION"}   # SSH_CONNECTION: set by sshd
-    used_later = set(re.findall(r"\$\{?([A-Z][A-Z0-9_]*)", later))
-    assert used_later - assigned_later <= saved, used_later - assigned_later - saved
+    before_pins, after_pins = later.split("\n. ./.env.images\n", 1)
+    pin_start = before_pins.index("bash scripts/pin-images.sh")
+    assert before_pins.index("status_stage images") < pin_start
+    (tmp_path / "scripts").symlink_to(ROOT / "scripts", target_is_directory=True)
+    shutil.copyfile(ROOT / "docker-compose.yml", tmp_path / "docker-compose.yml")
+    fakebin = tmp_path / "bin"
+    fakebin.mkdir()
+    docker_accepting_release_pins(fakebin)
+    load_pins = before_pins[pin_start:] + '\n. ./.env.images\nprintf "%s\\n" "$NODE_BASE_IMAGE"'
+    result = subprocess.run(
+        ["bash", "-eu", "-c", load_pins], cwd=tmp_path, capture_output=True, text=True, check=True,
+        env={**os.environ, "APP_DIR": str(tmp_path), "PATH": f"{fakebin}:{os.environ['PATH']}",
+             "NODE_BASE_IMAGE": "stale-image-from-previous-run"},
+    )
+    pins = dict(line.split("=", 1) for line in (tmp_path / ".env.images").read_text().splitlines())
+    assert result.stdout.splitlines()[-1] == pins["NODE_BASE_IMAGE"]
+    assert re.fullmatch(r"node:[^@]+@sha256:[a-f0-9]{64}", pins["NODE_BASE_IMAGE"])
+    available = saved | {"ROOT", "INSTALL_STATUS", "INSTALLER_VERSION", "RESUME_FILE", "SSH_CONNECTION"}
+    for section, inputs in ((before_pins, set()), (after_pins, pins.keys())):
+        available.update(inputs)
+        available.update(re.findall(r"^\s*([A-Z][A-Z0-9_]*)=", section, re.M))
+        used = set(re.findall(r"\$\{?([A-Z][A-Z0-9_]*)", section))
+        assert used <= available, used - available
     # A copy that stopped before .env is removed only when the previous run did not finish.
     assert '"state":"failed"' in text and '! -e "$ROOT/.env"' in text and 'rm -rf "$ROOT"' in text
 

@@ -3,6 +3,8 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/postgres19-preflight.sh"
 
@@ -48,8 +50,13 @@ def test_preflight_reports_existing_target_and_does_not_overwrite(tmp_path):
     assert all(line.startswith(("compose config", "volume inspect")) for line in calls.splitlines())
 
 
-def test_preflight_rejects_invalid_spec(tmp_path):
-    run, calls = _run(tmp_path, spec="db:old:old")
+@pytest.mark.parametrize("spec", [
+    "db:old:old",
+    "db:old:new:",
+    "db:old:new\nsupport_db:a:b",
+])
+def test_preflight_rejects_invalid_spec(tmp_path, spec):
+    run, calls = _run(tmp_path, spec=spec)
     assert run.returncode == 2
     assert "Invalid PG19_PREFLIGHT_SPEC" in run.stderr
     assert "volume inspect" not in calls
