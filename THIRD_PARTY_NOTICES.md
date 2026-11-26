@@ -72,7 +72,7 @@ shadcn-совместимые компоненты используют Radix To
 Сборки клиентского приложения Android с встроенным VPN включают `libv2ray.aar`. Библиотеку собирает `scripts/mobile/build-xray-aar.sh` из закреплённой ревизии исходников:
 
 - [Xray-core](https://github.com/XTLS/Xray-core) — MPL-2.0;
-- [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) — LGPL-3.0, обвязка gomobile, тег `v26.11.9`, ревизия `b5a377087e74eaa34e86718710b04c50f4b767f5`;
+- [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) — LGPL-3.0, обвязка gomobile, тег `v26.11.26`, ревизия `e23aca42e775ea9c31dc4e37a3472927caa3b9cf`;
 - [golang.org/x/mobile](https://pkg.go.dev/golang.org/x/mobile) — BSD-3-Clause, toolchain `gomobile`/`gobind` закреплён на `v0.0.0-20261011034528-197770444867`.
 
 Библиотека лежит в APK отдельным файлом (`libgojni.so`) и подключается к приложению без статической линковки, поэтому её можно заменить, как требует LGPL. При распространении APK приложите тексты MPL-2.0 и LGPL-3.0 и ссылку на исходники закреплённой ревизии. Код sing-box (GPL-3.0) в приложение не включается: GPL несовместима с коммерческой лицензией приложения. Сборка без `libv2ray.aar` подключается через Happ, v2rayNG или Hiddify и сторонних VPN-библиотек не содержит.

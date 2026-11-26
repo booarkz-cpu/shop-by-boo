@@ -11,7 +11,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REPO="https://github.com/2dust/AndroidLibXrayLite"
-COMMIT="${XRAY_AAR_COMMIT:-b5a377087e74eaa34e86718710b04c50f4b767f5}"
+COMMIT="${XRAY_AAR_COMMIT:-e23aca42e775ea9c31dc4e37a3472927caa3b9cf}"
 MOBILE_VERSION="v0.0.0-20261011034528-197770444867"
 OUT="$ROOT/apps/vpn-shop/android/app/libs"
 CHECK="$ROOT/scripts/mobile/xray-artifact.py"
