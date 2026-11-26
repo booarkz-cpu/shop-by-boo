@@ -10,10 +10,10 @@
 | --- | --- | --- | --- |
 | Python runtime | 3.15.2-slim (pinned digest) | `services/backend/Dockerfile` | production runtime; точный digest синхронизирован с Compose и установщиком |
 | Python compatibility gate | 3.14 + 3.15 | `.github/workflows/ci.yml` | полный backend suite в двух shards на обеих версиях; 3.14 сохранён как обратный compatibility gate. Lint, audit и остальные workflow-задания идут на 3.15 |
-| FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
+| FastAPI | 0.165.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |
-| SQLAlchemy | 2.1.6 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
+| SQLAlchemy | 2.1.9 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
 | asyncpg | 0.32.0 | `requirements.txt` | драйвер PostgreSQL |
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
 | aiogram | 3.33.0 | `requirements.txt` | Telegram-бот |
@@ -21,18 +21,18 @@
 | httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
 | redis | 8.1.0 | `requirements.txt` | клиент Redis |
-| pydantic-settings | 2.16.2 | `requirements.txt` | конфигурация из окружения |
+| pydantic-settings | 2.16.3 | `requirements.txt` | конфигурация из окружения |
 | PyJWT | 2.15.1 | `requirements.txt` | токены сессий и агентов |
 | cryptography | 50.0.2 | `requirements.txt` | подписи, шифрование секретов |
-| python-multipart | 0.0.33 | `requirements.txt` | загрузка файлов |
+| python-multipart | 0.0.34 | `requirements.txt` | загрузка файлов |
 | paramiko | 5.1.0 | `requirements.txt` | SSH-терминал узлов |
-| boto3 | 1.43.123 | `requirements.txt` | S3-совместимое хранилище копий |
+| boto3 | 1.44.11 | `requirements.txt` | S3-совместимое хранилище копий |
 | qrcode `[pil]` | 8.2 | `requirements.txt` | QR конфигураций |
 | Pillow | 13.0.0 | `requirements.txt` | обработка изображений |
 | PyYAML | 6.0.3 | `requirements.txt` | конфиги Caddy и правила |
 | reportlab | 5.1.0 | `requirements.txt` | PDF-отчёты и чеки |
 | webauthn | 3.0.1 | `requirements.txt` | passkeys (WebAuthn) |
-| maxminddb | 3.2.0 | `requirements.txt` | география GeoLite2 |
+| maxminddb | 3.3.0 | `requirements.txt` | география GeoLite2 |
 
 ## Тесты
 
@@ -64,12 +64,21 @@
 
 | Платформа | Стек | Каталоги |
 | --- | --- | --- |
-| Android user | Kotlin 2.4, Jetpack Compose (BOM 2026.09), AGP 9.5, Gradle 9.8, compileSdk 37 / targetSdk 36, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
-| Android admin | Kotlin 2.4, Compose, AGP 9.5 | `apps/lucy-admin/android` |
-| iOS user | Swift (компилятор 6, режим языка 5), SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
-| iOS admin | Swift (компилятор 6, режим языка 5), SwiftUI | `apps/lucy-admin/ios` |
+| VPN Shop Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Corgi Lucy Client Android 1.10.1 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
+| Lucy Admin Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
+| VPN Shop iOS 3.9.0 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| Lucy Admin iOS 3.9.0 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
 
-Версия приложений — **3.8.0** (`versionName`, `MARKETING_VERSION`).
+Lucy Admin Android использует AGP 9.5.3; VPN Shop и Corgi Lucy Client пока остаются на AGP 9.5.2 до отдельной платформенной приёмки. Все три Android-приложения используют Gradle 9.9.2 и Compose BOM 2026.11.01, собираются с API 37.1, минимальным API 26 и целевым API 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
+
+| Android build chain | Проверенный upstream | Совместимость | Лицензия |
+| --- | --- | --- | --- |
+| Android Gradle Plugin | [9.5.3](https://developer.android.com/reference/tools/gradle-api) | Gradle не ниже 9.6; API 37 | Apache-2.0 |
+| Gradle | [9.9.2](https://gradle.org/releases/) | JDK 17+; проект проверяет официальный `-bin` SHA-256 | Apache-2.0 |
+| Kotlin / Compose compiler | [2.4.21](https://github.com/JetBrains/kotlin/releases/tag/v2.4.21) | закреплён одинаково во всех трёх проектах | Apache-2.0 |
+| Jetpack Compose BOM | [2026.11.01](https://developer.android.com/develop/ui/compose/bom/bom-mapping?from=2026.09.00&to=2026.11.01) | согласованный набор AndroidX Compose | Apache-2.0 |
+
 Тесты: XCUITest на симуляторе, UI-тесты на эмуляторе Android, Maestro (`mobile/maestro`).
 
 ## Данные и инфраструктура
