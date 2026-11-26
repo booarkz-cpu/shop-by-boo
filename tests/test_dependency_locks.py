@@ -101,6 +101,19 @@ def test_support_pro_python_315_runtime_dependency_contract():
     assert "python:3.15-slim@" in dockerfile
 
 
+def test_support_pro_documented_versions_match_its_runtime_lock():
+    locked = pins("services/support-pro/requirements.txt")
+    guide = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
+    runtime_row, = (line for line in guide.splitlines() if line.startswith("| Support Pro runtime |"))
+    notices = (ROOT / "THIRD_PARTY_NOTICES.md").read_text()
+    support_section = notices.split("## Support Pro:", 1)[1].split("\n## ", 1)[0]
+
+    for name in ("aiogram", "fastapi", "sqlalchemy", "pydantic", "pydantic-core", "opentelemetry-api"):
+        pin = f"`{name}=={locked[name]}`"
+        assert pin in runtime_row, f"Dependency inventory must show {pin} for Support Pro"
+        assert pin in support_section, f"Third-party notices must show {pin} for Support Pro"
+
+
 def test_web_dependency_contracts_are_synchronized():
     admin_manifest = json.loads((ROOT / "apps/lucy-admin/web/package.json").read_text())
     admin_lock = json.loads((ROOT / "apps/lucy-admin/web/package-lock.json").read_text())
