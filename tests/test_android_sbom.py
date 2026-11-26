@@ -298,6 +298,17 @@ def test_packaging_requires_each_shipped_repository_manifest(manifest):
         MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
+@pytest.mark.parametrize("prepend", [True, False])
+def test_packaging_rejects_conflicting_dependency_records_in_either_order(prepend):
+    bom = release_inventory()
+    rows = bom["dependencies"]
+    engine = next(row for row in rows if row["ref"] == MODULE["ENGINE_REF"])
+    conflicting = {"ref": engine["ref"], "dependsOn": engine["dependsOn"][:1]}
+    rows.insert(0 if prepend else len(rows), conflicting)
+    with pytest.raises(ValueError, match="Duplicate dependency record.*libv2ray"):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
 @pytest.mark.parametrize("damage", ["detached", "duplicate", "empty", "wrong-ecosystem", "dangling-transitive"])
 def test_packaging_requires_connected_repository_graphs(damage):
     bom = release_inventory()

@@ -159,7 +159,12 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None, 
     if (bom.get("bomFormat"), bom.get("specVersion")) != ("CycloneDX", "1.7"):
         raise ValueError("Release requires CycloneDX 1.7")
     components = bom.get("components", [])
-    links = {row["ref"]: set(row.get("dependsOn", [])) for row in bom.get("dependencies", [])}
+    links = {}
+    for row in bom.get("dependencies", []):
+        ref = row["ref"]
+        if ref in links:
+            raise ValueError(f"Duplicate dependency record for {ref}")
+        links[ref] = set(row.get("dependsOn", []))
     product_root = bom.get("metadata", {}).get("component", {})
     if product_root.get("name") != PROJECT_NAME:
         raise ValueError("Release SBOM has the wrong product name")

@@ -11,12 +11,12 @@
 ## Итог
 
 - Требований: **657**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **217** — 33.0%.
+- Подтверждено (`PASS`): **218** — 33.2%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 217 | Проверено, доказательство указано |
-| `PARTIAL` | 252 | Сделано частично, остаток описан |
+| `PASS` | 218 | Проверено, доказательство указано |
+| `PARTIAL` | 251 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 25 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
@@ -25,7 +25,7 @@
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Правила работы и приёмка | 125 | 13 | 7 | 0 | 102 |
-| Монорепозиторий и перенос | 28 | 14 | 14 | 0 | 0 |
+| Монорепозиторий и перенос | 28 | 15 | 13 | 0 | 0 |
 | «Корги Люси: Клиент» | 33 | 13 | 19 | 0 | 0 |
 | Магазин, кабинет, Telegram | 32 | 12 | 19 | 0 | 0 |
 | Бренд и тексты | 20 | 7 | 13 | 0 | 0 |
@@ -191,7 +191,7 @@
 - Источник: Часть I → First Execution Sequence → Monorepo architecture (строки 966–968). Продукт: Все три.
 - Платформы: all products.
 - Доказательство: `docs/MONOREPO_LAYOUT.md`.
-- Примечание: Структура по промпту — этапы 1–3 перенесены (клиент, мобильные приложения, веб-панель, кабинет, Mini App); этапы 4–5 (infrastructure/, services/) впереди.
+- Примечание: Этапы 1–5 структуры реализованы до v28.158.0. Независимые сборки и переходники подтверждены для REQ-MIG-0018. Полная приёмка общего API, контрактов, границ данных и сохранности при обновлении установленной системы учитывается отдельно.
 
 > `n` = `3`
 > Сохранить имя shop-by-boo; подготовить структуру; границы трёх продуктов; общие библиотеки; API; БД; контракты; независимые сборки; план миграции и проверки сохранности.
@@ -1037,12 +1037,11 @@
 
 > database/migrations; database/schemas; database/seeds; scripts/audit; scripts/build; scripts/migration; scripts/release; scripts/maintenance; tests/unit; tests/integration; tests/e2e; tests/security; tests/mobile; tests/infrastructure; docs/ru; docs/en; docs/uk; docs/architecture; docs/payments; docs/remnawave; docs/masque; docs/installation; docs/security; docs/screenshots; artifacts/audit; artifacts/builds; artifacts/screenshots; artifacts/reports; .github/workflows.
 
-### REQ-MIG-0018 — `PARTIAL`
+### REQ-MIG-0018 — `PASS`
 
 - Источник: Часть I → Monorepo → Rule (строка 102). Продукт: Все три.
-- Платформы: all products.
-- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/OWNER_DECISIONS.md`.
-- Примечание: План перекладки по структуре промпта без пустых модулей и с сохранением самостоятельных сборок (решение владельца № 14, 2026-11-14); этапы выполняются выпусками.
+- Доказательство: `docs/MONOREPO_LAYOUT.md`; `docs/OWNER_DECISIONS.md`; `apps/vpn-client/android/app/build.gradle.kts`; `scripts/build-ios-packages.sh`; `services/backend/alembic/env.py`; `services/support-pro/alembic/env.py`; `tests/test_layout_stage4.py`; `tests/test_layout_stage5.py`; `.github/workflows/ci.yml`; `.github/workflows/mobile-release.yml`.
+- Примечание: 25.11.2026. Действующие приложения и сервисы перенесены по решению №14. Сохранены отдельные Android, iOS и web-сборки, сервисная принадлежность миграций и переходники обновления. В MONOREPO_LAYOUT приведены PR #351, точные SHA, 20/20 CI и 3/3 упаковки на слиянии и тегах v28.158.0 и v28.161.0, а также опубликованные артефакты трёх продуктов. Искусственные приложения для отсутствующих платформ не создавались.
 
 > Адаптируй структуру к фактическому стеку, не создавай фиктивных пустых модулей и не теряй самостоятельность сборок.
 
