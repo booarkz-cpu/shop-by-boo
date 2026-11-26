@@ -814,16 +814,29 @@ jobs:
           packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
-          go-version: stable
+          go-version: '1.27.4'
           cache: false
+      - name: Identify the Android engine toolchain
+        id: xray_toolchain
+        run: |
+          key="$(bash scripts/mobile/build-xray-aar.sh --toolchain-key)"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
       - id: xray
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
+          key: xray-aar-${{ steps.xray_toolchain.outputs.key }}-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build libv2ray.aar
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
+      - name: Rebuild the AAR from an independent checkout and Go build cache
+        if: steps.xray.outputs.cache-hit != 'true'
+        run: |
+          aar=apps/vpn-shop/android/app/libs/libv2ray.aar
+          sha256sum "$aar" > "$RUNNER_TEMP/xray-first.sha256"
+          clean="$(mktemp -d "$RUNNER_TEMP/xray-rebuild.XXXXXXXX")"
+          RUNNER_TEMP="$clean" GOCACHE="$clean/go-build" bash scripts/mobile/build-xray-aar.sh
+          sha256sum --check --strict "$RUNNER_TEMP/xray-first.sha256"
       - name: Cache the Gradle distribution only
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -900,7 +913,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/release-sbom"
           python -m pip install --only-binary=:all: 'cyclonedx-python-lib[json-validation]==11.12.0' 'license-expression==30.4.4'
           python scripts/ci/android-sbom.py "$RUNNER_TEMP/repository-sbom/sbom.cdx.json" "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
-          python scripts/ci/check-sbom.py --release "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
+          python scripts/ci/check-sbom.py --release --source-root . "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sbom
@@ -973,13 +986,24 @@ jobs:
           xcrun simctl boot "$device" || true
           xcrun simctl bootstatus "$device" -b
           result_bundle="$RUNNER_TEMP/xcuitest-first.xcresult"
-          run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; }
+          run_tests() {
+            if xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser \
+                -destination "id=$device" -parallel-testing-enabled NO -configuration Debug \
+                -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 \
+                | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; then
+              return 0
+            fi
+            if xcrun xcresulttool get test-results summary --path "$result_bundle" > "$result_bundle.summary.tmp"; then
+              mv "$result_bundle.summary.tmp" "$result_bundle.summary.json"
+            fi
+            return 1
+          }
           report_failure() {
             grep -Eim30 'error:|failed|XCTAssert|XCTDaemonErrorDomain' "$RUNNER_TEMP/xcuitest.log" || tail -n 8 "$RUNNER_TEMP/xcuitest.log"
             echo "::error title=XCUITest::xcodebuild failed; the full log is in the job artifact"
           }
           if ! run_tests; then
-            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"); then
+            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log" "$result_bundle"); then
               echo "::warning title=XCUITest::$reason; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
               result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"
@@ -1002,6 +1026,7 @@ jobs:
             ${{ runner.temp }}/xcuitest-verified.json
             ${{ runner.temp }}/xcuitest.log
             ${{ runner.temp }}/xcuitest-*.xcresult.log
+            ${{ runner.temp }}/xcuitest-*.xcresult.summary.json
           if-no-files-found: error
           retention-days: 14
 

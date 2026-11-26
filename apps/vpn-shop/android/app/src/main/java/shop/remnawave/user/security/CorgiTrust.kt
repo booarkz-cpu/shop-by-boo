@@ -41,12 +41,12 @@ object CorgiTrust {
 
     /**
      * Headers proving the genuine app (Play Integrity) for the native token exchange, when the
-     * shop asks for them (GET /api/mobile/integrity/challenge → mode). Blocking; never throws.
+     * shop asks for them. The caller obtains the challenge through its pinned shop connection.
      */
-    fun integrityHeaders(base: String, fetch: (String) -> JSONObject): Map<String, String> {
+    fun integrityHeaders(fetchChallenge: () -> JSONObject): Map<String, String> {
         val context = appContext ?: return emptyMap()
         return try {
-            val challenge = fetch("/api/mobile/integrity/challenge")
+            val challenge = fetchChallenge()
             val nonce = challenge.optString("nonce")
             if (challenge.optString("mode", "off") == "off" || nonce.isBlank()) return emptyMap()
             val manager = com.google.android.play.core.integrity.IntegrityManagerFactory.create(context)

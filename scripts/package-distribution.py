@@ -37,7 +37,7 @@ def main() -> None:
             raise SystemExit("Invalid CI SBOM checksum")
         bom = json.loads(raw)
         validate_release = runpy.run_path(str(root / "scripts/ci/check-sbom.py"))["require_release_inventory"]
-        validate_release(bom, expected_commit=commit)
+        validate_release(bom, expected_commit=commit, source_root=root)
         sbom_name = artifact.removesuffix("_full_release.zip") + "_sbom.cdx.json"
         (root / sbom_name).write_bytes(raw)
         (root / (sbom_name + ".sha256")).write_text(f"{sbom_digest}  {sbom_name}\n")

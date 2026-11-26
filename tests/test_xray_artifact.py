@@ -52,3 +52,44 @@ def test_rejects_an_inconsistent_package(tmp_path, options, message):
     apk = archive(tmp_path / "client.apk", "lib", **options)
     with pytest.raises(ValueError, match=message):
         artifact.verify(aar, [apk], COMMIT)
+
+
+def upstream_module():
+    return {"Path": "github.com/2dust/AndroidLibXrayLite", "Version": "v0.0.0-20261110063532-aaaaaaaaaaaa",
+            "Sum": "h1:" + "A" * 43 + "=", "Origin": {"Hash": COMMIT, "VCS": "git",
+            "URL": "https://github.com/2dust/AndroidLibXrayLite"}}
+
+
+def test_module_version_authenticates_the_pinned_wrapper_and_its_source():
+    info = upstream_module()
+    assert artifact.module_version(info, COMMIT) == info["Version"]
+
+
+@pytest.mark.parametrize(("field", "value"), [
+    ("Path", "example.invalid/fork"), ("Version", "latest"), ("Sum", "h1:short"),
+    ("Origin", {}), ("Hash", "b" * 40), ("VCS", "hg"), ("URL", "https://example.invalid/fork"),
+])
+def test_module_version_rejects_unidentified_or_unpinned_source(field, value):
+    info = upstream_module()
+    (info["Origin"] if field in ("Hash", "VCS", "URL") else info)[field] = value
+    with pytest.raises(ValueError, match="module"):
+        artifact.module_version(info, COMMIT)
+
+
+def test_versioned_upstream_replacements_are_preserved_and_local_paths_refused():
+    versioned = {"Old": {"Path": "example.com/lib"}, "New": {"Path": "example.com/fork", "Version": "v1.4.0"}}
+    artifact.check_replacements({"Replace": [versioned]})
+    for override in ({"Old": versioned["Old"], "New": {"Path": "../unverified"}},
+                     {"Old": {"Path": "github.com/2dust/AndroidLibXrayLite"}, "New": versioned["New"]}):
+        with pytest.raises(ValueError, match="module replacement"):
+            artifact.check_replacements({"Replace": [override]})
+
+
+def test_elf_must_embed_one_canonical_wrapper_and_the_resolved_checksum():
+    info = upstream_module()
+    dep = {key: info[key] for key in ("Path", "Version", "Sum")}
+    artifact.check_linked_module({"Deps": [dep]}, info)
+    for deps in ([], [dep, dep], [{**dep, "Replace": {"Path": "/tmp/machine-dependent"}}],
+                 [{**dep, "Version": "v1.0.0"}], [{**dep, "Sum": "h1:different"}]):
+        with pytest.raises(ValueError, match="linked"):
+            artifact.check_linked_module({"Deps": deps}, info)

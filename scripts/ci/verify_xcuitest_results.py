@@ -5,10 +5,58 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
 COUNTS = ("totalTestCount", "passedTests", "failedTests", "skippedTests", "expectedFailures")
+
+
+def _is_accessibility_runner_startup_failure(summary: object, log: str) -> bool:
+    """Recognize Xcode's synthetic runner failure before any UI test method starts."""
+    if not isinstance(summary, dict):
+        return False
+    counts = {"totalTestCount": 1, "passedTests": 0, "failedTests": 1,
+              "skippedTests": 0, "expectedFailures": 0}
+    if any(type(summary.get(name)) is not int or summary[name] != value
+           for name, value in counts.items()):
+        return False
+    failures = summary.get("testFailures")
+    if not isinstance(failures, list) or len(failures) != 1 or not isinstance(failures[0], dict):
+        return False
+    failure = failures[0]
+    runner = failure.get("testName")
+    if not isinstance(runner, str) or failure.get("testIdentifierString") != runner:
+        return False
+    process = re.fullmatch(r"VpnShopUserUITests-Runner \(([0-9]+)\) encountered an error", runner)
+    if (process is None or summary.get("result") != "Failed"
+            or failure.get("targetName") != "VpnShopUserUITests"
+            or failure.get("failureText") != (
+                "The test runner failed to initialize for UI testing. "
+                "(Underlying Error: Timed out while loading Accessibility.)"
+            )):
+        return False
+    log_process = f"VpnShopUserUITests-Runner[{process.group(1)}:"
+    message = ('Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture '
+               'Code=1000 "Timed out while loading Accessibility."')
+    return any(log_process in line and message in line for line in log.splitlines())
+
+
+def summary_allows_startup_retry(bundle: Path, log: str = "") -> bool:
+    """Only a failure before XCTest ran any cases is eligible for a clean simulator."""
+    path = Path(f"{bundle}.summary.json")
+    try:
+        summary = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        # A missing export from an existing bundle leaves the number of executed tests unknown.
+        return not bundle.exists()
+    except (OSError, ValueError):
+        return False
+    no_test_activity = (isinstance(summary, dict) and summary.get("testFailures") == []
+                        and all(type(summary.get(name)) is int and summary[name] == 0 for name in COUNTS))
+    # Xcode 26.6 can count a runner startup error as a failed test. Correlate the
+    # runner in its result bundle with the diagnostic from the same process.
+    return no_test_activity or _is_accessibility_runner_startup_failure(summary, log)
 
 
 def validate(summary: object, expected: int) -> dict:

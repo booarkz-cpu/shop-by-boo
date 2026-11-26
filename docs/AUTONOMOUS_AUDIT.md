@@ -30,12 +30,12 @@ Workflow запускается для PR, при push в main, вручную �
 
 ## Плановые запуски и фактическое выполнение
 
-Для REQ-DOC-0011 проверяются два процесса в основной ветке. Время в расписании задано в UTC. GitHub может задержать событие `schedule`. Для подтверждения выполнения откройте конкретное задание в Actions и проверьте назначенный runner, время начала и результат нужного шага. Пока задание ждёт runner, результат остаётся неизвестным. [Правила GitHub для события schedule](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+В GitHub Actions выберите нужный процесс и отфильтруйте запуски по событию `schedule` и ветке `main`. Время в расписании задано в UTC. GitHub может поставить запуск в очередь с задержкой. Выполнение подтверждают назначенный runner, фактическое время начала и результат нужного шага в журнале задания. У задания в очереди результата ещё нет. Оба процесса также поддерживают ручной запуск через `workflow_dispatch`. [Правила GitHub для события schedule](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
 
-| Процесс | Ежедневное расписание | Начало задания 25.11.2026, МСК | Что выполнил runner |
+| Процесс | Ежедневное расписание | Начало задания 26.11.2026, МСК | Результат на GitHub-hosted Ubuntu 24.04 |
 | --- | --- | --- | --- |
-| [Аудит](../.github/workflows/autonomous-audit.yml) | 02:23 UTC / 05:23 МСК | 14:28:20 | На Ubuntu 24.04 завершилась проверка согласованности всех 657 требований. GitHub сохранил отчёт и логи. [Задание аудита](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45604735260/job/139172576375) |
-| [Проверка обновления AndroidLibXrayLite](../.github/workflows/xray-core-watch.yml) | 03:17 UTC / 06:17 МСК | 15:50:21 | На Ubuntu 24.04 наблюдатель сравнил опубликованный тег v26.11.9 с закреплённой ревизией. Они совпали, шаг завершился с результатом `up-to-date`. [Задание обновления](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45617603594/job/139216956712) |
+| [Аудит](../.github/workflows/autonomous-audit.yml) | 02:23 UTC / 05:23 МСК | 14:06:03 | В загруженном `checklist-results.json` совпали SHA коммита и номер запуска. Все семь проверок согласованности прошли, в отчёте 657 уникальных требований. [Задание аудита](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45807443215/job/139866286052) |
+| [Проверка обновления AndroidLibXrayLite](../.github/workflows/xray-core-watch.yml) | 03:17 UTC / 06:17 МСК | 15:29:36 | Тег `v26.11.26` указывал на закреплённую ревизию `e23aca42e775ea9c31dc4e37a3472927caa3b9cf`. В журнале шага проверки записано `up-to-date`. [Задание обновления](https://github.com/booarkz-cpu/shop-by-boo/actions/runs/45819915923/job/139909208792) |
 
 ## Границы доказательств
 

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2767**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2769**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1097,6 +1097,7 @@
 | [docs/modules/zero_downtime.md](../docs/modules/zero_downtime.md) | Документация |
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/prompts/MASTER_PROMPT_V6.md](../docs/prompts/MASTER_PROMPT_V6.md) | Документация |
+| [docs/releases/client-v1.10.2.md](../docs/releases/client-v1.10.2.md) | Документация |
 | [docs/requirements/register.json](../docs/requirements/register.json) | Документация |
 | [docs/requirements/status.json](../docs/requirements/status.json) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
@@ -1891,6 +1892,7 @@
 | [scripts/ios/enable-extensions.py](../scripts/ios/enable-extensions.py) | Эксплуатация и релиз |
 | [scripts/ios/verify_tunnel_frameworks.py](../scripts/ios/verify_tunnel_frameworks.py) | Эксплуатация и релиз |
 | [scripts/masque-selfcheck.sh](../scripts/masque-selfcheck.sh) | Эксплуатация и релиз |
+| [scripts/mobile/apk-signer-digest.py](../scripts/mobile/apk-signer-digest.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ui-e2e.sh](../scripts/mobile/client-ui-e2e.sh) | Эксплуатация и релиз |

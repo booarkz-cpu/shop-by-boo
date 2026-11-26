@@ -318,7 +318,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             readTimeout = 30000
             setRequestProperty("Accept", "application/octet-stream")
             setRequestProperty("Accept-Encoding", "identity")
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.1")
             setRequestProperty("X-Shop-Client", "android-user")
             if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
         }
@@ -363,7 +363,7 @@ class ShopApi(private val base: String, private val token: String, private val l
             setRequestProperty("Accept", "application/json")
             if (verifier != null) setRequestProperty("X-Shop-Code-Challenge", pkceChallenge(verifier))
             setRequestProperty("Accept-Language", lang)
-            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.0")
+            setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.1")
             // Historical compatibility marker: CorgiLusi-Android-User/2.9.0
             setRequestProperty("X-Shop-Client", "android-user")
 
@@ -388,7 +388,9 @@ class ShopApi(private val base: String, private val token: String, private val l
         val trimmed = text.trim()
         val result: Any = if (trimmed.startsWith("[")) JSONArray(trimmed) else JSONObject(if (trimmed.isBlank()) "{}" else trimmed)
         if (verifier != null && result is JSONObject && result.has("authorization_code")) {
-            val proof = CorgiTrust.integrityHeaders(base) { get(it) as JSONObject }
+            val proof = CorgiTrust.integrityHeaders {
+                post("/api/mobile/integrity/challenge", JSONObject()) as JSONObject
+            }
             val exchanged = post("/api/auth/mobile/token", JSONObject().put("code", result.getString("authorization_code")).put("code_verifier", verifier), headers = proof) as JSONObject
             result.remove("authorization_code")
             result.put("access_token", exchanged.getString("access_token"))
@@ -1395,7 +1397,7 @@ private fun loadAuthedPng(base: String, path: String, token: String, lang: Strin
         readTimeout = 15000
         setRequestProperty("Accept", "image/png")
         setRequestProperty("Accept-Language", lang)
-        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.0")
+        setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.1")
         setRequestProperty("X-Shop-Client", "android-user")
 
 
