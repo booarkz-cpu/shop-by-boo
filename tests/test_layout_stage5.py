@@ -13,24 +13,24 @@ REAL = ROOT / "services/backend/app/main.py"
 
 
 def test_layout_preserves_independent_application_builds():
-    android_ids = set()
-    for product in ("vpn-shop", "vpn-client", "lucy-admin"):
+    published_ids = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client",
+                     "lucy-admin": "shop.remnawave.admin"}
+    for product, published_id in published_ids.items():
         project = ROOT / "apps" / product / "android"
         assert (project / "gradlew").is_file()
         assert 'include(":app")' in (project / "settings.gradle.kts").read_text()
         build = (project / "app/build.gradle.kts").read_text()
         app_id = re.search(r'^\s*applicationId\s*=\s*"([^"]+)"', build, re.MULTILINE)
-        assert app_id, product
-        android_ids.add(app_id.group(1))
+        assert app_id and app_id.group(1) == published_id, product
         manifest = ElementTree.parse(project / "app/src/main/AndroidManifest.xml")
         assert manifest.find("application") is not None
-    assert len(android_ids) == 3
 
     for product, target in (("vpn-shop", "VpnShopUser"), ("lucy-admin", "VpnShopAdmin")):
         project = ROOT / "apps" / product / "ios"
         bundle = (project / f"{target}.xcodeproj/project.pbxproj").read_text()
         assert f"name = {target};" in bundle
         assert 'productType = "com.apple.product-type.application"' in bundle
+        assert f"PRODUCT_BUNDLE_IDENTIFIER = {published_ids[product]};" in bundle
         assert (project / target / "Info.plist").is_file()
 
     for path in ("lucy-admin/web", "user-cabinet", "telegram-mini-app"):
