@@ -986,13 +986,24 @@ jobs:
           xcrun simctl boot "$device" || true
           xcrun simctl bootstatus "$device" -b
           result_bundle="$RUNNER_TEMP/xcuitest-first.xcresult"
-          run_tests() { xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser -destination "id=$device" -configuration Debug -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; }
+          run_tests() {
+            if xcodebuild test -project VpnShopUser.xcodeproj -scheme VpnShopUser \
+                -destination "id=$device" -parallel-testing-enabled NO -configuration Debug \
+                -resultBundlePath "$result_bundle" CODE_SIGNING_ALLOWED=NO 2>&1 \
+                | tee "$RUNNER_TEMP/xcuitest.log" "$result_bundle.log" | tail -n 80; then
+              return 0
+            fi
+            if xcrun xcresulttool get test-results summary --path "$result_bundle" > "$result_bundle.summary.tmp"; then
+              mv "$result_bundle.summary.tmp" "$result_bundle.summary.json"
+            fi
+            return 1
+          }
           report_failure() {
             grep -Eim30 'error:|failed|XCTAssert|XCTDaemonErrorDomain' "$RUNNER_TEMP/xcuitest.log" || tail -n 8 "$RUNNER_TEMP/xcuitest.log"
             echo "::error title=XCUITest::xcodebuild failed; the full log is in the job artifact"
           }
           if ! run_tests; then
-            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"); then
+            if reason=$(python3 "$GITHUB_WORKSPACE/scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log" "$result_bundle"); then
               echo "::warning title=XCUITest::$reason; retrying once"
               xcrun simctl shutdown "$device" || true; xcrun simctl erase "$device"; xcrun simctl boot "$device"; xcrun simctl bootstatus "$device" -b
               result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"
@@ -1015,6 +1026,7 @@ jobs:
             ${{ runner.temp }}/xcuitest-verified.json
             ${{ runner.temp }}/xcuitest.log
             ${{ runner.temp }}/xcuitest-*.xcresult.log
+            ${{ runner.temp }}/xcuitest-*.xcresult.summary.json
           if-no-files-found: error
           retention-days: 14
 
