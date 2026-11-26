@@ -364,7 +364,16 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const open = await github.paginate(github.rest.pulls.list, {...context.repo, state: 'open', per_page: 100});
+            const listOpen = () => github.paginate(github.rest.pulls.list, {...context.repo, state: 'open', per_page: 100});
+            let open = await listOpen();
+            // Intake runs independently. Give it up to five minutes to record and defer a batch.
+            for (let remaining = 15; open.length > 1 && remaining > 0; remaining--) {
+              const outsideQueue = open.filter(pr => pr.user?.login !== 'dependabot[bot]' || !pr.head?.ref?.startsWith('dependabot/'));
+              if (outsideQueue.length > 1) break;
+              core.info(`Waiting for Dependabot intake: ${open.length} pull requests open.`);
+              await new Promise(resolve => setTimeout(resolve, 20000));
+              open = await listOpen();
+            }
             if (open.length > 1) core.setFailed('Owner policy: consolidate changes into one active PR before merging. Open: ' + open.map(pr => '#' + pr.number).join(', '));
             else core.info('Single active PR policy: ' + open.length + ' open.');
       - name: Shell scripts parse

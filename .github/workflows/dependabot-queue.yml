@@ -39,7 +39,7 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const {plan, isDependabot, inspectOpenPulls, inspectCiRuns, dispatchRetry} = require(`${process.env.GITHUB_WORKSPACE}/scripts/dependabot-queue.cjs`);
+            const {plan, isDependabot, inspectOpenPulls, inspectCiRuns, dispatchRetry, reopenQueuedPull, REOPEN_COOLDOWN_MS} = require(`${process.env.GITHUB_WORKSPACE}/scripts/dependabot-queue.cjs`);
             const {owner, repo} = context.repo;
             const branch = 'automation/dependabot-queue';
             const path = 'docs/dependabot-queue.json';
@@ -98,20 +98,23 @@ jobs:
             const saved = await store(result.state, loaded.parent);
             core.info(`Queue stored at ${saved}. Actions: ${result.actions.map((item) => item.type + ' #' + item.number).join(', ') || 'none'}`);
             for (const action of result.actions) {
-              if (action.comment) {
+              if (action.comment && action.type !== 'reopen') {
                 await github.rest.issues.createComment({owner, repo, issue_number: action.number, body: `${action.comment}\n\nQueue commit: ${saved}`});
               }
               if (action.type === 'close') {
                 await github.rest.pulls.update({owner, repo, pull_number: action.number, state: 'closed'});
               } else if (action.type === 'reopen') {
-                try {
-                  await github.rest.pulls.update({owner, repo, pull_number: action.number, state: 'open'});
-                } catch (error) {
-                  core.warning(`Could not reopen #${action.number}: ${error.message}`);
-                  const item = result.state.active && result.state.active.number === action.number ? result.state.active : {number: action.number};
+                const item = result.state.active;
+                const outcome = await reopenQueuedPull(github, {owner, repo}, item);
+                if (outcome === 'refused') {
+                  const reopenAfter = new Date(Date.parse(result.state.updatedAt) + REOPEN_COOLDOWN_MS).toISOString();
                   result.state.active = null;
-                  result.state.deferred.unshift({...item, status: 'waiting', note: `reopen failed: ${error.message}`});
+                  result.state.deferred.push({...item, status: 'waiting', reopenAfter, note: 'GitHub refused to reopen (HTTP 422)'});
+                  result.state.history.push({at: result.state.updatedAt, action: 'reopen-refused', number: item.number, reopenAfter});
                   await store(result.state, saved);
+                  core.warning(`PR #${item.number} stays in the queue and becomes eligible at ${reopenAfter}`);
+                } else if (outcome === 'open') {
+                  await github.rest.issues.createComment({owner, repo, issue_number: item.number, body: `${action.comment}\n\nQueue commit: ${saved}`});
                 }
               } else if (action.type === 'rerun') {
                 const {retry} = result.state.active;
