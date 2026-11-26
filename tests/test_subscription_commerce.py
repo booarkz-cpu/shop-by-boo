@@ -12,24 +12,21 @@ import pytest
 import pytest_asyncio
 from fastapi import HTTPException
 from sqlalchemy import select,func,text
-from sqlalchemy.ext.asyncio import AsyncSession,async_sessionmaker,create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession,create_async_engine
 from starlette.requests import Request
-from app import db as app_db
+from app import ad_postbacks
 from app import main as shop
 from app import subscription_commerce as commerce
 from app.models import Base,User,Plan,Subscription,TrafficPackage,Payment,EntitlementOperation,EntitlementQuote,FinancialLedger
 
 @asynccontextmanager
-async def isolated_payment_background(engine, monkeypatch):
-    # Conversion callbacks open a separate session after the purchase commits.
-    monkeypatch.setattr(app_db, "SessionLocal", async_sessionmaker(engine, expire_on_commit=False))
-    tasks = set()
-    monkeypatch.setattr(shop, "_BACKGROUND_TASKS", tasks)
-    try:
-        yield
-    finally:
-        await asyncio.gather(*tasks)
-
+async def isolated_payment_background(_engine, monkeypatch):
+    # Advertising conversions have their own contract tests.  Keeping that
+    # fire-and-forget callback out of commerce fixtures prevents an unrelated
+    # session from sharing the single in-memory SQLite connection or outliving
+    # a temporary PostgreSQL schema.
+    monkeypatch.setattr(ad_postbacks,'fire',lambda *args,**kwargs:None)
+    yield
 
 @pytest_asyncio.fixture(params=['sqlite','postgres'])
 async def database(monkeypatch,request):
