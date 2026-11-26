@@ -29,6 +29,7 @@ RUNNER_KILLED = (
     AX_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
     AX_FUTURE_TIMEOUT + "\nTesting failed:\n** TEST FAILED **\nTesting started",
     RUNNER_KILLED + "\n** TEST FAILED **\nTesting started",
+    RUNNER_KILLED + "\n\t Executed 0 tests, with 0 failures (0 unexpected) in 0.000 seconds",
     "Application does not have a process ID",
     "Failed to get background assertion",
     "Failed to launch test application",
@@ -58,6 +59,8 @@ def test_simulator_startup_can_be_retried(log):
     "Test crashed with signal kill before establishing connection.",
     "Test Case '-[UITests testLogin]' started.\n" + RUNNER_KILLED,
     RUNNER_KILLED + "\nTest case 'UITests.testLogin()' passed on 'iPhone'",
+    "\t Executed 1 test, with 1 failure (0 unexpected) in 4.000 seconds\n" + RUNNER_KILLED,
+    RUNNER_KILLED + "\n\t Executed 4 tests, with 0 failures (0 unexpected) in 127.291 (127.345) seconds",
     "Test Case '-[UITests testLogin]' skipped.\nFailed to launch test application",
     RUNNER_KILLED + "\nXCTFail(Unexpected)",
 ])

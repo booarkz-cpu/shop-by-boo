@@ -5,7 +5,12 @@ from pathlib import Path
 
 
 def retry_reason(log: str) -> str | None:
-    if re.search(r"\b(?:XCTAssert\w*|XCTFail)\b|test case [^\n]+ (?:started|passed|skipped|failed)\b", log, re.IGNORECASE):
+    test_activity = (
+        r"\b(?:XCTAssert\w*|XCTFail)\b"
+        r"|test case [^\n]+ (?:started|passed|skipped|failed)\b"
+        r"|\bExecuted [1-9]\d* tests?, with\b"
+    )
+    if re.search(test_activity, log, re.IGNORECASE):
         return None
     ax_timeout = (
         r"XCTDaemonErrorDomain Code=18\b[^\n]*Timed out waiting for AX loaded notification"
