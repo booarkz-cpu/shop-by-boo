@@ -1,8 +1,60 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T08:38:17.179Z",
-  "active": null,
-  "deferred": [],
+  "updatedAt": "2026-11-26T08:40:27.073Z",
+  "active": {
+    "number": 480,
+    "ref": "dependabot/pip/services/support-pro/support-minor-8b149fd126",
+    "sha": "5275f314bd8c8f2424f4b5b7921b66259214c88c",
+    "title": "build(deps): bump the support-minor group in /services/support-pro with 3 updates",
+    "ecosystem": "pip",
+    "security": false,
+    "createdAt": "2026-11-26T08:39:17Z",
+    "status": "active",
+    "attempts": 0,
+    "conflicts": 0,
+    "note": ""
+  },
+  "deferred": [
+    {
+      "number": 481,
+      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
+      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
+      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
+      "ecosystem": "pip",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:33Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "waiting for the active update"
+    },
+    {
+      "number": 482,
+      "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
+      "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
+      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
+      "ecosystem": "npm_and_yarn",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:53Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "waiting for the active update"
+    },
+    {
+      "number": 483,
+      "ref": "dependabot/npm_and_yarn/apps/user-cabinet/cabinet-minor-a4946c28d0",
+      "sha": "248b94e4b8a92f31aadc444a37beedd794dffe19",
+      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/user-cabinet in the cabinet-minor group",
+      "ecosystem": "npm_and_yarn",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:55Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "waiting for the active update"
+    }
+  ],
   "history": [
     {
       "at": "2026-11-23T20:07:00Z",
@@ -57,6 +109,24 @@
       "action": "merged",
       "number": 445,
       "reason": "squash-merged by Dependabot patch auto-merge; head 3398ad97, main ca20575b; not deferred"
+    },
+    {
+      "at": "2026-11-26T08:40:27.073Z",
+      "action": "defer",
+      "number": 481,
+      "reason": "one active pull request"
+    },
+    {
+      "at": "2026-11-26T08:40:27.073Z",
+      "action": "defer",
+      "number": 482,
+      "reason": "one active pull request"
+    },
+    {
+      "at": "2026-11-26T08:40:27.073Z",
+      "action": "defer",
+      "number": 483,
+      "reason": "one active pull request"
     }
   ]
 }
