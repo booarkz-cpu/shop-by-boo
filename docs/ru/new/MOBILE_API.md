@@ -11,7 +11,7 @@
 3. **Ключ доступа (passkey).** `/api/auth/passkeys/login/options` и `/verify`.
 4. **Токен.** `POST /api/auth/mobile/token` с `code_verifier` — только из приложения, код без верификатора бесполезен браузеру. Токен хранится в Keychain (iOS) или зашифрованным ключом AES-GCM из Android Keystore (Android) и передаётся в `Authorization: Bearer`.
 
-Проверка целостности (по желанию владельца): `POST /api/mobile/integrity/challenge`, затем Play Integrity / DeviceCheck при обмене кода. Подробно — `services/backend/app/mobile_auth.py`, `app_login.py`.
+Перед обменом кода пользовательские приложения Android и iOS запрашивают `POST /api/mobile/integrity/challenge`. Для клиентов из выпуска `v28.161.0` сервер поддерживает прежний запрос `GET` к тому же маршруту. Оба метода возвращают ответ с `Cache-Control: no-store`. В режиме `off` магазин возвращает пустой `nonce`. В режимах `report` и `enforce` он выдаёт подписанный `nonce`. Android запрашивает подтверждение Play Integrity, iOS — DeviceCheck. Приложение передаёт полученное подтверждение и `nonce` при вызове `POST /api/auth/mobile/token`. В режиме `enforce` для успешного входа требуется подтверждение. [Серверная проверка](../../../services/backend/app/mobile_integrity.py)
 
 ## Что настраивается из админки
 
