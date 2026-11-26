@@ -2,7 +2,7 @@
 # were compiled with Go 1.27.3 (CVE-2026-97054; fixed in 1.27.4).
 ARG CADDY_BASE_IMAGE=caddy:2.11-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9
 
-FROM golang:1.27.4-alpine AS caddy_builder
+FROM golang:1.27.4-alpine@sha256:70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280 AS caddy_builder
 RUN go version | grep -F 'go1.27.4' && \
     CGO_ENABLED=0 go install github.com/caddyserver/caddy/v2/cmd/caddy@v2.11.9 && \
     go version -m /go/bin/caddy | grep -F 'go1.27.4'

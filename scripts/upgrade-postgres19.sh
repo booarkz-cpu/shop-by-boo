@@ -76,9 +76,8 @@ ready(){
 
 move(){
   local service="$1" old_volume="$2" new_volume="$3" user="$4" db="$5"
-  grep -qx "$service" <<<"$services" || return 0
+  grep -Fxq -- "$service" <<<"$services" || return 0
   local old="${project}_${old_volume}" new="${project}_${new_volume}"
-  [[ "$old" != "$new" ]] || { echo "$service: source and destination volumes must differ" >&2; exit 2; }
   if ! docker volume inspect "$old" >/dev/null 2>&1; then
     echo "$service: no PostgreSQL 18 volume ($old) — nothing to move"
     return 0
@@ -191,10 +190,33 @@ move(){
 }
 
 SPEC="${PG19_UPGRADE_SPEC:-db:postgres18_data:postgres19_data:vpnshop:vpnshop,support_db:support_postgres18_data:support_postgres19_data:support:support}"
+if [[ "$SPEC" == ,* || "$SPEC" == *, || "$SPEC" == *,,* || "$SPEC" == *$'\n'* ]]; then
+  echo "Bad PG19_UPGRADE_SPEC: expected a single comma-separated list of mappings" >&2
+  exit 2
+fi
 IFS=',' read -ra entries <<<"$SPEC"
+declare -A seen_services=() seen_volumes=()
+volume_name='[a-z0-9_-]+'
+database_name='[A-Za-z0-9_]+'
+mapping_pattern="^${volume_name}:${volume_name}:${volume_name}:${database_name}:${database_name}$"
+# Validate the complete mapping before opening a volume or stopping either service.
 for entry in "${entries[@]}"; do
-  IFS=':' read -r service old_volume new_volume user db extra <<<"$entry"
-  [[ -z "${extra:-}" && "$service" =~ ^[a-z0-9_-]+$ && "$old_volume" =~ ^[a-z0-9_-]+$ && "$new_volume" =~ ^[a-z0-9_-]+$ && "$user" =~ ^[A-Za-z0-9_]+$ && "$db" =~ ^[A-Za-z0-9_]+$ ]] || { echo "Bad PG19_UPGRADE_SPEC entry: $entry" >&2; exit 2; }
+  [[ "$entry" =~ $mapping_pattern ]] || { echo "Bad PG19_UPGRADE_SPEC entry: $entry" >&2; exit 2; }
+  IFS=':' read -r service old_volume new_volume user db <<<"$entry"
+  if [[ -n "${PG19_UPGRADE_SPEC:-}" ]] && ! grep -Fxq -- "$service" <<<"$services"; then
+    echo "$service: not present in the selected Compose profile" >&2
+    exit 2
+  fi
+  [[ -z "${seen_services[$service]:-}" ]] || { echo "Duplicate migration service: $service" >&2; exit 2; }
+  seen_services[$service]=1
+  [[ "$old_volume" != "$new_volume" ]] || { echo "$service: source and destination volumes must differ" >&2; exit 2; }
+  for volume in "$old_volume" "$new_volume"; do
+    [[ -z "${seen_volumes[$volume]:-}" ]] || { echo "Reused migration volume: $volume" >&2; exit 2; }
+    seen_volumes[$volume]=1
+  done
+done
+for entry in "${entries[@]}"; do
+  IFS=':' read -r service old_volume new_volume user db <<<"$entry"
   move "$service" "$old_volume" "$new_volume" "$user" "$db"
 done
 if (( stopped )); then
