@@ -1,33 +1,20 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T09:11:57.897Z",
+  "updatedAt": "2026-11-26T10:05:46.320Z",
   "active": {
-    "number": 480,
-    "ref": "dependabot/pip/services/support-pro/support-minor-8b149fd126",
-    "sha": "7266cb9052beec39beb427d6d92d2143a8075a5f",
-    "title": "Обновить aiogram, certifi и Redis в Support Pro",
+    "number": 481,
+    "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
+    "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
+    "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
     "ecosystem": "pip",
     "security": false,
-    "createdAt": "2026-11-26T08:39:17Z",
+    "createdAt": "2026-11-26T08:39:33Z",
     "status": "active",
     "attempts": 0,
     "conflicts": 0,
-    "note": ""
+    "note": "waiting for the active update"
   },
   "deferred": [
-    {
-      "number": 481,
-      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
-      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
-      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
-      "ecosystem": "pip",
-      "security": false,
-      "createdAt": "2026-11-26T08:39:33Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "waiting for the active update"
-    },
     {
       "number": 482,
       "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
@@ -146,6 +133,12 @@
       "action": "defer",
       "number": 484,
       "reason": "one active pull request"
+    },
+    {
+      "at": "2026-11-26T10:05:46.320Z",
+      "action": "reopen-requested",
+      "number": 481,
+      "reason": "promoted"
     }
   ]
 }
