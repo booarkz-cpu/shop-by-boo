@@ -83,6 +83,13 @@ def test_dependabot_can_offer_support_updates(name):
             assert not hides_every_upgrade, f"{name} {expression} masks every newer version"
 
 
+@pytest.mark.parametrize("name", ["aiogram", "redis"])
+def test_bot_and_redis_clients_match_the_documented_backend_versions(name):
+    runtime = pins("services/backend/requirements.txt")
+    stack = (ROOT / "docs/TECH_STACK.md").read_text().splitlines()
+    assert [row.split("|")[2].strip() for row in stack if row.startswith(f"| {name} |")] == [runtime[name]]
+
+
 def test_support_pro_python_315_runtime_dependency_contract():
     locked = pins("services/support-pro/requirements.txt")
     assert locked["fastapi"] == "0.165.0"
@@ -90,6 +97,10 @@ def test_support_pro_python_315_runtime_dependency_contract():
     assert Version(locked["aiogram"]) >= Version("3.34.0")
     assert Version(locked["certifi"]) >= Version("2026.11.20")
     assert Version(locked["redis"]) >= Version("8.2.0")
+    inventory = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text().splitlines()
+    support_row, = (line for line in inventory if line.startswith("| Support Pro runtime |"))
+    for name, label in (("aiogram", "aiogram"), ("redis", "redis-py")):
+        assert f"{label} {locked[name]}" in support_row
     # Earlier fakeredis cannot construct an async client with redis-py 8.2.
     dev = pins("services/support-pro/requirements-dev.txt")
     assert Version(dev["fakeredis"]) >= Version("2.41.0")

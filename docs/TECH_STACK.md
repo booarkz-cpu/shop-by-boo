@@ -16,11 +16,11 @@
 | SQLAlchemy | 2.1.9 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
 | asyncpg | 0.32.0 | `requirements.txt` | драйвер PostgreSQL |
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
-| aiogram | 3.33.0 | `requirements.txt` | Telegram-бот |
+| aiogram | 3.34.0 | `requirements.txt` | Telegram-бот |
 | aiohttp | 3.14.5 | `requirements.txt` | HTTP-клиент бота |
 | httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
-| redis | 8.1.0 | `requirements.txt` | клиент Redis |
+| redis | 8.2.0 | `requirements.txt` | клиент Redis |
 | pydantic-settings | 2.16.3 | `requirements.txt` | конфигурация из окружения |
 | PyJWT | 2.15.1 | `requirements.txt` | токены сессий и агентов |
 | cryptography | 50.0.2 | `requirements.txt` | подписи, шифрование секретов |
