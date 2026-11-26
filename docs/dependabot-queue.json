@@ -1,20 +1,33 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T10:05:46.320Z",
-  "active": null,
+  "updatedAt": "2026-11-26T10:07:06.039Z",
+  "active": {
+    "number": 482,
+    "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
+    "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
+    "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
+    "ecosystem": "npm_and_yarn",
+    "security": false,
+    "createdAt": "2026-11-26T08:39:53Z",
+    "status": "active",
+    "attempts": 0,
+    "conflicts": 0,
+    "note": "waiting for the active update"
+  },
   "deferred": [
     {
-      "number": 482,
-      "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
-      "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
-      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
-      "ecosystem": "npm_and_yarn",
+      "number": 481,
+      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
+      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
+      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
+      "ecosystem": "pip",
       "security": false,
-      "createdAt": "2026-11-26T08:39:53Z",
+      "createdAt": "2026-11-26T08:39:33Z",
       "status": "waiting",
       "attempts": 0,
       "conflicts": 0,
-      "note": "waiting for the active update"
+      "note": "GitHub refused to reopen (HTTP 422)",
+      "reopenAfter": "2026-11-27T10:05:46.320Z"
     },
     {
       "number": 483,
@@ -41,20 +54,6 @@
       "attempts": 0,
       "conflicts": 0,
       "note": "waiting for the active update"
-    },
-    {
-      "number": 481,
-      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
-      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
-      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
-      "ecosystem": "pip",
-      "security": false,
-      "createdAt": "2026-11-26T08:39:33Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "GitHub refused to reopen (HTTP 422)",
-      "reopenAfter": "2026-11-27T10:05:46.320Z"
     }
   ],
   "history": [
@@ -147,6 +146,12 @@
       "action": "reopen-refused",
       "number": 481,
       "reopenAfter": "2026-11-27T10:05:46.320Z"
+    },
+    {
+      "at": "2026-11-26T10:07:06.039Z",
+      "action": "reopen-requested",
+      "number": 482,
+      "reason": "promoted"
     }
   ]
 }
