@@ -405,7 +405,7 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
 
     monkeypatch.setattr(type(runtime.settings), "validate_security", validate)
     monkeypatch.setattr(worker.Redis, "from_url", lambda *args, **kwargs: FakeRedis())
-    for name in ("worker_heartbeat", "health_alert_worker"):
+    for name in ("worker_heartbeat", "health_alert_worker", "installer_worker"):
         monkeypatch.setattr(worker, name, idle)
     monkeypatch.setattr(worker, "job_worker", jobs)
     for name in ("backup_scheduler", "fulfillment_retry_scheduler", "expiry_notification_scheduler", "reconciliation_scheduler", "auto_renew_scheduler", "refund_revoke_scheduler", "subscription_lifecycle_scheduler"):
@@ -415,8 +415,11 @@ async def test_standalone_worker_loads_committed_settings_and_converges(database
     # Every background loop started by the worker is replaced: the real push, plugin
     # and network loops use the application engine and outbound HTTP, and a task
     # cancelled mid-connection could stall event-loop teardown.
-    from app import mail_domain, network_intel, node_terminal, plugins, push, torrent_detection
+    from app import fiscal, mail_domain, network_intel, node_terminal, plugins, push, push_campaigns, rw_autoupdate, torrent_detection
     monkeypatch.setattr(push, "push_scheduler", idle)
+    monkeypatch.setattr(push_campaigns, "campaign_scheduler", idle)
+    monkeypatch.setattr(fiscal, "fiscal_scheduler", idle)
+    monkeypatch.setattr(rw_autoupdate, "scheduler", idle)
     monkeypatch.setattr(plugins, "plugin_scheduler", idle)
     monkeypatch.setattr(network_intel, "network_intel_scheduler", idle)
     monkeypatch.setattr(mail_domain, "mail_domain_scheduler", idle)
