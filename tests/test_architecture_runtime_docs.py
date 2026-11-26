@@ -1,4 +1,5 @@
-"""Check the operator's current storage inventory against the actual Compose and Alembic inputs."""
+"""Check the architecture inventory against the build, storage and migration inputs."""
+import json
 import re
 from pathlib import Path
 
@@ -13,6 +14,42 @@ def documented_row(document, label):
     rows = [line for line in document.splitlines() if line.startswith(f"| {label} |")]
     assert len(rows) == 1, f"Expected one row for {label}"
     return rows[0]
+
+
+def row_for_source(path):
+    document = (ROOT / "docs/PROJECT_ARCHITECTURE.md").read_text()
+    rows = [line for line in document.splitlines() if line.startswith("| ") and f"`{path}`" in line]
+    assert len(rows) == 1, f"Expected one component row for {path}"
+    return rows[0]
+
+
+@pytest.mark.parametrize("build", sorted(ROOT.glob("apps/*/android/app/build.gradle.kts")))
+def test_android_products_have_their_own_source_and_version(build):
+    version, = re.findall(r'^\s*versionName\s*=\s*"([^"]+)"', build.read_text(), re.MULTILINE)
+    assert f"`{version}`" in row_for_source(build.parents[1].relative_to(ROOT))
+
+
+@pytest.mark.parametrize("build", sorted(ROOT.glob("apps/*/ios/*.xcodeproj/project.pbxproj")))
+def test_ios_products_have_their_own_source_and_version(build):
+    version, = set(re.findall(r"MARKETING_VERSION\s*=\s*([^;]+);", build.read_text()))
+    assert f"`{version}`" in row_for_source(build.parents[1].relative_to(ROOT))
+
+
+def test_web_and_bot_rows_follow_the_build_inputs():
+    ci = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
+    for target in ci["jobs"]["frontend"]["strategy"]["matrix"]["include"]:
+        directory = target["dir"]
+        row = row_for_source(directory)
+        package = json.loads((ROOT / directory / "package.json").read_text())
+        if "next" in package.get("dependencies", {}):
+            lock = json.loads((ROOT / directory / "package-lock.json").read_text())
+            assert f"Next.js `{lock['packages']['node_modules/next']['version']}`" in row
+        else:
+            task, = re.findall(r"npm run (\S+) --prefix ../user-cabinet", package["scripts"]["build"])
+            assert f"`{task}`" in row
+    pins = (ROOT / "services/backend/requirements.txt").read_text()
+    version, = re.findall(r"^aiogram==([^\s]+)$", pins, re.MULTILINE)
+    assert f"aiogram `{version}`" in row_for_source("services/backend/app/bot.py")
 
 
 @pytest.mark.parametrize(("service", "support", "image", "label"), [

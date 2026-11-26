@@ -9,14 +9,14 @@
 ```mermaid
 flowchart TD
   subgraph Clients["Клиентские интерфейсы"]
-    Bot["Telegram-бот<br/>aiogram 3.31"]
-    Mini["Telegram Mini App<br/>Next.js (cabinet build)"]
-    Cab["Личный кабинет<br/>Next.js 16.4.2"]
-    AndU["Android user<br/>Kotlin + Compose + Xray"]
-    IosU["iOS user<br/>Swift + SwiftUI"]
-    AndA["Android admin"]
-    IosA["iOS admin"]
-    Adm["Админ-панель<br/>Next.js 16.4.2"]
+    Bot["Telegram-бот (aiogram)"]
+    Mini["Telegram Mini App (сборка кабинета)"]
+    Cab["Личный кабинет (Next.js)"]
+    AndU["VPN Shop для Android (Xray)"]
+    IosU["VPN Shop для iOS (Packet Tunnel)"]
+    AndA["Lucy Admin для Android"]
+    IosA["Lucy Admin для iOS"]
+    Adm["Lucy Admin Web (Next.js)"]
   end
 
   subgraph Edge["Вход"]
@@ -98,12 +98,15 @@ flowchart TD
 
 | Компонент | Что делает | Где живёт |
 | --- | --- | --- |
-| Telegram-бот | вход, покупка, продление, поддержка, уведомления; меню и баннеры настраиваются в админке | `services/backend/app/bot.py` (860 строк) |
-| Mini App | тот же кабинет внутри Telegram; вход по подписанному `initData` | сборка `cabinet`, отдаётся через `miniapp` |
-| Личный кабинет | подписки, устройства, платежи, поддержка, рефералы | `apps/user-cabinet/` (52 компонента) |
-| Android / iOS user | встроенный VPN на Android (Xray-core), импорт подписки, push | `apps/vpn-shop/android`, `mobile/ios-user` |
-| Android / iOS admin | админка в телефоне | `apps/lucy-admin/android`, `mobile/ios-admin` |
-| Админ-панель | 60 компонентов, 458 маршрутов API | `apps/lucy-admin/web/` |
+| Telegram-бот | aiogram `3.33.0`. Покупка, продление, поддержка и уведомления | `services/backend/app/bot.py` |
+| Telegram Mini App | Вход по подписанным данным Telegram. Команда `build:miniapp` собирает кабинет в режиме Mini App | `apps/telegram-mini-app` |
+| Личный кабинет | Next.js `16.4.6`. Подписки, устройства, платежи, поддержка и рефералы | `apps/user-cabinet` |
+| VPN Shop для Android | Версия `3.9.0`. Магазин, импорт подписки и VPN через встроенный Xray-core | `apps/vpn-shop/android` |
+| VPN Shop для iOS | Версия `3.9.0`. Магазин и push. Расширение `CorgiTunnel` использует Network Extension, libXray и hev-socks5-tunnel | `apps/vpn-shop/ios` |
+| Корги Люси — Клиент для Android | Версия `1.10.1`. Самостоятельный VPN-клиент импортирует профиль и использует общий с VPN Shop `libv2ray.aar` | `apps/vpn-client/android` |
+| Lucy Admin для Android | Версия `3.9.0`. Управление магазином с учётной записью администратора | `apps/lucy-admin/android` |
+| Lucy Admin для iOS | Версия `3.9.0`. Управление магазином с учётной записью администратора | `apps/lucy-admin/ios` |
+| Lucy Admin Web | Next.js `16.4.6`. Веб-интерфейс управления магазином | `apps/lucy-admin/web` |
 
 ### Ядро
 

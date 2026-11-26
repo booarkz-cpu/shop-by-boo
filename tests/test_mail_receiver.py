@@ -374,3 +374,25 @@ def test_routes_and_settings_registry():
 
     keys = {item["key"] for item in RESTART_REQUIRED}
     assert {"mail_receiver_enabled", "mail_receiver_routes", "mail_inbound_secret"} <= keys
+
+
+@pytest.mark.parametrize("role,command,expected", [
+    ("api", [], ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-proxy-headers"]),
+    ("worker", ["python", "worker.py"], ["python", "worker.py"]),
+    ("mail", ["python", "-m", "app.mail_receiver"], ["python", "-m", "app.mail_receiver"]),
+    ("integration", ["python", "worker.py"], ["python", "worker.py"]),
+])
+def test_backend_entrypoint_runs_the_requested_service(tmp_path, role, command, expected):
+    import os
+    import subprocess
+    from pathlib import Path
+
+    entry = Path(__file__).resolve().parents[1] / "services/backend/entrypoint.sh"
+    log = tmp_path / "commands"
+    for name in ("alembic", "uvicorn", "python"):
+        fake = tmp_path / name
+        fake.write_text('#!/bin/sh\nprintf "%s\\n" "${0##*/} $*" >> "$TRACE"\n')
+        fake.chmod(0o755)
+    env = dict(os.environ, PATH=f"{tmp_path}:{os.environ['PATH']}", TRACE=str(log), WORKER_ROLE=role)
+    subprocess.run(["sh", str(entry), *command], check=True, env=env)
+    assert log.read_text().splitlines() == ["alembic upgrade head", " ".join(expected)]

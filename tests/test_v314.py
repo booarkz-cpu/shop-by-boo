@@ -1,6 +1,9 @@
 """3.1.4: concurrent Alembic boot must not kill the API container."""
+import asyncio
 import os
 import subprocess
+import sys
+from uuid import uuid4
 from pathlib import Path
 
 import pytest
@@ -59,43 +62,50 @@ def test_docs_describe_314_and_keep_313():
     assert '"version": "3.1.3"' in steps
 
 
-def test_parallel_alembic_upgrade_survives_the_race():
-    probe = subprocess.run(
-        ["sudo", "-n", "-u", "postgres", "psql", "-c", "SELECT 1"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if probe.returncode != 0:
-        pytest.skip("local postgres is not available")
-    name = "vpnshop_race314"
-    subprocess.run(
-        [
-            "sudo", "-n", "-u", "postgres", "psql",
-            "-c", "DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='migtest') THEN CREATE ROLE migtest LOGIN PASSWORD 'migtest'; END IF; END $$;",
-            "-c", f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='{name}' AND pid<>pg_backend_pid();",
-            "-c", f"DROP DATABASE IF EXISTS {name}",
-            "-c", f"CREATE DATABASE {name} OWNER migtest",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    env = os.environ.copy()
-    env["DATABASE_URL"] = f"postgresql+asyncpg://migtest:migtest@127.0.0.1:5432/{name}"
-    env["APP_SECRET"] = "x" * 32
-    procs = [
-        subprocess.Popen(
-            ["python3", "-m", "alembic", "upgrade", "head"],
-            cwd=ROOT / "services" / "backend",
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        for _ in range(2)
-    ]
-    outputs = [(proc.wait(timeout=60), proc.stdout.read() if proc.stdout else "") for proc in procs]
-    subprocess.run(["sudo", "-n", "-u", "postgres", "psql", "-c", f"DROP DATABASE IF EXISTS {name}"], check=False, capture_output=True)
-    failed = [text for code, text in outputs if code != 0]
-    assert not failed, failed
+@pytest.mark.asyncio
+async def test_parallel_alembic_upgrade_survives_the_race():
+    """Start two independent Alembic processes against a new database on the test service."""
+    audit_url = os.environ.get("AUDIT_TEST_DATABASE_URL")
+    if not audit_url:
+        pytest.skip("requires the PostgreSQL test service in AUDIT_TEST_DATABASE_URL")
+    import asyncpg
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+    from sqlalchemy.engine import make_url
+
+    admin_url = make_url(audit_url)
+    assert admin_url.get_backend_name() == "postgresql"
+    name = "vpnshop_race_" + uuid4().hex
+    target_url = admin_url.set(database=name)
+    admin = await asyncpg.connect(admin_url.set(drivername="postgresql").render_as_string(hide_password=False))
+    try:
+        await admin.execute(f'CREATE DATABASE "{name}"')
+        try:
+            backend = ROOT / "services" / "backend"
+            env = {**os.environ, "DATABASE_URL": target_url.set(drivername="postgresql+asyncpg").render_as_string(hide_password=False)}
+            env.setdefault("APP_SECRET", "x" * 32)
+
+            def upgrade():
+                return subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"],
+                                      cwd=backend, env=env, capture_output=True, text=True, timeout=90)
+
+            results = await asyncio.gather(asyncio.to_thread(upgrade), asyncio.to_thread(upgrade),
+                                           return_exceptions=True)
+            for result in results:
+                if isinstance(result, BaseException):
+                    raise result
+                assert result.returncode == 0, result.stderr
+
+            cfg = Config()
+            cfg.set_main_option("script_location", str(backend / "alembic"))
+            expected = ScriptDirectory.from_config(cfg).get_heads()
+            target = await asyncpg.connect(target_url.set(drivername="postgresql").render_as_string(hide_password=False))
+            try:
+                rows = await target.fetch("SELECT version_num FROM alembic_version")
+                assert sorted(row["version_num"] for row in rows) == sorted(expected)
+            finally:
+                await target.close()
+        finally:
+            await admin.execute(f'DROP DATABASE "{name}"')
+    finally:
+        await admin.close()

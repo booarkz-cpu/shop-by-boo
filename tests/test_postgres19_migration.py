@@ -3,8 +3,30 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/upgrade-postgres19.sh"
+
+
+def test_drill_rejects_swapped_databases_and_corruption_with_unchanged_totals(tmp_path):
+    import sys
+
+    probe = ROOT / "scripts/ci/verify-pg-upgrade-fixture.py"
+    rows = ["db\tsupport\t19", *(f"order\t{i}\tsupport order {i}\t{i}.00" for i in range(1, 1501)),
+            *(f"user\t{i}" for i in range(1, 43))]
+    fixture = tmp_path / "fixture"
+    command = [sys.executable, str(probe), "support", "19", sys.executable, "-c",
+               "import pathlib,sys; sys.stdout.buffer.write(pathlib.Path(sys.argv[1]).read_bytes())", str(fixture)]
+    for first_order, should_match in [
+        ("order\t1\tsupport order 1\t1.00", True),
+        ("order\t1\tvpnshop order 1\t1.00", False),
+        ("order\t1\tchanged\t1.00", False),
+    ]:
+        rows[1] = first_order
+        fixture.write_text("\n".join(rows) + "\n")
+        result = subprocess.run(command, capture_output=True)
+        assert (result.returncode == 0) == should_match, result.stderr
 
 
 def test_password_reader_receives_the_service_as_an_argument():
@@ -83,6 +105,59 @@ def test_rejects_a_malformed_spec(tmp_path):
     run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:old:new:bad user:db")
     assert run.returncode == 2
     assert "Bad PG19_UPGRADE_SPEC" in run.stderr
+
+
+@pytest.mark.parametrize("second", [
+    "db:old_b:new_b:u:b",             # same service
+    "support_db:old_a:new_b:u:b",     # shared source
+    "support_db:old_b:new_a:u:b",     # shared destination
+    "support_db:new_a:new_b:u:b",     # first destination reused as source
+    "support_db:old_b:old_a:u:b",     # first source reused as destination
+    "support_db:old_b:old_b:u:b",     # one volume in both roles
+    "support_db:old_b:new_b:u:b:",    # unexpected field
+    "support_db:old_b:new_b:bad user:b",
+    "absent:old_b:new_b:u:b",
+    "",                                # trailing comma
+    "\nsupport_db:old_b:new_b:u:b",   # read must not silently truncate the spec
+])
+def test_invalid_second_mapping_rejects_the_whole_upgrade(tmp_path, second):
+    bindir, log = _fake(tmp_path)
+    spec = f"db:old_a:new_a:u:a,{second}"
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC=spec)
+    assert run.returncode == 2, (run.stdout, run.stderr)
+    assert all(command.startswith("compose config") for command in log.read_text().splitlines())
+
+
+def test_explicit_two_service_mapping_visits_both_sources(tmp_path):
+    bindir, log = _fake(tmp_path)
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:old_a:new_a:u:a,support_db:old_b:new_b:u:b")
+    assert run.returncode == 0, run.stderr
+    assert [line for line in log.read_text().splitlines() if line.startswith("volume inspect")] == [
+        "volume inspect shop_old_a", "volume inspect shop_old_b",
+    ]
+
+
+def test_single_service_profile_uses_available_default_mapping(tmp_path):
+    bindir, log = _fake(tmp_path)
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(r"db\nsupport_db\n", r"db\n"))
+    run = _run(tmp_path, bindir)
+    assert run.returncode == 0, run.stderr
+    assert [line for line in log.read_text().splitlines() if line.startswith("volume inspect")] == [
+        "volume inspect shop_postgres18_data",
+    ]
+
+
+def test_standalone_support_mapping_checks_its_own_volume(tmp_path):
+    bindir, log = _fake(tmp_path, ("shop_pgdata18",))
+    docker = bindir / "docker"
+    docker.write_text(docker.read_text().replace(r"db\nsupport_db\n", r"db\n").replace(
+        "  *) exit 0;;", '  "run --rm --entrypoint cat "*) echo 18;;\n  *) exit 0;;',
+    ))
+    run = _run(tmp_path, bindir, PG19_UPGRADE_SPEC="db:pgdata18:pgdata19:support:support", PG19_ROLLBACK="1")
+    assert run.returncode == 0, run.stderr
+    assert "PostgreSQL 18 volume shop_pgdata18 is intact for rollback" in run.stdout
+    assert all("postgres18_data" not in line for line in log.read_text().splitlines())
 
 
 def test_rollback_flag_checks_the_18_baseline_without_deleting_it(tmp_path):
