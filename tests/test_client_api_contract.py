@@ -5,11 +5,14 @@ panel shows a spinner, then an error, and nothing explains that the URL simply d
 below read the real sources of the three clients and match each URL against the assembled route table,
 so removing a route or mistyping a URL in a client fails here instead of in production.
 """
+import re
 from pathlib import Path
 
+import httpx
 import pytest
+from fastapi import FastAPI
 
-from app_contract import client_api_paths, serves_path
+from app_contract import client_api_paths, has_route, serves_path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -51,6 +54,34 @@ def test_mobile_apps_only_call_routes_that_exist(surface):
     missing = sorted({url for path in files for url in client_api_paths(path.read_text(encoding="utf-8"))
                       if not serves_path(url)})
     assert not missing, f"{surface} calls these paths but the API does not serve them: " + ", ".join(missing)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("source", "call_pattern", "body"), [
+    ("apps/vpn-shop/android/app/src/main/java/shop/remnawave/user/MainActivity.kt",
+     r'\b(get|post)\s*\(\s*"', {}),
+    ("apps/vpn-shop/ios/VpnShopUser/VpnShopUserApp.swift",
+     r'\bcall\s*\(\s*"([A-Z]+)"\s*,\s*"', None),
+])
+async def test_native_sign_in_requests_a_served_integrity_challenge(source, call_pattern, body, monkeypatch):
+    from app import mobile_integrity
+
+    path = "/api/mobile/integrity/challenge"
+    methods = re.findall(call_pattern + re.escape(path) + '"', _source(source))
+    assert len(methods) == 1, f"{source} must request the challenge in the native token exchange"
+    method = methods[0].upper()
+    assert has_route(method, path), f"{source} requests {method} {path}"
+
+    monkeypatch.setattr(mobile_integrity.settings, "mobile_integrity_mode", "enforce")
+    api = FastAPI()
+    api.include_router(mobile_integrity.router)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=api), base_url="http://testserver") as client:
+        response = await client.request(method, path, json=body)
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    challenge = response.json()
+    assert challenge["mode"] == "enforce"
+    assert mobile_integrity.check_nonce(challenge["nonce"])
 
 
 def test_the_contract_helper_recognises_parameters_and_rejects_unknown_paths():
