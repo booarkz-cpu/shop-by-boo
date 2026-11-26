@@ -15,6 +15,11 @@ updates:
     open-pull-requests-limit: 5
     groups:
       support-minor: {update-types: [minor, patch]}
+    ignore:
+      # fakeredis 2.40.0 cannot construct FakeRedis with redis-py 8.2 on Python 3.15.
+      # Keep this bounded to 8.2.x and remove it after an upstream compatibility fix.
+      - dependency-name: redis
+        versions: [">=8.2.0,<8.3.0"]
   - package-ecosystem: npm
     directory: /apps/lucy-admin/web
     schedule: {interval: weekly, day: monday}

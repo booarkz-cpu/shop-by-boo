@@ -86,6 +86,7 @@ docker compose logs --tail=100 backend worker bot
 - **SQLAlchemy 2.1+ ставится как `sqlalchemy[asyncio]`**: иначе не установится `greenlet` и асинхронный движок не запустится.
 - **`@types/node` — только мажорная версия рантайма** (образы и CI на Node 26); мажорные обновления типов Dependabot не предлагает.
 - **Pydantic в Support Pro.** Dependabot проверяет обновления `pydantic` и `pydantic-core` из общего списка версий. Допустимый диапазон Pydantic задаёт установленная версия `aiogram`, а совместимую версию ядра задаёт сам Pydantic.
+- **Redis 8.2 в Support Pro временно отложен.** `fakeredis 2.40.0` на Python 3.15 падает при создании `FakeRedis` с `redis-py 8.2.0`, поэтому полный набор регрессий Support Pro не проходит. Ограничение охватывает только ветку `8.2.x`; после совместимого выпуска `fakeredis` или исправления `redis-py` его нужно удалить и повторить полный CI с настоящим Redis.
 
 Ограничения записаны в `.github/dependabot.yml` с комментариями; снимайте их, когда причина ушла.
 

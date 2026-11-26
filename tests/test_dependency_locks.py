@@ -84,13 +84,29 @@ def test_support_pro_python_315_runtime_dependency_contract():
     locked = pins("services/support-pro/requirements.txt")
     assert locked["fastapi"] == "0.165.0"
     assert locked["sqlalchemy"] == "2.1.9"
-    assert locked["aiogram"] == "3.33.0"
+    assert locked["aiogram"] == "3.34.0"
+    assert locked["certifi"] == "2026.11.20"
+    assert locked["redis"] == "8.1.0"
     assert locked["pydantic"] == "2.14.4"
     assert locked["pydantic-core"] == "2.50.5"
     assert Version(locked["opentelemetry-api"]) >= Version("1.44.0")
 
     dockerfile = (ROOT / "services/support-pro/app/Dockerfile").read_text()
     assert "python:3.15-slim@" in dockerfile
+
+
+def test_support_pro_redis_82_deferral_is_bounded():
+    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
+    support, = (
+        entry for entry in config["updates"]
+        if entry.get("directory") == "/services/support-pro" and entry["package-ecosystem"] == "pip"
+    )
+    redis_rules = [rule for rule in support.get("ignore", []) if rule["dependency-name"] == "redis"]
+    assert redis_rules == [{"dependency-name": "redis", "versions": [">=8.2.0,<8.3.0"]}]
+    deferred = SpecifierSet(redis_rules[0]["versions"][0])
+    assert Version("8.2.0") in deferred
+    assert Version("8.2.99") in deferred
+    assert Version("8.3.0") not in deferred
 
 
 def test_web_dependency_contracts_are_synchronized():
