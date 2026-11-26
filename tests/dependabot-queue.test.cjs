@@ -398,7 +398,7 @@ function queueApi(initialState) {
   }};
   const workspace = path.resolve(__dirname, '..');
   const clock = class extends Date { constructor(...args) { super(...(args.length ? args : [mock.now])); } };
-  return {mock, writes, posts, state: () => state, run: () =>
+  return {github, mock, writes, posts, state: () => state, run: () =>
     intake(github, {repo}, {info() {}, warning() {}}, require, {env: {GITHUB_WORKSPACE: workspace}}, clock)};
 }
 
@@ -599,6 +599,53 @@ test('a concurrent ref creation is used only when it matches the saved SHA', asy
     await api.run();
     assert.equal(api.mock.heads.get('heads/' + ref), concurrent);
     assert.deepEqual(api.mock.open.map(pr => pr.number), concurrent === sha ? [7] : []);
+  }
+});
+
+test('a restored branch that moves or disappears during the slot check is left alone', async () => {
+  for (const replacement of ['f'.repeat(40), null]) {
+    const api = closedQueue();
+    const {ref, sha} = batch[6].head;
+    const branch = 'heads/' + ref;
+    api.mock.heads.delete(branch);
+    const list = api.github.rest.pulls.list;
+    api.github.rest.pulls.list = async args => {
+      if (api.mock.createdHeads.length) {
+        if (replacement) api.mock.heads.set(branch, replacement);
+        else api.mock.heads.delete(branch);
+      }
+      return list(args);
+    };
+    await api.run();
+    assert.deepEqual(api.mock.reopenNumbers, [7]);
+    assert.deepEqual(api.mock.open, []);
+    assert.deepEqual(api.mock.comments, []);
+    assert.equal(api.mock.heads.get(branch), replacement ?? undefined);
+    assert.ok(api.state().deferred.some(row => row.sha === sha && row.reopenAfter));
+  }
+});
+
+test('a moved head in the reopen response cannot confirm promotion of the restored commit', async () => {
+  for (const lostResponse of [false, true]) {
+    const api = closedQueue();
+    const {ref, sha} = batch[6].head;
+    const branch = 'heads/' + ref;
+    api.mock.heads.delete(branch);
+    const update = api.github.rest.pulls.update;
+    api.github.rest.pulls.update = async args => {
+      if (api.mock.createdHeads.length) {
+        const pr = api.mock.closed.get(args.pull_number);
+        const moved = 'f'.repeat(40);
+        api.mock.heads.set(branch, moved);
+        api.mock.closed.set(pr.number, {...pr, head: {...pr.head, sha: moved}});
+        if (lostResponse) api.mock.reopenError = new Error('lost response');
+      }
+      return update(args);
+    };
+    await assert.rejects(api.run(), /restored head changed/i);
+    assert.equal(api.state().active.sha, sha);
+    assert.deepEqual(api.mock.comments, []);
+    assert.equal(api.mock.open[0].head.sha, 'f'.repeat(40));
   }
 });
 

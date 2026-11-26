@@ -179,9 +179,19 @@ async function restoreDeletedHead(github, repo, item, pull) {
 
 // A human can open a PR after intake. Re-read membership just before changing
 // it. If GitHub loses the PATCH response, the pull detail resolves the outcome.
-async function reopenQueuedPull(github, repo, item, mayRestore = true) {
+async function reopenQueuedPull(github, repo, item, restored = false) {
   const {data: open} = await github.rest.pulls.list({...repo, state: 'open', per_page: 1});
   if (open.length) return 'busy';
+  if (restored) {
+    // The bot can replace or delete the branch while we check for another PR.
+    try {
+      const {data} = await github.rest.git.getRef({...repo, ref: `heads/${item.ref}`});
+      if (data.object.sha !== item.sha) return 'refused';
+    } catch (error) {
+      if (error.status === 404) return 'refused';
+      throw error;
+    }
+  }
   const target = {...repo, pull_number: item.number};
   let pull, patchError;
   try {
@@ -193,11 +203,16 @@ async function reopenQueuedPull(github, repo, item, mayRestore = true) {
   if (pull.number !== item.number || !isDependabot(pull) || pull.head.ref !== item.ref) {
     throw new Error(`Unexpected pull request identity while reopening #${item.number}`);
   }
-  if (pull.state === 'open') return 'open';
+  if (pull.state === 'open') {
+    if (restored && (pull.head.sha !== item.sha || pull.head.repo?.full_name !== `${repo.owner}/${repo.repo}`)) {
+      throw new Error(`Restored head changed while reopening #${item.number}`);
+    }
+    return 'open';
+  }
   if (pull.state === 'closed' && pull.merged === true) return 'merged';
   if (pull.state === 'closed' && pull.merged === false && patchError?.status === 422) {
-    if (mayRestore && await restoreDeletedHead(github, repo, item, pull)) {
-      return reopenQueuedPull(github, repo, item, false);
+    if (!restored && await restoreDeletedHead(github, repo, item, pull)) {
+      return reopenQueuedPull(github, repo, item, true);
     }
     return 'refused';
   }
