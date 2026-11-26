@@ -222,9 +222,24 @@ def release_inventory():
     for abi in sorted(abis):
         linked = modules if abi.endswith("/arm64-v8a") else modules[:2]
         links.append({"ref": abi, "dependsOn": [module["bom-ref"] for module in linked]})
+    repository = []
+    for ecosystem, manifests in {
+        "npm": ["apps/user-cabinet/package-lock.json", "apps/lucy-admin/web/package-lock.json"],
+        "pypi": ["services/backend/requirements.txt", "services/support-pro/requirements.txt"],
+    }.items():
+        # Both applications can depend on the same package and its transitive dependency.
+        package = f"pkg:{ecosystem}/shared@1"
+        child = f"pkg:{ecosystem}/child@1"
+        for ref in (package, child):
+            repository.append({"type": "library", "name": ref, "bom-ref": ref, "purl": ref})
+        links.append({"ref": package, "dependsOn": [child]})
+        for manifest in manifests:
+            repository.append({"type": "application", "name": manifest, "bom-ref": manifest})
+            links[0]["dependsOn"].append(manifest)
+            links.append({"ref": manifest, "dependsOn": [package]})
     root = {"type": "application", "bom-ref": "root", "name": "VPN Shop by Corgi Lucy", "version": SOURCE_REVISION}
     return {"bomFormat": "CycloneDX", "specVersion": "1.7", "version": 1, "metadata": {"component": root},
-            "components": apps + files + modules, "dependencies": links}
+            "components": apps + files + modules + repository, "dependencies": links}
 
 
 @pytest.mark.parametrize("damage", ["repository-only", "detached", "missing-engine", "missing-abi", "no-maven",
@@ -236,9 +251,9 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
     shared = MODULE["ENGINE_REF"]
     validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
     if damage == "repository-only":
-        bom["components"] = [item for item in bom["components"] if item["type"] != "application"]
+        bom["components"] = [item for item in bom["components"] if item["bom-ref"] not in MODULE["PRODUCTS"]]
     elif damage == "detached":
-        links[0]["dependsOn"].pop()
+        links[0]["dependsOn"].remove("vpn-shop")
     elif damage == "missing-engine":
         links[2]["dependsOn"].remove(shared)
     elif damage == "missing-abi":
@@ -253,6 +268,38 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
         root["name"] = "/src"
     with pytest.raises(ValueError):
         validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("manifest", [
+    "services/backend/requirements.txt", "services/support-pro/requirements.txt",
+    "apps/lucy-admin/web/package-lock.json", "apps/user-cabinet/package-lock.json",
+])
+def test_packaging_requires_each_shipped_repository_manifest(manifest):
+    bom = release_inventory()
+    bom["components"] = [item for item in bom["components"] if item["name"] != manifest]
+    bom["dependencies"] = [row for row in bom["dependencies"] if row["ref"] != manifest]
+    bom["dependencies"][0]["dependsOn"].remove(manifest)
+    with pytest.raises(ValueError, match=manifest):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("damage", ["detached", "duplicate", "empty", "wrong-ecosystem", "dangling-transitive"])
+def test_packaging_requires_connected_repository_graphs(damage):
+    bom = release_inventory()
+    manifest = "services/backend/requirements.txt"
+    links = {row["ref"]: row["dependsOn"] for row in bom["dependencies"]}
+    if damage == "detached":
+        links["root"].remove(manifest)
+    elif damage == "duplicate":
+        bom["components"].append({"name": manifest, "type": "application", "bom-ref": "duplicate"})
+    elif damage == "empty":
+        links[manifest].clear()
+    elif damage == "wrong-ecosystem":
+        links[manifest][:] = ["pkg:npm/shared@1"]
+    else:
+        links["pkg:pypi/shared@1"].append("absent-child")
+    with pytest.raises(ValueError, match="absent-child" if damage == "dangling-transitive" else manifest):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
 @pytest.mark.parametrize("damage", ["unknown-direct", "missing-component", "orphan", "other-product",

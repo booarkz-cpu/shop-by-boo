@@ -6,6 +6,12 @@ import runpy
 from pathlib import Path
 
 PRODUCTS = {"vpn-shop": "shop.remnawave.user", "vpn-client": "shop.corgi.client", "lucy-admin": "shop.remnawave.admin"}
+REPOSITORY_MANIFESTS = {
+    "services/backend/requirements.txt": "pypi",
+    "services/support-pro/requirements.txt": "pypi",
+    "apps/lucy-admin/web/package-lock.json": "npm",
+    "apps/user-cabinet/package-lock.json": "npm",
+}
 ENGINE_REF = "corgi:android:libv2ray.aar"
 ENGINE_MODULES = {"github.com/2dust/androidlibxraylite", "github.com/xtls/xray-core"}
 PROJECT_NAME = "VPN Shop by Corgi Lucy"
@@ -64,6 +70,33 @@ def require_native_inventory(components: list, links: dict) -> None:
             raise ValueError(f"Release is missing the Go source archive digest for {ref}")
 
 
+def reachable_packages(name: str, direct: set, links: dict, modules: set) -> set:
+    if not direct:
+        raise ValueError(f"Release is missing the dependency graph for {name}")
+    reached = set()
+    pending = list(direct)
+    while pending:
+        ref = pending.pop()
+        if ref in reached:
+            continue
+        if ref not in modules:
+            raise ValueError(f"Unresolved dependency in {name}: {ref}")
+        reached.add(ref)
+        pending.extend(links.get(ref, set()) - reached)
+    return reached
+
+
+def require_repository_inventory(components: list, direct: set, links: dict) -> None:
+    for manifest, ecosystem in REPOSITORY_MANIFESTS.items():
+        manifests = [item.get("bom-ref") for item in components
+                     if item.get("type") == "application" and item.get("name") == manifest]
+        if len(manifests) != 1 or manifests[0] not in direct:
+            raise ValueError(f"Release requires one linked repository manifest for {manifest}")
+        packages = {item["bom-ref"] for item in components if item.get("bom-ref")
+                    and item.get("purl", "").startswith(f"pkg:{ecosystem}/")}
+        reachable_packages(manifest, links.get(manifests[0], set()), links, packages)
+
+
 def require_maven_inventory(app: dict, direct: set, links: dict) -> None:
     name = app["name"]
     modules = set()
@@ -77,18 +110,7 @@ def require_maven_inventory(app: dict, direct: set, links: dict) -> None:
         modules.add(ref)
 
     # Only the application can depend on the shared AAR. Every Maven edge stays inside this product.
-    pending = list(direct - {ENGINE_REF})
-    if not pending:
-        raise ValueError(f"Release is missing the Maven graph for {name}")
-    reached = set()
-    while pending:
-        ref = pending.pop()
-        if ref in reached:
-            continue
-        if ref not in modules:
-            raise ValueError(f"Unresolved Maven dependency in {name}: {ref}")
-        reached.add(ref)
-        pending.extend(links.get(ref, set()) - reached)
+    reached = reachable_packages(name, direct - {ENGINE_REF}, links, modules)
     if reached != modules:
         raise ValueError(f"Release contains unreachable Maven components in {name}: {sorted(modules - reached)}")
 
@@ -107,6 +129,7 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None) 
     if expected_commit is not None and revision != expected_commit:
         raise ValueError(f"Release SBOM belongs to {revision}, expected {expected_commit}")
     root = product_root.get("bom-ref")
+    require_repository_inventory(components, links.get(root, set()), links)
     for product, name in PRODUCTS.items():
         apps = [item for item in components if item.get("type") == "application" and item.get("name") == name]
         if len(apps) != 1:

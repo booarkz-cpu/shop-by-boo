@@ -20,6 +20,12 @@ Commons Clause или без лицензии не копируется — то
 | Лицензии зависимостей | `ci.yml`, «Dependency licences»: `pip-licenses` для backend, `license-checker` для admin, miniapp, cabinet → `scripts/ci/check-licenses.py` | сильный копилефт или source-available среди поставляемых зависимостей; слабый копилефт (LGPL, MPL) для библиотеки «как есть» допустим; исключение — строка в `ALLOWED` с причиной |
 | Аудит npm | `ci.yml`, «JavaScript dependencies»: `npm audit --audit-level=high` для admin, miniapp, cabinet | уязвимость high и выше |
 
+В готовом SBOM CI и упаковщик проверяют четыре манифеста Trivy. Это `requirements.txt` backend и Support Pro,
+а также `package-lock.json` Lucy Admin Web и пользовательского кабинета, который используется и в Mini App.
+Каждый манифест должен встречаться один раз и быть связан с корнем выпуска. Проверка идёт от него по прямым
+и транзитивным зависимостям. Пустой граф, ссылка на отсутствующий пакет или пакет из другой экосистемы
+останавливают упаковку.
+
 ## Где взять SBOM конкретной версии
 
 Для опубликованного `v28.161.0` доступен артефакт `sbom` в соответствующем прогоне «Corgi Lusi CI».
