@@ -1,5 +1,7 @@
 """Regression tests for the Android release graph, licence check and local AAR attribution."""
+import base64
 import copy
+import hashlib
 import runpy
 from pathlib import Path
 
@@ -159,13 +161,13 @@ def test_native_inventory_rejects_the_unfixed_websocket_dependency():
 
 
 def test_go_source_evidence_preserves_unmodified_terms_and_ancillary_notices(tmp_path):
-    import base64
-    import hashlib
     from zipfile import ZipFile
 
     source = tmp_path / "module.zip"
-    files = {"LICENSE": b"Licence including a special exception.\r\n", "NOTICE": b"Attribution\n",
+    files = {"LICENSE": b"Licence including a special exception.\r\n", "NOTICE": b"Attribution\r\n",
+             "third_party/COPYRIGHT.txt": "Autoren ©\n".encode(), "PATENTS": b"Patent grant\n",
              "sub/COPYING": b"Additional terms.\n", "license_test.go": b"package demo\n",
+             "LICENSES/NOTICE.txt": b"Required attribution.\r\n", "LICENSES/MIT.txt": b"Licence terms.\n",
              "LICENSES/generate.py": b"print('generator')\n"}
     prefix = "example.com/demo@v1.0.0/"
     with ZipFile(source, "w") as archive:
@@ -175,17 +177,35 @@ def test_go_source_evidence_preserves_unmodified_terms_and_ancillary_notices(tmp
     expected = "h1:" + base64.b64encode(hashlib.sha256("".join(lines).encode()).digest()).decode()
     evidence, properties = MODULE["go_source_evidence"](source, prefix, expected)
     assert {x["license"]["name"]: base64.b64decode(x["license"]["text"]["content"]) for x in evidence} == {
-        path: files[path] for path in ("LICENSE", "sub/COPYING")
+        path: files[path] for path in ("LICENSE", "sub/COPYING", "LICENSES/MIT.txt")
     }
-    assert {p["name"]: p["value"] for p in properties} == {
-        f"go:source-file:sha256:{path}": hashlib.sha256(files[path]).hexdigest()
-        for path in ("LICENSE", "NOTICE", "sub/COPYING")
-    }
+    props = {p["name"]: p["value"] for p in properties}
+    notice_paths = ("NOTICE", "third_party/COPYRIGHT.txt", "PATENTS", "LICENSES/NOTICE.txt")
+    expected_props = {f"go:source-file:sha256:{path}": hashlib.sha256(files[path]).hexdigest()
+                      for path in ("LICENSE", "sub/COPYING", "LICENSES/MIT.txt", *notice_paths)}
+    expected_props.update({f"go:notice:base64:{path}": base64.b64encode(files[path]).decode("ascii")
+                           for path in notice_paths})
+    assert props == expected_props
     with pytest.raises(ValueError, match="checksum"):
         MODULE["go_source_evidence"](source, prefix, "h1:unrelated")
     with ZipFile(source, "a") as archive:
         archive.writestr(prefix + "extra.go", "package demo\n")
     with pytest.raises(ValueError, match="checksum"):
+        MODULE["go_source_evidence"](source, prefix, expected)
+
+
+def test_go_notice_in_licenses_directory_does_not_satisfy_license_requirement(tmp_path):
+    from zipfile import ZipFile
+
+    source = tmp_path / "module.zip"
+    prefix = "example.com/demo@v1.0.0/"
+    path = prefix + "LICENSES/NOTICE.txt"
+    content = b"Attribution only.\n"
+    with ZipFile(source, "w") as archive:
+        archive.writestr(path, content)
+    line = f"{hashlib.sha256(content).hexdigest()}  {path}\n".encode()
+    expected = "h1:" + base64.b64encode(hashlib.sha256(line).digest()).decode()
+    with pytest.raises(ValueError, match="No licence text"):
         MODULE["go_source_evidence"](source, prefix, expected)
 
 
@@ -225,7 +245,11 @@ def release_inventory():
     for name in ("github.com/2dust/AndroidLibXrayLite", "github.com/xtls/xray-core", "example.org/arch"):
         purl = f"pkg:golang/{name}@v1.0.0"
         modules.append({"type": "library", "name": name, "purl": purl, "bom-ref": purl,
-                        "evidence": {"licenses": [{"license": {"name": "LICENSE", "text": {"content": "Terms"}}}]},
+                        "evidence": {"licenses": [{"license": {"name": "LICENSE", "text": {
+                            "contentType": "text/plain", "encoding": "base64", "content": "VGVybXM="}}}]},
+                        "properties": [{"name": "go:source-file:sha256:LICENSE", "value": hashlib.sha256(b"Terms").hexdigest()},
+                                       {"name": "go:source-file:sha256:NOTICE", "value": hashlib.sha256(b"Credit").hexdigest()},
+                                       {"name": "go:notice:base64:NOTICE", "value": "Q3JlZGl0"}],
                         "externalReferences": [{"type": "distribution", "url": "https://example.org/module.zip",
                                                 "hashes": [{"alg": "SHA-256", "content": "2" * 64}]}]})
     links = [{"ref": "root", "dependsOn": [app["bom-ref"] for app in apps]},
@@ -425,6 +449,56 @@ def test_packaging_rejects_incomplete_native_inventory(damage):
     else:
         del components[extra]["externalReferences"][0]["hashes"]
     with pytest.raises(ValueError):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("damage", ["notice-absent", "notice-changed", "notice-invalid-base64", "licence-changed",
+                                    "licence-wrong-encoding", "hash-absent", "duplicate-hash", "duplicate-notice"])
+def test_packaging_requires_the_exact_go_licence_and_notice_bytes(damage):
+    bom = release_inventory()
+    component = next(c for c in bom["components"] if c["name"] == "example.org/arch")
+    licence = component["evidence"]["licenses"][0]["license"]
+    properties = component["properties"]
+    digest, notice_digest, notice = properties
+    if damage == "notice-absent":
+        properties.remove(notice)
+    elif damage == "notice-changed":
+        notice["value"] = base64.b64encode(b"Other credit").decode("ascii")
+    elif damage == "notice-invalid-base64":
+        notice["value"] += "***"
+    elif damage == "licence-changed":
+        licence["text"]["content"] = notice["value"]
+    elif damage == "licence-wrong-encoding":
+        del licence["text"]["encoding"]
+    elif damage == "hash-absent":
+        properties.remove(notice_digest)
+    elif damage == "duplicate-hash":
+        properties.append(digest.copy())
+    else:
+        properties.append(notice.copy())
+    with pytest.raises(ValueError):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize(("original", "misclassified"), [
+    ("LICENSE", "LICENSES/NOTICE.txt"),
+    ("LICENSE", "third_party/COPYRIGHT.md"),
+    ("LICENSE", "PATENTS"),
+    ("LICENSE", "license_test.go"),
+    ("NOTICE", "LICENSES/MIT.txt"),
+])
+def test_packaging_checks_the_role_of_each_go_source_file(original, misclassified):
+    bom = release_inventory()
+    module = next(c for c in bom["components"] if c["name"] == "example.org/arch")
+    for entry in module["evidence"]["licenses"]:
+        if entry["license"]["name"] == original:
+            entry["license"]["name"] = misclassified
+    # Keep the bytes and their matching digest intact. Only their declared role is wrong.
+    for prop in module["properties"]:
+        prefix, _, path = prop["name"].rpartition(":")
+        if path == original:
+            prop["name"] = f"{prefix}:{misclassified}"
+    with pytest.raises(ValueError, match="Go (licence evidence|notice path)"):
         MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 

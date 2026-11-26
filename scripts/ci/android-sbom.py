@@ -77,20 +77,17 @@ def go_source_evidence(archive_path, prefix, expected_sum):
             checksum.update(f"{digest}  {name}\n".encode())
             if name.endswith("/"):
                 continue
-            filename = relative.rsplit("/", 1)[-1]
-            if Path(filename).suffix.lower() in {".go", ".c", ".h", ".py", ".sh", ".js", ".java"}:
+            kind = CONTRACT["go_source_file_kind"](relative)
+            if kind is None:
                 continue
-            is_license = (re.fullmatch(r"(?:licen[cs]e|copying|unlicen[cs]e)(?:[._-].+)?"
-                                       r"|(?:MIT|BSD|APACHE)[_-]LICEN[CS]E(?:[._-].+)?", filename, re.I)
-                          or "/licenses/" in f"/{relative.lower()}/")
-            is_notice = re.fullmatch(r"(?:notice|patents|copyright)(?:[._-].+)?", filename, re.I)
-            if is_license or is_notice:
-                properties.append({"name": f"go:source-file:sha256:{relative}", "value": digest})
-            if is_license:
-                data = archive.read(name)
-                if not data.strip() or b"\x00" in data:
-                    raise ValueError(f"Invalid licence text in {prefix}{relative}")
-                content = base64.b64encode(data).decode("ascii")
+            data = archive.read(name)
+            if not data.strip() or b"\x00" in data:
+                raise ValueError(f"Invalid licence or notice text in {prefix}{relative}")
+            content = base64.b64encode(data).decode("ascii")
+            properties.append({"name": CONTRACT["GO_SOURCE_DIGEST"] + relative, "value": digest})
+            if kind == "notice":
+                properties.append({"name": CONTRACT["GO_NOTICE_TEXT"] + relative, "value": content})
+            else:
                 licenses.append({"license": {"name": relative, "text": {
                     "contentType": "text/plain", "encoding": "base64", "content": content}}})
     calculated = "h1:" + base64.b64encode(checksum.digest()).decode("ascii")
