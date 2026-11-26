@@ -31,11 +31,33 @@ git -C "$WORK" fetch -q --depth 1 origin "$COMMIT"
 git -C "$WORK" checkout -q FETCH_HEAD
 cd "$WORK"
 [[ "$(git rev-parse HEAD)" == "$COMMIT" ]] || { echo "Fetched source does not match $COMMIT" >&2; exit 1; }
+# Build in a fresh export so a failed dependency update cannot alter the cached checkout or the next run.
+staged_source="$(mktemp -d "${RUNNER_TEMP:-/tmp}/xray-aar-source.XXXXXXXX")"
+trap 'rm -rf "$staged_source"' EXIT
+git archive "$COMMIT" | tar -xf - -C "$staged_source"
+cd "$staged_source"
 export PATH="$(go env GOPATH)/bin:$PATH"
 go install "golang.org/x/mobile/cmd/gomobile@${MOBILE_VERSION}"
 go install "golang.org/x/mobile/cmd/gobind@${MOBILE_VERSION}"
 gomobile init
 go mod download
+# The latest stable Gorilla tag v1.5.3 predates its mask-key fix (GO-2026-6278).
+# Only replace that selected version. Preserve a future upstream upgrade or removal.
+ws_module=github.com/gorilla/websocket
+ws_selected="$(go list -mod=readonly -m -f '{{if not .Replace}}{{.Path}} {{.Version}}{{end}}' all |
+  awk -v name="$ws_module" '$1 == name {print $2}')"
+if [[ "$ws_selected" == v1.5.3 ]]; then
+  ws_fixed=v1.5.4-0.20240701034025-d67f41855da4
+  ws_sum='h1:PYKzliEgITjLJoJqbV90S0YRaG8LNAsICH6fp6MApC0='
+  ws_mod_sum='h1:r4w70xmWCQKmi1ONH4KIaBptdivuRPyosB9RmPlGEwA='
+  go mod edit -require="$ws_module@$ws_fixed"
+  go mod download "$ws_module@$ws_fixed"
+  resolved="$(go list -mod=readonly -m -f '{{.Version}} {{.Sum}} {{.GoModSum}}{{if .Replace}} replaced{{end}}' "$ws_module")"
+  if [[ "$resolved" != "$ws_fixed $ws_sum $ws_mod_sum" ]]; then
+    echo "Unexpected version or checksum for $ws_module" >&2
+    exit 1
+  fi
+fi
 gomobile bind -v -target=android -androidapi 26 -trimpath -ldflags='-s -w -buildid= -checklinkname=0' -o libv2ray.aar ./
 python3 "$CHECK" stamp "$COMMIT" libv2ray.aar
 mkdir -p "$OUT"
