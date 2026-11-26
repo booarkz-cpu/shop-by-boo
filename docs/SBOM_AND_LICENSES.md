@@ -24,11 +24,11 @@ Commons Clause или без лицензии не копируется — то
 
 Для опубликованного `v28.161.0` доступен артефакт `sbom` в соответствующем прогоне «Corgi Lusi CI».
 Для следующего выпуска `publish-release.yml` берёт проверенный файл из CI текущего коммита `main`.
-Рядом с ZIP дистрибутива публикуются файл с тем же базовым именем и расширением `.cdx.json`
-и его отдельная контрольная сумма `.cdx.json.sha256`. Имя, размер в байтах и SHA-256 SBOM
-также записаны в поле `sbom` отдельного манифеста выпуска. Проверка должна одновременно
-подтвердить файл `.sha256` и значение `sbom.sha256`, чтобы повреждение любого одного источника
-не прошло незамеченным.
+CI сохраняет `sbom.cdx.json` и `sbom.cdx.json.sha256` вместе. Издатель скачивает их по ID успешного
+прогона и сверяет контрольную сумму перед упаковкой. Для выпуска используются имена
+`remnawave_vpn_shop_<версия>_sbom.cdx.json` и `remnawave_vpn_shop_<версия>_sbom.cdx.json.sha256`.
+Имя JSON, размер в байтах и SHA-256 записываются также в поле `sbom` манифеста.
+Проверить скачанную пару можно командой `sha256sum -c <имя-файла>.cdx.json.sha256`.
 Порядок публикации описан в [RELEASE_PROCESS.md](RELEASE_PROCESS.md).
 
 ## Android
@@ -71,3 +71,20 @@ REQ-DOC-0036 также нужны полный release-граф Gradle, про�
 модулей может различаться между ABI.
 Сохранённый файл проверяется командой `python scripts/ci/check-sbom.py --release <файл>` в окружении
 с зависимостями валидатора из workflow. Для проверки исходного Trivy SBOM используется режим без `--release`.
+
+`scripts/ci/merge-cyclonedx.py` сопоставляет записи сканера по PURL, CPE или координатам и переносит
+ссылки в отчётах об уязвимостях на итоговые компоненты. Метка времени соответствует коммиту,
+серийный номер зависит от окончательного содержимого. Одноимённые Maven-компоненты в разных приложениях
+сохраняют свои связи и лицензии из конкретного разрешения Gradle.
+
+### Именованные условия Android
+
+| Условия в Maven POM | Где обнаружены в графе | Условия издателя |
+| --- | --- | --- |
+| Android Software Development Kit License | VPN Shop и Corgi Lucy Client | [Android SDK](https://developer.android.com/studio/terms.html) |
+| ML Kit Terms of Service | Corgi Lucy Client, включая Google code scanner | [ML Kit Terms & Privacy](https://developers.google.com/ml-kit/terms) |
+| Play Core Software Development Kit Terms of Service | VPN Shop | [Google Play Core](https://developer.android.com/guide/playcore) |
+| Play Integrity API Terms of Service | VPN Shop | [Play Integrity](https://developer.android.com/google/play/integrity/terms) |
+
+Перед выпуском сопоставьте названия и версии из SBOM с распространяемыми APK/AAB и сведениями
+о данных для выбранного магазина. В `v28.161.0` отдельный файл SBOM выпуска ещё не публиковался.

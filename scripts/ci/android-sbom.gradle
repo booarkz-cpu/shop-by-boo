@@ -23,6 +23,7 @@ rootProject { root ->
             def output = app.layout.buildDirectory.dir('reports/cyclonedx-direct')
             app.tasks.named('cyclonedxDirectBom') {
                 includeConfigs = [config.name]
+                includeLicenseText = false
                 failOnUnresolvedDependencies = true
                 schemaVersion = Version.VERSION_17
                 projectType = Component.Type.APPLICATION

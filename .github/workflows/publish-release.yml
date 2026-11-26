@@ -55,7 +55,9 @@ jobs:
           python3 scripts/audit/check_release_changelog.py
           python3 scripts/audit/requirements_register.py --check
           python3 scripts/audit/check_release_readiness.py --new-release-only
-          python3 scripts/package-distribution.py --ci-run "$VERIFIED_CI_URL" --sbom "$RUNNER_TEMP/release-sbom/sbom.cdx.json"
+          python3 scripts/package-distribution.py --ci-run "$VERIFIED_CI_URL" \
+            --sbom "$RUNNER_TEMP/release-sbom/sbom.cdx.json" \
+            --sbom-checksum "$RUNNER_TEMP/release-sbom/sbom.cdx.json.sha256"
       - name: Publish verified files and dispatch tagged Docker
         if: steps.gate.outputs.ready == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

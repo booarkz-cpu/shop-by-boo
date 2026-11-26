@@ -17,6 +17,7 @@ from license_expression import AND, OR, ExpressionError, get_spdx_licensing
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = runpy.run_path(str(ROOT / "scripts/ci/check-sbom.py"))
+CYCLONEDX = runpy.run_path(str(ROOT / "scripts/ci/merge-cyclonedx.py"))
 PRODUCTS = CONTRACT["PRODUCTS"]
 LICENCE = runpy.run_path(str(ROOT / "scripts/ci/check-licenses.py"))
 XRAY = runpy.run_path(str(ROOT / "scripts/mobile/xray-artifact.py"))
@@ -275,9 +276,20 @@ def main():
     for product in PRODUCTS:
         folder = ROOT / "apps" / product / "android/app/build/reports/cyclonedx-direct"
         inputs[product] = (validate_schema((folder / "bom.json").read_text()), json.loads((folder / "resolution.json").read_text()))
-    source_revision = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT, text=True).strip()
-    result = combine(json.loads(args.repository.read_text()), inputs, aar, commit, source_revision)
-    args.output.write_text(json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n")
+    source_revision, epoch = subprocess.check_output(["git", "show", "-s", "--format=%H %ct", "HEAD"],
+                                                     cwd=ROOT, text=True).split()
+    scanned = json.loads(args.repository.read_text())
+    # Trivy supplies random IDs and uses the checkout directory as the product name.
+    scanned["metadata"]["component"].update(name=CONTRACT["PROJECT_NAME"], version=source_revision)
+    repository = CYCLONEDX["merge_documents"]([scanned], source_date_epoch=int(epoch))
+    result = combine(repository, inputs, aar, commit, source_revision)
+    for prop in result["metadata"]["properties"]:
+        if prop["name"] == "shop-by-boo:sbom:input-count":
+            prop["value"] = str(1 + len(inputs))
+        elif prop["name"] == "shop-by-boo:sbom:android-graphs":
+            prop["value"] = str(len(inputs))
+    CYCLONEDX["set_identity"](result, int(epoch))
+    CYCLONEDX["write_bom"](result, args.output)
     for product, (bom, _) in inputs.items():
         print(f"{product}: {len(bom['components'])} Maven components, release dependency graph verified")
 

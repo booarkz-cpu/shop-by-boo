@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2765**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2767**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1851,6 +1851,7 @@
 | [scripts/ci/gradle-warm.sh](../scripts/ci/gradle-warm.sh) | Эксплуатация и релиз |
 | [scripts/ci/k6-summary.py](../scripts/ci/k6-summary.py) | Эксплуатация и релиз |
 | [scripts/ci/masque-check.sh](../scripts/ci/masque-check.sh) | Эксплуатация и релиз |
+| [scripts/ci/merge-cyclonedx.py](../scripts/ci/merge-cyclonedx.py) | Эксплуатация и релиз |
 | [scripts/ci/mtproto-check.sh](../scripts/ci/mtproto-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/netmods-check.sh](../scripts/ci/netmods-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/node-port-guard.sh](../scripts/ci/node-port-guard.sh) | Эксплуатация и релиз |
@@ -2667,6 +2668,7 @@
 | [tests/test_sandbox_provider_selection.py](../tests/test_sandbox_provider_selection.py) | Проверки |
 | [tests/test_sandbox_refund_regression.py](../tests/test_sandbox_refund_regression.py) | Проверки |
 | [tests/test_sandbox_without_gateways.py](../tests/test_sandbox_without_gateways.py) | Проверки |
+| [tests/test_sbom_release.py](../tests/test_sbom_release.py) | Проверки |
 | [tests/test_schema_matches_migrations.py](../tests/test_schema_matches_migrations.py) | Проверки |
 | [tests/test_screenshots.py](../tests/test_screenshots.py) | Проверки |
 | [tests/test_secret_leak_check.py](../tests/test_secret_leak_check.py) | Проверки |

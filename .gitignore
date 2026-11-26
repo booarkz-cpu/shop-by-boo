@@ -80,7 +80,8 @@ DerivedData/
 # Generated source-release files belong in GitHub Release assets.
 /remnawave_vpn_shop_*_full_release.zip
 /remnawave_vpn_shop_*_full_release.zip.sha256
-/remnawave_vpn_shop_*_full_release.cdx.json
+/remnawave_vpn_shop_*_sbom.cdx.json
+/remnawave_vpn_shop_*_sbom.cdx.json.sha256
 /remnawave_vpn_shop_*_full_release_manifest.json
 
 # Next.js

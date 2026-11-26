@@ -904,7 +904,9 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sbom
-          path: ${{ runner.temp }}/release-sbom/sbom.cdx.json
+          path: |
+            ${{ runner.temp }}/release-sbom/sbom.cdx.json
+            ${{ runner.temp }}/release-sbom/sbom.cdx.json.sha256
           if-no-files-found: error
           retention-days: 90
 

@@ -10,8 +10,7 @@ const {requireVerifiedMain} = require('../scripts/release-gate.cjs');
 const SHA = 'a'.repeat(40), TAG = 'v28.34.0';
 const ARTIFACT = 'remnawave_vpn_shop_v28_34_0_full_release.zip';
 const MANIFEST = ARTIFACT.replace('.zip', '_manifest.json');
-const SBOM = ARTIFACT.replace('.zip', '.cdx.json');
-const SBOM_CHECKSUM = SBOM + '.sha256';
+const SBOM = ARTIFACT.replace('_full_release.zip', '_sbom.cdx.json');
 const digest = data => 'sha256:' + crypto.createHash('sha256').update(data).digest('hex');
 const notFound = () => Object.assign(new Error('Not found'), {status: 404});
 
@@ -108,9 +107,10 @@ function fixture(t) {
   fs.writeFileSync(path.join(root, 'release-manifest.template.json'), JSON.stringify(template));
   fs.writeFileSync(path.join(root, ARTIFACT), zip);
   fs.writeFileSync(path.join(root, ARTIFACT + '.sha256'), `${sha256}  ${ARTIFACT}\n`);
-  const bom = Buffer.from(JSON.stringify({bomFormat: 'CycloneDX', specVersion: '1.7', components: [{name: 'test', type: 'library'}]}));
+  const bom = Buffer.from(JSON.stringify({bomFormat: 'CycloneDX', specVersion: '1.7', metadata: {component: {version: SHA}},
+    components: [{name: 'test', type: 'library'}], dependencies: []}));
   fs.writeFileSync(path.join(root, SBOM), bom);
-  fs.writeFileSync(path.join(root, SBOM_CHECKSUM), `${digest(bom).slice(7)}  ${SBOM}\n`);
+  fs.writeFileSync(path.join(root, SBOM + '.sha256'), `${digest(bom).slice(7)}  ${SBOM}\n`);
   fs.writeFileSync(path.join(root, MANIFEST), JSON.stringify({...template, commit: SHA, sha256,
     sbom: {name: SBOM, size: bom.length, sha256: digest(bom).slice(7)}}));
   fs.writeFileSync(path.join(root, 'notes.md'), 'Release notes');
@@ -202,11 +202,12 @@ test('SBOM drift, even at the same size, stops publication before tag creation',
   assert.equal(state.uploads, 0);
 });
 
-test('an invalid detached SBOM checksum stops publication before tag creation', async t => {
+test('an invalid SBOM checksum never creates a tag or release', async t => {
   const {state, args} = fixture(t);
-  fs.writeFileSync(path.join(args.root, SBOM_CHECKSUM), `${'0'.repeat(64)}  ${SBOM}\n`);
-  await assert.rejects(publish(args), /Invalid SBOM checksum file/);
+  fs.writeFileSync(path.join(args.root, SBOM + '.sha256'), `${'0'.repeat(64)}  ${SBOM}\n`);
+  await assert.rejects(publish(args), /Invalid SBOM checksum/);
   assert.equal(state.ref, null);
+  assert.equal(state.release, null);
   assert.equal(state.uploads, 0);
 });
 
