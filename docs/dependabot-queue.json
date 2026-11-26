@@ -1,19 +1,7 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T11:40:29.613Z",
-  "active": {
-    "number": 484,
-    "ref": "dependabot/gradle/apps/vpn-client/android/android-client-minor-546a37b3a6",
-    "sha": "644fbf81625dc0a4efe2641e258a46ea3609f5d4",
-    "title": "build(deps): bump com.android.application from 9.5.2 to 9.5.3 in /apps/vpn-client/android in the android-client-minor group across 1 directory",
-    "ecosystem": "gradle",
-    "security": false,
-    "createdAt": "2026-11-26T08:42:22Z",
-    "status": "active",
-    "attempts": 0,
-    "conflicts": 0,
-    "note": ""
-  },
+  "updatedAt": "2026-11-26T12:26:37.762Z",
+  "active": null,
   "deferred": [
     {
       "number": 481,
