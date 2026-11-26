@@ -146,3 +146,51 @@ def test_reordered_scanner_aliases_do_not_change_the_release_identity():
     result = builder.merge_documents([bom(root, aliases, edges)], source_date_epoch=1)
     assert len(result["components"]) == 1
     assert builder.merge_documents([bom(root, aliases[::-1], edges)], source_date_epoch=1) == result
+
+
+
+def test_equal_package_versions_preserve_distinct_resolved_dependencies():
+    builder = load_script()
+
+    def scan(prefix):
+        def ref(name):
+            return prefix + name
+
+        apps = [{"type": "application", "name": f"{name}/package-lock.json", "bom-ref": ref(name)}
+                for name in ("admin", "cabinet")]
+        components = list(apps)
+        edges = [{"ref": ref("repo"), "dependsOn": [app["bom-ref"] for app in apps]}]
+        for name in ("admin", "cabinet"):
+            for package in ("wrapper", "next", "react"):
+                components.append(component(ref(name + package), package, "1", f"pkg:npm/{package}@1"))
+            edges.append({"ref": ref(name), "dependsOn": [ref(name + "wrapper")]})
+            edges.append({"ref": ref(name + "wrapper"), "dependsOn": [ref(name + "next")]})
+            children = [ref(name + "react"), ref(name + "wrapper")]
+            if name == "admin":
+                children.append(ref("playwright"))
+            edges.append({"ref": ref(name + "next"), "dependsOn": children})
+        components.append(component(ref("playwright"), "playwright", "1", "pkg:npm/playwright@1"))
+        report = bom({"type": "application", "name": "repo", "bom-ref": ref("repo")}, components, edges)
+        report["vulnerabilities"] = [{"id": "sample", "affects": [{"ref": ref("adminnext")}]}]
+        return report
+
+    report = builder.merge_documents([scan("first-")], source_date_epoch=1)
+    reordered = scan("fresh-")
+    reordered["components"].reverse()
+    reordered["dependencies"].reverse()
+    assert builder.merge_documents([reordered], source_date_epoch=1) == report
+
+    nodes = {item["bom-ref"]: item for item in report["components"]}
+    links = {row["ref"]: row["dependsOn"] for row in report["dependencies"]}
+    next_refs = {}
+    for app in ("admin", "cabinet"):
+        manifest, = [ref for ref, item in nodes.items() if item["name"] == f"{app}/package-lock.json"]
+        wrapper, = links[manifest]
+        next_ref, = links[wrapper]
+        next_refs[app] = next_ref
+        children = {nodes[child]["name"] for child in links[next_ref]}
+        assert children == ({"react", "wrapper", "playwright"} if app == "admin" else {"react", "wrapper"})
+        assert wrapper in links[next_ref]
+    assert next_refs["admin"] != next_refs["cabinet"]
+    assert report["vulnerabilities"][0]["affects"] == [{"ref": next_refs["admin"]}]
+    assert sum(item["name"] == "react" for item in nodes.values()) == 1
