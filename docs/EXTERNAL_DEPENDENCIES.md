@@ -138,7 +138,7 @@
 | Support Pro runtime | FastAPI 0.165.0; SQLAlchemy 2.1.9; aiogram 3.33.0; Pydantic 2.14.4 / core 2.50.5; OpenTelemetry API 1.45.2 | закреплённый Python 3.15 dependency graph; unit/integration, Alembic, PostgreSQL/Redis и container tests |
 | Node.js | 26 LTS (CI и образы) | admin, cabinet, miniapp |
 | Web runtime и тесты | Next.js 16.4.6, React 19.3.1, TypeScript 7.0.2, Playwright 1.65.1, jsdom 31.0.1 | Lucy Admin, кабинет и Telegram Mini App |
-| lucide-react в Lucy Admin Web | 1.78.0 | [Lockfile панели](../apps/lucy-admin/web/package-lock.json) |
+| lucide-react в Lucy Admin Web | 1.81.0 | [Lockfile панели](../apps/lucy-admin/web/package-lock.json) |
 | lucide-react в кабинете и Telegram Mini App | 1.77.0 | [Общий lockfile кабинета и Mini App](../apps/user-cabinet/package-lock.json) |
 | ruff | 0.17.3 | lint |
 | pytest | 9.1.1 | тесты |
