@@ -149,9 +149,37 @@ async function dispatchRetry(github, repo, pull, retry) {
   return true;
 }
 
+// Closing a queued update can also delete its branch. GitHub retains the PR's
+// head SHA. Only create an absent ref when both records identify the same head.
+async function restoreDeletedHead(github, repo, item, pull) {
+  if (pull.head.repo?.full_name !== `${repo.owner}/${repo.repo}` ||
+      pull.head.sha !== item.sha || !/^[0-9a-f]{40}$/.test(item.sha)) return false;
+  const target = {...repo, ref: `heads/${item.ref}`};
+  try {
+    await github.rest.git.getRef(target);
+    return false;
+  } catch (error) {
+    if (error.status !== 404) throw error;
+  }
+  let createError;
+  try {
+    await github.rest.git.createRef({...repo, ref: `refs/${target.ref}`, sha: item.sha});
+  } catch (error) {
+    createError = error;
+  }
+  // A competing creation or a lost response is safe only at the original SHA.
+  try {
+    const {data} = await github.rest.git.getRef(target);
+    return data.object.sha === item.sha;
+  } catch (error) {
+    if (error.status === 404 && createError?.status === 422) return false;
+    throw createError || error;
+  }
+}
+
 // A human can open a PR after intake. Re-read membership just before changing
 // it. If GitHub loses the PATCH response, the pull detail resolves the outcome.
-async function reopenQueuedPull(github, repo, item) {
+async function reopenQueuedPull(github, repo, item, mayRestore = true) {
   const {data: open} = await github.rest.pulls.list({...repo, state: 'open', per_page: 1});
   if (open.length) return 'busy';
   const target = {...repo, pull_number: item.number};
@@ -167,7 +195,12 @@ async function reopenQueuedPull(github, repo, item) {
   }
   if (pull.state === 'open') return 'open';
   if (pull.state === 'closed' && pull.merged === true) return 'merged';
-  if (pull.state === 'closed' && pull.merged === false && patchError?.status === 422) return 'refused';
+  if (pull.state === 'closed' && pull.merged === false && patchError?.status === 422) {
+    if (mayRestore && await restoreDeletedHead(github, repo, item, pull)) {
+      return reopenQueuedPull(github, repo, item, false);
+    }
+    return 'refused';
+  }
   throw patchError || new Error(`Unconfirmed reopen for #${item.number}`);
 }
 

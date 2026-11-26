@@ -3,6 +3,7 @@ import asyncio
 import os
 import uuid
 import importlib.util
+from contextlib import asynccontextmanager
 from pathlib import Path
 from datetime import datetime,timedelta
 from decimal import Decimal
@@ -13,9 +14,19 @@ from fastapi import HTTPException
 from sqlalchemy import select,func,text
 from sqlalchemy.ext.asyncio import AsyncSession,create_async_engine
 from starlette.requests import Request
+from app import ad_postbacks
 from app import main as shop
 from app import subscription_commerce as commerce
 from app.models import Base,User,Plan,Subscription,TrafficPackage,Payment,EntitlementOperation,EntitlementQuote,FinancialLedger
+
+@asynccontextmanager
+async def isolated_payment_background(_engine, monkeypatch):
+    # Advertising conversions have their own contract tests.  Keeping that
+    # fire-and-forget callback out of commerce fixtures prevents an unrelated
+    # session from sharing the single in-memory SQLite connection or outliving
+    # a temporary PostgreSQL schema.
+    monkeypatch.setattr(ad_postbacks,'fire',lambda *args,**kwargs:None)
+    yield
 
 @pytest_asyncio.fixture(params=['sqlite','postgres'])
 async def database(monkeypatch,request):
@@ -56,7 +67,8 @@ async def database(monkeypatch,request):
         monkeypatch.setattr(shop,'maintenance_enabled',maintenance)
         monkeypatch.setattr(shop,'feature_enabled',flag)
         monkeypatch.setattr(shop,'_risk_score',risk)
-        yield db
+        async with isolated_payment_background(engine, monkeypatch):
+            yield db
     await engine.dispose()
     if root:
         async with root.begin() as conn:await conn.execute(text(f'DROP SCHEMA {schema} CASCADE'))

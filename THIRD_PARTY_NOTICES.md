@@ -20,6 +20,11 @@
 
 Поле `license` в lock-файле помогает составить список, но не заменяет полный LICENSE/COPYING установленного пакета. Проверяйте пакет из закреплённой версии, сохраняйте полный текст и copyright, а не только короткое имя лицензии. Установленные в тестовой среде версии не обязательно совпадают с production lock-файлом.
 
+Для выпускного CycloneDX состава CI использует
+[CycloneDX Gradle Plugin 3.6.1](https://plugins.gradle.org/plugin/org.cyclonedx.bom/3.6.1), Apache-2.0.
+Это инструмент сборки: он разрешает прямые и транзитивные графы трёх Android-приложений и в APK/AAB не входит.
+Версия закреплена в `scripts/ci/android-sbom.gradle`. Издатель проверяет полный JSON и отдельный файл SHA-256 перед публикацией.
+
 ## PostgreSQL 19.0
 
 Контейнеры магазина, Support Pro и тестовых профилей используют официальный образ
@@ -67,8 +72,10 @@ shadcn-совместимые компоненты используют Radix To
 Сборки клиентского приложения Android с встроенным VPN включают `libv2ray.aar`. Библиотеку собирает `scripts/mobile/build-xray-aar.sh` из закреплённой ревизии исходников:
 
 - [Xray-core](https://github.com/XTLS/Xray-core) — MPL-2.0;
-- [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) — LGPL-3.0, обвязка gomobile, тег `v26.11.9`, ревизия `b5a377087e74eaa34e86718710b04c50f4b767f5`;
+- [AndroidLibXrayLite](https://github.com/2dust/AndroidLibXrayLite) — LGPL-3.0, обвязка gomobile, тег `v26.11.26`, ревизия `e23aca42e775ea9c31dc4e37a3472927caa3b9cf`;
 - [golang.org/x/mobile](https://pkg.go.dev/golang.org/x/mobile) — BSD-3-Clause, toolchain `gomobile`/`gobind` закреплён на `v0.0.0-20261011034528-197770444867`.
+
+Сборка проекта заменяет зависимость Gorilla WebSocket 1.5.3 из AndroidLibXrayLite на ревизию `d67f41855da42d7bccd9ef050c49f7e54e783b95` с исправлением GO-2026-6278. Модуль распространяется по BSD-2-Clause, Copyright © 2013 The Gorilla WebSocket Authors. Сборка проверяет контрольные суммы исходников модуля и его `go.mod`. SBOM фиксирует версию и лицензию, извлечённые по составу нативных библиотек. [Исправление Gorilla WebSocket](https://github.com/gorilla/websocket/commit/d67f41855da42d7bccd9ef050c49f7e54e783b95) · [Лицензия](https://github.com/gorilla/websocket/blob/d67f41855da42d7bccd9ef050c49f7e54e783b95/LICENSE)
 
 Библиотека лежит в APK отдельным файлом (`libgojni.so`) и подключается к приложению без статической линковки, поэтому её можно заменить, как требует LGPL. При распространении APK приложите тексты MPL-2.0 и LGPL-3.0 и ссылку на исходники закреплённой ревизии. Код sing-box (GPL-3.0) в приложение не включается: GPL несовместима с коммерческой лицензией приложения. Сборка без `libv2ray.aar` подключается через Happ, v2rayNG или Hiddify и сторонних VPN-библиотек не содержит.
 
@@ -89,7 +96,7 @@ shadcn-совместимые компоненты используют Radix To
 - [legiz-ru/Orion](https://github.com/legiz-ru/Orion) — MIT, Copyright (c) 2025 legiz-ru. Шаблон страницы подписки Remnawave (v28.77.0). Не входит в дистрибутив: мастер скачивает `index.html` закреплённого коммита `d232def6a6c11e37aeeb76ebfb1ee8eb5eb8b5bd`, сверяет SHA-256 и записывает на сервер страницы подписки только по выбору администратора.
 - [tinyauthapp/tinyauth](https://github.com/tinyauthapp/tinyauth) — GPL-3.0. Портал входа перед страницами панели Remnawave (v28.86.0). Не входит в дистрибутив и не связывается с кодом магазина: мастер установки запускает отдельный контейнер `ghcr.io/tinyauthapp/tinyauth:v5.2.0`, закреплённый по SHA-256, только по выбору администратора («Доступ к панели → Вход через TinyAuth»). Идея — модуль `tinyauth.sh` из eGamesAPI/remnawave-reverse-proxy (MIT, Copyright (c) 2025 eGames); конфигурация Caddy (`forward_auth`) написана для магазина.
 - [zxing/zxing](https://github.com/zxing/zxing) core 3.5.3 — Apache-2.0. Рисование QR-кода подписки в приложении «Корги Люси: клиент» (v28.86.0).
-- Google code scanner (`play-services-code-scanner`) — условия Google Play services. Сканирование QR без разрешения камеры в приложении «Корги Люси: клиент»; код в дистрибутив не входит, подключается из Google Maven при сборке.
+- Google code scanner (`play-services-code-scanner`) сканирует QR без разрешения камеры в приложении «Корги Люси: клиент». Gradle получает библиотеку из Google Maven. Классы клиентского API входят в собранный Android-пакет. Декларации и ссылки на условия приведены в [составе Android](docs/SBOM_AND_LICENSES.md).
 
 ## Сводная таблица: что взято извне и на каких условиях (редакция лицензии 2.9, 2026-11-07)
 

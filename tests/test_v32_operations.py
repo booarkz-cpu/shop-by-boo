@@ -38,7 +38,19 @@ def test_build_stage_images_are_pinnable():
     assert compose.count(python_image) == 4
     for script in ('install-vps.sh', 'resume-vps-after-pin.sh'):
         deployment = read(ROOT/'infrastructure/deployment'/script)
-        assert 'resolve_build python:3.15-slim' in deployment
-        assert 'resolve_build python:3.14-slim' not in deployment
-    assert 'ARG NODE_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
-    assert 'ARG NGINX_BASE_IMAGE' in read(ROOT/'apps/lucy-admin/web/Dockerfile')
+        assert 'bash scripts/pin-images.sh' in deployment
+        assert 'resolve_build' not in deployment
+    node_image = 'node:26.13.1-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5'
+    assert compose.count(node_image) == 3
+    for dockerfile in (
+        'apps/lucy-admin/web/Dockerfile',
+        'apps/user-cabinet/Dockerfile',
+        'apps/telegram-mini-app/Dockerfile',
+    ):
+        text = read(ROOT/dockerfile)
+        assert text.count(node_image) == 1
+        assert 'ARG NODE_BASE_IMAGE' in text
+        assert 'ARG NGINX_BASE_IMAGE' in text
+    dependencies = read(ROOT/'docs/EXTERNAL_DEPENDENCIES.md')
+    node_digest = node_image.rsplit("@sha256:", 1)[1]
+    assert f"| Сборка трёх веб-приложений | Node.js 26.13.1 | `{node_digest}` |" in dependencies

@@ -49,9 +49,10 @@ def test_admin_apps_show_launch_readiness_and_alerts():
         assert all(catalog[lang].get(k) for k in ("launch", "launch_ready", "launch_missing", "alerts_test", "no_problems"))
 
 
-def test_apps_are_version_3_1_0():
+def test_native_shop_and_admin_versions_match():
     for gradle in ("apps/vpn-shop/android/app/build.gradle.kts", "apps/lucy-admin/android/app/build.gradle.kts"):
         text = (ROOT / gradle).read_text()
-        assert "versionCode = 3900" in text and 'versionName = "3.9.0"' in text
+        assert "versionCode = 3910" in text and 'versionName = "3.9.1"' in text
     for project in ("apps/vpn-shop/ios/VpnShopUser.xcodeproj", "apps/lucy-admin/ios/VpnShopAdmin.xcodeproj"):
-        assert "MARKETING_VERSION = 3.9.0" in (ROOT / project / "project.pbxproj").read_text()
+        text = (ROOT / project / "project.pbxproj").read_text()
+        assert "MARKETING_VERSION = 3.9.1" in text and "CURRENT_PROJECT_VERSION = 3910" in text

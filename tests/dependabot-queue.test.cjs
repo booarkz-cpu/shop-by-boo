@@ -255,6 +255,65 @@ test('an uncomputed PR cannot stall independent intake or spend a retry on a lis
 // Exercise the same github-script entry point as Actions, including the two
 // durable ref updates surrounding the POST. Only GitHub and time are replaced.
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const lintScript = lint.split('      - name: At most one active pull request\n')[1]
+  .split('          script: |\n')[1].split('\n      - ')[0];
+const checkOpenPulls = new AsyncFunction('github', 'context', 'core', 'setTimeout', lintScript);
+
+async function observeLint(...snapshots) {
+  const errors = [];
+  let reads = 0, waited = 0;
+  const repo = {owner: 'owner', repo: 'shop'};
+  const list = () => {};
+  const github = {rest: {pulls: {list}}, async paginate(method, args) {
+    assert.equal(method, list);
+    assert.deepEqual(args, {...repo, state: 'open', per_page: 100});
+    const current = snapshots[Math.min(reads++, snapshots.length - 1)];
+    if (current instanceof Error) throw current;
+    return current;
+  }};
+  await checkOpenPulls(github, {repo}, {info() {}, setFailed(message) { errors.push(message); }}, (resume, ms) => {
+    assert.ok(ms > 0);
+    waited += ms;
+    resume();
+  });
+  return {reads, waited, errors};
+}
+
+test('the PR count is checked again after Dependabot serializes a batch', async () => {
+  for (const winner of [human, batch[6]]) {
+    const result = await observeLint([winner, ...batch.slice(0, 5)], [winner, batch[0]], [winner]);
+    assert.deepEqual(result.errors, []);
+    assert.equal(result.reads, 3);
+    assert.ok(result.waited > 0);
+  }
+  assert.deepEqual(await observeLint([human]), {reads: 1, waited: 0, errors: []});
+  assert.deepEqual(await observeLint([]), {reads: 1, waited: 0, errors: []});
+});
+
+test('the PR count includes drafts and rejects two non-queued PRs immediately', async () => {
+  // Neither a bot-like branch nor a bot login alone qualifies for intake.
+  for (const other of [
+    {...batch[0], draft: true, user: human.user},
+    {...batch[0], draft: true, head: {ref: 'feature/ordinary'}},
+  ]) {
+    const result = await observeLint([human, other, batch[1]]);
+    assert.equal(result.reads, 1);
+    assert.equal(result.waited, 0);
+    assert.match(result.errors[0], /#50, #1, #2/);
+  }
+});
+
+test('unresolved overlap, a newly opened ordinary PR and an unreadable list fail the gate', async () => {
+  const stalled = await observeLint([human, batch[0]]);
+  assert.equal(stalled.waited, 5 * 60 * 1000);
+  assert.match(stalled.errors[0], /#50, #1/);
+  const second = {...human, number: 51, draft: true};
+  const changed = await observeLint([human, batch[0]], [human, second]);
+  assert.equal(changed.reads, 2);
+  assert.match(changed.errors[0], /#50, #51/);
+  await assert.rejects(observeLint([human, batch[0]], new Error('unavailable')), /unavailable/);
+});
+
 const workflowScript = workflow.split('          script: |\n')[1];
 assert.ok(workflowScript);
 const intake = new AsyncFunction('github', 'context', 'core', 'require', 'process', 'Date', workflowScript);
@@ -265,7 +324,8 @@ function queueApi(initialState) {
   const writes = [];
   const posts = [];
   const mock = {runs: [ciFor(candidate)], detail: candidate, checks: badChecks, now: monday,
-    open: [candidate], closed: new Map(), reopenNumbers: [], comments: []};
+    open: [candidate], closed: new Map(), reopenNumbers: [], comments: [],
+    heads: new Map(batch.map(pr => ['heads/' + pr.head.ref, pr.head.sha])), createdHeads: []};
   function commitState() {
     if (mock.failSavePhase && blob.active?.retry?.phase === mock.failSavePhase) throw new Error('ref update failed');
     state = structuredClone(blob);
@@ -274,7 +334,21 @@ function queueApi(initialState) {
   }
   const github = {rest: {
     git: {
-      getRef: async () => ({data: {object: {sha: 'parent'}}}),
+      getRef: async ({ref}) => {
+        if (ref === 'heads/automation/dependabot-queue') return {data: {object: {sha: 'parent'}}};
+        if (!mock.heads.has(ref)) throw Object.assign(new Error('ref missing'), {status: 404});
+        return {data: {object: {sha: mock.heads.get(ref)}}};
+      },
+      createRef: async ({ref, sha}) => {
+        assert.ok(ref.startsWith('refs/heads/dependabot/'));
+        mock.createdHeads.push({ref, sha});
+        const branch = ref.slice('refs/'.length);
+        mock.beforeCreateHead?.(branch);
+        if (mock.heads.has(branch)) throw Object.assign(new Error('ref exists'), {status: 422});
+        mock.heads.set(branch, sha);
+        mock.afterCreateHead?.();
+        return {data: {object: {sha}}};
+      },
       getCommit: async () => ({data: {tree: {sha: 'tree'}}}),
       getTree: async () => ({data: {tree: [{path: 'docs/dependabot-queue.json', sha: 'blob'}]}}),
       getBlob: async () => ({data: {content: Buffer.from(JSON.stringify(state)).toString('base64')}}),
@@ -294,6 +368,7 @@ function queueApi(initialState) {
         assert.equal(state.active.number, pull_number, 'save the candidate before requesting reopen');
         mock.reopenNumbers.push(pull_number);
         const pr = mock.closed.get(pull_number);
+        if (pr && !mock.heads.has('heads/' + pr.head.ref)) throw Object.assign(new Error('missing head'), {status: 422});
         if (mock.applyReopen !== false) {
           mock.closed.delete(pull_number);
           mock.open.push({...pr, state: 'open'});
@@ -472,6 +547,78 @@ test('a refused security PR stays recorded while another update can reopen, then
   assert.deepEqual(api.mock.reopenNumbers, [7, 2, 7]);
   assert.deepEqual(api.mock.comments.map(c => c.issue_number), [2, 7]);
   assert.equal(api.state().deferred.length, 0);
+});
+
+test('a deleted Dependabot branch is recreated at its recorded head before reopening', async () => {
+  const api = closedQueue();
+  const {ref, sha} = batch[6].head;
+  api.mock.heads.delete('heads/' + ref);
+  await api.run();
+  assert.deepEqual(api.mock.createdHeads, [{ref: 'refs/heads/' + ref, sha}]);
+  assert.deepEqual(api.mock.reopenNumbers, [7, 7]);
+  assert.deepEqual(api.mock.open.map(pr => pr.number), [7]);
+  assert.equal(api.state().active.sha, sha);
+  assert.equal(api.mock.comments.length, 1);
+});
+
+test('recovery does not recreate a fork or a head which differs from the recorded commit', async () => {
+  for (const difference of [{repo: {full_name: 'fork/queue'}}, {sha: 'f'.repeat(40)}]) {
+    const api = closedQueue();
+    const pr = api.mock.closed.get(7);
+    api.mock.closed.set(7, {...pr, head: {...pr.head, ...difference}});
+    api.mock.heads.delete('heads/' + pr.head.ref);
+    await api.run();
+    assert.deepEqual(api.mock.createdHeads, []);
+    assert.deepEqual(api.mock.open, []);
+    assert.ok(api.state().deferred.some(row => row.number === 7 && row.sha === batch[6].head.sha));
+  }
+});
+
+test('restoring a branch checks the current open PR and reconciles a lost create response', async () => {
+  const {ref, sha} = batch[6].head;
+  const busy = closedQueue();
+  busy.mock.heads.delete('heads/' + ref);
+  busy.mock.afterCreateHead = () => { busy.mock.freshOpen = [human]; };
+  await busy.run();
+  assert.deepEqual(busy.mock.reopenNumbers, [7]);
+  assert.deepEqual(busy.mock.open, []);
+  assert.equal(busy.mock.heads.get('heads/' + ref), sha);
+  const lost = closedQueue();
+  lost.mock.heads.delete('heads/' + ref);
+  lost.mock.afterCreateHead = () => { throw new Error('lost ref create response'); };
+  await lost.run();
+  assert.deepEqual(lost.mock.open.map(pr => pr.number), [7]);
+});
+
+test('a concurrent ref creation is used only when it matches the saved SHA', async () => {
+  const {ref, sha} = batch[6].head;
+  for (const concurrent of [sha, 'f'.repeat(40)]) {
+    const api = closedQueue();
+    api.mock.heads.delete('heads/' + ref);
+    api.mock.beforeCreateHead = branch => api.mock.heads.set(branch, concurrent);
+    await api.run();
+    assert.equal(api.mock.heads.get('heads/' + ref), concurrent);
+    assert.deepEqual(api.mock.open.map(pr => pr.number), concurrent === sha ? [7] : []);
+  }
+});
+
+test('an unconfirmed ref creation preserves intent and a second refusal keeps the cooldown', async () => {
+  const {ref} = batch[6].head;
+  const unknown = closedQueue();
+  unknown.mock.heads.delete('heads/' + ref);
+  unknown.mock.beforeCreateHead = () => { throw Object.assign(new Error('create unavailable'), {status: 503}); };
+  await assert.rejects(unknown.run(), /create unavailable/);
+  assert.equal(unknown.state().active.number, 7);
+  assert.deepEqual(unknown.mock.reopenNumbers, [7]);
+
+  const refused = closedQueue();
+  refused.mock.heads.delete('heads/' + ref);
+  refused.mock.applyReopen = false;
+  refused.mock.reopenError = Object.assign(new Error('another validation failed'), {status: 422});
+  await refused.run();
+  assert.equal(refused.mock.createdHeads.length, 1);
+  assert.deepEqual(refused.mock.reopenNumbers, [7, 7]);
+  assert.ok(refused.state().deferred.find(row => row.number === 7).reopenAfter);
 });
 
 test('reopen reconciles a lost HTTP response and stops when the result is unknown', async () => {

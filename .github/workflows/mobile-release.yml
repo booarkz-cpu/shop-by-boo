@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -33,13 +33,18 @@ jobs:
           packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
-          go-version: stable
+          go-version: '1.27.4'
           cache: false
+      - name: Identify the Android engine toolchain
+        id: xray_toolchain
+        run: |
+          key="$(bash scripts/mobile/build-xray-aar.sh --toolchain-key)"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
       - id: xray
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
+          key: xray-aar-${{ steps.xray_toolchain.outputs.key }}-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the embedded VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
@@ -68,8 +73,8 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/corgi_lusi_*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3900'" "$apk.package.txt"
-            grep -q "versionName='3.9.0'" "$apk.package.txt"
+            grep -q "versionCode='3910'" "$apk.package.txt"
+            grep -q "versionName='3.9.1'" "$apk.package.txt"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"

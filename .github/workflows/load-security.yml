@@ -38,7 +38,7 @@ jobs:
           mkdir -p zap && chmod 777 zap && cp .zap/rules.tsv zap/
           for target in http://127.0.0.1:18080/api/public/config http://127.0.0.1:18082; do
             name=$(echo "$target" | tr -c 'a-z0-9' '_')
-            docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable \
+            docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af \
               zap-baseline.py -t "$target" -c rules.tsv -r "$name.html" -J "$name.json" -I || true
           done
           python3 scripts/ci/zap-summary.py zap >> "$GITHUB_STEP_SUMMARY"

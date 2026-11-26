@@ -1,6 +1,8 @@
 import io, os, shlex, time, base64, hashlib, logging
 import paramiko
 
+from .rw_plan import IMAGES
+
 logger = logging.getLogger("remnawave.provisioner")
 
 class ProvisionError(RuntimeError):
@@ -55,7 +57,7 @@ if [ "$fpr" != "__FINGERPRINT__" ]; then echo "Docker apt key fingerprint mismat
 gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg "$key"
 rm -f "$key"
 chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg,__FINGERPRINT__] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" > /etc/apt/sources.list.d/docker.list
 apt-get update -qq
 apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
 docker compose version >/dev/null
@@ -85,7 +87,7 @@ def install_commands(compose_yaml: str, panel_ip: str | None, node_port: int) ->
 # The official node compose (remnawave/node docker-compose-prod.yml, checked against the pinned stable release in CI:
 # tests/live/test_remnawave_live.py::test_mode_panel_plus_node). v28.65.0: the shop writes it from typed values;
 # the admin API no longer accepts a compose file from the browser (it could start any container as root).
-NODE_IMAGE = "remnawave/node:3.4.6"
+NODE_IMAGE = IMAGES["node"]
 
 
 def node_compose(secret_key: str, node_port: int = 2222) -> str:
