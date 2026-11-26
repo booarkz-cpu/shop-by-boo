@@ -148,7 +148,11 @@ def test_install_script_checks_the_key_before_adding_the_repository(tmp_path):
     assert code == 0, err
     assert "https://download.docker.com/linux/debian/gpg" in log and "--proto =https" in log
     assert "docker-compose-plugin" in log
-    assert "bookworm stable" in (tmp_path / "docker.list").read_text()
+    source = (tmp_path / "docker.list").read_text().split()
+    assert source == [
+        "deb", "[arch=amd64", f"signed-by={tmp_path / 'docker.gpg'},{provisioner.DOCKER_KEY_FINGERPRINT}]",
+        "https://download.docker.com/linux/debian", "bookworm", "stable",
+    ]
 
 
 @needs_bash

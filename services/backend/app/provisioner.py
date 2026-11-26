@@ -57,7 +57,7 @@ if [ "$fpr" != "__FINGERPRINT__" ]; then echo "Docker apt key fingerprint mismat
 gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg "$key"
 rm -f "$key"
 chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg,__FINGERPRINT__] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" > /etc/apt/sources.list.d/docker.list
 apt-get update -qq
 apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
 docker compose version >/dev/null
