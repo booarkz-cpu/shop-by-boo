@@ -85,7 +85,8 @@ docker compose logs --tail=100 backend worker bot
 - **Support Pro — один список версий** `services/support-pro/requirements.txt`: его ставят и тесты, и образ (контекст сборки — `support-pro`). Вторая копия `services/support-pro/app/requirements.txt` удалена, чтобы версии не расходились (`tests/test_dependency_locks.py`).
 - **SQLAlchemy 2.1+ ставится как `sqlalchemy[asyncio]`**: иначе не установится `greenlet` и асинхронный движок не запустится.
 - **`@types/node` — только мажорная версия рантайма** (образы и CI на Node 26); мажорные обновления типов Dependabot не предлагает.
-- **`pydantic` в Support Pro — ниже 2.14**, пока `aiogram` не поддержит новее.
+- **Pydantic в Support Pro.** Dependabot проверяет обновления `pydantic` и `pydantic-core` из общего списка версий. Допустимый диапазон Pydantic задаёт установленная версия `aiogram`, а совместимую версию ядра задаёт сам Pydantic.
+- **Клиент Redis в Support Pro.** Для `redis-py 8.2.0` в тестовом окружении закреплён `fakeredis 2.41.0`. При обновлении клиента проверяйте создание асинхронного клиента в тестах и доставку событий по каналу обращения через Redis с включённой аутентификацией.
 
 Ограничения записаны в `.github/dependabot.yml` с комментариями; снимайте их, когда причина ушла.
 
