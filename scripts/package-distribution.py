@@ -34,14 +34,16 @@ def main() -> None:
         validate_release(bom, expected_commit=commit)
         sbom_name = artifact.removesuffix(".zip") + ".cdx.json"
         (root / sbom_name).write_bytes(raw)
-        manifest["sbom"] = {"name": sbom_name, "sha256": hashlib.sha256(raw).hexdigest(), "size": len(raw)}
+        sbom_digest = hashlib.sha256(raw).hexdigest()
+        (root / (sbom_name + ".sha256")).write_text(f"{sbom_digest}  {sbom_name}\n")
+        manifest["sbom"] = {"name": sbom_name, "sha256": sbom_digest, "size": len(raw)}
     subprocess.run([sys.executable, str(root / "scripts/package-source.py"), artifact], cwd=root, check=True)
     digest = hashlib.sha256((root / artifact).read_bytes()).hexdigest()
     (root / (artifact + ".sha256")).write_text(f"{digest}  {artifact}\n")
     manifest.update(sha256=digest, commit=commit, ci_run=args.ci_run, signed=False,
                     tests="Green CI and Docker required on the exact release commit; external provider E2E is not certified")
     (root / detached).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
-    print(f"{tag}: {artifact}, {artifact}.sha256, {detached}")
+    print(f"{tag}: {artifact}, {artifact}.sha256, {detached} and versioned SBOM assets")
 
 
 if __name__ == "__main__":

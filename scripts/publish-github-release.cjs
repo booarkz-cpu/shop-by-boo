@@ -25,7 +25,12 @@ async function publish({github, context, core, root = process.cwd()}) {
   const sbom = fs.readFileSync(path.join(root, sbomName));
   if (!sbom.length || manifest.sbom.size !== sbom.length || manifest.sbom.sha256 !== digest(sbom).slice(7))
     throw new Error('SBOM does not match the detached manifest');
+  const sbomChecksumName = sbomName + '.sha256';
+  const sbomChecksum = fs.readFileSync(path.join(root, sbomChecksumName));
+  if (sbomChecksum.toString('utf8').trim() !== `${manifest.sbom.sha256}  ${sbomName}`)
+    throw new Error('Invalid SBOM checksum file');
   files.push({name: sbomName, data: sbom});
+  files.push({name: sbomChecksumName, data: sbomChecksum});
   const contentTypes = {[artifact]: 'application/zip', [detached]: 'application/json', [sbomName]: 'application/vnd.cyclonedx+json'};
   const main = async () => (await github.rest.repos.getBranch({...repo, branch: 'main'})).data.commit.sha;
   if (await main() !== sha) throw new Error('Verified commit is no longer current main');

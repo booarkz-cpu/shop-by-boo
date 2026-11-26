@@ -11,6 +11,7 @@ const SHA = 'a'.repeat(40), TAG = 'v28.34.0';
 const ARTIFACT = 'remnawave_vpn_shop_v28_34_0_full_release.zip';
 const MANIFEST = ARTIFACT.replace('.zip', '_manifest.json');
 const SBOM = ARTIFACT.replace('.zip', '.cdx.json');
+const SBOM_CHECKSUM = SBOM + '.sha256';
 const digest = data => 'sha256:' + crypto.createHash('sha256').update(data).digest('hex');
 const notFound = () => Object.assign(new Error('Not found'), {status: 404});
 
@@ -109,6 +110,7 @@ function fixture(t) {
   fs.writeFileSync(path.join(root, ARTIFACT + '.sha256'), `${sha256}  ${ARTIFACT}\n`);
   const bom = Buffer.from(JSON.stringify({bomFormat: 'CycloneDX', specVersion: '1.7', components: [{name: 'test', type: 'library'}]}));
   fs.writeFileSync(path.join(root, SBOM), bom);
+  fs.writeFileSync(path.join(root, SBOM_CHECKSUM), `${digest(bom).slice(7)}  ${SBOM}\n`);
   fs.writeFileSync(path.join(root, MANIFEST), JSON.stringify({...template, commit: SHA, sha256,
     sbom: {name: SBOM, size: bom.length, sha256: digest(bom).slice(7)}}));
   fs.writeFileSync(path.join(root, 'notes.md'), 'Release notes');
@@ -137,7 +139,7 @@ function fixture(t) {
         return {data: asset};
       },
       updateRelease: async args => {
-        assert.equal(state.release.assets.length, 4);
+        assert.equal(state.release.assets.length, 5);
         assert.equal(args.draft, false);
         state.publications++; state.release.draft = false;
         return {data: state.release};
@@ -154,12 +156,12 @@ function fixture(t) {
 
 test('uploads and verifies all files before publishing and dispatches tagged images', async t => {
   const {state,args} = fixture(t); await publish(args);
-  assert.equal(state.uploads,4);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
+  assert.equal(state.uploads,5);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
   assert.equal(state.ref.sha,SHA);assert.equal(state.release.draft,false);
 });
 test('retry preserves existing assets and avoids duplicate publication and dispatch', async t => {
   const {state,args} = fixture(t);await publish(args);await publish(args);
-  assert.equal(state.uploads,4);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
+  assert.equal(state.uploads,5);assert.equal(state.publications,1);assert.equal(state.dispatches,1);
 });
 test('stale main never creates a tag or release', async t => {
   const {state,args} = fixture(t);state.main='b'.repeat(40);
@@ -182,11 +184,11 @@ test('corrupt uploaded bytes leave the release draft', async t => {
 });
 test('published assets are never deleted or replaced on mismatch', async t => {
   const {state,args} = fixture(t);await publish(args);state.release.assets[0].digest='sha256:different';
-  await assert.rejects(publish(args),/refusing to replace/);assert.equal(state.uploads,4);assert.equal(state.publications,1);
+  await assert.rejects(publish(args),/refusing to replace/);assert.equal(state.uploads,5);assert.equal(state.publications,1);
 });
 test('main moving during upload keeps the fully uploaded release draft', async t => {
   const {state,args} = fixture(t);state.moveOnUpload=true;
-  await assert.rejects(publish(args),/moved during publication/);assert.equal(state.uploads,4);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
+  await assert.rejects(publish(args),/moved during publication/);assert.equal(state.uploads,5);assert.equal(state.release.draft,true);assert.equal(state.publications,0);
 });
 
 test('SBOM drift, even at the same size, stops publication before tag creation', async t => {
@@ -196,6 +198,14 @@ test('SBOM drift, even at the same size, stops publication before tag creation',
   bytes[bytes.length - 1] ^= 1;
   fs.writeFileSync(file, bytes);
   await assert.rejects(publish(args), /SBOM does not match/);
+  assert.equal(state.ref, null);
+  assert.equal(state.uploads, 0);
+});
+
+test('an invalid detached SBOM checksum stops publication before tag creation', async t => {
+  const {state, args} = fixture(t);
+  fs.writeFileSync(path.join(args.root, SBOM_CHECKSUM), `${'0'.repeat(64)}  ${SBOM}\n`);
+  await assert.rejects(publish(args), /Invalid SBOM checksum file/);
   assert.equal(state.ref, null);
   assert.equal(state.uploads, 0);
 });
