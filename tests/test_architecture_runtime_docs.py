@@ -10,6 +10,24 @@ from alembic.script import ScriptDirectory
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_architecture_backend_counts_match_catalogue_and_source():
+    doc = (ROOT / "docs/PROJECT_ARCHITECTURE.md").read_text()
+    row = documented_row(doc, "FastAPI backend")
+    catalogue = (ROOT / "docs/API_ENDPOINTS.md").read_text()
+    operations = re.findall(r"^\| `(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|TRACE)` \|", catalogue, re.MULTILINE)
+    assert f"{len(operations)} операций OpenAPI" in row
+    file_count = sum(1 for _ in (ROOT / "services/backend/app").rglob("*.py"))
+    assert f"файлов Python в дереве приложения — {file_count}" in row
+
+
+def test_architecture_healthcheck_count_matches_compose():
+    stack = yaml.safe_load((ROOT / "docker-compose.yml").read_text())["services"]
+    with_healthcheck = sum(bool(service.get("healthcheck")) and not service["healthcheck"].get("disable")
+                           for service in stack.values())
+    doc = (ROOT / "docs/PROJECT_ARCHITECTURE.md").read_text()
+    assert f"Проверки состояния включены у {with_healthcheck} из {len(stack)} сервисов" in doc
+
+
 def documented_row(document, label):
     rows = [line for line in document.splitlines() if line.startswith(f"| {label} |")]
     assert len(rows) == 1, f"Expected one row for {label}"

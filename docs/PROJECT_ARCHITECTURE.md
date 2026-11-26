@@ -24,7 +24,7 @@ flowchart TD
   end
 
   subgraph Core["Приложение"]
-    API["FastAPI backend<br/>836 маршрутов, 173 модуля"]
+    API["FastAPI backend"]
     Worker["Worker<br/>выдача доступа, планировщики"]
     SupPro["Support Pro<br/>отдельный сервис + своя БД"]
     MailRcv["mail_receiver<br/>профиль mail"]
@@ -112,9 +112,9 @@ flowchart TD
 
 | Компонент | Роль | Ключевые файлы |
 | --- | --- | --- |
-| FastAPI backend | REST API, webhook, авторизация, RBAC | `main.py`, `security.py`, 173 модуля |
+| FastAPI backend | 996 операций OpenAPI, включая REST API и обработчики webhook. Авторизация и RBAC | `services/backend/app/main.py`, `services/backend/app/security.py`. Всего файлов Python в дереве приложения — 239 |
 | Worker | выдача и продление доступа, планировщики, ретраи | `services/backend/worker.py`, `schedulers.py` |
-| Support Pro | тикеты, переписка, автоответы, база знаний; отдельные БД и Redis | `services/support-pro/` (93 файла) |
+| Support Pro | Тикеты, переписка, автоответы и база знаний. Собственные БД и Redis | `services/support-pro/app/main.py`, `services/support-pro/app/worker.py` |
 | mail_receiver | приём почты служебных адресов (DMARC, обращения) | профиль `mail` |
 
 ### Данные
@@ -199,15 +199,15 @@ flowchart LR
   SP --> SupRedis[("support_redis")]
 ```
 
-17 сервисов; образы закреплены по digest. Профили: `standby` (горячий резерв backend),
-`mail` (приём почты). Healthchecks у 10 сервисов, включая `backend`, `db`, `redis`, оба фронтенда,
-`support_pro` и `caddy`.
+Проверки состояния включены у 14 из 17 сервисов, в том числе у `backend`, `worker`,
+`bot`, `mail_receiver`, трёх веб-приложений и `support_pro`. Внешние образы PostgreSQL и Redis закреплены по SHA-256. Профиль `standby`
+запускает горячий резерв backend, а `mail` — приём почты.
 
 ## 6. CI/CD и обновления
 
 ```mermaid
 flowchart LR
-  Push["push в main"] --> CI["ci.yml<br/>18 job'ов"]
+  Push["push в main"] --> CI["ci.yml"]
   Push --> Docker["docker.yml"]
   CI --> Gate{"gate:<br/>CI и Docker зелёные<br/>на этом коммите"}
   Docker --> Gate
