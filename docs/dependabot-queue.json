@@ -1,19 +1,7 @@
 {
   "schema": 2,
   "updatedAt": "2026-11-26T10:05:46.320Z",
-  "active": {
-    "number": 481,
-    "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
-    "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
-    "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
-    "ecosystem": "pip",
-    "security": false,
-    "createdAt": "2026-11-26T08:39:33Z",
-    "status": "active",
-    "attempts": 0,
-    "conflicts": 0,
-    "note": "waiting for the active update"
-  },
+  "active": null,
   "deferred": [
     {
       "number": 482,
@@ -53,6 +41,20 @@
       "attempts": 0,
       "conflicts": 0,
       "note": "waiting for the active update"
+    },
+    {
+      "number": 481,
+      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
+      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
+      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
+      "ecosystem": "pip",
+      "security": false,
+      "createdAt": "2026-11-26T08:39:33Z",
+      "status": "waiting",
+      "attempts": 0,
+      "conflicts": 0,
+      "note": "GitHub refused to reopen (HTTP 422)",
+      "reopenAfter": "2026-11-27T10:05:46.320Z"
     }
   ],
   "history": [
@@ -139,6 +141,12 @@
       "action": "reopen-requested",
       "number": 481,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-26T10:05:46.320Z",
+      "action": "reopen-refused",
+      "number": 481,
+      "reopenAfter": "2026-11-27T10:05:46.320Z"
     }
   ]
 }
