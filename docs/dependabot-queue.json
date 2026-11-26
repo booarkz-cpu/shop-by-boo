@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T08:45:34.380Z",
+  "updatedAt": "2026-11-26T08:50:47.079Z",
   "active": {
     "number": 480,
     "ref": "dependabot/pip/services/support-pro/support-minor-8b149fd126",
