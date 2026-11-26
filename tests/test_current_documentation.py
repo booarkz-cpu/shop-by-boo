@@ -47,6 +47,12 @@ def test_external_links_in_acceptance_evidence_are_checked_separately_from_sourc
     assert links["https://shared.invalid/ref"] == [str((docs / "operator.md").relative_to(tmp_path))]
 
 
+def test_mobile_guide_uses_platform_specific_happ_sources():
+    text = (ROOT / "docs/ru/MOBILE_GUIDE.md").read_text(encoding="utf-8")
+    assert "[Happ для Android](https://github.com/Happ-proxy/happ-android)" in text
+    assert "[Happ для iOS](https://github.com/Happ-proxy/happ-ios)" in text
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guides_do_not_reference_invented_prerelease_tags(filename):
     manifest=json.loads((ROOT/'release-manifest.template.json').read_text())
