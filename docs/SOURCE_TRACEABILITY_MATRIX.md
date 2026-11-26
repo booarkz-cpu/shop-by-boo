@@ -393,7 +393,7 @@
 | `REQ-DOC-0008` | Часть II → II.5. VPS, Termux, GitHub и документация; L1609; `a17574e42101` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-DOC-0009` | Часть II → II.5. VPS, Termux, GitHub и документация; L1610; `18f2a569e42d` | `PARTIAL` | Не сопоставлено | Не сопоставлено | `docs/wiki/README.md`; `docs/wiki/ru/Troubleshooting.md`; `docs/wiki/en/Troubleshooting.md`; `docs/wiki/uk/Troubleshooting.md` | Не сопоставлен |
 | `REQ-DOC-0010` | Часть II → II.5. VPS, Termux, GitHub и документация; L1611; `f022a500910a` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
-| `REQ-DOC-0011` | Часть II → II.5. VPS, Termux, GitHub и документация; L1612; `e5f1b3e797b3` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
+| `REQ-DOC-0011` | Часть II → II.5. VPS, Termux, GitHub и документация; L1612; `e5f1b3e797b3` | `PASS` | `scripts/mobile/xray-core-watch.py` | `.github/workflows/autonomous-audit.yml`; `.github/workflows/xray-core-watch.yml`; `scripts/audit/run_full_audit.py` | `docs/AUTONOMOUS_AUDIT.md`; `CI_CD_RU.md` | Не сопоставлен |
 | `REQ-GOV-0074` | Часть II → II.6. Восстановление недоступных task groups; L1615; `d53339732d3c` | `PARTIAL` | Не сопоставлено | Не сопоставлено | `docs/ru/new/BACKLOG.md`; `docs/ru/new/IMPLEMENTATION_STATUS.md` | Не сопоставлен |
 | `REQ-GOV-0075` | Часть II → II.7. Обязательные проектные принципы; L1618; `58f685037f98` | `NOT_TESTED` | Не сопоставлено | Не сопоставлено | Не сопоставлено | Не сопоставлен |
 | `REQ-GOV-0076` | Часть II → II.7. Обязательные проектные принципы; L1619; `0d8e7cac97fc` | `PARTIAL` | Не сопоставлено | `.github/workflows/ci.yml` | `docs/MONOREPO_LAYOUT.md` | Не сопоставлен |
