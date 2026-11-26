@@ -4,6 +4,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -45,11 +47,13 @@ def test_first_and_second_secret_rotation_keep_only_previous_key(tmp_path):
         assert env_file.stat().st_mode & 0o777 == 0o600
 
 
-def test_missing_image_digest_does_not_replace_existing_env(tmp_path):
+@pytest.mark.parametrize("installed", ["", "redis@sha256:" + "1" * 64])
+def test_missing_image_digest_does_not_replace_existing_env(tmp_path, installed):
+    shutil.copyfile(ROOT / "docker-compose.yml", tmp_path / "docker-compose.yml")
     env_file = tmp_path / ".env"
     env_file.write_text("BOT_TOKEN='preserved'\n")
     run = subprocess.run(["bash", str(ROOT / "scripts/pin-images.sh")], cwd=tmp_path,
-                         env=fake_docker(tmp_path), capture_output=True, text=True)
+                         env=fake_docker(tmp_path, installed), capture_output=True, text=True)
     assert run.returncode != 0
     assert "No immutable digest" in run.stderr
     assert env_file.read_text() == "BOT_TOKEN='preserved'\n"

@@ -11,15 +11,22 @@ project="$(docker compose config --format json | python3 -c 'import json,sys; pr
 services="$(docker compose config --services)"
 spec="${PG19_PREFLIGHT_SPEC:-db:postgres18_data:postgres19_data,support_db:support_postgres18_data:support_postgres19_data}"
 status=0
+if [[ "$spec" == ,* || "$spec" == *, || "$spec" == *,,* || "$spec" == *$'\n'* ]]; then
+  echo "Invalid PG19_PREFLIGHT_SPEC: expected a single comma-separated list of mappings" >&2
+  exit 2
+fi
 IFS=',' read -ra entries <<<"$spec"
-[[ -n "$spec" && "$spec" != ,* && "$spec" != *, && "$spec" != *,,* ]] || { echo "Invalid PG19_PREFLIGHT_SPEC: empty entry" >&2; exit 2; }
 # Validate the entire specification before querying any volumes. In particular,
 # reject reused source/target names and cross-entry collisions.
 declare -A seen_volumes=()
 declare -A seen_services=()
 for entry in "${entries[@]}"; do
-  IFS=':' read -r service source target extra <<<"$entry"
-  if [[ -n "${extra:-}" || ! "$service" =~ ^[a-z0-9_-]+$ || ! "$source" =~ ^[a-z0-9_-]+$ || ! "$target" =~ ^[a-z0-9_-]+$ || "$source" == "$target" ]]; then
+  if [[ ! "$entry" =~ ^[a-z0-9_-]+:[a-z0-9_-]+:[a-z0-9_-]+$ ]]; then
+    echo "Invalid PG19_PREFLIGHT_SPEC entry: $entry" >&2
+    exit 2
+  fi
+  IFS=':' read -r service source target <<<"$entry"
+  if [[ "$source" == "$target" ]]; then
     echo "Invalid PG19_PREFLIGHT_SPEC entry: $entry" >&2
     exit 2
   fi
@@ -37,8 +44,8 @@ for entry in "${entries[@]}"; do
   done
 done
 for entry in "${entries[@]}"; do
-  IFS=':' read -r service source target extra <<<"$entry"
-  if ! grep -qx "$service" <<<"$services"; then
+  IFS=':' read -r service source target <<<"$entry"
+  if ! grep -Fxq -- "$service" <<<"$services"; then
     echo "$service: not present in this Compose profile; preflight cannot validate this entry" >&2
     status=1
     continue

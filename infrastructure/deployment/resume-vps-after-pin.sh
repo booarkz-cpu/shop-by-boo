@@ -13,23 +13,6 @@ command -v docker >/dev/null || { echo "Docker is required" >&2; exit 1; }
 umask 077
 
 bash scripts/pin-images.sh
-resolve_build() {
-  local image="$1" digest
-  docker pull "$image" >/dev/null
-  digest="$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')"
-  [[ "$digest" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]] || { echo "No digest for $image" >&2; exit 1; }
-  printf '%s' "$digest"
-}
-PYTHON_BASE_IMAGE="$(resolve_build python:3.15-slim)"
-NODE_BASE_IMAGE="$(resolve_build node:26-alpine)"
-NGINX_BASE_IMAGE="$(resolve_build nginx:1.30-alpine)"
-temp_env="$(mktemp "$ROOT/.env.resume.XXXXXX")"
-trap 'rm -f "$temp_env"' EXIT
-awk '!/^(PYTHON_BASE_IMAGE|NODE_BASE_IMAGE|NGINX_BASE_IMAGE)=/' .env > "$temp_env"
-printf 'PYTHON_BASE_IMAGE=%s\nNODE_BASE_IMAGE=%s\nNGINX_BASE_IMAGE=%s\n' \
-  "$PYTHON_BASE_IMAGE" "$NODE_BASE_IMAGE" "$NGINX_BASE_IMAGE" >> "$temp_env"
-chmod 600 "$temp_env"
-mv "$temp_env" .env
 
 docker compose config --quiet
 docker compose build --pull --no-cache

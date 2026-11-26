@@ -6,6 +6,7 @@ jobs, so its checks are simply missing and the rest of the CI looks green. In v2
 from __future__ import annotations
 
 import pathlib
+import re
 
 import pytest
 import yaml
@@ -15,6 +16,46 @@ WORKFLOWS = sorted((pathlib.Path(__file__).resolve().parents[1] / ".github/workf
 
 def test_there_are_workflows():
     assert len(WORKFLOWS) > 10
+
+
+def test_promtool_uses_one_pinned_image_for_both_rule_checks():
+    ci = next(path for path in WORKFLOWS if path.name == "ci.yml")
+    steps = yaml.safe_load(ci.read_text(encoding="utf-8"))["jobs"]["compose"]["steps"]
+    step = next(step for step in steps if step.get("name") == "Prometheus alert rules")
+    image = step.get("env", {}).get("PROMTOOL_IMAGE", "")
+    assert re.fullmatch(r"prom/prometheus:v[\d.]+@sha256:[0-9a-f]{64}", image)
+    for command in ("check rules", "test rules"):
+        assert f'--entrypoint promtool "$PROMTOOL_IMAGE" {command} ' in step["run"]
+
+
+def test_caddy_go_builder_is_pinned_by_digest():
+    dockerfile = pathlib.Path(__file__).resolve().parents[1] / "infrastructure/reverse-proxy/caddy/Dockerfile"
+    assert re.search(r"^FROM golang:[\w.-]+@sha256:[0-9a-f]{64} AS caddy_builder$",
+                     dockerfile.read_text(encoding="utf-8"), re.MULTILINE)
+
+
+def test_workflow_service_images_are_pinned():
+    for path in WORKFLOWS:
+        jobs = yaml.safe_load(path.read_text(encoding="utf-8"))["jobs"]
+        for job in jobs.values():
+            for service in job.get("services", {}).values():
+                image = service["image"]
+                assert re.search(r"@sha256:[0-9a-f]{64}$", image), (path.name, image)
+
+
+def test_artifact_uploaders_share_one_immutable_revision():
+    uses = {}
+    for path in WORKFLOWS:
+        workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+        for job in workflow["jobs"].values():
+            for step in job.get("steps", []):
+                action, _, revision = step.get("uses", "").partition("@")
+                if action == "actions/upload-artifact":
+                    uses.setdefault(revision, set()).add(path.name)
+    assert len(uses) == 1, uses
+    revision, workflows = next(iter(uses.items()))
+    assert re.fullmatch(r"[0-9a-f]{40}", revision)
+    assert {"ci.yml", "load-security.yml"} <= workflows
 
 
 @pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
@@ -46,6 +87,21 @@ def test_ci_gate_waits_for_every_job():
     assert gate.get("if") == "always()", "the gate must run even when a job above failed, to report it"
 
 
+def test_ios_ui_restart_uses_the_classifier_and_still_requires_all_four_tests():
+    ci = pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/ci.yml"
+    job = yaml.safe_load(ci.read_text(encoding="utf-8"))["jobs"]["ios-ui"]
+    step = next(step for step in job["steps"] if step.get("name") == "XCUITest on a simulator")
+    run = step["run"]
+    assert not step.get("continue-on-error")
+    classify = run.index('scripts/ci/xcuitest_retry.py" "$RUNNER_TEMP/xcuitest.log"')
+    erase = run.index('xcrun simctl erase "$device"')
+    retry = run.index('result_bundle="$RUNNER_TEMP/xcuitest-retry.xcresult"')
+    verify = run.index("scripts/ci/verify_xcuitest_results.py")
+    assert classify < erase < retry < verify
+    assert run.count('xcrun simctl erase "$device"') == 1
+    assert "--expected-tests 4" in run[verify:]
+
+
 def test_every_action_is_pinned_to_a_commit():
     """A tag of an action can be moved to other code; a commit cannot (master prompt v6, «pin action versions»).
 
@@ -74,5 +130,7 @@ def test_security_scanners_block_the_merge():
     assert ignored and all(" exp:20" in line for line in ignored) and len(ignored) <= 3
     # The scanner itself is pinned: a moved tag must not change what is run.
     assert ci.count("aquasec/trivy@sha256:") == 3 and "aquasec/trivy:" not in ci
+    load_workflow = next(path for path in WORKFLOWS if path.name == "load-security.yml")
+    assert re.search(r"ghcr\.io/zaproxy/zaproxy:[\w.-]+@sha256:[0-9a-f]{64}\s", load_workflow.read_text())
     for job in ("security", "containers"):
         assert not any(step.get("continue-on-error") for step in jobs[job]["steps"]), job

@@ -10,10 +10,10 @@
 | --- | --- | --- | --- |
 | Python runtime | 3.15.2-slim (pinned digest) | `services/backend/Dockerfile` | production runtime; точный digest синхронизирован с Compose и установщиком |
 | Python compatibility gate | 3.14 + 3.15 | `.github/workflows/ci.yml` | полный backend suite в двух shards на обеих версиях; 3.14 сохранён как обратный compatibility gate. Lint, audit и остальные workflow-задания идут на 3.15 |
-| FastAPI | 0.162.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
+| FastAPI | 0.165.0 | `requirements.txt` | REST API, зависимости, OpenAPI |
 | Starlette | 1.10.0 | `requirements.txt` | ASGI-основа FastAPI |
 | Uvicorn | 0.54.0 (`[standard]`) | `requirements.txt` | ASGI-сервер |
-| SQLAlchemy | 2.1.6 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
+| SQLAlchemy | 2.1.9 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
 | asyncpg | 0.32.0 | `requirements.txt` | драйвер PostgreSQL |
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
 | aiogram | 3.33.0 | `requirements.txt` | Telegram-бот |
@@ -21,18 +21,18 @@
 | httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
 | redis | 8.1.0 | `requirements.txt` | клиент Redis |
-| pydantic-settings | 2.16.2 | `requirements.txt` | конфигурация из окружения |
+| pydantic-settings | 2.16.3 | `requirements.txt` | конфигурация из окружения |
 | PyJWT | 2.15.1 | `requirements.txt` | токены сессий и агентов |
 | cryptography | 50.0.2 | `requirements.txt` | подписи, шифрование секретов |
-| python-multipart | 0.0.33 | `requirements.txt` | загрузка файлов |
+| python-multipart | 0.0.34 | `requirements.txt` | загрузка файлов |
 | paramiko | 5.1.0 | `requirements.txt` | SSH-терминал узлов |
-| boto3 | 1.43.123 | `requirements.txt` | S3-совместимое хранилище копий |
+| boto3 | 1.44.11 | `requirements.txt` | S3-совместимое хранилище копий |
 | qrcode `[pil]` | 8.2 | `requirements.txt` | QR конфигураций |
 | Pillow | 13.0.0 | `requirements.txt` | обработка изображений |
 | PyYAML | 6.0.3 | `requirements.txt` | конфиги Caddy и правила |
 | reportlab | 5.1.0 | `requirements.txt` | PDF-отчёты и чеки |
 | webauthn | 3.0.1 | `requirements.txt` | passkeys (WebAuthn) |
-| maxminddb | 3.2.0 | `requirements.txt` | география GeoLite2 |
+| maxminddb | 3.3.0 | `requirements.txt` | география GeoLite2 |
 
 ## Тесты
 
@@ -93,6 +93,7 @@
 | GitHub Actions | 21 workflow обеспечивает CI, сборку контейнеров и приложений, публикацию, проверку зависимостей и эксплуатационные проверки |
 | [`actions/checkout` 7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) (`3d3c42e5aac5ba805825da76410c181273ba90b1`), [`setup-java` 6.3.0](https://github.com/actions/setup-java/releases/tag/v6.3.0) (`d1374f8ac74474200d16ef8ecee22c7ae7a51880`), [`setup-go` 7.1.0](https://github.com/actions/setup-go/releases/tag/v7.1.0) (`d8cbb8045d7f43706b9177cceb36c1f91a6644d5`) | официальные stable закреплены по immutable commit SHA во всех workflow; лицензия каждого action — MIT; для Java сохранены аннотации компилятора (`problem-matcher: true`) |
 | `actions/setup-python@v7`, `setup-node@v7`, `github-script@v9` | подготовка Python и Node.js, вызовы GitHub API |
+| `actions/upload-artifact` 7.0.2 | Сохраняет отчёты k6 и ZAP, результаты тестов и мобильные сборки. Во всех workflow закреплён один коммит `cf430e030ddbb5b0abf93d22962f4752f3646cd9`. Лицензия MIT. [Upstream](https://github.com/actions/upload-artifact/releases/tag/v7.0.2) |
 | concurrency | группы привязаны к коммиту: `ci-${ref}-${sha}`, `docker-${ref}-${sha}` |
 | permissions | минимальные: `contents: read`, `packages: write` только в Docker |
 | gate публикации | `publish-release.yml` требует зелёных `ci.yml` **и** `docker.yml` на том же SHA |
