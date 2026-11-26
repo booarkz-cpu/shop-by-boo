@@ -64,6 +64,35 @@ def require_native_inventory(components: list, links: dict) -> None:
             raise ValueError(f"Release is missing the Go source archive digest for {ref}")
 
 
+def require_maven_inventory(app: dict, direct: set, links: dict) -> None:
+    name = app["name"]
+    modules = set()
+    for item in app.get("components", []):
+        ref = item.get("bom-ref")
+        if not ref or ref in modules or not item.get("purl", "").startswith("pkg:maven/"):
+            raise ValueError(f"Invalid Maven component in {name}: {ref}")
+        if not any(choice.get("expression") or choice.get("license", {}).get("id") or
+                   choice.get("license", {}).get("name") for choice in item.get("licenses", [])):
+            raise ValueError(f"Missing Maven licence declaration in {name}: {ref}")
+        modules.add(ref)
+
+    # Only the application can depend on the shared AAR. Every Maven edge stays inside this product.
+    pending = list(direct - {ENGINE_REF})
+    if not pending:
+        raise ValueError(f"Release is missing the Maven graph for {name}")
+    reached = set()
+    while pending:
+        ref = pending.pop()
+        if ref in reached:
+            continue
+        if ref not in modules:
+            raise ValueError(f"Unresolved Maven dependency in {name}: {ref}")
+        reached.add(ref)
+        pending.extend(links.get(ref, set()) - reached)
+    if reached != modules:
+        raise ValueError(f"Release contains unreachable Maven components in {name}: {sorted(modules - reached)}")
+
+
 def require_release_inventory(bom: dict, *, expected_commit: str | None = None) -> None:
     if (bom.get("bomFormat"), bom.get("specVersion")) != ("CycloneDX", "1.7"):
         raise ValueError("Release requires CycloneDX 1.7")
@@ -85,11 +114,11 @@ def require_release_inventory(bom: dict, *, expected_commit: str | None = None) 
         app = apps[0]
         ref = app.get("bom-ref")
         direct = links.get(ref, set())
-        maven = {child["bom-ref"] for child in app.get("components", []) if child.get("purl", "").startswith("pkg:maven/")}
-        if ref not in links.get(root, set()) or not maven.intersection(direct):
-            raise ValueError(f"Release is missing the Maven graph for {name}")
+        if ref not in links.get(root, set()):
+            raise ValueError(f"Release is missing the application link for {name}")
         if (ENGINE_REF in direct) != (product != "lucy-admin"):
             raise ValueError(f"Unexpected native engine linkage for {name}")
+        require_maven_inventory(app, direct, links)
     require_native_inventory(components, links)
 
 

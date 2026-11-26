@@ -200,8 +200,9 @@ def release_inventory():
     shared = MODULE["ENGINE_REF"]
     abis = {f"{shared}/{abi}" for abi in MODULE["XRAY"]["ABIS"]}
     apps = [{"type": "application", "name": name, "bom-ref": product,
-             "components": [{"type": "library", "name": "lib", "purl": "pkg:maven/example/lib@1",
-                             "bom-ref": product + "-lib"}]}
+             "components": [{"type": "library", "name": dep, "purl": f"pkg:maven/example/{dep}@1",
+                             "licenses": [{"license": {"id": "Apache-2.0"}}], "bom-ref": f"{product}-{dep}"}
+                            for dep in ("lib", "transitive")]}
             for product, name in MODULE["PRODUCTS"].items()]
     files = [{"type": "file", "name": ref.split("/")[-1], "bom-ref": ref,
               "hashes": [{"alg": "SHA-256", "content": "1" * 64}]} for ref in [shared, *sorted(abis)]]
@@ -216,6 +217,8 @@ def release_inventory():
              {"ref": shared, "dependsOn": sorted(abis)}]
     for product in MODULE["PRODUCTS"]:
         links.append({"ref": product, "dependsOn": [product + "-lib"] + ([] if product == "lucy-admin" else [shared])})
+    for product in MODULE["PRODUCTS"]:
+        links.append({"ref": product + "-lib", "dependsOn": [product + "-transitive"]})
     for abi in sorted(abis):
         linked = modules if abi.endswith("/arm64-v8a") else modules[:2]
         links.append({"ref": abi, "dependsOn": [module["bom-ref"] for module in linked]})
@@ -250,6 +253,29 @@ def test_packaging_requires_all_android_apps_and_native_links(damage):
         root["name"] = "/src"
     with pytest.raises(ValueError):
         validator["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
+
+
+@pytest.mark.parametrize("damage", ["unknown-direct", "missing-component", "orphan", "other-product",
+                                    "missing-licence", "duplicate-component"])
+def test_packaging_rejects_broken_maven_graph(damage):
+    bom = release_inventory()
+    shop = bom["components"][0]
+    direct, transitive = shop["components"]
+    links = {row["ref"]: row["dependsOn"] for row in bom["dependencies"]}
+    if damage == "unknown-direct":
+        links[shop["bom-ref"]].append("absent")
+    elif damage == "missing-component":
+        shop["components"].remove(transitive)
+    elif damage == "orphan":
+        links[direct["bom-ref"]].clear()
+    elif damage == "other-product":
+        links[direct["bom-ref"]].append(bom["components"][1]["components"][0]["bom-ref"])
+    elif damage == "missing-licence":
+        del transitive["licenses"]
+    else:
+        shop["components"].append(copy.deepcopy(transitive))
+    with pytest.raises(ValueError):
+        MODULE["CONTRACT"]["require_release_inventory"](bom, expected_commit=SOURCE_REVISION)
 
 
 @pytest.mark.parametrize("damage", [
