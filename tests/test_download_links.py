@@ -105,4 +105,10 @@ def test_mobile_packages_are_built_for_every_head_of_main():
 
     triggers = yaml.safe_load((ROOT / ".github/workflows/mobile-release.yml").read_text())[True]
     assert triggers["push"] == {"branches": ["main"]}
-    assert "paths" in triggers["pull_request"], "pull requests still build only when the apps change"
+    packaging_scripts = {
+        "scripts/build-android-apk.sh",
+        "scripts/mobile/apk-signer-digest.py",
+        "scripts/mobile/build-xray-aar.sh",
+        "scripts/mobile/xray-artifact.py",
+    }
+    assert packaging_scripts.issubset(triggers["pull_request"]["paths"])

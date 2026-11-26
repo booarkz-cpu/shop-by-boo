@@ -34,13 +34,18 @@ jobs:
           packages: "platform-tools platforms;android-35 platforms;android-37.1 build-tools;35.0.0"
       - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
-          go-version: stable
+          go-version: '1.27.4'
           cache: false
+      - name: Identify the Android engine toolchain
+        id: xray_toolchain
+        run: |
+          key="$(bash scripts/mobile/build-xray-aar.sh --toolchain-key)"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
       - id: xray
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/vpn-shop/android/app/libs/libv2ray.aar
-          key: xray-aar-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
+          key: xray-aar-${{ steps.xray_toolchain.outputs.key }}-${{ hashFiles('scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py') }}
       - name: Build the embedded VPN engine (libv2ray.aar)
         if: steps.xray.outputs.cache-hit != 'true'
         run: bash scripts/mobile/build-xray-aar.sh
