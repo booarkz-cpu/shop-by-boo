@@ -169,4 +169,4 @@ pytest -q
 
 Структура: `app/main.py` — панель/API; `app/bot.py` — входящие сообщения; `app/worker.py` — фоновая обработка; `app/sla.py` — рабочие сроки; `app/migrate.py` — безопасный выбор пути миграции; `alembic/versions/0002_support_3.py` — расширение схемы.
 
-Технические справочники интеграций: [aiogram](https://docs.aiogram.dev/en/latest/), [SQLAlchemy](https://docs.sqlalchemy.org/en/20/), [Starlette WebSockets](https://www.starlette.io/websockets/).
+Технические справочники интеграций: [aiogram](https://docs.aiogram.dev/en/latest/), [SQLAlchemy](https://docs.sqlalchemy.org/en/20/), [Starlette WebSockets](https://starlette.dev/websockets/).

@@ -25,6 +25,28 @@ def test_generated_api_catalogue_matches_application():
     assert (ROOT/'docs/API_ENDPOINTS.md').read_text()==module.render()
 
 
+def test_external_links_in_acceptance_evidence_are_checked_separately_from_source_quotes(tmp_path):
+    import runpy
+    import shutil
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    checker = tmp_path / "scripts" / "check-external-links.py"
+    checker.parent.mkdir()
+    shutil.copyfile(ROOT / "scripts/check-external-links.py", checker)
+    register = docs / "AUTONOMOUS_ACCEPTANCE_CHECKLIST.md"
+    register.write_text(
+        "Guide https://guide.invalid/intro\n"
+        "| REQ-MIG-0009 | original \\| https://old.invalid/client https://shared.invalid/ref "
+        "| migration | see [evidence](https://records.invalid/proof) |\n", encoding="utf-8")
+    (docs / "operator.md").write_text("https://shared.invalid/ref\n", encoding="utf-8")
+
+    links = runpy.run_path(str(checker))["collect"]("")
+    assert set(links) == {"https://guide.invalid/intro", "https://records.invalid/proof", "https://shared.invalid/ref"}
+    assert links["https://records.invalid/proof"] == [str(register.relative_to(tmp_path))]
+    assert links["https://shared.invalid/ref"] == [str((docs / "operator.md").relative_to(tmp_path))]
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guides_do_not_reference_invented_prerelease_tags(filename):
     manifest=json.loads((ROOT/'release-manifest.template.json').read_text())

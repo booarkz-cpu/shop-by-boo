@@ -80,6 +80,13 @@ def collect(only: str) -> dict[str, list[str]]:
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
+        if path == ROOT / "docs/AUTONOMOUS_ACCEPTANCE_CHECKLIST.md":
+            # Each generated requirement row begins with its ID and verbatim source wording.
+            # Keep checking links in its evidence and notes, as well as the document header.
+            text = "\n".join(
+                re.split(r"(?<!\\)\|", line, maxsplit=3)[-1] if line.startswith("| REQ-") else line
+                for line in text.splitlines()
+            )
         for match in list(LINK.finditer(text)) + list(BARE_URL.finditer(text)):
             url = match.group(1).rstrip(".,;:")
             if placeholder(url):
