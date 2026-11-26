@@ -16,11 +16,11 @@
 | SQLAlchemy | 2.1.9 (`[asyncio]`) | `requirements.txt` | ORM, async-сессии |
 | asyncpg | 0.32.0 | `requirements.txt` | драйвер PostgreSQL |
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
-| aiogram | 3.33.0 | `requirements.txt` | Telegram-бот |
+| aiogram | 3.34.0 | `requirements.txt` | Telegram-бот |
 | aiohttp | 3.14.5 | `requirements.txt` | HTTP-клиент бота |
 | httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
-| redis | 8.1.0 | `requirements.txt` | клиент Redis |
+| redis | 8.2.0 | `requirements.txt` | клиент Redis |
 | pydantic-settings | 2.16.3 | `requirements.txt` | конфигурация из окружения |
 | PyJWT | 2.15.1 | `requirements.txt` | токены сессий и агентов |
 | cryptography | 50.0.2 | `requirements.txt` | подписи, шифрование секретов |
@@ -62,15 +62,15 @@
 
 ## Мобильные приложения
 
-| Платформа | Стек | Каталоги |
+| Платформа и версия в исходниках | Стек | Каталоги |
 | --- | --- | --- |
-| VPN Shop Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
-| Corgi Lucy Client Android 1.10.1 | Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
-| Lucy Admin Android 3.9.0 | Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
-| VPN Shop iOS 3.9.0 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
-| Lucy Admin iOS 3.9.0 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
+| VPN Shop Android 3.9.1 | AGP 9.5.2, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Corgi Lucy Client Android 1.10.2 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
+| Lucy Admin Android 3.9.1 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
+| VPN Shop iOS 3.9.1 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| Lucy Admin iOS 3.9.1 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
 
-Lucy Admin Android использует AGP 9.5.3; VPN Shop и Corgi Lucy Client пока остаются на AGP 9.5.2 до отдельной платформенной приёмки. Все три Android-приложения используют Gradle 9.9.2 и Compose BOM 2026.11.01, собираются с API 37.1, минимальным API 26 и целевым API 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
+Все три Android-приложения используют Gradle 9.9.2 и Compose BOM 2026.11.01, собираются с API 37.1, минимальным API 26 и целевым API 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
 
 | Android build chain | Проверенный upstream | Совместимость | Лицензия |
 | --- | --- | --- | --- |
