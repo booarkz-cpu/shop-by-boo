@@ -9,6 +9,7 @@ import re
 from pathlib import Path
 
 import yaml
+from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +51,22 @@ def test_dependabot_watches_the_files_that_are_installed():
     config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
     pip_dirs = {u["directory"] for u in config["updates"] if u["package-ecosystem"] == "pip"}
     assert pip_dirs == {"/services/backend", "/services/support-pro"}
+
+
+def test_dependabot_can_update_the_installed_support_pydantic_versions():
+    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
+    support, = (item for item in config["updates"] if item.get("directory") == "/services/support-pro"
+                and item["package-ecosystem"] == "pip")
+    locked = pins("services/support-pro/requirements.txt")
+    for rule in support.get("ignore", []):
+        name = rule["dependency-name"].lower().replace("_", "-")
+        if name not in {"pydantic", "pydantic-core"}:
+            continue
+        assert rule.get("versions") or rule.get("update-types"), f"{name}: all updates are ignored"
+        for expression in rule.get("versions", []):
+            bounds = SpecifierSet(expression)
+            if all(bound.operator in {">", ">="} for bound in bounds):
+                assert Version(locked[name]) not in bounds, f"{name} {expression} masks every newer version"
 
 
 def test_support_pro_python_315_runtime_dependency_contract():
