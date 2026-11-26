@@ -10,7 +10,10 @@ What counts as a problem:
 
 * HTTP 404/410 — the page or repository is gone;
 * a redirect to a different host that is not in ``ALLOWED_REDIRECTS`` (a moved resource);
-* a DNS failure or a timeout that persists after ``--retries``.
+* an unexpected HTTP status that persists after ``--retries``.
+
+Individual transport failures are reported as unverified. An unusable client or a run in which no
+server returned an HTTP response exits with status 2.
 
 Badge images (``img.shields.io``) and ``example.com``/``*.example.*``/``*.ДОМЕН`` placeholders are
 skipped: they are documentation fixtures, not links to check.
@@ -98,15 +101,23 @@ def collect(only: str) -> dict[str, list[str]]:
 
 
 def probe(url: str, timeout: float, retries: int) -> tuple[str, str]:
-    """Return ``(status, detail)``: status is one of ok/fail/skip."""
-    import httpx
-
+    """Check one URL, keeping cookies and retries isolated from other URLs."""
     headers = {"User-Agent": "corgi-doc-link-check/1.0 (+https://github.com/booarkz-cpu/shop-by-boo)"}
+    try:
+        import httpx
+        client = httpx.Client(follow_redirects=False, timeout=timeout, headers=headers)
+    except (ImportError, ValueError) as exc:
+        return "setup_error", type(exc).__name__
+
     last = ""
-    for attempt in range(retries):
-        try:
-            with httpx.Client(follow_redirects=False, timeout=timeout, headers=headers) as client:
+    with client:
+        for attempt in range(retries):
+            try:
                 response = client.get(url)
+            except httpx.RequestError as exc:
+                if attempt + 1 == retries:
+                    return "unverified", f"unverified: {type(exc).__name__}"
+                continue
             code = response.status_code
             if code in (404, 410):
                 return "fail", f"HTTP {code}"
@@ -120,15 +131,9 @@ def probe(url: str, timeout: float, retries: int) -> tuple[str, str]:
                 return "ok", f"HTTP {code} → {location[:80]}"
             if 200 <= code < 400:
                 return "ok", f"HTTP {code}"
-            # The server answered, so the host exists: a guard, a rate limit or a parameter requirement
-            # is not a broken link. Only 404/410 and a moved resource are.
             if code in (400, 401, 403, 429, 405):
                 return "skip", f"HTTP {code} (host answers, request needs a parameter or access)"
             last = f"HTTP {code}"
-        except Exception as exc:  # noqa: BLE001 — any transport error is reported, not raised
-            # A DNS failure or a timeout in this sandbox says nothing about the page: report it as
-            # unverified instead of accusing the documentation of a dead link.
-            return "skip", f"unverified: {type(exc).__name__}"
     return "fail", last or "unreachable"
 
 
@@ -146,15 +151,19 @@ def main() -> None:
         return
     failures: list[tuple[str, str, list[str]]] = []
     skipped = 0
+    unanswered = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = {pool.submit(probe, url, args.timeout, args.retries): url for url in urls}
         for future in concurrent.futures.as_completed(futures):
             url = futures[future]
             status, detail = future.result()
+            if status == "setup_error":
+                parser.exit(2, f"HTTP client setup failed ({detail}). Check proxy settings and installed HTTPX transports.\n")
             if status == "fail":
                 failures.append((url, detail, urls[url]))
-            elif status == "skip":
+            elif status in ("skip", "unverified"):
                 skipped += 1
+                unanswered += status == "unverified"
                 print(f"  skip {url} — {detail}")
     print(f"\nchecked {len(urls)} external links: "
           f"{len(urls) - len(failures) - skipped} ok, {skipped} skipped, {len(failures)} broken")
@@ -162,6 +171,8 @@ def main() -> None:
         print(f"  BROKEN {url} — {detail}")
         for name in sorted(set(files))[:3]:
             print(f"        referenced in {name}")
+    if unanswered == len(urls):
+        parser.exit(2, "No HTTP response from any selected URL. Check the runner network and proxy settings.\n")
     if failures:
         raise SystemExit(1)
 

@@ -53,6 +53,34 @@ def test_mobile_guide_uses_platform_specific_happ_sources():
     assert "[Happ для iOS](https://github.com/Happ-proxy/happ-ios)" in text
 
 
+
+@pytest.mark.parametrize("bad_configuration", [True, False], ids=["invalid-proxy", "no-http-response"])
+def test_external_link_check_requires_a_working_http_transport(tmp_path, bad_configuration):
+    import os
+    import shutil
+    import socket
+    import subprocess
+    import sys
+
+    script = tmp_path / "scripts" / "check-external-links.py"
+    script.parent.mkdir()
+    shutil.copyfile(ROOT / "scripts/check-external-links.py", script)
+    (tmp_path / "README.md").write_text("[Guide](https://guide.invalid/)", encoding="utf-8")
+    with socket.socket() as unused_port:
+        unused_port.bind(("127.0.0.1", 0))
+        scheme = "invalid-proxy" if bad_configuration else "http"
+        proxy = f"{scheme}://127.0.0.1:{unused_port.getsockname()[1]}"
+        env = {k: v for k, v in os.environ.items() if k.lower() not in {"http_proxy", "https_proxy", "all_proxy", "no_proxy"}}
+        result = subprocess.run(
+            [sys.executable, str(script), "--retries", "1", "--timeout", "1"],
+            env={**env, "HTTPS_PROXY": proxy}, capture_output=True, text=True, timeout=15,
+        )
+    assert result.returncode == 2, result.stdout + result.stderr
+    expected = "HTTP client setup failed" if bad_configuration else "No HTTP response"
+    assert expected in result.stderr
+    assert "BROKEN" not in result.stdout
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guides_do_not_reference_invented_prerelease_tags(filename):
     manifest=json.loads((ROOT/'release-manifest.template.json').read_text())
