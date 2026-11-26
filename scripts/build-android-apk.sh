@@ -45,16 +45,19 @@ esac
 # (mobile/android-signing-cert.sha256, a public value) or given as ANDROID_SIGNING_CERT_SHA256.
 EXPECTED_CERT="${ANDROID_SIGNING_CERT_SHA256:-$(grep -v '^#' "$ROOT/mobile/android-signing-cert.sha256" 2>/dev/null | tr -d ' :\n' || true)}"
 EXPECTED_CERT="$(printf '%s' "$EXPECTED_CERT" | tr -d ' :' | tr 'A-F' 'a-f')"
+if [[ "$SUFFIX" == release && ! "$EXPECTED_CERT" =~ ^[0-9a-f]{64}$ ]]; then
+  echo "Expected a SHA-256 signing certificate pin" >&2
+  exit 1
+fi
 verify_signature() {
   local file="$1" kind="$2" got
-  [[ -n "$EXPECTED_CERT" ]] || { echo "No expected signing certificate: skipping the check of $file" >&2; return 0; }
   if [[ "$kind" == apk ]]; then
     local signer
     # The build-tools the release workflows install (35.0.0), else the newest present.
     signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
     [[ -x "$signer" ]] || signer="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
     # --verbose: without it newer apksigner versions print no certificate digests.
-    got="$("$signer" verify --verbose --print-certs "$file" | sed -n 's/^Signer[^:]*certificate SHA-256 digest: //p' | head -1)"
+    got="$("$signer" verify --verbose --print-certs "$file" | python3 "$ROOT/scripts/mobile/apk-signer-digest.py")"
   else
     # An Android App Bundle carries a JAR signature.
     jarsigner -verify "$file" >/dev/null
