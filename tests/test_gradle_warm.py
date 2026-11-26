@@ -1,6 +1,7 @@
 """The Android runtime preflight retries a repository miss and still fails a real one."""
 import hashlib
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -27,6 +28,20 @@ def test_distribution_checksum_is_configured(project):
     assert hashlib.sha256((wrapper_dir / "gradle-wrapper.jar").read_bytes()).hexdigest() == (
         "621008afc4f5d59357fcf06ffa644dd5aade5e091bdc363742710445f73cdaf8"
     ), project
+
+
+@pytest.mark.parametrize("project", ["vpn-shop", "vpn-client", "lucy-admin"])
+def test_documented_android_versions_match_the_project(project):
+    root = WARM.parents[2]
+    path = Path("apps") / project / "android"
+    plugin = (root / path / "build.gradle.kts").read_text()
+    app = (root / path / "app/build.gradle.kts").read_text()
+    agp, = re.findall(r'id\("com\.android\.application"\)\s+version\s+"([^"]+)"', plugin)
+    version, = re.findall(r'^\s*versionName\s*=\s*"([^"]+)"', app, re.MULTILINE)
+    table = (root / "docs/TECH_STACK.md").read_text().splitlines()
+    row, = [line for line in table if line.endswith(f"`{path.as_posix()}` |")]
+    assert f"Android {version} |" in row
+    assert f"AGP {agp}," in row
 
 
 def test_lucy_admin_uses_current_stable_agp():
