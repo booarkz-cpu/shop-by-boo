@@ -1,11 +1,11 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-26T09:00:33.551Z",
+  "updatedAt": "2026-11-26T09:11:57.897Z",
   "active": {
     "number": 480,
     "ref": "dependabot/pip/services/support-pro/support-minor-8b149fd126",
-    "sha": "27afaa5dec3ce00df53766e10de0e2e317ec8206",
-    "title": "build(deps): bump the support-minor group in /services/support-pro with 3 updates",
+    "sha": "7266cb9052beec39beb427d6d92d2143a8075a5f",
+    "title": "Обновить aiogram, certifi и Redis в Support Pro",
     "ecosystem": "pip",
     "security": false,
     "createdAt": "2026-11-26T08:39:17Z",
