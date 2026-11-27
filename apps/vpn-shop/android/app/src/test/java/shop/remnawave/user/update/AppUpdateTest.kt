@@ -45,7 +45,8 @@ class AppUpdateTest {
         assertEquals(found, AppUpdate.offer(found, 3600))
         assertNull(AppUpdate.offer(found, 3700))                                // «Позже» for this version
         assertNull(AppUpdate.offer(null, 0))
-        assertTrue(AppUpdate.MANIFEST.endsWith("/releases/latest/download/corgi-lusi-android.json"))
+        assertTrue(AppUpdate.MANIFEST.endsWith("/mobile-updates/corgi-lusi-android.json"))
+        assertTrue(AppUpdate.DISTRIBUTION_MANIFEST.endsWith("/releases/latest/download/corgi-lusi-android.json"))
     }
 
     /** v28.137.0: the background job installs by itself wherever the system can do it silently, a working VPN included. */

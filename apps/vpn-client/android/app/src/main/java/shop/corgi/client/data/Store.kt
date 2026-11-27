@@ -371,7 +371,12 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
         val now = System.currentTimeMillis()
         val current = currentVersion()
         if (!shop.corgi.client.core.ApkCheck.checkDue(now, prefs.getLong("update_checked", 0), force)) return cachedUpdate()
-        val found = Update.newer(fetch(Update.MANIFEST), current)
+        val manifest = try {
+            fetch(Update.MANIFEST)
+        } catch (_: java.io.FileNotFoundException) {
+            fetch(Update.DISTRIBUTION_MANIFEST)
+        }
+        val found = Update.newer(manifest, current)
         prefs.edit().putLong("update_checked", now).putString(
             "update",
             found?.let { "${it.versionCode}|${it.versionName}|${it.sha256}|${it.apk}" } ?: ""

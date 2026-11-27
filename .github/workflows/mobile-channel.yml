@@ -1,0 +1,128 @@
+name: Publish mobile updates
+
+on:
+  workflow_run:
+    workflows: ["Mobile packages", "Corgi Lusi CI", "Corgi Lusi Docker"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: publish-mobile-updates
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      sha: ${{ steps.source.outputs.sha }}
+      run_id: ${{ steps.source.outputs.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - name: Select the verified mobile build of current main
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const sha = context.payload.workflow_run?.head_sha ?? context.sha;
+            const {data} = await github.rest.actions.listWorkflowRuns({
+              ...context.repo, workflow_id: 'mobile-release.yml', branch: 'main', head_sha: sha, per_page: 100
+            });
+            const run = data.workflow_runs.filter(r => r.head_sha === sha && r.head_branch === 'main' &&
+              r.head_repository?.full_name === `${context.repo.owner}/${context.repo.repo}` &&
+              ['push', 'workflow_dispatch'].includes(r.event)).sort((a, b) => b.id - a.id)[0];
+            if (!run || run.status !== 'completed' || run.conclusion !== 'success') return;
+            const {requireVerifiedMain} = require('./scripts/release-gate.cjs');
+            await requireVerifiedMain({github, context: {repo: context.repo, payload: {workflow_run: run}}, core});
+            core.setOutput('sha', sha);
+            core.setOutput('run_id', run.id);
+      - name: Read the packages from that run
+        if: steps.source.outputs.ready == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ github.token }}
+          pattern: mobile-*
+          merge-multiple: true
+          path: dist/mobile
+          digest-mismatch: error
+      - name: Compare with the published mobile versions
+        id: plan
+        if: steps.source.outputs.ready == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const {planChannel} = require('./scripts/mobile/publish-channel.cjs');
+            const plan = await planChannel({github, context, directory: 'dist/mobile'});
+            core.setOutput('upgrade', plan.needsUpgrade);
+            core.setOutput('publish', plan.needsPublish);
+            core.setOutput('baseline', plan.baselineTag);
+            core.info(`Mobile release ${plan.tag}; upgrade baseline ${plan.baselineTag}`);
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        if: steps.plan.outputs.upgrade == 'true'
+        with:
+          packages: "platform-tools build-tools;35.0.0"
+      - name: Enable KVM
+        if: steps.plan.outputs.upgrade == 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install the previous signed APKs and upgrade in place
+        if: steps.plan.outputs.upgrade == 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        env:
+          PREVIOUS_TAG: ${{ steps.plan.outputs.baseline }}
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          script: bash scripts/mobile/test-published-upgrade.sh "$PREVIOUS_TAG" dist/mobile
+
+  publish:
+    needs: verify
+    if: needs.verify.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.verify.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          run-id: ${{ needs.verify.outputs.run_id }}
+          github-token: ${{ github.token }}
+          pattern: mobile-*
+          merge-multiple: true
+          path: dist/mobile
+          digest-mismatch: error
+      - name: Publish verified packages and advance the update manifests
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          SOURCE_SHA: ${{ needs.verify.outputs.sha }}
+          MOBILE_RUN_ID: ${{ needs.verify.outputs.run_id }}
+        with:
+          script: |
+            const {publishChannel} = require('./scripts/mobile/publish-channel.cjs');
+            await publishChannel({github, context, core, sha: process.env.SOURCE_SHA,
+              runId: Number(process.env.MOBILE_RUN_ID), directory: 'dist/mobile'});

@@ -25,7 +25,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * v3.6.0 (the window), v3.7.0 (the background update, AppUpdater): the app finds its own new version in the shop's latest release on GitHub. Every release carries
+ * v3.6.0 (the window), v3.7.0 (the background update, AppUpdater): the app checks the verified mobile channel on GitHub. The distribution channel remains available for older installations. Each release carries
  * corgi-lusi-android-admin.json next to corgi-lusi-android-admin.apk:
  * {"versionCode": 3600, "versionName": "3.6.0", "sha256": "…", "apk": "https://github.com/…/corgi-lusi-android-admin.apk"}.
  * The app compares versionCode once a day and offers the APK; Android checks that the signature matches the
@@ -34,7 +34,8 @@ import java.net.URL
 data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: String, val apk: String) {
     companion object {
         const val RELEASES = "https://github.com/booarkz-cpu/shop-by-boo/releases/"
-        const val MANIFEST = RELEASES + "latest/download/corgi-lusi-android-admin.json"
+        const val MANIFEST = "https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/mobile-updates/corgi-lusi-android-admin.json"
+        const val DISTRIBUTION_MANIFEST = RELEASES + "latest/download/corgi-lusi-android-admin.json"
         const val DAY = 86_400_000L
         /** v28.137.0: GitHub is asked at most every 3 hours (was once a day); the background job runs every 6 hours. */
         const val CHECK = 3 * 3_600_000L
@@ -69,14 +70,18 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
         }.getOrNull()
 
         /** The newer version in the latest release, asked right now (the daily job; call off the main thread). */
-        fun latest(current: Int): AppUpdate? = newer(fetch(), current)
+        fun latest(current: Int): AppUpdate? {
+            val text = fetch(MANIFEST) ?: fetch(DISTRIBUTION_MANIFEST) ?: error("Update manifest unavailable")
+            return newer(text, current)
+        }
 
-        private fun fetch(): String {
-            val connection = (URL(MANIFEST).openConnection() as HttpURLConnection).apply {
+        private fun fetch(url: String): String? {
+            val connection = (URL(url).openConnection() as HttpURLConnection).apply {
                 connectTimeout = 8000; readTimeout = 8000; instanceFollowRedirects = true
             }
             try {
-                require(connection.responseCode == 200) { "http" }
+                if (connection.responseCode == HttpURLConnection.HTTP_NOT_FOUND) return null
+                require(connection.responseCode == HttpURLConnection.HTTP_OK) { "http" }
                 return connection.inputStream.use { String(it.readNBytesCompat(8192)) }
             } finally {
                 connection.disconnect()
@@ -94,7 +99,7 @@ data class AppUpdate(val versionCode: Int, val versionName: String, val sha256: 
             if (debug || fromStore(installer(context))) return null
             val prefs = context.getSharedPreferences("app_update", 0)
             if (!due(now, prefs.getLong("checked", 0))) return null
-            val found = runCatching { newer(fetch(), current) }.getOrElse { return null }
+            val found = runCatching { latest(current) }.getOrElse { return null }
             prefs.edit().putLong("checked", now).apply()
             return offer(found, prefs.getInt("dismissed", 0))
         }
