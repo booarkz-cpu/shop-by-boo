@@ -65,6 +65,29 @@ def test_readme_rejects_checksums_attached_to_the_wrong_ios_app(page):
         check(damaged, page, _produced())
 
 
+@pytest.mark.parametrize("page", ["README.md", "README.en.md", "README.uk.md"])
+@pytest.mark.parametrize("platform", ["Android", "iOS"])
+def test_readme_rejects_downloads_swapped_between_named_products(page, platform):
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    text = (ROOT / page).read_text()
+    section = re.search(rf"^### {platform}\n(.*?)(?=^##|\Z)", text, re.M | re.S)[1]
+    first, second, *_ = [row for row in section.splitlines() if row.startswith("| **")]
+    first_app, first_links = first.split(" | ", 1)
+    second_app, second_links = second.split(" | ", 1)
+    mixed = text.replace(first, first_app + " | " + second_links).replace(second, second_app + " | " + first_links)
+    with pytest.raises(ValueError, match="application"):
+        check(mixed, page, _produced())
+
+
+@pytest.mark.parametrize("page", ["README.md", "README.en.md", "README.uk.md"])
+def test_ios_device_label_cannot_point_to_the_simulator_file(page):
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    text = (ROOT / page).read_text()
+    wrong_labels = text.replace("IPA", "ZIP")
+    with pytest.raises(ValueError, match="file type"):
+        check(wrong_labels, page, _produced())
+
+
 def test_signing_certificate_is_pinned():
     lines = [l for l in (ROOT / "mobile/android-signing-cert.sha256").read_text().splitlines() if l and not l.startswith("#")]
     assert len(lines) == 1 and re.fullmatch(r"[0-9a-f]{64}", lines[0])

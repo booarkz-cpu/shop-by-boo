@@ -22,6 +22,15 @@ READMES = [
     ROOT / "README.en.md",
     ROOT / "README.uk.md",
 ]
+APP_ROLES = {
+    "Магазин": "user", "Shop": "user", "Lucy Admin": "admin",
+    "Корги Люси: клиент": "client", "Corgi Lucy Client": "client", "Коргі Люсі: клієнт": "client",
+}
+ANDROID_APKS = {
+    "user": "corgi-lusi-android.apk",
+    "client": "corgi-lusi-client.apk",
+    "admin": "corgi-lusi-android-admin.apk",
+}
 
 
 class RedirectRecorder(urllib.request.HTTPRedirectHandler):
@@ -41,17 +50,25 @@ def produced_apks() -> set[str]:
     return names
 
 
-def table_packages(section: str, page: str) -> list[str]:
+def table_packages(section: str, page: str) -> list[tuple[str, str]]:
     packages = []
     for row in section.splitlines():
         if not row.startswith("|"):
             continue
-        links = re.findall(r"\]\(([^)\s]+)\)", row)
+        links = re.findall(r"\[([^\]]+)\]\(([^)\s]+)\)", row)
+        if not links:
+            continue
+        name = row.split("|")[1].split(" · ", 1)[0].strip().strip("*")
+        if name not in APP_ROLES:
+            raise ValueError(f"{page}: unknown application in download table: {name}")
         for index in range(0, len(links), 2):
-            package = links[index]
-            if index + 1 >= len(links) or links[index + 1] != package + ".sha256":
+            label, package = links[index]
+            if index + 1 >= len(links) or links[index + 1][1] != package + ".sha256":
                 raise ValueError(f"{page}: expected the matching SHA-256 link next to {package}")
-            packages.append(package)
+            extension = package.rsplit(".", 1)[-1]
+            if not re.search(rf"\b{re.escape(extension)}\b", label, re.I):
+                raise ValueError(f"{page}: download label {label!r} does not identify the file type of {package}")
+            packages.append((APP_ROLES[name], package))
     return packages
 
 
@@ -63,18 +80,21 @@ def readme_downloads(text: str, page: str, apks: set[str]) -> set[tuple[str, str
         raise ValueError(f"{page}: expected Android and iOS in the first download section")
 
     android = table_packages(platforms["Android"], page)
-    expected = {f"https://github.com/{REPOSITORY}/releases/latest/download/{apk}" for apk in apks}
-    if len(android) != len(expected) or set(android) != expected:
-        raise ValueError(f"{page}: expected one link for each APK from the release workflow")
+    prefix = f"https://github.com/{REPOSITORY}/releases/latest/download/"
+    expected = {(role, prefix + apk) for role, apk in ANDROID_APKS.items()}
+    if set(ANDROID_APKS.values()) != apks or len(android) != len(expected) or set(android) != expected:
+        raise ValueError(f"{page}: expected the release APK for each named application")
 
     ios = set()
     variants = []
     versions = set()
-    for url in table_packages(platforms["iOS"], page):
+    for row_role, url in table_packages(platforms["iOS"], page):
         match = TAGGED_IOS.fullmatch(url)
         if not match:
             raise ValueError(f"{page}: invalid iOS release link {url}")
         tag, name, role, version, kind = match.groups()
+        if row_role != role:
+            raise ValueError(f"{page}: {name} belongs to a different application")
         ios.add((tag, name))
         variants.append((role, kind))
         versions.add((tag, version))

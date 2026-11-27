@@ -8,6 +8,15 @@ ROOT = Path(__file__).resolve().parents[1]
 GUIDES = json.loads((ROOT/'docs/current-guides.json').read_text())['guides']
 
 
+@pytest.mark.parametrize(("page", "locale"), [("README.md", "ru"), ("README.en.md", "en"), ("README.uk.md", "uk")])
+def test_readme_has_operator_guides_for_its_language(page, locale):
+    links = set(re.findall(r"\]\(([^)\s]+)\)", (ROOT / page).read_text()))
+    topics = ("Admin", "Backup", "Installation", "Mobile", "Payments", "Remnawave", "Security", "Troubleshooting", "Updates")
+    expected = {f"docs/wiki/{locale}/{topic}.md" for topic in topics}
+    expected.update({"docs/architecture/README.md", "docs/architecture/CONTAINER_DIAGRAM.md", "docs/ru/new/TERMUX_GUIDE.md"})
+    assert expected <= links, (page, sorted(expected - links))
+
+
 def test_readme_main_version_column_matches_apps_and_compose():
     gradle = "android/app/build.gradle.kts"
 
