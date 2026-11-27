@@ -1,5 +1,6 @@
 package shop.corgi.client.core
 
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -82,6 +83,45 @@ class ProxyBackupSchemeTest {
             val link = "corgi://restore/" + Backup.encode(json.toString())
             assertTrue("link accepted: $case", runCatching { Backup.parse(link) }.isFailure)
         }
+    }
+
+    @Test fun restoreRejectsDamagedServerListsInFilesAndLinks() {
+        val profile = Profile.fromText(server.link, "home", 1)
+        val backup = Backup(listOf(profile), Settings(), "home", "0", 2)
+        val brokenLists = listOf(
+            "links" to JSONObject(),
+            "links" to JSONArray().put(42),
+            "links" to JSONArray().put(" "),
+            "configs" to "[]",
+            "configs" to JSONObject.NULL,
+            "configs" to JSONArray().put(JSONObject()),
+            "links" to JSONArray(),
+        )
+        for ((field, value) in brokenLists) {
+            val json = backup.toJson()
+            json.getJSONArray("profiles").getJSONObject(0).put(field, value)
+            val text = json.toString()
+            for (input in listOf(text, "corgi://restore/" + Backup.encode(text))) {
+                assertTrue("accepted invalid $field: $value", runCatching { Backup.parse(input) }.isFailure)
+            }
+        }
+    }
+
+    @Test fun restoreAcceptsLegacyLinksConfigListsAndUnrefreshedSubscriptions() {
+        val linkProfile = Profile.fromText(server.link, "links", 1)
+        val config = """{"outbounds":[{"protocol":"trojan","settings":{}}]}"""
+        val configProfile = Profile.fromText("[$config]", "configs", 1)
+        val subscription = Profile.fromText("https://example.invalid/sub", "pending", 1)
+        val backup = Backup(listOf(linkProfile, configProfile, subscription), Settings(), "links", "0", 2)
+        val json = backup.toJson()
+        val rows = json.getJSONArray("profiles")
+        rows.getJSONObject(0).remove("configs")
+        rows.getJSONObject(1).remove("links")
+        rows.getJSONObject(2).apply {
+            remove("links")
+            remove("configs")
+        }
+        assertEquals(backup, Backup.parse(json.toString()))
     }
 
     @Test fun urlSchemes() {
