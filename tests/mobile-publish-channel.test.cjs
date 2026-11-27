@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const {planChannel, getBaselineTag, publishChannel} = require('../scripts/mobile/publish-channel.cjs');
+const {planChannel, getBaselineTag, publishChannel, verifyPublicChannel} = require('../scripts/mobile/publish-channel.cjs');
 
 const hash = data => createHash('sha256').update(data).digest('hex');
 const first = 'a'.repeat(40), second = 'b'.repeat(40);
@@ -171,6 +171,33 @@ test('publishes verified packages and all three tagged Android manifests before 
   assert.doesNotMatch(state.files['README.md'], /Изменение и причина/);
   assert.match(state.files['README.md'], /Unsigned IPA/);
   assert.equal((state.files['README.md'].match(/\[SHA-256\]/g) || []).length, 7);
+});
+
+test('checks the public manifests, binary bytes and sidecars through anonymous download URLs', async t => {
+  const {opts, state} = fixture(t);
+  await publishChannel(opts);
+  const pages = new Map(Object.entries(state.files).map(([name, data]) =>
+    ['https://raw.githubusercontent.com/o/r/mobile-updates/' + name, data]));
+  const base = 'https://github.com/o/r/releases/download/' + tag + '/';
+  for (const asset of state.releases[1].assets) pages.set(base + asset.name, state.blobs[asset.id]);
+  const seen = new Set();
+  const request = async (url, options) => {
+    assert.deepEqual(Object.keys(options), ['signal']);
+    seen.add(url);
+    return pages.has(url) ? new Response(pages.get(url)) : new Response(null, {status: 404});
+  };
+  const verify = () => verifyPublicChannel({...opts, tag, request});
+  await verify();
+  assert.equal(seen.size, 17);
+  const apk = base + stems[0] + '.apk';
+  const original = pages.get(apk);
+  pages.set(apk, Buffer.alloc(original.length));
+  await assert.rejects(verify(), /Public download differs/);
+  pages.set(apk, original);
+  pages.set(apk + '.sha256', 'other checksum');
+  await assert.rejects(verify(), /Public checksum differs/);
+  pages.delete(apk);
+  await assert.rejects(verify(), /HTTP 404/);
 });
 
 test('repairs only the pointer from originally published bytes after a different build of the same versions', async t => {

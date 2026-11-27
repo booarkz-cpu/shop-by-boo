@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 45
     outputs:
       publish: ${{ steps.plan.outputs.publish }}
+      tag: ${{ steps.plan.outputs.tag }}
       sha: ${{ steps.source.outputs.sha }}
       run_id: ${{ steps.source.outputs.run_id }}
     steps:
@@ -68,6 +69,7 @@ jobs:
           script: |
             const {planChannel} = require('./scripts/mobile/publish-channel.cjs');
             const plan = await planChannel({github, context, directory: 'dist/mobile'});
+            core.setOutput('tag', plan.tag);
             core.setOutput('upgrade', plan.needsUpgrade);
             core.setOutput('publish', plan.needsPublish);
             core.setOutput('baseline', plan.baselineTag);
@@ -126,3 +128,24 @@ jobs:
             const {publishChannel} = require('./scripts/mobile/publish-channel.cjs');
             await publishChannel({github, context, core, sha: process.env.SOURCE_SHA,
               runId: Number(process.env.MOBILE_RUN_ID), directory: 'dist/mobile'});
+
+  public-downloads:
+    needs: [verify, publish]
+    if: >-
+      !cancelled() && needs.verify.result == 'success' && needs.verify.outputs.tag != '' &&
+      (needs.publish.result == 'success' || (github.event_name == 'workflow_dispatch' && needs.publish.result == 'skipped'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.verify.outputs.sha }}
+          persist-credentials: false
+      - name: Read each update manifest and download the public packages without credentials
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          MOBILE_TAG: ${{ needs.verify.outputs.tag }}
+        with:
+          script: |
+            const {verifyPublicChannel} = require('./scripts/mobile/publish-channel.cjs');
+            await verifyPublicChannel({github, context, core, tag: process.env.MOBILE_TAG});

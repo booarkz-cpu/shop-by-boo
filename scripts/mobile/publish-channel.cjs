@@ -192,7 +192,47 @@ async function published(github, repo, release) {
       manifests[stem + '.json'] = tagged.toString();
     }
   }
-  return {catalog, manifests};
+  return {catalog, manifests, assets};
+}
+
+// Use the same anonymous URLs that installed apps and people downloading the packages see.
+async function verifyPublicChannel({github, context, core, tag, request = fetch}) {
+  const repo = context.repo;
+  const release = (await github.rest.repos.getReleaseByTag({...repo, tag})).data;
+  const {catalog, manifests, assets} = await published(github, repo, release);
+  if (catalog.tag !== tag) throw Error('Unexpected public mobile release');
+  const raw = `https://raw.githubusercontent.com/${repo.owner}/${repo.repo}/${branch}/`;
+  const get = url => request(url, {signal: AbortSignal.timeout(180_000)});
+
+  // The raw branch URLs may still serve the previous ref from GitHub's CDN.
+  const deadline = Date.now() + 6 * 60_000;
+  for (const [name, expected] of Object.entries(manifests)) {
+    for (;;) {
+      const response = await get(raw + name);
+      if (response.ok && await response.text() === expected) break;
+      if (!response.ok && response.body) await response.body.cancel();
+      if (Date.now() >= deadline) throw Error(`Public update manifest differs from ${tag}: ${name}`);
+      core.info(`Waiting for the public URL of ${name} to serve ${tag}`);
+      await new Promise(resolve => setTimeout(resolve, 15_000));
+    }
+  }
+  for (const name of packages(catalog)) {
+    const url = download(repo, catalog, name);
+    const response = await get(url);
+    if (!response.ok || !response.body) throw Error(`Public download ${name}: HTTP ${response.status}`);
+    const expected = assets.get(name), hash = crypto.createHash('sha256');
+    let bytes = 0;
+    for await (const chunk of response.body) {
+      bytes += chunk.byteLength;
+      if (bytes > expected.size) throw Error(`Public download exceeds its published size: ${name}`);
+      hash.update(chunk);
+    }
+    const sha = hash.digest('hex');
+    if (bytes !== expected.size || 'sha256:' + sha !== expected.digest) throw Error(`Public download differs: ${name}`);
+    const sidecar = await get(url + '.sha256');
+    if (!sidecar.ok || await sidecar.text() !== checksum(sha, name).toString()) throw Error(`Public checksum differs: ${name}`);
+    core.info(`${name}: ${bytes} bytes, SHA-256 ${sha}`);
+  }
 }
 
 async function resolvePlan(github, repo, local) {
@@ -321,4 +361,4 @@ async function publishChannel({github, context, core, sha, runId, directory = 'd
   return tag;
 }
 
-module.exports = {getBaselineTag, planChannel, publishChannel};
+module.exports = {getBaselineTag, planChannel, publishChannel, verifyPublicChannel};
