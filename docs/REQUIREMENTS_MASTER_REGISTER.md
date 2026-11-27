@@ -11,16 +11,16 @@
 ## Итог
 
 - Требований: **657**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **223** — 33.9%.
+- Подтверждено (`PASS`): **225** — 34.2%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 223 | Проверено, доказательство указано |
+| `PASS` | 225 | Проверено, доказательство указано |
 | `PARTIAL` | 252 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 25 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 155 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 153 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -40,7 +40,7 @@
 | Интерфейсы | 11 | 1 | 10 | 0 | 0 |
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 12 | 3 | 0 | 0 |
-| Документация | 38 | 25 | 5 | 0 | 7 |
+| Документация | 38 | 27 | 5 | 0 | 5 |
 | Аудит, тесты, скриншоты | 69 | 24 | 9 | 0 | 35 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
@@ -4067,9 +4067,12 @@
 
 ## Документация
 
-### REQ-DOC-0001 — `NOT_TESTED`
+### REQ-DOC-0001 — `PASS`
 
 - Источник: Часть I → Documentation → Readme (строка 770). Продукт: Все три.
+- Платформы: GitHub README, Web, Android, iOS.
+- Доказательство: `README.md`; `README.en.md`; `README.uk.md`; `docs/ru/README.md`; `docs/en/README.md`; `docs/uk/README.md`; `docs/ru/new/TERMUX_GUIDE.md`; `screenshots/README.md`; `scripts/audit/check-mobile-release-links.py`; `tests/test_current_documentation.py`; `tests/test_download_links.py`; `tests/test_release_tooling.py`; `tests/test_screenshots.py`.
+- Примечание: 27.11.2026: полный README принят PR #508. Проверены назначение, архитектура, продукты, требования, установка, обновление, Docker/VPS/Termux, семь мобильных загрузок и их SHA-256, платежи, Remnawave, админка, диагностика, безопасность и ссылки на русском, английском и украинском. PR HEAD a53a45f001c84b70390da26c9e71a90a9e6196fc: CI 45976511356 — 28/28, mobile screenshots 45976511442 — 3 успешных и 3 штатно пропущенных. Подписанный main 34a436d9aa0f25d68d93ccdacd19b339fe7623d2: семь push-процессов, 46/46 заданий успешны; основной CI 45980692980 — 28/28.
 
 > Назначение; архитектура; продукты; требования; установка; обновление; Docker; VPS; Termux; мобильные приложения; платежи; Remnawave; админка; диагностика; безопасность; ссылки.
 
@@ -4121,9 +4124,12 @@
 
 > - Инструкция по `git config user.name` и `git config user.email`, включая Android.
 
-### REQ-DOC-0008 — `NOT_TESTED`
+### REQ-DOC-0008 — `PASS`
 
 - Источник: Часть II → II.5. VPS, Termux, GitHub и документация (строка 1609). Продукт: Все три.
+- Платформы: GitHub README, Web, Android, iOS.
+- Доказательство: `README.md`; `README.en.md`; `README.uk.md`; `docs/ru/new/TERMUX_GUIDE.md`; `docs/ru/BACKUP_CURRENT.md`; `docs/wiki/ru/Installation.md`; `docs/wiki/en/Installation.md`; `docs/wiki/uk/Installation.md`; `docs/wiki/ru/Backup.md`; `docs/wiki/en/Backup.md`; `docs/wiki/uk/Backup.md`; `docs/wiki/ru/Updates.md`; `docs/wiki/en/Updates.md`; `docs/wiki/uk/Updates.md`; `scripts/audit/check-mobile-release-links.py`; `tests/test_current_documentation.py`; `tests/test_download_links.py`; `tests/test_release_tooling.py`; `tests/test_screenshots.py`.
+- Примечание: 27.11.2026: критерий полного README с мобильными ссылками, установкой, обновлением и восстановлением принят PR #508. В трёх языках проверены семь опубликованных загрузок, собственные SHA-256, подписанные Android APK, неподписанные iOS IPA и ZIP симулятора, SSH host-key verification, стабильная установка v28.161.0, backup/update/isolated restore. На PR HEAD a53a45f001c84b70390da26c9e71a90a9e6196fc прошли 33 применимые проверки и 3 штатных skip; на подписанном main 34a436d9aa0f25d68d93ccdacd19b339fe7623d2 — 46/46 заданий семи push-процессов, включая CI 45980692980 и Mobile packages 45980692916.
 
 > - Полный README с мобильными ссылками, установкой, обновлением и восстановлением.
 
