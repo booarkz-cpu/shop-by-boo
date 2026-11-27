@@ -1,51 +1,8 @@
 {
   "schema": 2,
-  "updatedAt": "2026-11-27T01:38:16.703Z",
+  "updatedAt": "2026-11-27T02:00:03Z",
   "active": null,
-  "deferred": [
-    {
-      "number": 481,
-      "ref": "dependabot/pip/services/backend/backend-minor-2a013f15a6",
-      "sha": "14d3b3b4024280e5871dbabb7c6f148bc12ec629",
-      "title": "build(deps): bump the backend-minor group in /services/backend with 2 updates",
-      "ecosystem": "pip",
-      "security": false,
-      "createdAt": "2026-11-26T08:39:33Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "GitHub refused to reopen (HTTP 422)",
-      "reopenAfter": "2026-11-27T10:05:46.320Z"
-    },
-    {
-      "number": 482,
-      "ref": "dependabot/npm_and_yarn/apps/lucy-admin/web/admin-minor-a4946c28d0",
-      "sha": "c2547bf5b2d3ae00613aa10719d8bc079694565f",
-      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/lucy-admin/web in the admin-minor group",
-      "ecosystem": "npm_and_yarn",
-      "security": false,
-      "createdAt": "2026-11-26T08:39:53Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "GitHub refused to reopen (HTTP 422)",
-      "reopenAfter": "2026-11-27T10:07:06.039Z"
-    },
-    {
-      "number": 483,
-      "ref": "dependabot/npm_and_yarn/apps/user-cabinet/cabinet-minor-a4946c28d0",
-      "sha": "248b94e4b8a92f31aadc444a37beedd794dffe19",
-      "title": "build(deps): bump lucide-react from 1.77.0 to 1.78.0 in /apps/user-cabinet in the cabinet-minor group",
-      "ecosystem": "npm_and_yarn",
-      "security": false,
-      "createdAt": "2026-11-26T08:39:55Z",
-      "status": "waiting",
-      "attempts": 0,
-      "conflicts": 0,
-      "note": "GitHub refused to reopen (HTTP 422)",
-      "reopenAfter": "2026-11-27T11:30:47.086Z"
-    }
-  ],
+  "deferred": [],
   "history": [
     {
       "at": "2026-11-23T20:07:00Z",
@@ -166,6 +123,24 @@
       "action": "reopen-requested",
       "number": 484,
       "reason": "promoted"
+    },
+    {
+      "at": "2026-11-27T02:00:03Z",
+      "action": "superseded",
+      "number": 481,
+      "reason": "equivalent latest backend updates accepted via #497; main 46b20621533e0b505d655d48cdcf3c4fc328173e"
+    },
+    {
+      "at": "2026-11-27T02:00:03Z",
+      "action": "superseded",
+      "number": 482,
+      "reason": "lucide-react 1.81.0 for Lucy Admin accepted via #498; main 247a535b126995f5589e4298f6b296af08d5b484"
+    },
+    {
+      "at": "2026-11-27T02:00:03Z",
+      "action": "superseded",
+      "number": 483,
+      "reason": "lucide-react 1.81.0 for Cabinet/Mini App accepted via #499; main 534b716a05acef47737bccfb7785c057e60c5d5c"
     }
   ]
 }
