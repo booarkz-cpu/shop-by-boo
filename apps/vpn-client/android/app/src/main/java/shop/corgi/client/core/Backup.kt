@@ -39,8 +39,23 @@ data class Backup(val profiles: List<Profile>, val settings: Settings, val activ
             val settings = requireNotNull(json.optJSONObject("settings")) {
                 tr("Повреждены настройки в резервной копии", "Invalid settings in backup", "Пошкоджено налаштування в резервній копії")
             }
-            val profiles = (0 until items.length()).map { Profile.of(items.getJSONObject(it)) }
+            val profiles = (0 until items.length()).map { profileFromBackup(items.getJSONObject(it)) }
             return Backup(profiles, Settings.of(settings), json.optString("activeProfile"), json.optString("activeServer", "auto"), json.optLong("created"))
+        }
+
+        private fun profileFromBackup(row: JSONObject): Profile {
+            val error = tr("Повреждён список серверов профиля", "Invalid server list in backup profile", "Пошкоджено список серверів профілю")
+            for (field in listOf("links", "configs")) {
+                if (!row.has(field)) continue
+                val entries = requireNotNull(row.optJSONArray(field)) { error }
+                for (index in 0 until entries.length()) {
+                    val value = entries.opt(index)
+                    require(value is String && value.isNotBlank()) { error }
+                }
+            }
+            val profile = Profile.of(row)
+            require(profile.kind != "links" || profile.links.isNotEmpty() || profile.configs.isNotEmpty()) { error }
+            return profile
         }
 
         /** A backup from a file's text or a corgi://restore/ link. */

@@ -35,12 +35,18 @@ class VaultTest {
         val profile = store.add("trojan://test-only@vpn.example.invalid:443#Active")
         store.activeServer = "0"
         store.settings = store.settings.copy(sort = "name")
-        val damaged = store.backup().toJson().apply { remove("profiles") }.toString()
+        val backup = store.backup()
+        val missingProfiles = backup.toJson().apply { remove("profiles") }.toString()
+        val damagedServers = backup.toJson().apply {
+            getJSONArray("profiles").getJSONObject(0).put("links", org.json.JSONObject())
+        }.toString()
         val before = prefs.all.toMap()
-        for (input in listOf(damaged, "corgi://restore/" + Backup.encode(damaged))) {
-            val error = runCatching { store.restore(Backup.parse(input)) }.exceptionOrNull()
-            assertTrue(error is IllegalArgumentException)
-            assertEquals(before, prefs.all)
+        for (damaged in listOf(missingProfiles, damagedServers)) {
+            for (input in listOf(damaged, "corgi://restore/" + Backup.encode(damaged))) {
+                val error = runCatching { store.restore(Backup.parse(input)) }.exceptionOrNull()
+                assertTrue(error is IllegalArgumentException)
+                assertEquals(before, prefs.all)
+            }
         }
         val reopened = Store(context)
         assertEquals(profile, reopened.active())
