@@ -56,7 +56,7 @@
 1. сборка админки и кабинета;
 2. тестовый стенд `tests/passkey_browser_server.py` с PostgreSQL и Redis (`BROWSER_DATABASE_URL`, `BROWSER_REDIS_URL`, `PAYMENTS_SANDBOX=true`);
 3. `node apps/lucy-admin/web/scripts/screenshots-catalog.mjs <корень>`;
-4. `python3 scripts/screenshots/readme_admin.py` — блок «Админ-панель» в README.
+4. `python3 scripts/screenshots/readme_admin.py` — блок «Админ-панель» в [галерее](../screenshots/README.md).
 
 После этапа, который менял интерфейс, снимки обновляются тем же скриптом. Полная пересъёмка — на этапах 17 и 18.
 

@@ -34,7 +34,9 @@ def main() -> None:
     require("backend/app/main.py", f'APP_VERSION = "{VERSION}"')
     require("infrastructure/deployment/install-vps.sh", f'INSTALLER_VERSION="{VERSION}"')
     require("scripts/build-release.sh", f'VERSION="{VERSION}"')
-    require("README.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, "MATRIX_COMPLETION_21_5_1.md")
+    for readme in ("README.md", "README.en.md", "README.uk.md",
+                   "docs/ru/README.md", "docs/en/README.md", "docs/uk/README.md"):
+        require(readme, DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD, "MATRIX_COMPLETION_21_5_1.md")
     require(".env.example", DISTRIBUTION_TAG, "RUNTIME_SETTINGS_CURRENT.md", "REMNAWAVE_TOKEN", "YOOKASSA_SECRET_KEY")
     require("CHANGELOG.md", f"# {DISTRIBUTION_TAG}", SHOP_HEAD, "96")
     require("DOCUMENTATION.md", DISTRIBUTION_TAG, VERSION, SHOP_HEAD, SUPPORT_HEAD)
