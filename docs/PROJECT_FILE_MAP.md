@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2770**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2771**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1810,6 +1810,7 @@
 | [screenshots/storefront_user/21_info.png](../screenshots/storefront_user/21_info.png) | Корень проекта |
 | [screenshots/storefront_user/22_faq.png](../screenshots/storefront_user/22_faq.png) | Корень проекта |
 | [screenshots/storefront_user/23_offer.png](../screenshots/storefront_user/23_offer.png) | Корень проекта |
+| [scripts/audit/check-mobile-release-links.py](../scripts/audit/check-mobile-release-links.py) | Эксплуатация и релиз |
 | [scripts/audit/check_payment_provider_registry.py](../scripts/audit/check_payment_provider_registry.py) | Эксплуатация и релиз |
 | [scripts/audit/check_release_changelog.py](../scripts/audit/check_release_changelog.py) | Эксплуатация и релиз |
 | [scripts/audit/check_release_readiness.py](../scripts/audit/check_release_readiness.py) | Эксплуатация и релиз |

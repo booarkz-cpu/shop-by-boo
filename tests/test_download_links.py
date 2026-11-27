@@ -112,3 +112,11 @@ def test_mobile_packages_are_built_for_every_head_of_main():
         "scripts/mobile/xray-artifact.py",
     }
     assert packaging_scripts.issubset(triggers["pull_request"]["paths"])
+
+
+@pytest.mark.skipif(os.environ.get("RUN_LIVE_RELEASE_LINK_CHECK") != "1", reason="explicit live GitHub check")
+def test_live_readme_mobile_links_match_latest_published_release():
+    """REQ-QA-0031: execute the standalone live audit used by Autonomous audit."""
+    result = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["verify"]()
+    assert result["tag"].startswith("v")
+    assert {asset["name"] for asset in result["assets"]} == _produced()
