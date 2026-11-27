@@ -37,6 +37,7 @@ class WikiExportTests(unittest.TestCase):
                     self.assertEqual(translated.splitlines()[0], source.read_text().splitlines()[0])
                     self.assertIn(WIKI + lang + "-" + source.stem + ")", sidebar)
                 start = (output / f"{lang}-Home.md").read_text()
+                self.assertIn(BLOB + "docs/INDEX.md#руководства-по-задачам)", start)
                 self.assertIn(WIKI + lang + "-Installation)", start)
                 for other in set(LANGUAGES) - {lang}:
                     self.assertIn(WIKI + other + "-Home)", start)
@@ -69,6 +70,7 @@ class WikiExportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             shutil.copytree(ROOT / "docs/wiki", root / "docs/wiki")
+            shutil.copyfile(ROOT / "docs/INDEX.md", root / "docs/INDEX.md")
             for lang in ("en", "uk"):
                 guide = Path("docs") / lang / "guides/README.md"
                 (root / guide).parent.mkdir(parents=True)

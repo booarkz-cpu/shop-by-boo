@@ -24,8 +24,8 @@ run everything from one admin panel.
 
 ## What you need first
 
-1. **A server** — a VDS on Ubuntu 22.04+ with 2 cores, 4 GB RAM, 20 GB SSD.
-2. **A domain** — an A record pointing at the server IP. Three subdomains are convenient for three surfaces.
+1. **Server.** Start with a clean Ubuntu 24.04 or Debian 12 VPS and root access. Allow roughly 4 vCPUs, 8 GB of RAM and 40 GB of disk to build all the images.
+2. **DNS.** Point the hostnames you choose at the server. The installer suggests `api`, `admin`, `app`, `cabinet` and `support` for the API, admin panel, Mini App, customer account and support service.
 3. **A Remnawave panel** — address and API token. Without it the shop cannot deliver access.
 4. **A Telegram bot** — a token from [@BotFather](https://t.me/BotFather).
 5. **A payment provider** — keys from any supported provider. Without keys the shop runs, but cannot take money.
@@ -55,7 +55,7 @@ the provider → a worker grants access in Remnawave → the customer receives a
 ## Full documentation
 
 The repository holds all documentation: [README](https://github.com/booarkz-cpu/shop-by-boo#readme),
-[document index](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/INDEX.md),
+[guides by task, in Russian](../../INDEX.md#руководства-по-задачам),
 [API catalogue](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/API_ENDPOINTS.md).
 
 ## Languages

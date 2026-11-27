@@ -21,8 +21,16 @@
 
 ## Проверки перед PR
 
+Выполните из корня репозитория в Bash. Один раз создайте виртуальное окружение. Затем активируйте его и установите версию Ruff, которую использует [CI](.github/workflows/ci.yml).
+
 ```bash
-ruff check backend scripts tests support-pro
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install ruff==0.17.3
+```
+
+```bash
+ruff check services/backend services/support-pro scripts tests
 python3 scripts/check-current-docs.py
 python3 scripts/check-doc-links.py
 python3 scripts/check-runtime-placeholders.py

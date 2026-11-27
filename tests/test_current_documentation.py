@@ -250,3 +250,72 @@ def test_project_map_lists_a_new_file_before_it_is_staged():
     finally:
         probe.unlink()
     assert 'PROBE_UNTRACKED_DO_NOT_COMMIT.md' in rendered, "an untracked file is part of the map"
+
+
+@pytest.mark.parametrize('language', ('ru', 'en', 'uk'))
+def test_wiki_setup_matches_full_build_profile_and_installer_hostnames(language):
+    guide = (ROOT / 'docs/INSTALLATION.md').read_text()
+    os_row, = [line for line in guide.splitlines() if line.startswith('| ОС |')]
+    resources, = [line for line in guide.splitlines() if line.startswith('| Ресурсы |')]
+    systems = re.findall(r'(?:Ubuntu|Debian) [0-9.]+', os_row)
+    sizing = re.search(r'(\d+) vCPU, (\d+) ГБ RAM, (\d+) ГБ', resources)
+    assert len(systems) == 2 and sizing
+    home = (ROOT / 'docs/wiki' / language / 'Home.md').read_text()
+    server, = [row for row in home.splitlines() if row.startswith('1. **')]
+    assert all(system in server for system in systems), server
+    cpu, ram, disk = sizing.groups()
+    assert re.search(rf'\b{cpu} vCPUs?\b', server)
+    assert re.search(rf'\b{ram} (?:ГБ|GB)\b.*\b{disk} (?:ГБ|GB)\b', server)
+    installer = (ROOT / 'infrastructure/deployment/install-vps.sh').read_text()
+    default_hosts = re.findall(r'^prompt (?:API|ADMIN|APP|CABINET|SUPPORT_PRO)_DOMAIN "[^"]+" "([\w-]+)\.\$\{BASE_DOMAIN\}"$', installer, re.M)
+    assert len(default_hosts) == 5
+    domains, = [row for row in home.splitlines() if row.startswith('2. **')]
+    assert set(re.findall(r'`([\w-]+)`', domains)) == set(default_hosts)
+
+
+def test_guides_index_reaches_each_topic_from_the_source_requirement():
+    index = (ROOT / 'docs/INDEX.md').read_text()
+    targets = {p.split('#')[0] for p in re.findall(r'\]\(([^)\s]+)\)', index)}
+    expected = {
+        'architecture/SYSTEM_OVERVIEW.md', 'INSTALLATION.md', 'ru/new/ADMIN_PANEL_GUIDE.md',
+        'ru/new/USER_CABINET_GUIDE.md', '../CONTRIBUTING.md', 'wiki/ru/Payments.md',
+        'ru/new/REMNAWAVE_INSTALLATION_GUIDE.md', 'ru/new/NODE_PLUGINS.md', 'MASQUE_PANEL.md',
+        'ru/MOBILE_GUIDE.md', 'ru/BACKUP_CURRENT.md', 'wiki/ru/Updates.md', 'wiki/ru/Security.md',
+    }
+    assert expected <= targets, sorted(expected - targets)
+
+
+def test_installation_guide_prepares_all_unconditional_required_answers():
+    installer = (ROOT / 'infrastructure/deployment/install-vps.sh').read_text()
+    required = set(re.findall(r'^prompt_required (\w+) ', installer, re.M))
+    guide = (ROOT / 'docs/INSTALLATION.md').read_text()
+    setup = guide.split('## 4. Установка одной командой', 1)[1].split('\n## ', 1)[0]
+    documented = set(re.findall(r'`([A-Z_]+)`', setup))
+    assert required and required <= documented, sorted(required - documented)
+
+
+def test_documented_contributor_lint_checks_the_shipped_services():
+    import shlex
+
+    guide = (ROOT / 'CONTRIBUTING.md').read_text()
+    ci = (ROOT / '.github/workflows/ci.yml').read_text()
+    ruff, = set(re.findall(r'\bpip install (ruff==[\d.]+)', ci))
+    assert f'pip install {ruff}' in guide
+    commands = [shlex.split(row) for row in guide.splitlines() if row.startswith('ruff check ')]
+    folders = [ROOT / item for command in commands for item in command[2:] if not item.startswith('-')]
+    for source in ('services/backend/app/main.py', 'services/support-pro/app/main.py'):
+        assert (ROOT / source).is_file()
+        assert any((ROOT / source).is_relative_to(folder) for folder in folders), source
+
+
+def test_mobile_installation_guide_uses_current_downloads_and_source_projects():
+    guide = (ROOT / 'docs/ru/MOBILE_GUIDE.md').read_text()
+    manifest = json.loads((ROOT / 'release-manifest.template.json').read_text())
+    declared_tags = re.findall(r'Актуальный дистрибутив: `(v[\d.]+)`', guide)
+    assert all(tag == manifest['distribution_tag'] for tag in declared_tags), declared_tags
+    links = set(re.findall(r'\]\(([^)\s]+)\)', guide))
+    assert '../../README.md#скачать-мобильные-приложения' in links
+    architecture = (ROOT / 'docs/architecture/SYSTEM_OVERVIEW.md').read_text()
+    architecture_links = set(re.findall(r'\]\(([^)\s]+)\)', architecture))
+    project_links = {'../../apps/vpn-shop', '../../apps/vpn-client/android', '../../apps/lucy-admin'}
+    assert project_links <= links and project_links <= architecture_links

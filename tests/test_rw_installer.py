@@ -11,7 +11,9 @@ runs in CI in tests/live/test_install_live.py).
 * connecting the shop stages REMNAWAVE_URL and REMNAWAVE_TOKEN in the runtime settings (two-step apply)."""
 import hashlib
 import json
+import re
 from datetime import datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -273,6 +275,15 @@ async def test_registry_check_and_secret_never_returned(database, fleet):
     assert (await rw_api.list_servers(db, ADMIN))["servers"][0]["id"] == out["id"]
     actions = (await db.execute(select(AuditLog.action).where(AuditLog.action.like("rw.%")))).scalars().all()
     assert "rw.server.created" in actions
+
+
+def test_guides_identify_exact_operating_systems_checked_by_preflight():
+    guides = Path(__file__).resolve().parents[1] / "docs/ru/new"
+    preflight = (guides / "REMNAWAVE_PREFLIGHT.md").read_text()
+    documented = {(os_name.lower(), version) for os_name, version in re.findall(r"(Debian|Ubuntu) (\d+(?:\.\d+)?)\b", preflight)}
+    assert documented == rw_steps.SUPPORTED_OS
+    for name in ("REMNAWAVE_INSTALLATION_GUIDE.md", "REMNAWAVE_INSTALLATION_WIZARD.md"):
+        assert "(REMNAWAVE_PREFLIGHT.md#поддерживаемые-ос)" in (guides / name).read_text()
 
 
 def test_preflight_evaluation_blocks_on_conflicts():
