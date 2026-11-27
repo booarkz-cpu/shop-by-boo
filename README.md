@@ -101,10 +101,10 @@ cd /opt/vpn-shop && sudo env RELEASE_TAG=v28.161.0 bash scripts/update-from-gith
 
 ## Версии и документация
 
-| Компонент | Выпуск v28.161.0 | Ветка main |
+| Продукт | Выпуск v28.161.0 | main |
 | --- | --- | --- |
 | Магазин и Lucy Admin · Android и iOS | 3.9.0 | 3.9.1 |
-| Самостоятельный клиент · Android | 1.10.1 | 1.10.2 |
+| VPN-клиент · Android | 1.10.1 | 1.10.2 |
 | Backend · Python / PostgreSQL | 3.14 / 18.6 | 3.15 / 19.0 |
 
 Версия runtime/API — `21.5.1`. Миграции магазина — `0094_store_subscriptions`, Support Pro — `0008`. Дистрибутив, исходники основной ветки и версии приложений обновляются раздельно. [Манифест выпуска](https://github.com/booarkz-cpu/shop-by-boo/releases/download/v28.161.0/remnawave_vpn_shop_v28_161_0_full_release_manifest.json) · [История изменений](CHANGELOG.md) · [Предыдущая редакция README](https://github.com/booarkz-cpu/shop-by-boo/blob/0bc4385ffbc1073f00cf47612b3b8ca96651b845/README.md).
