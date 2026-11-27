@@ -187,13 +187,15 @@ Open `https://admin.YOUR_DOMAIN`, sign in. Then **«Безопасность →
 
 ### Step 11. Backups
 
-**«Безопасность → Резервные копии»** (Security → Backups): set an **encryption password** (keep it separately!) and turn on the Telegram copy — the database comes to your private chat every night. **«Серверы → Установка» → snapshots → «Каждый день»** (daily) — the Remnawave panel and the nodes' files.
+In **Security → Backups**, check the schedule, keep the encryption password separately and enable Telegram delivery if you want copies of the shop database in your private chat. **«Серверы → Установка» → snapshots → «Каждый день»** (daily) — the Remnawave panel and the nodes' files.
 
 ![Backups](screenshots/admin_panel/72_backups.png)
 
 ### Step 12. Updates — one button
 
-**«Система → Обновления»** (System → Updates) shows a new release; one button updates the shop, taking a copy first and rolling back on failure. **«Автообновление Remnawave»** in the same section updates the panel and nodes at night.
+**System → Updates** lists available releases. Before updating, create a full encrypted `.vpb` backup with `sudo bash scripts/backup.sh` from `/opt/vpn-shop`. Keep it and its checksum off the server. To recover the shop and Support Pro, restore the matching release on a separate host and verify both databases and uploaded files. [Backup and recovery](docs/wiki/en/Backup.md) · [Recovery commands (Russian)](docs/ru/BACKUP_CURRENT.md).
+
+For a manual update, select the published release tag. Scheduled updates for the Remnawave panel and nodes are disabled by default and can be enabled separately. [Update and rollback](docs/wiki/en/Updates.md).
 
 ![Updates](screenshots/admin_panel/62_releases.png)
 
@@ -248,6 +250,8 @@ Add a new node in another country (**«Серверы → Установка Rem
 ## 📥 Downloads
 
 **Download for Android (signed with the shop key):** [customer app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [«Corgi Lusi: client» — a VPN for any subscription, APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [admin app — APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk). The links always point to the latest release. «Corgi Lusi: client» updates itself: once a day on Wi-Fi it downloads a newer version, checks its SHA-256 and offers to install it.
+
+The release also includes unsigned iOS IPA files for the customer and admin apps, and ZIP builds for the simulator. Installation on an iPhone requires a signed build. [Release files](https://github.com/booarkz-cpu/shop-by-boo/releases/latest).
 
 ## 📚 Documentation
 
