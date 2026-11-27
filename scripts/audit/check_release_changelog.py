@@ -104,13 +104,16 @@ def validate_current_client(root: Path) -> str:
     return validate_client(root, match.group(1))
 
 
-def mobile_version(root: Path, app: str) -> tuple[str, int]:
-    gradle = (root / "apps" / app / "android/app/build.gradle.kts").read_text(encoding="utf-8")
+def gradle_version(gradle: str) -> tuple[str, int]:
     names = re.findall(r'^\s*versionName\s*=\s*"(\d+\.\d+\.\d+)"[ \t]*$', gradle, re.MULTILINE)
     codes = re.findall(r"^\s*versionCode\s*=\s*([1-9]\d*)[ \t]*$", gradle, re.MULTILINE)
     if len(names) != 1 or len(codes) != 1:
-        raise ValueError(f"Expected one release version in {app} Gradle settings")
+        raise ValueError("Expected one release version in Gradle settings")
     return names[0], int(codes[0])
+
+
+def mobile_version(root: Path, app: str) -> tuple[str, int]:
+    return gradle_version((root / "apps" / app / "android/app/build.gradle.kts").read_text(encoding="utf-8"))
 
 
 def current_mobile_tag(root: Path) -> str:

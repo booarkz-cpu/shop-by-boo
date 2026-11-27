@@ -1,6 +1,6 @@
 name: Xray core watch
 # v28.101.0 (stage 20, N11): once a day — a new release of 2dust/AndroidLibXrayLite (the Xray core of «Корги Люси:
-# клиент») becomes a pull request with the new pinned commit and the client's next version. Pull requests opened with the
+# клиент») becomes a pull request with the new pinned commit and the next Android client and mobile family versions. Pull requests opened with the
 # workflow token do not start other workflows, so the CI of the branch is started explicitly (workflow_dispatch); the
 # pull request is merged only when every check is green.
 on:
@@ -55,7 +55,17 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add scripts/mobile/build-xray-aar.sh apps/vpn-client/android/app/build.gradle.kts docs/ru/new/ANDROID_CLIENT_APP.md THIRD_PARTY_NOTICES.md
+          git add apps/{vpn-shop,lucy-admin}/android/app/build.gradle.kts apps/{vpn-shop,lucy-admin}/ios/*.xcodeproj/project.pbxproj
+          git add MOBILE.md README.md README.en.md README.uk.md
           git commit -m "client $version: Xray core from AndroidLibXrayLite $TAG" -m "Opened by «Xray core watch» (N11)."
+          # Use the actual implementation commit in the two changelog tables and keep both commits in this PR.
+          python3 scripts/mobile/xray-core-watch.py --tag "$TAG" --commit "$COMMIT" --release-notes
+          python3 scripts/audit/check_release_changelog.py
+          git add CHANGELOG.md docs/releases/
+          python3 scripts/generate-project-map.py
+          git add docs/PROJECT_FILE_MAP.md
+          python3 scripts/generate-project-map.py --check
+          git commit -m "docs(mobile): release notes for AndroidLibXrayLite $TAG and client $version"
           # The branch ruleset lets only trusted apps create branches; the workflow token is not one of them unless the
           # owner allows it. Then the new core becomes an issue (once per tag) for a maintainer to open the pull request.
           if ! git push origin "$branch"; then

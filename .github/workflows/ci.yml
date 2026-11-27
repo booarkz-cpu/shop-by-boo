@@ -235,6 +235,13 @@ jobs:
           python scripts/audit/check_release_readiness.py
           python scripts/audit/run_full_audit.py
           python scripts/audit/check_payment_provider_registry.py --check
+      - name: Require an upgrade for both apps when their shared Android engine changes
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')
+        env:
+          ENGINE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          git fetch --no-tags --depth=1 origin "${ENGINE_BASE:-main}"
+          python scripts/mobile/xray-core-watch.py --check-against "$(git rev-parse FETCH_HEAD)"
       - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
         env:
           MEDIA_DIR: /tmp/media
