@@ -51,11 +51,11 @@ installed_identity() {
 }
 
 check_upgrade() {
-  local module=$1 package=$2 name=$3 ext old_code new_code installed before after marker token
+  local module=$1 package=$2 name=$3 release_tag=${4:-$tag} ext old_code new_code installed before after marker token
   for ext in json apk; do
     curl --fail --silent --show-error --location --retry 3 --connect-timeout 20 --max-time 300 \
       --proto '=https' --proto-redir '=https' \
-      "https://github.com/booarkz-cpu/shop-by-boo/releases/download/$tag/$name.$ext" -o "$previous/$name.$ext"
+      "https://github.com/booarkz-cpu/shop-by-boo/releases/download/$release_tag/$name.$ext" -o "$previous/$name.$ext"
   done
   verify_pair "$previous" "$name" "$package"
   verify_pair "$artifacts" "$name" "$package"
@@ -110,11 +110,25 @@ wait_for_update_job() {
   fail "$package: update job $id missing ($state)"
 }
 
-for package in "${upgraded_packages[@]}"; do
+start_and_wait() {
+  local package=$1 launcher result attempt
   launcher=$(adb shell cmd package resolve-activity --brief -a android.intent.action.MAIN \
     -c android.intent.category.LAUNCHER "$package" | tr -d '\r' | tail -1)
   [[ $launcher == "$package/"* ]] || fail "$package: launcher is unavailable"
-  adb shell am start -W -n "$launcher" | tr -d '\r' | grep -Fx 'Status: ok' >/dev/null
+  # A slow first frame can exceed am start -W's internal timeout even after a successful start.
+  result=$(adb shell am start -n "$launcher" 2>&1) || fail "$package: $result"
+  if grep -Eq '^(Error|Exception)' <<< "$result"; then fail "$package: $result"; fi
+  for ((attempt = 0; attempt < 45; attempt++)); do
+    if adb shell dumpsys activity activities | awk -v app="$package/" '
+      /topResumedActivity|mResumedActivity|ResumedActivity:/ && index($0, app) { seen = 1 }
+      END { exit !seen }'; then return; fi
+    sleep 2
+  done
+  fail "$package: the launcher activity did not resume ($result)"
+}
+
+for package in "${upgraded_packages[@]}"; do
+  start_and_wait "$package"
   wait_for_update_job "$package"
 done
 
@@ -128,3 +142,31 @@ timeout 300 bash -eu -o pipefail -c '
         [[ $(adb shell cat /proc/sys/kernel/random/boot_id | tr -d "\r") != "$1" ]]; do sleep 2; done
 ' _ "$old_boot"
 for package in "${upgraded_packages[@]}"; do wait_for_update_job "$package"; done
+
+# Standalone client releases can carry a different APK with the same version and certificate.
+client=corgi-lusi-client
+old_client=$(jq -er .versionName "$previous/$client.json")
+[[ $old_client =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Invalid previous client version"
+if (( $(jq -er .versionCode "$artifacts/$client.json") > $(jq -er .versionCode "$previous/$client.json") )); then
+  standalone_tag="client-v$old_client"
+  alternate="$previous/standalone-client.json"
+  status=$(curl --silent --show-error --location --retry 3 --connect-timeout 20 --max-time 120 \
+    --proto '=https' --proto-redir '=https' -w '%{http_code}' -o "$alternate" \
+    "https://github.com/booarkz-cpu/shop-by-boo/releases/download/$standalone_tag/$client.json")
+  case "$status" in
+    200)
+      jq -e --slurpfile old "$previous/$client.json" \
+        '.versionName == $old[0].versionName and .versionCode == $old[0].versionCode' "$alternate" >/dev/null ||
+        fail "$standalone_tag: standalone client identity differs"
+      if [[ $(jq -er .sha256 "$alternate") != "$(jq -er .sha256 "$previous/$client.json")" ]]; then
+        echo "Testing the distinct signed client from $standalone_tag on this disposable emulator"
+        adb uninstall shop.corgi.client
+        check_upgrade vpn-client shop.corgi.client "$client" "$standalone_tag"
+        start_and_wait shop.corgi.client
+        wait_for_update_job shop.corgi.client
+      fi
+      ;;
+    404) echo "No standalone client manifest was published for $standalone_tag" ;;
+    *) fail "$standalone_tag: standalone manifest returned HTTP $status" ;;
+  esac
+fi
