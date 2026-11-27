@@ -114,7 +114,15 @@ In PowerShell or Terminal (replace `SERVER_IP` with yours):
 ssh root@SERVER_IP
 ```
 
-Answer `yes` to the fingerprint question, then type the password — **the characters are not shown, that is normal**.
+On the first connection, SSH displays the server's key type and `SHA256` fingerprint. Open the console for this VPS in your hosting provider's control panel and display its public host key fingerprints.
+
+```bash
+for key in /etc/ssh/ssh_host_*_key.pub; do
+  ssh-keygen -l -E sha256 -f "$key"
+done
+```
+
+Compare the fingerprint in your SSH window with the console output for the same key type. If they match exactly, enter `yes`, then enter the server password and press Enter. **The password is hidden as you type.** If they differ, press Ctrl+C and check the IP address and fingerprint in the hosting control panel.
 
 ✅ **Worked if:** the prompt changes to something like `root@server:~#`. ❌ **`Permission denied`** — wrong password. **`Connection timed out`** — wrong IP or the server is still being created.
 
