@@ -7,9 +7,8 @@
 # the same tag keeps its digest, another tag is replaced by the release default (tag + digest).
 #
 # KEEP_PINNED_IMAGES=1 keeps the owner's pins untouched (an image chosen on purpose).
-# Redis reads the data of older versions (AOF/RDB); after it writes them, an older Redis cannot read them
-# back. The shop keeps only short-lived state in Redis (locks, rate limits, one-time tickets), so a
-# rollback starts the old Redis on an empty volume if needed: docker volume rm <project>_redis_data.
+# Before an image change, preserve the shop and Support Pro Redis volumes with their original image digests.
+# Restore into new volumes and verify with the original versions; see docs/modules/redis_and_postgres.md.
 set -Eeuo pipefail
 APP_DIR="${APP_DIR:-/opt/vpn-shop}"
 cd "$APP_DIR"

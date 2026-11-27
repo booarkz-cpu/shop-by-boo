@@ -33,6 +33,8 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Restore shop and Support Pro Redis volumes on this architecture
+        run: python3 scripts/ci/redis-volume-rollback.py
       - name: Build and smoke-test native images without publishing
         env:
           EXPECTED_ARCH: ${{ matrix.arch }}

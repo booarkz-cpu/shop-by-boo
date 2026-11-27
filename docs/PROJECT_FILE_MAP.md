@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2773**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2774**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1861,6 +1861,7 @@
 | [scripts/ci/panel-gate-live.sh](../scripts/ci/panel-gate-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/ports-check.sh](../scripts/ci/ports-check.sh) | Эксплуатация и релиз |
 | [scripts/ci/psiphon-check.sh](../scripts/ci/psiphon-check.sh) | Эксплуатация и релиз |
+| [scripts/ci/redis-volume-rollback.py](../scripts/ci/redis-volume-rollback.py) | Эксплуатация и релиз |
 | [scripts/ci/remnawave-live.sh](../scripts/ci/remnawave-live.sh) | Эксплуатация и релиз |
 | [scripts/ci/restore-drill.sh](../scripts/ci/restore-drill.sh) | Эксплуатация и релиз |
 | [scripts/ci/rw-install-live.sh](../scripts/ci/rw-install-live.sh) | Эксплуатация и релиз |
