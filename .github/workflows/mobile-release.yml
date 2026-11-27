@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/mobile/apk-signer-digest.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/mobile/apk-signer-digest.py', 'scripts/mobile/check-apk-version.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -73,8 +73,9 @@ jobs:
           bash scripts/build-android-apk.sh "$PWD/dist/mobile"
           for apk in dist/mobile/corgi_lusi_*.apk; do
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$apk.package.txt"
-            grep -q "versionCode='3910'" "$apk.package.txt"
-            grep -q "versionName='3.9.1'" "$apk.package.txt"
+            gradle=apps/vpn-shop/android/app/build.gradle.kts
+            [[ "$apk" != *"_android_admin_"* ]] || gradle=apps/lucy-admin/android/app/build.gradle.kts
+            python3 scripts/mobile/check-apk-version.py "$gradle" "$apk"
             if grep -q 'application-debuggable' "$apk.package.txt"; then echo 'Debuggable release rejected'; exit 1; fi
             if [[ "$state" == signed ]]; then
               "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > "$apk.certificate.txt"
@@ -87,6 +88,7 @@ jobs:
           client=apps/vpn-client/android/app/build/outputs/apk/release/app-release.apk
           [[ -f "$client" ]] || client=apps/vpn-client/android/app/build/outputs/apk/release/app-release-unsigned.apk
           bash scripts/mobile/build-xray-aar.sh --verify-apk "$client" dist/mobile/corgi_lusi_android_user_*.apk
+          code="$(python3 scripts/mobile/check-apk-version.py apps/vpn-client/android/app/build.gradle.kts "$client")"
           if [[ "$state" == signed ]]; then
             "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$client" > "$RUNNER_TEMP/client-cert.txt"
             digest="$(python3 scripts/mobile/apk-signer-digest.py < "$RUNNER_TEMP/client-cert.txt")"
@@ -94,9 +96,7 @@ jobs:
             cp "$client" dist/mobile/corgi-lusi-client.apk
             (cd dist/mobile && sha256sum corgi-lusi-client.apk > corgi-lusi-client.apk.sha256)
             # v28.80.0: the app's own update check reads this manifest (shop.corgi.client.core.Update).
-            badging="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/mobile/corgi-lusi-client.apk | head -1)"
-            code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$badging")"
-            name="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$badging")"
+            name="$(sed -n 's/^ *versionName = "\([^"]*\)"$/\1/p' apps/vpn-client/android/app/build.gradle.kts)"
             sha="$(cut -d' ' -f1 dist/mobile/corgi-lusi-client.apk.sha256)"
             printf '{"versionCode":%s,"versionName":"%s","sha256":"%s","apk":"https://github.com/%s/releases/latest/download/corgi-lusi-client.apk"}\n' \
               "$code" "$name" "$sha" "$GITHUB_REPOSITORY" > dist/mobile/corgi-lusi-client.json
