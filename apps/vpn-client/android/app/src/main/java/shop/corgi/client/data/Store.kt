@@ -10,6 +10,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import shop.corgi.client.core.Links
 import shop.corgi.client.core.Profile
+import shop.corgi.client.core.Server
 import shop.corgi.client.core.Settings
 import shop.corgi.client.core.SubInfo
 import shop.corgi.client.core.Update
@@ -53,41 +54,47 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
     }
 
     var profiles: List<Profile>
-        get() {
-            // v1.10.0: kept encrypted (Vault); a value of an older version is plain and is re-saved encrypted.
-            val stored = prefs.getString("profiles", "[]") ?: "[]"
-            if (stored == "[]") {
-                profilesLocked = false
-                return emptyList()
-            }
-            val text = try {
-                Vault.open(stored)
-            } catch (error: VaultUnavailable) {
-                lockProfiles(error.message ?: "vault")
-                return emptyList()
-            }
-            val list = try {
-                JSONArray(text).let { array -> (0 until array.length()).map { Profile.of(array.getJSONObject(it)) } }
-            } catch (error: Exception) {
-                lockProfiles(error.message ?: "profiles")
-                return emptyList()
-            }
-            if (!Vault.isSealed(stored)) {
-                try {
-                    prefs.edit().putString("profiles", Vault.seal(text)).apply()
-                } catch (error: VaultUnavailable) {
-                    // The old plaintext stays. A failed seal must not pretend the value is now encrypted.
-                    vaultMessage = error.message
-                }
-            }
-            profilesLocked = false
-            return list
-        }
-        set(value) {
+        get() = synchronized(prefs) { readProfiles() }
+        set(value) = synchronized(prefs) {
             if (profilesLocked) throw VaultUnavailable("profiles unreadable; refusing to overwrite")
             val sealed = Vault.seal(JSONArray(value.map { it.toJson() }).toString())
             prefs.edit().putString("profiles", sealed).apply()
         }
+
+    private fun readProfiles(): List<Profile> {
+        // v1.10.0: kept encrypted (Vault); a value of an older version is plain and is re-saved encrypted.
+        val stored = prefs.getString("profiles", "[]") ?: "[]"
+        if (stored == "[]") {
+            profilesLocked = false
+            return emptyList()
+        }
+        val text = try {
+            Vault.open(stored)
+        } catch (error: VaultUnavailable) {
+            lockProfiles(error.message ?: "vault")
+            return emptyList()
+        }
+        val list = try {
+            JSONArray(text).let { array -> (0 until array.length()).map { Profile.of(array.getJSONObject(it)) } }
+        } catch (error: Exception) {
+            lockProfiles(error.message ?: "profiles")
+            return emptyList()
+        }
+        if (!Vault.isSealed(stored)) {
+            try {
+                prefs.edit().putString("profiles", Vault.seal(text)).apply()
+            } catch (error: VaultUnavailable) {
+                // The old plaintext stays. A failed seal must not pretend the value is now encrypted.
+                vaultMessage = error.message
+            }
+        }
+        profilesLocked = false
+        return list
+    }
+
+    private fun readableProfiles(): List<Profile> = readProfiles().also {
+        if (profilesLocked) throw VaultUnavailable("profiles unreadable; refusing to overwrite")
+    }
 
     var settings: Settings
         get() {
@@ -174,10 +181,13 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
             tr("Подписка — только по https://", "Subscriptions only over https://", "Підписка — лише через https://")
         }
         val profile = Profile.fromText(text, UUID.randomUUID().toString(), System.currentTimeMillis())
-        profiles = profiles + profile
-        if (profiles.size == 1 || activeProfile.isBlank()) {
-            activeProfile = profile.id
-            activeServer = "auto"
+        synchronized(prefs) {
+            val saved = readableProfiles()
+            profiles = saved + profile
+            if (saved.isEmpty() || activeProfile.isBlank()) {
+                activeProfile = profile.id
+                activeServer = "auto"
+            }
         }
         return profile
     }
@@ -187,90 +197,69 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
 
     /** v1.6.0 (N10): several providers at once (multi-select). The active one gone → the user picks the next server. */
     fun removeAll(ids: Set<String>): Boolean = shop.corgi.client.core.ConfigGate.run {
-        val wasActive = active()?.id in ids
-        profiles = profiles.filterNot { it.id in ids }
-        if (wasActive) {
-            activeProfile = profiles.firstOrNull()?.id.orEmpty()
-            activeServer = "auto"
-            if (profiles.isNotEmpty()) prefs.edit().putBoolean("choose_server", true).apply()
+        synchronized(prefs) {
+            val saved = readableProfiles()
+            val active = saved.firstOrNull { it.id == activeProfile } ?: saved.firstOrNull()
+            val wasActive = active?.id in ids
+            val remaining = saved.filterNot { it.id in ids }
+            profiles = remaining
+            if (wasActive) {
+                activeProfile = remaining.firstOrNull()?.id.orEmpty()
+                activeServer = "auto"
+                if (remaining.isNotEmpty()) prefs.edit().putBoolean("choose_server", true).apply()
+            }
+            wasActive
         }
-        wasActive
     }
 
-    fun replace(profile: Profile) {
-        profiles = profiles.map { if (it.id == profile.id) profile else it }
+    fun replace(profile: Profile) = synchronized(prefs) {
+        profiles = readableProfiles().map { if (it.id == profile.id) profile else it }
     }
 
-    /** Downloads a subscription now (call off the main thread). Keeps the previous servers when it fails. */
+    /** Fetch off the main thread. Store instances share preferences, and never hold their lock over the network. */
     fun update(profile: Profile): Profile = shop.corgi.client.core.ConfigGate.run { updateNow(profile) }
 
-    /** v1.9.9: counts failures in a row, so the background update leaves a failing server alone for longer each time. */
-    private fun updateNow(profile: Profile): Profile {
-        if (profile.kind != "subscription") return profile
-        val fetched = fetchInto(profile)
-        val now = System.currentTimeMillis()
-        val counted = if (fetched.error.isBlank()) fetched.copy(failures = 0, triedAt = now) else fetched.copy(failures = profile.failures + 1, triedAt = now)
-        replace(counted)
-        return counted
+    private fun updateNow(requested: Profile): Profile {
+        if (requested.kind != "subscription") return requested
+        val before = synchronized(prefs) { readableProfiles().firstOrNull { it.id == requested.id } } ?: return requested
+        if (before.kind != "subscription") return before
+        val fetched = fetchInto(before)
+        return synchronized(prefs) {
+            val saved = readableProfiles()
+            val current = saved.firstOrNull { it.id == before.id } ?: return@synchronized before
+            // Another refresh or restore may already have installed different servers while the request was in flight.
+            // Failure counters alone do not invalidate a subsequent successful response.
+            if (current.copy(error = before.error, failures = before.failures, triedAt = before.triedAt) != before) {
+                return@synchronized current
+            }
+            val now = System.currentTimeMillis()
+            val next = if (fetched.error.isBlank()) {
+                fetched.copy(failures = 0, triedAt = now)
+            } else {
+                current.copy(error = fetched.error, failures = current.failures + 1, triedAt = now)
+            }
+            profiles = saved.map { if (it.id == next.id) next else it }
+            next
+        }
     }
 
-    private fun fetchInto(profile: Profile): Profile {
-        val updated = try {
-            val (body, info) = fetchSubscription(profile.url)
-            // Remnawave answers some clients with Xray JSON instead of share links: both are understood.
-            val configs = Links.jsonConfigs(body)
-            if (configs != null) {
-                val updated = if (configs.isEmpty()) {
-                    profile.copy(
-                        error = tr(
-                            "В подписке нет поддерживаемых серверов",
-                            "The subscription has no supported servers",
-                            "У підписці немає підтримуваних серверів"
-                        ),
-                        updatedAt = System.currentTimeMillis()
-                    )
-                } else {
-                    profile.copy(
-                        configs = configs.map {
-                            it.second
-                        },
-                        links = emptyList(),
-                        skipped = 0,
-                        error = "",
-                        updatedAt = System.currentTimeMillis(),
-                        info = info
-                    )
-                }
-                replace(updated)
-                return updated
-            }
-            val (servers, skipped) = Links.parseBody(body)
-            if (servers.isEmpty()) {
-                profile.copy(
-                    error = tr(
-                        "В подписке нет поддерживаемых серверов",
-                        "The subscription has no supported servers",
-                        "У підписці немає підтримуваних серверів"
-                    ),
-                    updatedAt = System.currentTimeMillis()
-                )
-            } else {
-                profile.copy(
-                    links = servers.map {
-                        it.link
-                    },
-                    configs = emptyList(),
-                    skipped = skipped,
-                    error = "",
-                    updatedAt = System.currentTimeMillis(),
-                    info = info
-                )
-            }
-        } catch (exc: Exception) {
-            profile.copy(error = exc.message ?: exc.javaClass.simpleName)
+    private fun fetchInto(profile: Profile): Profile = try {
+        val (body, info) = fetchSubscription(profile.url)
+        val configs = Links.jsonConfigs(body)
+        val (servers, skipped) = if (configs == null) Links.parseBody(body) else emptyList<Server>() to 0
+        require(!configs.isNullOrEmpty() || servers.isNotEmpty()) {
+            tr("В подписке нет поддерживаемых серверов", "The subscription has no supported servers", "У підписці немає підтримуваних серверів")
         }
-        replace(updated)
-        return updated
+        profile.copy(
+            links = servers.map { it.link },
+            configs = configs.orEmpty().map { it.second },
+            skipped = skipped,
+            error = "",
+            updatedAt = System.currentTimeMillis(),
+            info = info
+        )
+    } catch (exc: Exception) {
+        profile.copy(error = exc.message?.takeIf { it.isNotBlank() } ?: exc.javaClass.simpleName)
     }
 
     /** Subscriptions whose interval passed (the subscription's own «profile-update-interval» when it is shorter). */
@@ -316,7 +305,7 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
      * Puts a backup in place of the providers and settings. Both values are sealed before any write.
      * This device keeps its own proxy login and password when that password can still be opened.
      */
-    fun restore(backup: shop.corgi.client.core.Backup) {
+    fun restore(backup: shop.corgi.client.core.Backup) = synchronized(prefs) {
         val keep = if (!settingsLocked) runCatching { settings }.getOrNull()?.takeIf { !settingsLocked } else null
         val next = if (keep != null && keep.proxyUser.isNotBlank() && keep.proxyPass.isNotBlank()) {
             backup.settings.copy(proxyUser = keep.proxyUser, proxyPass = keep.proxyPass)

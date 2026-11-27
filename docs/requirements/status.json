@@ -4677,9 +4677,10 @@
       "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt",
       "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
       "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt",
+      "apps/vpn-client/android/app/src/test/java/shop/corgi/client/data/VaultFailureTest.kt",
       "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt",
       "docs/ru/new/ANDROID_CLIENT_APP.md"
     ],
-    "note": "Восстановление копии v1 из JSON или ссылки проверяет версию, список профилей и настройки до записи. Явно пустой список допустим. JVM-регрессия охватывает повреждённые поля, тест Android проверяет сохранность зашифрованных данных и выбора сервера при повторном открытии хранилища. Прямой импорт ссылок и обновление подписки при сбое учитываются отдельно."
+    "note": "Восстановление копии v1 из JSON или ссылки проверяет версию, список профилей и настройки до записи. Явно пустой список допустим. JVM-регрессия охватывает повреждённые поля, тест Android проверяет сохранность зашифрованных данных и выбора сервера при повторном открытии хранилища. Добавлена регрессия прямого импорта ссылки и JSON для Android Keystore. Проверка на JVM воспроизводит потерю обновлённого профиля при позднем сетевом отказе и проверяет сохранность последнего списка и выбора сервера, учёт повторных попыток и отсутствие записи после удаления провайдера. Общее требование остаётся частично проверенным."
   }
 }

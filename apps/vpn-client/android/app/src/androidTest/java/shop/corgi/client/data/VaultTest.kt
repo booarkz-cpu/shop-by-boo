@@ -49,6 +49,21 @@ class VaultTest {
         assertEquals("name", reopened.settings.sort)
     }
 
+    @Test fun rejectedDirectImportsKeepTheEncryptedProfileAndSelection() {
+        val store = Store(context)
+        val active = store.add("trojan://test-only@vpn.example.invalid:443#Selected")
+        store.activeServer = "0"
+        val before = prefs.all.toMap()
+        for (input in listOf("", "not a server link", "{broken")) {
+            assertTrue(runCatching { store.add(input) }.isFailure)
+            assertEquals(before, prefs.all)
+        }
+        val reopened = Store(context)
+        assertEquals(active, reopened.active())
+        assertEquals(active.id, reopened.activeProfile)
+        assertEquals("0", reopened.activeServer)
+    }
+
     @Test fun aValueComesBackAndIsNotReadableWhenStored() {
         val stored = Vault.seal("vless://secret-uuid@host:443#Дом")
         assertTrue(Vault.isSealed(stored))
