@@ -47,29 +47,24 @@ def test_every_download_link_points_to_a_produced_file():
 
 
 def test_readmes_offer_matching_device_simulator_and_checksum_links_in_the_first_section():
-    base = "https://github.com/booarkz-cpu/shop-by-boo/releases/"
-    pages = []
-    for name in ("README.md", "README.en.md", "README.uk.md"):
-        text = (ROOT / name).read_text()
-        section = re.split(r"^## ", text, flags=re.M)[1]
-        assert "### Android" in section and "### iOS" in section, name
-        links = set(re.findall(r"\]\((https://[^)]+)\)", section))
-        for apk in _produced():
-            url = base + "latest/download/" + apk
-            assert {url, url + ".sha256"} <= links, name
-        packages = {url for url in links if url.endswith((".ipa", ".zip"))}
-        variants = set()
-        versions = set()
-        for url in packages:
-            match = re.fullmatch(re.escape(base) + r"download/(v\d+\.\d+\.\d+)/corgi_lusi_ios_"
-                                 r"(user|admin)_(\d+_\d+_\d+)_(unsigned\.ipa|simulator\.zip)", url)
-            assert match and url + ".sha256" in links, (name, url)
-            variants.add((match[2], match[4]))
-            versions.add((match[1], match[3]))
-        assert variants == {(role, kind) for role in ("user", "admin") for kind in ("unsigned.ipa", "simulator.zip")}
-        assert len(versions) == 1
-        pages.append(packages)
-    assert pages[0] == pages[1] == pages[2]
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    readmes = [ROOT / name for name in ("README.md", "README.en.md", "README.uk.md")]
+    downloads = [check(doc.read_text(), doc.name, _produced()) for doc in readmes]
+    assert len(downloads[0]) == 4
+    assert downloads[0] == downloads[1] == downloads[2]
+
+
+@pytest.mark.parametrize("page", ["README.md", "README.en.md", "README.uk.md"])
+def test_readme_rejects_checksums_attached_to_the_wrong_ios_app(page):
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    text = (ROOT / page).read_text()
+    pattern = r"https://[^)\s]+_unsigned\.ipa\.sha256"
+    checksums = re.findall(pattern, text)
+    assert len(set(checksums)) == len(checksums) == 2
+    swapped = dict(zip(checksums, reversed(checksums), strict=True))
+    damaged = re.sub(pattern, lambda match: swapped[match[0]], text)
+    with pytest.raises(ValueError, match="matching SHA-256 link"):
+        check(damaged, page, _produced())
 
 
 def test_signing_certificate_is_pinned():
