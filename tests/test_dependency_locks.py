@@ -124,10 +124,17 @@ def test_web_dependency_contracts_are_synchronized():
     assert admin_lock["packages"]["node_modules/playwright"]["version"] == "1.65.1"
     assert admin_lock["packages"]["node_modules/playwright-core"]["version"] == "1.65.1"
 
-    for manifest, lock in ((admin_manifest, admin_lock), (cabinet_manifest, cabinet_lock)):
-        assert manifest["dependencies"]["lucide-react"] == "^1.77.0"
-        assert lock["packages"][""]["dependencies"]["lucide-react"] == "^1.77.0"
-        assert lock["packages"]["node_modules/lucide-react"]["version"] == "1.77.0"
+    inventory = (ROOT / "docs/EXTERNAL_DEPENDENCIES.md").read_text()
+    for label, manifest, lock in (
+        ("lucide-react в Lucy Admin Web", admin_manifest, admin_lock),
+        ("lucide-react в кабинете и Telegram Mini App", cabinet_manifest, cabinet_lock),
+    ):
+        resolved = lock["packages"]["node_modules/lucide-react"]["version"]
+        assert re.fullmatch(r"\d+\.\d+\.\d+", resolved)
+        assert manifest["dependencies"]["lucide-react"] == f"^{resolved}"
+        assert lock["packages"][""]["dependencies"]["lucide-react"] == f"^{resolved}"
+        rows = [row.split("|")[2].strip() for row in inventory.splitlines() if row.startswith(f"| {label} |")]
+        assert rows == [resolved], label
 
     assert cabinet_manifest["devDependencies"]["jsdom"] == "31.0.1"
     assert cabinet_lock["packages"][""]["devDependencies"]["jsdom"] == "31.0.1"
