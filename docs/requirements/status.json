@@ -4633,5 +4633,23 @@
       "CI_CD_RU.md"
     ],
     "note": "26.11.2026. Проверены два запуска события schedule в main на назначенных GitHub-hosted Ubuntu 24.04. Аудит из PR #377 на 2cdf72092d174849b4d9fc9ae1dcd48739b5a304, run 45807443215, job 139866286052 сохранил отчёт по 657 ID и семь успешных проверок. Наблюдатель Xray с изменениями из PR #396 на 26dc21f2dac8882e33685fc0f3ff471888ce16e9, run 45819915923, job 139909208792 получил up-to-date для v26.11.26. В руководстве сопоставлены плановое время, начало работы runner и фактический результат. Область подтверждения — процессы репозитория на main."
+  },
+  "REQ-QA-0007": {
+    "status": "PASS",
+    "evidence": [
+      "docs/DOCKER_ACCEPTANCE.md",
+      "docker-compose.yml",
+      "docker-compose.integration.yml",
+      "docker-compose.test.yml",
+      "services/support-pro/docker-compose.yml",
+      "scripts/ci/check-compose-profiles.py",
+      "scripts/ci/restore-drill.sh",
+      "tests/test_docker_installer.py",
+      "tests/test_container_logs.py",
+      ".github/workflows/ci.yml",
+      ".github/workflows/docker.yml"
+    ],
+    "note": "Все перечисленные части Docker-аудита связаны с исполняемыми проверками: Dockerfile и multi-arch сборки, все комбинации Compose-профилей, постоянные тома и восстановление после их удаления, сети и опубликованные порты, healthcheck/dependencies, restart/read-only/non-root, окружение и обязательные секреты, чистые PostgreSQL 19/Alembic и восстановленная база, маскирование логов. Точная карта критериев и границ доказательства приведена в docs/DOCKER_ACCEPTANCE.md.",
+    "platforms": "server, CI/CD"
   }
 }
