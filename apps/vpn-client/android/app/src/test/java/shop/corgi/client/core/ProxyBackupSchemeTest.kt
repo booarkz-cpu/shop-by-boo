@@ -64,6 +64,26 @@ class ProxyBackupSchemeTest {
         assertTrue(runCatching { Backup.parse("{\"format\":\"other\"}") }.isFailure)
     }
 
+    @Test fun rejectsIncompleteAndUnknownBackupsButAcceptsAnExplicitlyEmptyBackup() {
+        val empty = Backup(emptyList(), Settings(sort = "name"), "", "auto", 5)
+        assertEquals(empty, Backup.parse(empty.toJson().toString()))
+        val invalid = mapOf(
+            "missing profiles" to empty.toJson().apply { remove("profiles") },
+            "null profiles" to empty.toJson().put("profiles", JSONObject.NULL),
+            "profiles string" to empty.toJson().put("profiles", "[]"),
+            "missing version" to empty.toJson().apply { remove("version") },
+            "future version" to empty.toJson().put("version", 2),
+            "version string" to empty.toJson().put("version", "1"),
+            "missing settings" to empty.toJson().apply { remove("settings") },
+            "settings array" to empty.toJson().put("settings", org.json.JSONArray()),
+        )
+        for ((case, json) in invalid) {
+            assertTrue("file accepted: $case", runCatching { Backup.parse(json.toString()) }.isFailure)
+            val link = "corgi://restore/" + Backup.encode(json.toString())
+            assertTrue("link accepted: $case", runCatching { Backup.parse(link) }.isFailure)
+        }
+    }
+
     @Test fun urlSchemes() {
         assertEquals(Scheme.Connect, Scheme.parse("corgi://connect"))
         assertEquals(Scheme.Toggle, Scheme.parse("corgi://toggle"))

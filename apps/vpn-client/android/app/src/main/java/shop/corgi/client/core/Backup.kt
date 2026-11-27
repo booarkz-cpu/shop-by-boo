@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream
  * its own. Restoring shows what comes back before anything is replaced.
  */
 data class Backup(val profiles: List<Profile>, val settings: Settings, val activeProfile: String, val activeServer: String, val created: Long) {
-    fun toJson(): JSONObject = JSONObject().put("format", FORMAT).put("version", 1).put("created", created)
+    fun toJson(): JSONObject = JSONObject().put("format", FORMAT).put("version", VERSION).put("created", created)
         .put("profiles", JSONArray(profiles.map { it.toJson() }))
         .put("settings", settings.toJson().apply { remove("proxyUser"); remove("proxyPass") })
         .put("activeProfile", activeProfile).put("activeServer", activeServer)
@@ -25,11 +25,22 @@ data class Backup(val profiles: List<Profile>, val settings: Settings, val activ
 
     companion object {
         const val FORMAT = "corgi-client-backup"
+        private const val VERSION = 1
 
         fun of(json: JSONObject): Backup {
             require(json.optString("format") == FORMAT) { tr("Это не резервная копия «Корги Люси: клиента»", "Not a «Corgi Lusi: client» backup", "Це не резервна копія «Коргі Люсі: клієнта»") }
-            val profiles = json.optJSONArray("profiles")?.let { a -> (0 until a.length()).map { Profile.of(a.getJSONObject(it)) } } ?: emptyList()
-            return Backup(profiles, Settings.of(json.optJSONObject("settings")), json.optString("activeProfile"), json.optString("activeServer", "auto"), json.optLong("created"))
+            val version = json.opt("version")
+            require(version == VERSION || version == VERSION.toLong()) {
+                tr("Неподдерживаемая версия резервной копии", "Unsupported backup version", "Непідтримувана версія резервної копії")
+            }
+            val items = requireNotNull(json.optJSONArray("profiles")) {
+                tr("Повреждён список профилей в резервной копии", "Invalid profile list in backup", "Пошкоджено список профілів у резервній копії")
+            }
+            val settings = requireNotNull(json.optJSONObject("settings")) {
+                tr("Повреждены настройки в резервной копии", "Invalid settings in backup", "Пошкоджено налаштування в резервній копії")
+            }
+            val profiles = (0 until items.length()).map { Profile.of(items.getJSONObject(it)) }
+            return Backup(profiles, Settings.of(settings), json.optString("activeProfile"), json.optString("activeServer", "auto"), json.optLong("created"))
         }
 
         /** A backup from a file's text or a corgi://restore/ link. */
