@@ -12,6 +12,7 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import shop.corgi.client.core.Backup
 import shop.corgi.client.core.Profile
 
 /** v1.10.0: subscriptions and the local proxy's password on the device are encrypted with a key of the Android Keystore. */
@@ -27,6 +28,25 @@ class VaultTest {
 
     @After fun restoreCipher() {
         Vault.cipher = Vault.androidCipher
+    }
+
+    @Test fun anIncompleteBackupKeepsTheEncryptedActiveProfileAndSettings() {
+        val store = Store(context)
+        val profile = store.add("trojan://test-only@vpn.example.invalid:443#Active")
+        store.activeServer = "0"
+        store.settings = store.settings.copy(sort = "name")
+        val damaged = store.backup().toJson().apply { remove("profiles") }.toString()
+        val before = prefs.all.toMap()
+        for (input in listOf(damaged, "corgi://restore/" + Backup.encode(damaged))) {
+            val error = runCatching { store.restore(Backup.parse(input)) }.exceptionOrNull()
+            assertTrue(error is IllegalArgumentException)
+            assertEquals(before, prefs.all)
+        }
+        val reopened = Store(context)
+        assertEquals(profile, reopened.active())
+        assertEquals(profile.id, reopened.activeProfile)
+        assertEquals("0", reopened.activeServer)
+        assertEquals("name", reopened.settings.sort)
     }
 
     @Test fun aValueComesBackAndIsNotReadableWhenStored() {
