@@ -8,6 +8,59 @@ ROOT = Path(__file__).resolve().parents[1]
 GUIDES = json.loads((ROOT/'docs/current-guides.json').read_text())['guides']
 
 
+def test_readme_main_version_column_matches_apps_and_compose():
+    gradle = "android/app/build.gradle.kts"
+
+    def android_version(product):
+        text = (ROOT / "apps" / product / gradle).read_text()
+        return re.search(r'^\s*versionName = "([^"]+)"', text, re.M)[1]
+
+    shop_versions = {android_version(product) for product in ("vpn-shop", "lucy-admin")}
+    for product in ("vpn-shop", "lucy-admin"):
+        project, = (ROOT / "apps" / product / "ios").glob("*.xcodeproj/project.pbxproj")
+        shop_versions.update(re.findall(r"MARKETING_VERSION = ([\d.]+)", project.read_text()))
+    compose = (ROOT / "docker-compose.yml").read_text()
+    python = re.search(r"PYTHON_BASE_IMAGE:-python:([\d.]+)-", compose)[1]
+    postgres = re.search(r"POSTGRES_IMAGE:-postgres:([\d.]+)-", compose)[1]
+    for filename in ("README.md", "README.en.md", "README.uk.md"):
+        rows = [line.split("|")[1:-1] for line in (ROOT / filename).read_text().splitlines()
+                if line.startswith("|") and line.count("|") == 4]
+        suite, = [cells for cells in rows if "Lucy Admin" in cells[0] and "Android" in cells[0]]
+        client, = [cells for cells in rows if "Android" in cells[0] and "iOS" not in cells[0]]
+        backend, = [cells for cells in rows if "Python / PostgreSQL" in cells[0]]
+        assert {suite[-1].strip()} == shop_versions, filename
+        assert client[-1].strip() == android_version("vpn-client"), filename
+        assert backend[-1].strip() == f"{python} / {postgres}", filename
+
+
+def test_first_ssh_login_checks_server_fingerprints(tmp_path):
+    import base64
+    import hashlib
+    import subprocess
+
+    command = 'ssh-keygen -l -E sha256 -f "$key"'
+    public_keys = "/etc/ssh/ssh_host_*_key.pub"
+    example = f"for key in {public_keys}; do\n  {command}\ndone"
+    for name in ("README.md", "README.en.md", "README.uk.md"):
+        guide = (ROOT / name).read_text(encoding="utf-8")
+        step = guide.split("ssh root@", 1)[1].split("\n### ", 1)[0]
+        assert f"```bash\n{example}\n```" in step, name
+        assert step.index(example) < step.index("`yes`"), name
+        assert "Ctrl+C" in step, name
+
+    expected = set()
+    for key_type in ("ed25519", "ecdsa"):
+        private = tmp_path / f"ssh_host_{key_type}_key"
+        subprocess.run(["ssh-keygen", "-q", "-t", key_type, "-N", "", "-f", str(private)], check=True)
+        public = private.with_suffix(".pub").read_text().split()[1]
+        digest = hashlib.sha256(base64.b64decode(public, validate=True)).digest()
+        expected.add("SHA256:" + base64.b64encode(digest).decode().rstrip("="))
+
+    result = subprocess.run(["bash", "-eu", "-c", example.replace("/etc/ssh/", "./")],
+                            cwd=tmp_path, capture_output=True, text=True, check=True)
+    assert {line.split()[1] for line in result.stdout.splitlines()} == expected
+
+
 @pytest.mark.parametrize("filename", [
     "README.md", "README.en.md", "README.uk.md",
     "docs/wiki/ru/Backup.md", "docs/wiki/en/Backup.md", "docs/wiki/uk/Backup.md",

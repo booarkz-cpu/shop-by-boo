@@ -193,7 +193,7 @@ BROWSER_DATABASE_URL=postgresql+asyncpg://… BROWSER_REDIS_URL=redis://… PAYM
   MOBILE_REQUIRE_PROOF=false python tests/passkey_browser_server.py
 # снова в admin/:
 node scripts/screenshots-catalog.mjs "$PWD/../../.."
-python3 ../scripts/screenshots/readme_admin.py        # блок «Админ-панель» в README
+python3 ../../../scripts/screenshots/readme_admin.py  # галерея screenshots/README.md
 ```
 
 С v28.76.0 номера разделов сохраняются: новый раздел получает следующий свободный номер. Тест `tests/test_screenshots.py` проверяет, что у каждого раздела меню есть снимок, а README ссылается только на существующие файлы. Телефон 390×844 и светлая тема — в `screenshots/admin_panel/variants/`.
@@ -209,7 +209,7 @@ APP_ENV=test APP_SECRET=browser-test-only-secret-at-least-32-characters COOKIE_S
   MOBILE_REQUIRE_PROOF=false python tests/passkey_browser_server.py
 ```
 
-База должна быть пустой: скрипт создаёт тарифы, промокоды и покупателя `demo.buyer` с двумя sandbox-оплатами и обращением в поддержку. Список снимков с описаниями для раздела «Скриншоты» в README скрипт записывает во временный каталог (`admin-screenshots-index.json`). Для проверки всех 61 раздела (снимок каждого и список полей без подписи) есть `node scripts/audit-sections.mjs <каталог>`.
+База должна быть пустой: скрипт создаёт тарифы, промокоды и покупателя `demo.buyer` с двумя sandbox-оплатами и обращением в поддержку. Список снимков с описаниями для [галереи](../../screenshots/README.md) скрипт записывает во временный каталог (`admin-screenshots-index.json`). Для проверки всех 61 раздела (снимок каждого и список полей без подписи) есть `node scripts/audit-sections.mjs <каталог>`.
 
 ## Проверка
 
