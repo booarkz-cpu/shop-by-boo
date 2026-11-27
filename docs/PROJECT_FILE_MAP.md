@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2769**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2770**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -772,6 +772,7 @@
 | [docs/CODE_REUSE_REGISTER.md](../docs/CODE_REUSE_REGISTER.md) | Документация |
 | [docs/CROWDSEC.md](../docs/CROWDSEC.md) | Документация |
 | [docs/DISTRIBUTION_ARCHIVE.md](../docs/DISTRIBUTION_ARCHIVE.md) | Документация |
+| [docs/DOCKER_ACCEPTANCE.md](../docs/DOCKER_ACCEPTANCE.md) | Документация |
 | [docs/EXTERNAL_DEPENDENCIES.md](../docs/EXTERNAL_DEPENDENCIES.md) | Документация |
 | [docs/INDEX.md](../docs/INDEX.md) | Документация |
 | [docs/INSTALLATION.md](../docs/INSTALLATION.md) | Документация |
