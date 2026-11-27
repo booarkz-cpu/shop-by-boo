@@ -1,6 +1,8 @@
 # Guides (English)
 
-Detailed guides for the owner of the shop, in English. Ukrainian: [docs/uk/guides](../../uk/guides/README.md). Russian originals: [docs/ru/new](../../ru/new/IMPLEMENTATION_STATUS.md).
+[English documentation](../README.md) · [Українська](../../uk/guides/README.md) · [Русский](../../ru/new/README.md)
+
+[Download the Android and iOS apps](../../../README.en.md#download-the-mobile-apps). Each download includes its checksum and installation requirements.
 
 | Guide | What it covers |
 | --- | --- |

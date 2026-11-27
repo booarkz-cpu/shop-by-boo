@@ -1,6 +1,6 @@
 # Installing the shop
 
-You need a terminal once: for the first deployment of the shop's containers. Everything else is done in the admin panel — settings without a restart, updates, Remnawave, backups.
+Use a terminal to deploy the containers on your VPS. After installation, sign in to Lucy Admin to configure the shop and Remnawave. The update and recovery procedures below also use the terminal.
 
 Russian original: [INSTALLATION_GUIDE](../../ru/new/INSTALLATION_GUIDE.md). Other guides: [index](README.md).
 

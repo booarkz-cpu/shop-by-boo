@@ -22,7 +22,7 @@ Open the APK on your phone and confirm installation. To verify a download on Lin
 
 ### iOS
 
-[Release v28.161.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) includes two builds per app. The iPhone and iPad IPA files are **unsigned**. Installing on a device requires Apple signing and a suitable provisioning profile. The ZIP contains an app for the Xcode simulator on a Mac.
+[Release v28.161.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) includes two builds per app. The iPhone and iPad IPA files are **unsigned**. Installing on a device requires iOS or iPadOS 16.0 or later, Apple signing and a suitable provisioning profile. The ZIP contains an app for the Xcode simulator on a Mac.
 
 | App | Files |
 | --- | --- |
