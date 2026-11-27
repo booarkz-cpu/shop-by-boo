@@ -31,6 +31,11 @@ jobs:
           python-version: "3.15"
       - name: Check source and documentation conditions
         run: python scripts/audit/run_full_audit.py
+      - name: Verify published mobile download links
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_LIVE_RELEASE_LINK_CHECK: "1"
+        run: python -m pytest -q tests/test_download_links.py -k live
       - name: Retain readable summary
         if: always()
         run: |

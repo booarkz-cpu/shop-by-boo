@@ -4651,5 +4651,20 @@
     ],
     "note": "Все перечисленные части Docker-аудита связаны с исполняемыми проверками: Dockerfile и multi-arch сборки, все комбинации Compose-профилей, постоянные тома и восстановление после их удаления, сети и опубликованные порты, healthcheck/dependencies, restart/read-only/non-root, окружение и обязательные секреты, чистые PostgreSQL 19/Alembic и восстановленная база, маскирование логов. Точная карта критериев и границ доказательства приведена в docs/DOCKER_ACCEPTANCE.md.",
     "platforms": "server, CI/CD"
+  },
+  "REQ-QA-0031": {
+    "status": "PASS",
+    "evidence": [
+      "README.md",
+      "README.en.md",
+      "README.uk.md",
+      "docs/wiki/en/Mobile.md",
+      "docs/wiki/ru/Mobile.md",
+      "docs/wiki/uk/Mobile.md",
+      "tests/test_download_links.py",
+      ".github/workflows/autonomous-audit.yml"
+    ],
+    "note": "27.11.2026. README.md, README.en.md, README.uk.md и три Wiki-страницы Mobile содержат постоянные ссылки releases/latest/download только на три APK, которые действительно публикует mobile-release.yml. Живая проверка GitHub API и HTTP-редиректов сверяет эти имена с последним опубликованным непререлизным выпуском, ненулевым размером и sha256 digest каждого asset. На момент приёмки v28.161.0 подтверждены corgi-lusi-android.apk (160292276 B, 84ffb596…), corgi-lusi-android-admin.apk (9760473 B, 8bdec403…) и corgi-lusi-client.apk (159049531 B, c812d056…). Проверка выполняется в Autonomous audit на каждом PR и push main.",
+    "platforms": "documentation, Android, CI/CD"
   }
 }
