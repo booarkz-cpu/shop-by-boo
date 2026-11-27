@@ -18,7 +18,9 @@ def test_recovery_entrypoints_match_the_cli_bundle(filename):
     assert ".vpb" in guide and "BACKUP_CURRENT.md" in guide
 
 
-def test_backup_guide_stops_at_a_failed_checksum(tmp_path):
+@pytest.mark.parametrize("record_type", ["wrong_digest", "other_backup", "correct"])
+def test_backup_guide_checks_the_selected_archive_before_decryption(tmp_path, record_type):
+    import hashlib
     import subprocess
 
     guide = (ROOT / "docs/ru/BACKUP_CURRENT.md").read_text(encoding="utf-8")
@@ -26,12 +28,21 @@ def test_backup_guide_stops_at_a_failed_checksum(tmp_path):
                 if "backup_bundle.py decrypt" in block]
     bundle = tmp_path / "shop-TIMESTAMP-RANDOM.vpb"
     bundle.write_bytes(b"damaged copy")
-    bundle.with_suffix(".vpb.sha256").write_text(f"{'0' * 64}  {bundle.name}\n")
+    record = f"{hashlib.sha256(bundle.read_bytes()).hexdigest()}  {bundle.name}\n"
+    if record_type == "wrong_digest":
+        record = f"{'0' * 64}  {bundle.name}\n"
+    elif record_type == "other_backup":
+        other = tmp_path / "shop-other.vpb"
+        other.write_bytes(b"previous backup")
+        record = f"{hashlib.sha256(other.read_bytes()).hexdigest()}  {other.name}\n"
+    bundle.with_suffix(".vpb.sha256").write_text(record)
     example = example.replace("/var/backups/vpn-shop", str(tmp_path))
+    installation = tmp_path / "missing-installation"
+    example = example.replace("/opt/vpn-shop", str(installation))
     result = subprocess.run(["bash", "-x", "-c", example], input="", capture_output=True, text=True)
     assert result.returncode != 0
-    assert "sha256sum -c" in result.stderr
-    assert "cd /opt/vpn-shop" not in result.stderr
+    assert "sha256sum" in result.stderr
+    assert (f"cd {installation}" in result.stderr) == (record_type == "correct")
 
 
 @pytest.mark.parametrize('filename',GUIDES)
