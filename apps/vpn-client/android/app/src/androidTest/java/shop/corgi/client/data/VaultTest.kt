@@ -3,6 +3,10 @@ package shop.corgi.client.data
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.net.InetAddress
+import java.net.ServerSocket
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -62,6 +66,39 @@ class VaultTest {
         assertEquals(active, reopened.active())
         assertEquals(active.id, reopened.activeProfile)
         assertEquals("0", reopened.activeServer)
+    }
+
+    @Test fun restoringDuringARefreshKeepsTheRestoredCiphertextAndServer() {
+        val store = Store(context)
+        store.settings = store.settings.copy(sendHwid = false)
+        val worker = Executors.newSingleThreadExecutor()
+        try {
+            ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")).use { listener ->
+                listener.soTimeout = 15_000
+                val initial = store.add("https://127.0.0.1:${listener.localPort}/subscription")
+                val servers = listOf(
+                    "trojan://test-only@vpn.example.invalid:443#First",
+                    "trojan://test-only@vpn.example.invalid:444#Restored"
+                )
+                val restored = initial.copy(links = servers)
+                val backup = store.backup().copy(profiles = listOf(restored), activeServer = "1")
+                val refresh = worker.submit<Profile> { Store(context).update(initial) }
+                val sealed = listener.accept().use {
+                    listener.close()
+                    store.restore(Backup.parse(backup.link()))
+                    prefs.getString("profiles", null)!!
+                }
+                assertTrue(Vault.isSealed(sealed))
+                assertEquals(restored, refresh.get(20, TimeUnit.SECONDS))
+                val reopened = Store(context)
+                assertEquals(sealed, prefs.getString("profiles", null))
+                assertEquals(restored, reopened.active())
+                assertEquals(restored.id, reopened.activeProfile)
+                assertEquals("1", reopened.activeServer)
+            }
+        } finally {
+            worker.shutdownNow()
+        }
     }
 
     @Test fun aValueComesBackAndIsNotReadableWhenStored() {

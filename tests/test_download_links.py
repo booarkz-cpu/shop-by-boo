@@ -41,12 +41,8 @@ def test_release_workflow_publishes_the_permanent_names():
 def test_every_download_link_points_to_a_produced_file():
     docs = [ROOT / "README.md", ROOT / "README.en.md", ROOT / "README.uk.md", *sorted((ROOT / "docs/wiki").glob("*/Mobile.md"))]
     produced = _produced()
-    seen = set()
     for doc in docs:
-        for name in LINK.findall(doc.read_text()):
-            assert name in produced, f"{doc.name}: {name} is not built by the release"
-            seen.add(name)
-    assert seen == produced
+        assert set(LINK.findall(doc.read_text())) == produced, doc.relative_to(ROOT)
 
 
 def test_signing_certificate_is_pinned():

@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2771**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2773**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1878,6 +1878,7 @@
 | [scripts/dependabot-automerge.cjs](../scripts/dependabot-automerge.cjs) | Эксплуатация и релиз |
 | [scripts/dependabot-queue.cjs](../scripts/dependabot-queue.cjs) | Эксплуатация и релиз |
 | [scripts/doctor.sh](../scripts/doctor.sh) | Эксплуатация и релиз |
+| [scripts/export_wiki.py](../scripts/export_wiki.py) | Эксплуатация и релиз |
 | [scripts/generate-admin-matrix.py](../scripts/generate-admin-matrix.py) | Эксплуатация и релиз |
 | [scripts/generate-api-docs.py](../scripts/generate-api-docs.py) | Эксплуатация и релиз |
 | [scripts/generate-architecture-docs.py](../scripts/generate-architecture-docs.py) | Эксплуатация и релиз |
@@ -2774,6 +2775,7 @@
 | [tests/test_v45_5_deep_regressions.py](../tests/test_v45_5_deep_regressions.py) | Проверки |
 | [tests/test_v45_deep_regressions.py](../tests/test_v45_deep_regressions.py) | Проверки |
 | [tests/test_widget.py](../tests/test_widget.py) | Проверки |
+| [tests/test_wiki_export.py](../tests/test_wiki_export.py) | Проверки |
 | [tests/test_workflows_parse.py](../tests/test_workflows_parse.py) | Проверки |
 | [tests/test_xcuitest_results.py](../tests/test_xcuitest_results.py) | Проверки |
 | [tests/test_xray_artifact.py](../tests/test_xray_artifact.py) | Проверки |
