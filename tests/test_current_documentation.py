@@ -8,6 +8,32 @@ ROOT = Path(__file__).resolve().parents[1]
 GUIDES = json.loads((ROOT/'docs/current-guides.json').read_text())['guides']
 
 
+@pytest.mark.parametrize("filename", [
+    "README.md", "README.en.md", "README.uk.md",
+    "docs/wiki/ru/Backup.md", "docs/wiki/en/Backup.md", "docs/wiki/uk/Backup.md",
+])
+def test_recovery_entrypoints_match_the_cli_bundle(filename):
+    guide = (ROOT / filename).read_text(encoding="utf-8")
+    assert not re.search(r"\bpsql\b[^\n]*<\s*\S*backup\.sql\b", guide), filename
+    assert ".vpb" in guide and "BACKUP_CURRENT.md" in guide
+
+
+def test_backup_guide_stops_at_a_failed_checksum(tmp_path):
+    import subprocess
+
+    guide = (ROOT / "docs/ru/BACKUP_CURRENT.md").read_text(encoding="utf-8")
+    example, = [block for block in re.findall(r"```bash\n(.*?)\n```", guide, re.S)
+                if "backup_bundle.py decrypt" in block]
+    bundle = tmp_path / "shop-TIMESTAMP-RANDOM.vpb"
+    bundle.write_bytes(b"damaged copy")
+    bundle.with_suffix(".vpb.sha256").write_text(f"{'0' * 64}  {bundle.name}\n")
+    example = example.replace("/var/backups/vpn-shop", str(tmp_path))
+    result = subprocess.run(["bash", "-x", "-c", example], input="", capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "sha256sum -c" in result.stderr
+    assert "cd /opt/vpn-shop" not in result.stderr
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guide_links_exist(filename):
     path = ROOT / filename

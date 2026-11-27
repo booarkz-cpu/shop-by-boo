@@ -4667,5 +4667,23 @@
     ],
     "note": "27.11.2026. README.md, README.en.md, README.uk.md и три Wiki-страницы Mobile содержат постоянные ссылки releases/latest/download только на три APK, которые действительно публикует mobile-release.yml. Живая проверка GitHub API и HTTP-редиректов сверяет эти имена с последним опубликованным непререлизным выпуском, ненулевым размером и sha256 digest каждого asset. На момент приёмки v28.161.0 подтверждены corgi-lusi-android.apk (160292276 B, 84ffb596…), corgi-lusi-android-admin.apk (9760473 B, 8bdec403…) и corgi-lusi-client.apk (159049531 B, c812d056…). Проверка выполняется в Autonomous audit на каждом PR и push main.",
     "platforms": "documentation, Android, CI/CD"
+  },
+  "REQ-QA-0035": {
+    "status": "PASS",
+    "platforms": "documentation, Android, iOS, installation and recovery",
+    "evidence": [
+      "README.md",
+      "README.en.md",
+      "README.uk.md",
+      "docs/wiki/ru/Backup.md",
+      "docs/wiki/en/Backup.md",
+      "docs/wiki/uk/Backup.md",
+      "docs/ru/BACKUP_CURRENT.md",
+      "scripts/backup.sh",
+      "scripts/ci/restore-drill.sh",
+      "tests/test_current_documentation.py",
+      "tests/test_download_links.py"
+    ],
+    "note": "27.11.2026. Во всех трёх README доступны установка из тега выпуска, обновление, восстановление .vpb и загрузка приложений. Имена Android APK проверяются для каждого языка и сверяются с опубликованным выпуском. Описаны неподписанные iOS IPA и пакеты симулятора. Регламент проверяет контрольную сумму до расшифровки и использует pg_restore для дампов магазина и Support Pro. Регрессия на прежних инструкциях обнаружила шесть ошибочных или неполных точек входа. Приёмка относится к документации. Реальная установка на VPS и подпись iOS учитываются отдельно."
   }
 }

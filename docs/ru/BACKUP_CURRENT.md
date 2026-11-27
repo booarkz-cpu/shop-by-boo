@@ -32,24 +32,33 @@ scp root@SERVER_IP:/var/backups/vpn-shop/shop-TIMESTAMP-RANDOM.vpb.sha256 .
 
 Проводите restore drill на отдельном сервере с тем же исходным релизом и изолированными volumes. Формат `.vpb` **не является** `.enc` из админ-панели и не загружается в её restore-форму.
 
-На сервере со сборкой backend:
+На изолированном сервере с настроенным Compose и образом backend из исходного выпуска замените `shop-TIMESTAMP-RANDOM.vpb` именем вашей копии. В `/var/tmp` должно хватать места для расшифрованного архива.
 
 ```bash
-cd /var/backups/vpn-shop
-sha256sum -c shop-TIMESTAMP-RANDOM.vpb.sha256
-cd /opt/vpn-shop
-umask 077
-read -rsp 'Пароль копии: ' BACKUP_BUNDLE_PASSWORD
-export BACKUP_BUNDLE_PASSWORD
-if docker compose run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend /project/scripts/backup_bundle.py decrypt < /var/backups/vpn-shop/shop-TIMESTAMP-RANDOM.vpb > /root/shop-recovery.tar; then
-  tar -tf /root/shop-recovery.tar
-else
-  rm -f /root/shop-recovery.tar
-fi
-unset BACKUP_BUNDLE_PASSWORD
+(
+  set -eu
+  umask 077
+  cd /var/backups/vpn-shop
+  bundle=shop-TIMESTAMP-RANDOM.vpb
+  sha256sum -c "$bundle.sha256"
+  archive="$PWD/$bundle"
+  cd /opt/vpn-shop
+  read -rsp 'Пароль копии: ' BACKUP_BUNDLE_PASSWORD
+  printf '\n'
+  export BACKUP_BUNDLE_PASSWORD
+  work=$(mktemp -d /var/tmp/shop-recovery.XXXXXXXX)
+  if docker compose run --rm --no-deps -T -e BACKUP_BUNDLE_PASSWORD --entrypoint python backend /project/scripts/backup_bundle.py decrypt < "$archive" > "$work/recovery.tar" &&
+      tar -tf "$work/recovery.tar"; then
+    printf 'Архив для восстановления: %s/recovery.tar\n' "$work"
+  else
+    rm -f "$work/recovery.tar"
+    rmdir "$work"
+    exit 1
+  fi
+)
 ```
 
-**Не извлекайте поток до успешного завершения дешифрации:** при повреждении позднего блока временный plaintext может содержать ранние блоки. Удалите неполный файл при любой ошибке. Проверка checksum подтверждает передачу, AES-GCM — пароль и целостность.
+При ошибке контрольной суммы команда останавливается до расшифровки. Вывод ранних блоков возможен даже при повреждении конца архива, поэтому список файлов проверяется после успешного окончания расшифровки. При ошибке временный файл удаляется.
 
 В проверенном tar находится `backup-manifest.json` с версией исходников и SHA256 каждого вложенного файла. Сверьте их до восстановления. `environment.tar.gz` содержит секреты; каталог извлечения должен иметь права 0700. Сохраните текущие секреты отдельно и согласуйте ключи шифрования приложения и пароли БД с восстановленным окружением.
 
