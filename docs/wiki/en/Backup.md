@@ -9,56 +9,30 @@
 | `.env` | secrets and settings; without it the install cannot be restored |
 | uploaded files (`MEDIA_DIR`) | avatars, banners, attachments |
 
-## Create a copy
+## Create a full backup
+
+On a standard installation, schedule a maintenance window and run the command below. Enter a password of 12 to 1024 characters and keep it separately.
 
 ```bash
-bash scripts/backup.sh
+cd /opt/vpn-shop && sudo bash scripts/backup.sh
 ```
 
-It dumps the database into `BACKUP_DIR`. The "Backups" section of the admin panel lists copies with size, date and
-integrity result. The check also runs on a schedule.
+Keep the distribution tag and full Git commit or the installation archive’s SHA-256 with the backup. The manifest’s `source_version` identifies the runtime/API version.
 
-## Why one copy is not enough
+The script briefly stops running services that write data while it captures the databases and files. By default it writes `shop-*.vpb` and its `.sha256` file to `/var/backups/vpn-shop`. Set `BACKUP_DEST` to choose another directory. Keep both files off the server and retain the previous verified backup until you have checked the next one. Use the admin panel to restore its own `.enc` backups.
 
-A copy on the same server disappears with the server. Keep at least one copy off the host — object storage
-(S3-compatible is supported) or another server.
+## Recover on a separate host
 
-Rule: **do not delete the only copy**, neither before a successful update nor after it, until the retention
-window passes and another copy exists.
+1. Prepare an isolated host with the same shop release and empty volumes. Keep services that write data stopped and retain the original databases and volumes. Rehearse the recovery monthly.
+2. Verify the archive checksum. Decrypt the entire archive to a private file. If decryption fails, discard the incomplete file. After successful decryption, verify the recovered files against `backup-manifest.json`.
+3. Restore the environment files before starting the databases. Check `shop.dump` and, if the backup contains Support Pro, `support.dump` with `pg_restore --list`. Restore each to its matching database with `pg_restore --exit-on-error`. Restore media, app packages and support uploads to their respective volumes.
+4. Compare subscription and payment records with their values at backup time. Check admin sign-in, attachments and `bash scripts/doctor.sh` before switching traffic.
 
-## Verify a copy
+[Recovery commands (Russian)](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/ru/BACKUP_CURRENT.md) · [Recovery after losing a server (Russian)](https://github.com/booarkz-cpu/shop-by-boo/blob/main/docs/ru/DISASTER_RECOVERY.md).
 
-A copy you never restored is a hope, not a backup. Once a month:
+## Roll back an update
 
-```bash
-# restore the copy on a test host, then run
-docker compose exec -T db psql -U "$DB_USER" -d "$DB_NAME" -c "select count(*) from users;"
-docker compose exec -T db psql -U "$DB_USER" -d "$DB_NAME" -c "select count(*) from payments;"
-```
-
-The numbers must match the production shop at the moment of the copy.
-
-## Restore
-
-```bash
-bash scripts/backup.sh                                        # 1. copy the current state first
-docker compose stop backend worker bot                        # 2. stop writes
-docker compose exec -T db psql -U "$DB_USER" -d "$DB_NAME" < backup.sql
-docker compose start backend worker bot                       # 3. start again
-bash scripts/doctor.sh                                        # 4. verify
-```
-
-The schema version in the dump must match the shop version. If the dump is from another version, restore that
-version first and then update through the normal path.
-
-## Rolling back a release
-
-```bash
-bash scripts/rollback.sh
-```
-
-The script restores the previous release from the snapshot taken before the update. That is why a copy is created
-automatically before every update.
+`scripts/rollback.sh` restores the files and main shop database captured before the update. Use the full backup to recover Support Pro and its files to the same point in time. [Updates and rollback](Updates.md).
 
 ## Secrets in copies
 

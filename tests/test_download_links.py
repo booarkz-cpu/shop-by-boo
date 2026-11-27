@@ -41,12 +41,30 @@ def test_release_workflow_publishes_the_permanent_names():
 def test_every_download_link_points_to_a_produced_file():
     docs = [ROOT / "README.md", ROOT / "README.en.md", ROOT / "README.uk.md", *sorted((ROOT / "docs/wiki").glob("*/Mobile.md"))]
     produced = _produced()
-    seen = set()
     for doc in docs:
-        for name in LINK.findall(doc.read_text()):
-            assert name in produced, f"{doc.name}: {name} is not built by the release"
-            seen.add(name)
-    assert seen == produced
+        expected = produced if doc.parent != ROOT else produced | {name + ".sha256" for name in produced}
+        assert set(LINK.findall(doc.read_text())) == expected, doc.relative_to(ROOT)
+
+
+def test_readmes_offer_matching_device_simulator_and_checksum_links_in_the_first_section():
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    readmes = [ROOT / name for name in ("README.md", "README.en.md", "README.uk.md")]
+    downloads = [check(doc.read_text(), doc.name, _produced()) for doc in readmes]
+    assert len(downloads[0]) == 4
+    assert downloads[0] == downloads[1] == downloads[2]
+
+
+@pytest.mark.parametrize("page", ["README.md", "README.en.md", "README.uk.md"])
+def test_readme_rejects_checksums_attached_to_the_wrong_ios_app(page):
+    check = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["readme_downloads"]
+    text = (ROOT / page).read_text()
+    pattern = r"https://[^)\s]+_unsigned\.ipa\.sha256"
+    checksums = re.findall(pattern, text)
+    assert len(set(checksums)) == len(checksums) == 2
+    swapped = dict(zip(checksums, reversed(checksums), strict=True))
+    damaged = re.sub(pattern, lambda match: swapped[match[0]], text)
+    with pytest.raises(ValueError, match="matching SHA-256 link"):
+        check(damaged, page, _produced())
 
 
 def test_signing_certificate_is_pinned():
@@ -120,3 +138,4 @@ def test_live_readme_mobile_links_match_latest_published_release():
     result = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["verify"]()
     assert result["tag"].startswith("v")
     assert {asset["name"] for asset in result["assets"]} == _produced()
+    assert len(result["ios_assets"]) == 4

@@ -26,9 +26,35 @@ def test_every_admin_section_has_a_screenshot():
 
 
 def test_readme_images_exist():
-    for doc in ("README.md", "README.en.md", "README.uk.md"):
+    for doc in ("README.md", "README.en.md", "README.uk.md", "screenshots/README.md"):
         path = ROOT / doc
-        if not path.exists():
-            continue
-        for ref in re.findall(r"!\[[^\]]*\]\(((?:docs/)?screenshots/[^)\s]+)\)", path.read_text()):
-            assert (ROOT / ref).is_file(), f"{doc}: {ref} is missing"
+        source = path.read_text()
+        refs = re.findall(r"!\[[^\]]*\]\(([^)\s]+)\)", source)
+        refs += re.findall(r'<img\b[^>]*\bsrc="([^"]+)"', source)
+        for ref in refs:
+            if not ref.startswith(("https://", "http://")):
+                assert (path.parent / ref).is_file(), f"{doc}: {ref} is missing"
+
+
+def test_regenerating_gallery_preserves_the_landing_page(tmp_path):
+    import json
+    import shutil
+    import subprocess
+    import sys
+
+    script = Path("scripts/screenshots/readme_admin.py")
+    gallery = Path("screenshots/README.md")
+    for path in (script, gallery, Path("README.md")):
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / path, tmp_path / path)
+    shot = "02_dashboard.png"
+    index = tmp_path / "index.json"
+    index.write_text(json.dumps([{"group": "Магазин", "label": "Обзор", "description": "Сводка", "file": shot}]))
+    before = (tmp_path / gallery).read_text()
+    subprocess.run([sys.executable, str(tmp_path / script), str(index)], check=True)
+    after = (tmp_path / gallery).read_text()
+    start, end = "#### Админ-панель\n", "#### Личный кабинет пользователя\n"
+    assert after.split(start)[0] == before.split(start)[0]
+    assert after.split(end)[1] == before.split(end)[1]
+    assert f"![Обзор](admin_panel/{shot})" in after and (SHOTS / shot).is_file()
+    assert (tmp_path / "README.md").read_bytes() == (ROOT / "README.md").read_bytes()

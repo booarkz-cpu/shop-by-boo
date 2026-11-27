@@ -1,6 +1,10 @@
 package shop.corgi.client.data
 
 import android.content.SharedPreferences
+import java.net.InetAddress
+import java.net.ServerSocket
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -25,6 +29,54 @@ class VaultFailureTest {
 
     @After fun restore() {
         Vault.cipher = Vault.androidCipher
+    }
+
+    @Test fun aLateFailedRefreshKeepsTheLatestSavedServers() {
+        val store = Store(prefs)
+        store.settings = store.settings.copy(sendHwid = false)
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")).use { listener ->
+                listener.soTimeout = 10_000
+                val stale = store.add("https://127.0.0.1:${listener.localPort}/subscription")
+                val saved = stale.copy(
+                    links = listOf("trojan://test-only@vpn.example.invalid:443#Selected"),
+                    name = "Updated provider",
+                    updatedAt = 12345,
+                    failures = 3
+                )
+                store.activeServer = "0"
+                val refresh = executor.submit<Profile> { Store(prefs).update(stale) }
+                listener.accept().use {
+                    listener.close()
+                    store.replace(saved)
+                }
+                val concurrent = refresh.get(15, TimeUnit.SECONDS)
+                assertEquals(saved, concurrent)
+                assertEquals(saved, Store(prefs).active())
+
+                val failed = store.update(stale)
+                assertTrue(failed.error.isNotBlank())
+                assertEquals(saved.failures + 1, failed.failures)
+                assertTrue(failed.triedAt > saved.triedAt)
+                assertEquals(saved, failed.copy(error = saved.error, failures = saved.failures, triedAt = saved.triedAt))
+                assertEquals(failed, Store(prefs).active())
+                assertEquals("0", store.activeServer)
+            }
+        } finally {
+            executor.shutdownNow()
+        }
+    }
+
+    @Test fun aRemovedSubscriptionIsNotWrittenBackByAnOldRefresh() {
+        val store = Store(prefs)
+        val removed = store.add("https://127.0.0.1:1/removed")
+        val active = store.add("trojan://test-only@vpn.example.invalid:443#Remaining")
+        assertTrue(store.remove(removed.id))
+        val before = prefs.all.toMap()
+        Store(prefs).update(removed)
+        assertEquals(before, prefs.all)
+        assertEquals(active, store.active())
     }
 
     @Test fun sealNeverReturnsPlaintext() {

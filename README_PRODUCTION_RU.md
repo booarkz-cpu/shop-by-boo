@@ -1,13 +1,11 @@
-> Актуальный дистрибутив: `v28.161.0`; runtime/API: `21.5.1`. Точные границы готовности указаны в текущей матрице покрытия.
+# Установка и эксплуатация VPN Shop by Corgi Lucy
 
-# Установка и эксплуатация — v21.5.1
+Для установки выберите тег опубликованного дистрибутива. В выпуске [v28.161.0](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) версия runtime/API — `21.5.1`. Состав пакета и ограничения выпуска приведены в [заметках](docs/ru/RELEASE_V28_161_0.md).
 
-Актуальная пошаговая инструкция: [Установка и эксплуатация](docs/ru/DEPLOYMENT_CURRENT.md). Общий каталог: [DOCUMENTATION.md](DOCUMENTATION.md).
+- **Установка.** [Подготовьте VPS](docs/wiki/ru/Installation.md), [настройте домены](docs/wiki/ru/Domains.md) и войдите в админку.
+- **Первые продажи.** [Подключите Remnawave](docs/wiki/ru/Remnawave.md) для выдачи доступа и [настройте платёжного провайдера](docs/wiki/ru/Payments.md).
+- **Мобильные приложения.** [Скачайте магазин, VPN-клиент или Lucy Admin](README.md#скачать-мобильные-приложения).
+- **Обслуживание.** [Обновите магазин](docs/wiki/ru/Updates.md) или [восстановите базы, секреты и файлы](docs/ru/BACKUP_CURRENT.md).
+- **Проверки.** [Сверьтесь с критериями готовности](docs/ru/MATRIX_COMPLETION_21_5_1.md) или [найдите причину сбоя](docs/wiki/ru/Troubleshooting.md).
 
-Стабильный канал текущего ядра не подтверждает полный перенос функций или production E2E. Реальные платежи открыты с момента установки; администратор может остановить их аварийной кнопкой. Используйте текущие три агента: YooKassa, Platega, RollyPay; прежние агенты не принимают новые покупки.
-
-Предыдущая редакция сохранена как [исторический документ](docs/archive/instructions_before_21_0_1/README_PRODUCTION_RU.md); её команды и обещания не являются текущей инструкцией.
-
-## Новые функции v21.5.1
-
-Реализованы [партнёрский кабинет и комиссии](docs/ru/PARTNERS_CURRENT.md), [клиентские ключи доступа](docs/ru/CUSTOMER_PASSKEYS_CURRENT.md), [объединение клиентских аккаунтов](docs/ru/ACCOUNT_MERGE_CURRENT.md) и [объединение/разделение обращений](docs/ru/SUPPORT_TOPOLOGY_CURRENT.md). [Полная инструкция production](docs/ru/PRODUCTION_CURRENT.md) охватывает SSH/Termius, DNS/TLS, настройку, приёмку, backup/restore, обновления и инциденты. Вся матрица ещё не завершена; production gate закрыт.
+[Главная страница](README.md) · [Каталог инструкций](DOCUMENTATION.md) · [Историческая редакция](docs/archive/instructions_before_21_0_1/README_PRODUCTION_RU.md).
