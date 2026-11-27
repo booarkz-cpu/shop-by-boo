@@ -35,7 +35,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           RUN_LIVE_RELEASE_LINK_CHECK: "1"
-        run: python -m pytest -q tests/test_download_links.py -k live
+        run: python scripts/audit/check-mobile-release-links.py
       - name: Retain readable summary
         if: always()
         run: |

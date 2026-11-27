@@ -1,10 +1,8 @@
 """v28.77.0: permanent download links (releases/latest/download/<name>) point to names the release build produces."""
-import json
 import os
 import re
 import runpy
 import subprocess
-import urllib.request
 from pathlib import Path
 
 import pytest
@@ -116,55 +114,9 @@ def test_mobile_packages_are_built_for_every_head_of_main():
     assert packaging_scripts.issubset(triggers["pull_request"]["paths"])
 
 
-class _RedirectRecorder(urllib.request.HTTPRedirectHandler):
-    def __init__(self):
-        super().__init__()
-        self.locations: list[str] = []
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        self.locations.append(newurl)
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
-def _latest_release() -> dict:
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "shop-by-boo-release-link-audit"}
-    if token := os.environ.get("GITHUB_TOKEN"):
-        headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(
-        "https://api.github.com/repos/booarkz-cpu/shop-by-boo/releases/latest",
-        headers=headers,
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
-
-
-def _resolve_permanent_download(url: str) -> tuple[int, str, list[str]]:
-    recorder = _RedirectRecorder()
-    opener = urllib.request.build_opener(recorder)
-    request = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "shop-by-boo-release-link-audit"})
-    with opener.open(request, timeout=60) as response:
-        return response.status, response.geturl(), recorder.locations
-
-
 @pytest.mark.skipif(os.environ.get("RUN_LIVE_RELEASE_LINK_CHECK") != "1", reason="explicit live GitHub check")
 def test_live_readme_mobile_links_match_latest_published_release():
-    """REQ-QA-0031: documentation links resolve to real, non-empty, digest-addressed release assets."""
-    docs = [ROOT / "README.md", ROOT / "README.en.md", ROOT / "README.uk.md", *sorted((ROOT / "docs/wiki").glob("*/Mobile.md"))]
-    documented = {name for doc in docs for name in LINK.findall(doc.read_text())}
-    assert documented == _produced()
-
-    release = _latest_release()
-    assert not release["draft"] and not release["prerelease"]
-    assert re.fullmatch(r"v[0-9]+(?:\.[0-9]+){2}", release["tag_name"])
-    assets = {asset["name"]: asset for asset in release["assets"]}
-
-    for name in sorted(documented):
-        asset = assets[name]
-        assert asset["size"] > 0
-        assert re.fullmatch(r"sha256:[0-9a-f]{64}", asset["digest"])
-        permanent = f"https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/{name}"
-        status, final_url, redirects = _resolve_permanent_download(permanent)
-        assert status == 200
-        assert redirects, f"{permanent} did not redirect to a versioned release asset"
-        assert redirects[0] == asset["browser_download_url"]
-        assert final_url != permanent
+    """REQ-QA-0031: execute the standalone live audit used by Autonomous audit."""
+    result = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["verify"]()
+    assert result["tag"].startswith("v")
+    assert {asset["name"] for asset in result["assets"]} == _produced()

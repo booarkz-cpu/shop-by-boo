@@ -4629,7 +4629,7 @@
 
 - Источник: Часть I → Completeness Supplement → Product And Service Reliability → Task (строка 1485). Продукт: Все три.
 - Платформы: documentation, Android, CI/CD.
-- Доказательство: `README.md`; `README.en.md`; `README.uk.md`; `docs/wiki/en/Mobile.md`; `docs/wiki/ru/Mobile.md`; `docs/wiki/uk/Mobile.md`; `tests/test_download_links.py`; `.github/workflows/autonomous-audit.yml`.
+- Доказательство: `README.md`; `README.en.md`; `README.uk.md`; `docs/wiki/en/Mobile.md`; `docs/wiki/ru/Mobile.md`; `docs/wiki/uk/Mobile.md`; `scripts/audit/check-mobile-release-links.py`; `tests/test_download_links.py`; `.github/workflows/autonomous-audit.yml`.
 - Примечание: 27.11.2026. README.md, README.en.md, README.uk.md и три Wiki-страницы Mobile содержат постоянные ссылки releases/latest/download только на три APK, которые действительно публикует mobile-release.yml. Живая проверка GitHub API и HTTP-редиректов сверяет эти имена с последним опубликованным непререлизным выпуском, ненулевым размером и sha256 digest каждого asset. На момент приёмки v28.161.0 подтверждены corgi-lusi-android.apk (160292276 B, 84ffb596…), corgi-lusi-android-admin.apk (9760473 B, 8bdec403…) и corgi-lusi-client.apk (159049531 B, c812d056…). Проверка выполняется в Autonomous audit на каждом PR и push main.
 
 > Проверить, что все ссылки на мобильные приложения в README ведут на реальные релизы/артефакты, а не на несуществующие файлы.

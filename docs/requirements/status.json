@@ -4661,6 +4661,7 @@
       "docs/wiki/en/Mobile.md",
       "docs/wiki/ru/Mobile.md",
       "docs/wiki/uk/Mobile.md",
+      "scripts/audit/check-mobile-release-links.py",
       "tests/test_download_links.py",
       ".github/workflows/autonomous-audit.yml"
     ],
