@@ -22,6 +22,6 @@ To try the shop locally, run `bash scripts/test-up.sh` from a checkout of the pu
 
 ## Release and reference
 
-Distribution `v28.161.0` uses runtime/API `21.5.1`. The database migrations are `0094_store_subscriptions` for the shop and `0008` for Support Pro. [Release assets](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) · [Current readiness matrix in Russian](../ru/MATRIX_COMPLETION_21_5_1.md).
+Distribution `v28.161.0` uses runtime/API `21.5.1`. The database migrations are `0094_store_subscriptions` for the shop and `0008` for Support Pro. The `main` branch uses Support Pro migration `0009`. [Release assets](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) · [Current readiness matrix in Russian](../ru/MATRIX_COMPLETION_21_5_1.md).
 
 [All English guides](guides/README.md) · [API catalogue](../API_ENDPOINTS.md) · [License](../../LICENSE) · [Changelog](../../CHANGELOG.md) · [Previous guide index](https://github.com/booarkz-cpu/shop-by-boo/blob/9d7bd45c41380d47726bf7448111475210282a50/docs/en/README.md).

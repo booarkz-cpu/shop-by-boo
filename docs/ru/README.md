@@ -21,6 +21,6 @@
 
 ## Выпуск и история
 
-Дистрибутив `v28.161.0` использует runtime/API `21.5.1`. Миграции баз данных — `0094_store_subscriptions` для магазина и `0008` для Support Pro. [Заметки v28.161.0](RELEASE_V28_161_0.md) · [Матрица готовности](MATRIX_COMPLETION_21_5_1.md).
+Дистрибутив `v28.161.0` использует runtime/API `21.5.1`. Миграции баз данных — `0094_store_subscriptions` для магазина и `0008` для Support Pro. В ветке `main` ревизия Support Pro — `0009`. [Заметки v28.161.0](RELEASE_V28_161_0.md) · [Матрица готовности](MATRIX_COMPLETION_21_5_1.md).
 
 [Все инструкции](../../DOCUMENTATION.md) · [История выпусков](../../CHANGELOG.md) · [Предыдущий каталог со ссылками по версиям](https://github.com/booarkz-cpu/shop-by-boo/blob/9d7bd45c41380d47726bf7448111475210282a50/docs/ru/README.md).

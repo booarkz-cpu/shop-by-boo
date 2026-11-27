@@ -22,6 +22,6 @@
 
 ## Випуск і довідкові матеріали
 
-Дистрибутив `v28.161.0` використовує runtime/API `21.5.1`. Міграції баз даних — `0094_store_subscriptions` для магазину та `0008` для Support Pro. [Файли випуску](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) · [Матриця готовності російською](../ru/MATRIX_COMPLETION_21_5_1.md).
+Дистрибутив `v28.161.0` використовує runtime/API `21.5.1`. Міграції баз даних — `0094_store_subscriptions` для магазину та `0008` для Support Pro. У гілці `main` ревізія Support Pro — `0009`. [Файли випуску](https://github.com/booarkz-cpu/shop-by-boo/releases/tag/v28.161.0) · [Матриця готовності російською](../ru/MATRIX_COMPLETION_21_5_1.md).
 
 [Усі українські посібники](guides/README.md) · [Каталог API](../API_ENDPOINTS.md) · [Ліцензія](../../LICENSE) · [Історія змін](../../CHANGELOG.md) · [Попередній каталог](https://github.com/booarkz-cpu/shop-by-boo/blob/9d7bd45c41380d47726bf7448111475210282a50/docs/uk/README.md).

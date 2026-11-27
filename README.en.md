@@ -106,8 +106,9 @@ In a standard deployment, Caddy routes HTTPS requests to the API and web apps. T
 | Shop and Lucy Admin · Android and iOS | 3.9.0 | 3.9.1 |
 | VPN client · Android | 1.10.1 | 1.10.2 |
 | Backend · Python / PostgreSQL | 3.14 / 18.6 | 3.15 / 19.0 |
+| Support Pro · Alembic | `0008` | `0009` |
 
-The runtime/API version is `21.5.1`. The shop database migration is `0094_store_subscriptions` and Support Pro is at `0008`. The distribution and apps have separate version numbers. [Release manifest](https://github.com/booarkz-cpu/shop-by-boo/releases/download/v28.161.0/remnawave_vpn_shop_v28_161_0_full_release_manifest.json) · [Changelog](CHANGELOG.md) · [Previous README](https://github.com/booarkz-cpu/shop-by-boo/blob/0bc4385ffbc1073f00cf47612b3b8ca96651b845/README.en.md).
+The runtime/API version is `21.5.1`. The shop database uses migration `0094_store_subscriptions` in both the release and the main branch. The distribution and apps have separate version numbers. [Release manifest](https://github.com/booarkz-cpu/shop-by-boo/releases/download/v28.161.0/remnawave_vpn_shop_v28_161_0_full_release_manifest.json) · [Changelog](CHANGELOG.md) · [Previous README](https://github.com/booarkz-cpu/shop-by-boo/blob/0bc4385ffbc1073f00cf47612b3b8ca96651b845/README.en.md).
 
 | Task | Where to go |
 | --- | --- |
