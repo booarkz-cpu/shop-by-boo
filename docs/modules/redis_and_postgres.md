@@ -90,7 +90,41 @@ for service in $services; do
 done
 ```
 
-В отдельном проекте Compose задайте выведенные имена томов через `volumes.redis_data.name` и `volumes.support_redis_data.name`, для обоих укажите `external: true`. Оставьте прежние закрепления образов сервисов. В этом проекте выполните `docker compose up -d --no-deps --wait redis support_redis`. Проверьте оба healthcheck, ожидаемые очереди и ключи контрольной операции. При сверке TTL учитывайте время, прошедшее с момента копии. До окончания проверки держите workers, бота и внешние вебхуки остановленными. Исходные тома и архивы сохраняются для повторного восстановления. [Сценарий CI](../../scripts/ci/redis-volume-rollback.py) выполняет команды этого руководства на отдельных тестовых томах магазина и Support Pro.
+В отдельном каталоге на проверочном хосте подготовьте копию прежнего `docker-compose.yml` и его окружения с прежними паролями и образами. Задайте переменную `REDIS_RESTORE_PROJECT` с новым именем проекта Compose. Экспортируйте имя созданного тома из строки `redis` в `RESTORED_REDIS_VOLUME`. Выберите файл `redis-restored.yml` для своей установки.
+
+**Магазин со встроенным Support Pro.** Экспортируйте также имя тома из строки `support_redis` в `RESTORED_SUPPORT_REDIS_VOLUME`.
+
+```yaml
+volumes:
+  redis_data:
+    external: true
+    name: ${RESTORED_REDIS_VOLUME:?set RESTORED_REDIS_VOLUME}
+  support_redis_data:
+    external: true
+    name: ${RESTORED_SUPPORT_REDIS_VOLUME:?set RESTORED_SUPPORT_REDIS_VOLUME}
+```
+
+**Отдельная установка Support Pro.** Скопируйте Compose и окружение этой установки. Её сервис `redis` подключает том `redisdata`. Сохраните `export REDIS_STANDALONE_SUPPORT=1` и при запуске проверки.
+
+```yaml
+volumes:
+  redisdata:
+    external: true
+    name: ${RESTORED_REDIS_VOLUME:?set RESTORED_REDIS_VOLUME}
+```
+
+Выполните в подготовленном каталоге. Команда поднимет только выбранные сервисы Redis.
+
+```bash
+set -eu
+: "${REDIS_RESTORE_PROJECT:?set REDIS_RESTORE_PROJECT}"
+services="redis support_redis"
+if [ "${REDIS_STANDALONE_SUPPORT:-0}" = 1 ]; then services=redis; fi
+docker compose -p "$REDIS_RESTORE_PROJECT" -f docker-compose.yml -f redis-restored.yml \
+  up -d --no-deps --wait $services
+```
+
+Проверьте состояние каждого запущенного сервиса, ожидаемые очереди и ключи контрольной операции. При сверке TTL учитывайте время, прошедшее с момента копии. До окончания проверки держите workers, бота и внешние вебхуки остановленными. Исходные тома и архивы сохраняются для повторного восстановления. [Сценарий CI](../../scripts/ci/redis-volume-rollback.py) выполняет команды руководства для обеих конфигураций.
 
 ## Синхронизация клиентов
 
