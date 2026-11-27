@@ -18,7 +18,7 @@
 | Alembic | 1.20.1 | `requirements.txt` | миграции (88 ревизий) |
 | aiogram | 3.34.0 | `requirements.txt` | Telegram-бот |
 | aiohttp | 3.14.5 | `requirements.txt` | HTTP-клиент бота |
-| httpx | 0.28.1 | `requirements.txt` | HTTP-клиент API и проверок |
+| HTTPX | [0.29.0](https://github.com/encode/httpx/releases/tag/0.29.0) | `services/backend/requirements.txt`, `services/support-pro/requirements.txt`, `.github/workflows/docs-links.yml` | HTTP-клиент API и проверок ссылок. Python ≥ 3.10, BSD-3-Clause |
 | h2 | 4.4.1 | `requirements.txt` | HTTP/2 для httpx |
 | redis | 8.2.0 | `requirements.txt` | клиент Redis |
 | pydantic-settings | 2.16.3 | `requirements.txt` | конфигурация из окружения |
