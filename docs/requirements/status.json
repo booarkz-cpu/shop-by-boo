@@ -4713,5 +4713,63 @@
       "tests/test_download_links.py"
     ],
     "note": "27.11.2026. Во всех трёх README доступны установка из тега выпуска, обновление, восстановление .vpb и загрузка приложений. Имена Android APK проверяются для каждого языка и сверяются с опубликованным выпуском. Описаны неподписанные iOS IPA и пакеты симулятора. Регламент проверяет контрольную сумму до расшифровки и использует pg_restore для дампов магазина и Support Pro. Регрессия на прежних инструкциях обнаружила шесть ошибочных или неполных точек входа. Приёмка относится к документации. Реальная установка на VPS и подпись iOS учитываются отдельно."
+  },
+  "REQ-DOC-0001": {
+    "status": "PASS",
+    "evidence": [
+      "README.md",
+      "README.en.md",
+      "README.uk.md",
+      "docs/ru/README.md",
+      "docs/en/README.md",
+      "docs/uk/README.md",
+      "docs/ru/new/TERMUX_GUIDE.md",
+      "screenshots/README.md",
+      "scripts/audit/check-mobile-release-links.py",
+      "tests/test_current_documentation.py",
+      "tests/test_download_links.py",
+      "tests/test_release_tooling.py",
+      "tests/test_screenshots.py"
+    ],
+    "note": "27.11.2026: полный README принят PR #508. Проверены назначение, архитектура, продукты, требования, установка, обновление, Docker/VPS/Termux, семь мобильных загрузок и их SHA-256, платежи, Remnawave, админка, диагностика, безопасность и ссылки на русском, английском и украинском. PR HEAD a53a45f001c84b70390da26c9e71a90a9e6196fc: CI 45976511356 — 28/28, mobile screenshots 45976511442 — 3 успешных и 3 штатно пропущенных. Подписанный main 34a436d9aa0f25d68d93ccdacd19b339fe7623d2: семь push-процессов, 46/46 заданий успешны; основной CI 45980692980 — 28/28.",
+    "release_evidence": [
+      "v28.161.0: 33 published assets and SHA-256",
+      "PR #508 @ a53a45f001c84b70390da26c9e71a90a9e6196fc",
+      "main @ 34a436d9aa0f25d68d93ccdacd19b339fe7623d2",
+      "post-merge CI 45980692980"
+    ],
+    "platforms": "GitHub README, Web, Android, iOS"
+  },
+  "REQ-DOC-0008": {
+    "status": "PASS",
+    "evidence": [
+      "README.md",
+      "README.en.md",
+      "README.uk.md",
+      "docs/ru/new/TERMUX_GUIDE.md",
+      "docs/ru/BACKUP_CURRENT.md",
+      "docs/wiki/ru/Installation.md",
+      "docs/wiki/en/Installation.md",
+      "docs/wiki/uk/Installation.md",
+      "docs/wiki/ru/Backup.md",
+      "docs/wiki/en/Backup.md",
+      "docs/wiki/uk/Backup.md",
+      "docs/wiki/ru/Updates.md",
+      "docs/wiki/en/Updates.md",
+      "docs/wiki/uk/Updates.md",
+      "scripts/audit/check-mobile-release-links.py",
+      "tests/test_current_documentation.py",
+      "tests/test_download_links.py",
+      "tests/test_release_tooling.py",
+      "tests/test_screenshots.py"
+    ],
+    "note": "27.11.2026: критерий полного README с мобильными ссылками, установкой, обновлением и восстановлением принят PR #508. В трёх языках проверены семь опубликованных загрузок, собственные SHA-256, подписанные Android APK, неподписанные iOS IPA и ZIP симулятора, SSH host-key verification, стабильная установка v28.161.0, backup/update/isolated restore. На PR HEAD a53a45f001c84b70390da26c9e71a90a9e6196fc прошли 33 применимые проверки и 3 штатных skip; на подписанном main 34a436d9aa0f25d68d93ccdacd19b339fe7623d2 — 46/46 заданий семи push-процессов, включая CI 45980692980 и Mobile packages 45980692916.",
+    "release_evidence": [
+      "v28.161.0: seven mobile packages with per-file SHA-256",
+      "PR #508 @ a53a45f001c84b70390da26c9e71a90a9e6196fc",
+      "main @ 34a436d9aa0f25d68d93ccdacd19b339fe7623d2",
+      "post-merge Mobile packages 45980692916"
+    ],
+    "platforms": "GitHub README, Web, Android, iOS"
   }
 }
