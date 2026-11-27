@@ -113,6 +113,15 @@ def family_update(old_client: tuple[str, int], new_client: tuple[str, int]) -> d
     for label, before, after in (("VPN Shop", old, new), ("Lucy Admin", old, new), ("Корги Люси: клиент", old_client, new_client)):
         page = table_version(page, label, f"{before[0]} | {before[1]}", f"{after[0]} | {after[1]}")
     files[overview] = page
+    stack = ROOT / "docs/TECH_STACK.md"
+    page = stack.read_text()
+    for label in ("VPN Shop Android", "Lucy Admin Android", "VPN Shop iOS", "Lucy Admin iOS", "Corgi Lucy Client Android"):
+        before, after = (old_client, new_client) if label == "Corgi Lucy Client Android" else (old, new)
+        cell = f"\n| {label} {before[0]} |"
+        if page.count(cell) != 1:
+            raise ValueError(f"Expected one technology stack row for {label} {before[0]}")
+        page = page.replace(cell, f"\n| {label} {after[0]} |", 1)
+    files[stack] = page
     return files
 
 

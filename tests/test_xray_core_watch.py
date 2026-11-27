@@ -52,7 +52,7 @@ def test_the_command_line(tmp_path):
 @pytest.fixture
 def watch_checkout(tmp_path):
     for path in (Path(watch.__file__), watch.AAR, watch.GRADLE, watch.NOTES, watch.NOTICES, watch.SHOP, watch.ADMIN,
-                 *watch.IOS, *(ROOT / name for name in watch.READMES), ROOT / "MOBILE.md",
+                 *watch.IOS, *(ROOT / name for name in watch.READMES), ROOT / "MOBILE.md", ROOT / "docs/TECH_STACK.md",
                  ROOT / "scripts/audit/check_release_changelog.py", ROOT / "CHANGELOG.md", ROOT / ".gitignore",
                  ROOT / "scripts/generate-project-map.py", ROOT / "release-manifest.template.json"):
         destination = tmp_path / path.relative_to(ROOT)
@@ -166,6 +166,10 @@ def test_shared_engine_version_gate_watcher_and_release_notes_in_real_git_checko
     client_ver = watch.gradle_version(next_client)
     assert family == watch.gradle_version(admin.read_text()) and family[1] == before_family[1] + 10
     assert client_ver[1] == before_client[1] + 1
+    stack = (root / "docs/TECH_STACK.md").read_text().splitlines()
+    for label in ("VPN Shop Android", "Lucy Admin Android", "VPN Shop iOS", "Lucy Admin iOS", "Corgi Lucy Client Android"):
+        expected = client_ver if label == "Corgi Lucy Client Android" else family
+        assert sum(line.startswith(f"| {label} {expected[0]} |") for line in stack) == 1
     for project in watch.IOS:
         data = (root / project.relative_to(ROOT)).read_text()
         assert f"CURRENT_PROJECT_VERSION = {family[1]};" in data
