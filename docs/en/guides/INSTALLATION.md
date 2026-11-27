@@ -6,17 +6,18 @@ Russian original: [INSTALLATION_GUIDE](../../ru/new/INSTALLATION_GUIDE.md). Othe
 
 ## Requirements
 
-| What | Minimum |
+| What | Recommended setup |
 | --- | --- |
-| OS | Ubuntu 22.04 / 24.04 / 26.04 or Debian 12 / 13 (others with a warning) |
-| Resources | 2 CPU, 4 GB RAM, 30 GB disk |
+| OS | Ubuntu 24.04 or Debian 12 |
+| Resources | 4 vCPUs, 8 GB RAM, 40 GB disk for building all images |
 | Access | root over SSH; the shop's domains pointing at the server (A/AAAA) |
 | Ports | 80 and 443 (Caddy); 25 only if receiving mail is enabled |
 
 ## One-command install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/booarkz-cpu/shop-by-boo/v28.161.0/install.sh -o /root/shop-install.sh &&
+  BRANCH=v28.161.0 bash /root/shop-install.sh
 ```
 
 `install.sh` installs `git`, `curl` and Docker (`infrastructure/deployment/install-docker.sh`), clones the release to `/opt/vpn-shop-src` and hands over to `infrastructure/deployment/install-vps.sh`, which:
@@ -40,18 +41,10 @@ Running the installer again on an installed shop breaks nothing: `install.sh` re
 | Admin panel → «System status» | every part of the shop separately ([admin panel guide](ADMIN_PANEL.md#system-status)) |
 | Admin panel → «Automation Center» | all automation ([AUTOMATION_CENTER](../../ru/new/AUTOMATION_CENTER.md)) |
 
-## Updates, backups and restore
+## Updates, backups and recovery
 
-| What | From the admin panel | From the server (if the panel is down) |
-| --- | --- | --- |
-| Update the shop | «Updates → Check and update now» | `sudo bash scripts/auto-update.sh run` |
-| Roll back | automatically when an update fails | `sudo bash scripts/rollback.sh` (latest snapshot) |
-| Backup | «Backups»: schedule, «Create», verify, upload to Telegram | `bash scripts/backup.sh` (both databases, files and `.env`, encrypted) |
-| Restore | «Backups → Restore» (with confirmation) | the steps in [BACKUP_CURRENT](../../ru/BACKUP_CURRENT.md) |
-| Remnawave | «Updates → Remnawave auto-update» | — |
+Schedule a maintenance window and save an encrypted `.vpb` backup before updating. Keep the file, its checksum and the release identity off-host. Keep the password separately.
 
-Update snapshots live in `.rollback/` and contain no secrets (`.env`). `.env` and the auto-update agent's `.control` directory are kept through both updates and rollbacks.
+Follow the [update guide](../../wiki/en/Updates.md) to select a published tag and check the result. The updater’s rollback snapshot covers the shop files and main database. The [full recovery procedure](../../wiki/en/Backup.md) also covers secrets, uploaded files and the Support Pro database when present.
 
-Every pull request runs a **restore drill** in CI: data in a running shop → an encrypted copy with `scripts/backup.sh` → every volume and both `.env` files lost → restore from the copy alone → every table, subscription, payment and administrator is back and the administrator signs in.
-
-More on Docker: [DOCKER_GUIDE](../../ru/new/DOCKER_GUIDE.md).
+[Docker guide in Russian](../../ru/new/DOCKER_GUIDE.md).

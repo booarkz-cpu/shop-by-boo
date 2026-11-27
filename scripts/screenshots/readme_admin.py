@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rewrite the «#### Админ-панель» block of README.md from the index the catalog script writes.
+"""Rewrite the «#### Админ-панель» block of screenshots/README.md from the index the catalog script writes.
 
     node apps/lucy-admin/web/scripts/screenshots-catalog.mjs "$PWD"          # writes $TMPDIR/admin-screenshots-index.json
     python3 scripts/screenshots/readme_admin.py [index.json]
@@ -29,7 +29,7 @@ def render(index: list[dict]) -> str:
         out.append(f"<details>\n<summary><b>{title}</b> ({len(items)})</summary>\n\n")
         for item in items:
             out.append(f"**{item['label']}** — {item['description']}\n\n")
-            out.append(f"![{item['label']}](screenshots/admin_panel/{item['file']})\n\n")
+            out.append(f"![{item['label']}](admin_panel/{item['file']})\n\n")
         out.append("</details>\n\n")
     return "".join(out)
 
@@ -37,10 +37,11 @@ def render(index: list[dict]) -> str:
 def main() -> None:
     index_path = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else os.path.join(tempfile.gettempdir(), "admin-screenshots-index.json"))
     index = json.loads(index_path.read_text(encoding="utf-8"))
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    gallery = ROOT / "screenshots" / "README.md"
+    readme = gallery.read_text(encoding="utf-8")
     start, end = readme.index(START), readme.index(END)
-    (ROOT / "README.md").write_text(readme[:start] + render(index) + readme[end:], encoding="utf-8")
-    print(f"README: {len(index)} admin screenshots")
+    gallery.write_text(readme[:start] + render(index) + readme[end:], encoding="utf-8")
+    print(f"screenshots/README.md: {len(index)} admin screenshots")
 
 
 if __name__ == "__main__":

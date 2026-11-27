@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""REQ-QA-0031: verify that documented permanent APK links resolve to the latest published release."""
+"""Check the mobile downloads and checksums offered on the shop landing pages."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -12,12 +13,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 REPOSITORY = "booarkz-cpu/shop-by-boo"
 LINK = re.compile(r"https://github\.com/booarkz-cpu/shop-by-boo/releases/latest/download/([A-Za-z0-9._-]+)")
-DOCS = [
+TAGGED_IOS = re.compile(
+    r"https://github\.com/booarkz-cpu/shop-by-boo/releases/download/(v\d+\.\d+\.\d+)/"
+    r"(corgi_lusi_ios_[a-z0-9_.]+)\)"
+)
+READMES = [
     ROOT / "README.md",
     ROOT / "README.en.md",
     ROOT / "README.uk.md",
-    *sorted((ROOT / "docs/wiki").glob("*/Mobile.md")),
 ]
+DOCS = [*READMES, *sorted((ROOT / "docs/wiki").glob("*/Mobile.md"))]
 
 
 class RedirectRecorder(urllib.request.HTTPRedirectHandler):
@@ -38,14 +43,29 @@ def produced_apks() -> set[str]:
 
 
 def documented_apks() -> set[str]:
-    return {name for doc in DOCS for name in LINK.findall(doc.read_text())}
+    names = {name for doc in DOCS for name in LINK.findall(doc.read_text())}
+    for name in names:
+        if name.endswith(".sha256") and name.removesuffix(".sha256") not in names:
+            raise ValueError(f"checksum without an APK link: {name}")
+    return {name for name in names if not name.endswith(".sha256")}
 
 
-def latest_release() -> dict:
+def verify_checksum(asset: dict, checksum: dict, url: str) -> None:
+    request = urllib.request.Request(url, headers={"User-Agent": "shop-by-boo-release-link-audit"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        record = response.read(1025)
+    if len(record) > 1024 or "sha256:" + hashlib.sha256(record).hexdigest() != checksum["digest"]:
+        raise ValueError(f"invalid checksum file for {asset['name']}")
+    fields = record.decode("ascii").split()
+    if len(fields) != 2 or fields[1].lstrip("*") != asset["name"] or "sha256:" + fields[0] != asset["digest"]:
+        raise ValueError(f"checksum does not match {asset['name']}")
+
+
+def get_release(ref: str) -> dict:
     headers = {"Accept": "application/vnd.github+json", "User-Agent": "shop-by-boo-release-link-audit"}
     if token := os.environ.get("GITHUB_TOKEN"):
         headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(f"https://api.github.com/repos/{REPOSITORY}/releases/latest", headers=headers)
+    request = urllib.request.Request(f"https://api.github.com/repos/{REPOSITORY}/releases/{ref}", headers=headers)
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.load(response)
 
@@ -64,7 +84,7 @@ def verify() -> dict:
     if documented != produced:
         raise ValueError(f"documented APK names {sorted(documented)} differ from release workflow {sorted(produced)}")
 
-    release = latest_release()
+    release = get_release("latest")
     if release["draft"] or release["prerelease"]:
         raise ValueError("the latest release is not a published stable release")
     tag = release["tag_name"]
@@ -89,15 +109,38 @@ def verify() -> dict:
             raise ValueError(f"{permanent} did not redirect to the {tag} asset")
         if final_url == permanent:
             raise ValueError(f"{permanent} was not resolved")
+        verify_checksum(asset, assets[name + ".sha256"], permanent + ".sha256")
         verified.append({"name": name, "size": asset["size"], "digest": asset["digest"]})
 
-    return {"tag": tag, "assets": verified}
+    # iOS filenames contain the app version and point to a specific distribution tag.
+    tagged = set(TAGGED_IOS.findall(READMES[0].read_text()))
+    releases = {tag: assets}
+    ios = []
+    for pinned_tag, name in sorted(tagged):
+        if name.endswith(".sha256"):
+            continue
+        if pinned_tag not in releases:
+            pinned = get_release("tags/" + pinned_tag)
+            if pinned["draft"] or pinned["prerelease"] or pinned["tag_name"] != pinned_tag:
+                raise ValueError(f"expected published release {pinned_tag}")
+            releases[pinned_tag] = {item["name"]: item for item in pinned["assets"]}
+        files = releases[pinned_tag]
+        asset = files[name]
+        status, _, _ = resolve_permanent_download(asset["browser_download_url"])
+        if status != 200 or asset["size"] <= 0:
+            raise ValueError(f"{pinned_tag}/{name} is unavailable")
+        checksum = files[name + ".sha256"]
+        verify_checksum(asset, checksum, checksum["browser_download_url"])
+        ios.append({"name": name, "size": asset["size"], "digest": asset["digest"]})
+
+    return {"tag": tag, "assets": verified, "ios_assets": ios}
 
 
 def main() -> int:
     result = verify()
-    total = sum(asset["size"] for asset in result["assets"])
-    print(f"Mobile release links: PASS; tag={result['tag']}; assets={len(result['assets'])}; bytes={total}")
+    packages = result["assets"] + result["ios_assets"]
+    total = sum(asset["size"] for asset in packages)
+    print(f"Mobile release links: PASS; tag={result['tag']}; packages={len(packages)}; bytes={total}")
     return 0
 
 

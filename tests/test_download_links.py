@@ -42,7 +42,34 @@ def test_every_download_link_points_to_a_produced_file():
     docs = [ROOT / "README.md", ROOT / "README.en.md", ROOT / "README.uk.md", *sorted((ROOT / "docs/wiki").glob("*/Mobile.md"))]
     produced = _produced()
     for doc in docs:
-        assert set(LINK.findall(doc.read_text())) == produced, doc.relative_to(ROOT)
+        expected = produced if doc.parent != ROOT else produced | {name + ".sha256" for name in produced}
+        assert set(LINK.findall(doc.read_text())) == expected, doc.relative_to(ROOT)
+
+
+def test_readmes_offer_matching_device_simulator_and_checksum_links_in_the_first_section():
+    base = "https://github.com/booarkz-cpu/shop-by-boo/releases/"
+    pages = []
+    for name in ("README.md", "README.en.md", "README.uk.md"):
+        text = (ROOT / name).read_text()
+        section = re.split(r"^## ", text, flags=re.M)[1]
+        assert "### Android" in section and "### iOS" in section, name
+        links = set(re.findall(r"\]\((https://[^)]+)\)", section))
+        for apk in _produced():
+            url = base + "latest/download/" + apk
+            assert {url, url + ".sha256"} <= links, name
+        packages = {url for url in links if url.endswith((".ipa", ".zip"))}
+        variants = set()
+        versions = set()
+        for url in packages:
+            match = re.fullmatch(re.escape(base) + r"download/(v\d+\.\d+\.\d+)/corgi_lusi_ios_"
+                                 r"(user|admin)_(\d+_\d+_\d+)_(unsigned\.ipa|simulator\.zip)", url)
+            assert match and url + ".sha256" in links, (name, url)
+            variants.add((match[2], match[4]))
+            versions.add((match[1], match[3]))
+        assert variants == {(role, kind) for role in ("user", "admin") for kind in ("unsigned.ipa", "simulator.zip")}
+        assert len(versions) == 1
+        pages.append(packages)
+    assert pages[0] == pages[1] == pages[2]
 
 
 def test_signing_certificate_is_pinned():
@@ -116,3 +143,4 @@ def test_live_readme_mobile_links_match_latest_published_release():
     result = runpy.run_path(str(ROOT / "scripts/audit/check-mobile-release-links.py"))["verify"]()
     assert result["tag"].startswith("v")
     assert {asset["name"] for asset in result["assets"]} == _produced()
+    assert len(result["ios_assets"]) == 4
