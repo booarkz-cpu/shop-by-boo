@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2781**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2782**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1101,6 +1101,7 @@
 | [docs/prompts/MASTER_PROMPT_V6.md](../docs/prompts/MASTER_PROMPT_V6.md) | Документация |
 | [docs/releases/client-v1.10.2.md](../docs/releases/client-v1.10.2.md) | Документация |
 | [docs/releases/client-v1.10.3.md](../docs/releases/client-v1.10.3.md) | Документация |
+| [docs/releases/mobile-v3.9.2-3920-client-v1.10.3-1103.md](../docs/releases/mobile-v3.9.2-3920-client-v1.10.3-1103.md) | Документация |
 | [docs/requirements/register.json](../docs/requirements/register.json) | Документация |
 | [docs/requirements/status.json](../docs/requirements/status.json) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |

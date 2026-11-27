@@ -16,9 +16,28 @@ const pair = (versionName, versionCode) => ({versionName, versionCode});
 const ok = data => Promise.resolve({data});
 const absent = () => Object.assign(Error('Not found'), {status: 404});
 
+const source = path.resolve(__dirname, '..');
+const sampleTag = 'mobile-v3.9.2-3920-client-v1.10.3-1103';
+const sampleNotes = fs.readFileSync(path.join(source, 'docs/releases', sampleTag + '.md'), 'utf8');
+
+function prepareNotes(dir, family, client) {
+  for (const [app, value] of [['vpn-shop', family], ['lucy-admin', family], ['vpn-client', client]]) {
+    const root = path.join(dir, 'apps', app, 'android/app');
+    fs.mkdirSync(root, {recursive: true});
+    fs.writeFileSync(path.join(root, 'build.gradle.kts'), `versionName = "${value.versionName}"\nversionCode = ${value.versionCode}\n`);
+  }
+  const key = `mobile-v${family.versionName}-${family.versionCode}-client-v${client.versionName}-${client.versionCode}`;
+  const notes = sampleNotes.replaceAll(sampleTag, key);
+  fs.mkdirSync(path.join(dir, 'docs/releases'), {recursive: true});
+  fs.writeFileSync(path.join(dir, 'docs/releases', key + '.md'), notes);
+  fs.writeFileSync(path.join(dir, 'CHANGELOG.md'), notes);
+}
+
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'publish-mobile-'));
   t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
+  fs.mkdirSync(path.join(directory, 'scripts/audit'), {recursive: true});
+  fs.copyFileSync(path.join(source, 'scripts/audit/check_release_changelog.py'), path.join(directory, 'scripts/audit/check_release_changelog.py'));
   const state = {main: first, head: null, files: {}, refs: {}, releases: [], blobs: {}, uploads: [], events: []};
   let seq = 0;
   function asset(release, name, content) {
@@ -109,8 +128,9 @@ function fixture(t) {
       return ok({});
     },
   };
-  const opts = {github: {rest: {repos, git}}, context: {repo: {owner: 'o', repo: 'r'}}, core: {info() {}}, directory, sha: first, runId: 72};
+  const opts = {github: {rest: {repos, git}}, context: {repo: {owner: 'o', repo: 'r'}}, core: {info() {}}, directory, root: directory, sha: first, runId: 72};
   function build({flavor = 'one', family = pair('3.9.1', 3910), client = pair('1.10.2', 1102), ios = 'blocked_missing_apple_identity'} = {}) {
+    prepareNotes(directory, family, client);
     const put = (name, data) => fs.writeFileSync(path.join(directory, name), data);
     put('android-status.txt', 'signed\n'); put('ios-status.txt', ios + '\n');
     const pkg = name => {
@@ -146,6 +166,9 @@ test('publishes verified packages and all three tagged Android manifests before 
     assert.equal('sha256:' + doc.sha256, apk.digest);
     assert.equal(doc.apk, 'https://github.com/o/r/releases/download/' + tag + '/' + stem + '.apk');
   }
+  assert.match(state.releases[1].body, /Изменение и причина/);
+  assert.match(state.releases[1].body, /## Чем проверено/);
+  assert.doesNotMatch(state.files['README.md'], /Изменение и причина/);
   assert.match(state.files['README.md'], /Unsigned IPA/);
   assert.equal((state.files['README.md'].match(/\[SHA-256\]/g) || []).length, 7);
 });
@@ -156,13 +179,17 @@ test('repairs only the pointer from originally published bytes after a different
   await assert.rejects(publishChannel(opts), /ref unavailable/);
   assert.deepEqual(state.events, ['release']);
   assert.equal(state.head, null);
+  const body = state.releases[1].body;
   const old = state.releases[1].assets.find(a => a.name === stems[0] + '.apk').digest;
   delete state.onPointer; state.main = second;
   build({flavor: 'nondeterministic'});
+  fs.rmSync(path.join(opts.root, 'docs/releases', tag + '.md'));
+  fs.writeFileSync(path.join(opts.root, 'CHANGELOG.md'), 'The public release must keep its original notes.');
   assert.deepEqual(await planChannel(opts), {tag, baselineTag: 'v28.161.0', needsUpgrade: false, needsPublish: true});
   const count = state.uploads.length;
   await publishChannel({...opts, sha: second, runId: 79});
   assert.equal(state.uploads.length, count);
+  assert.equal(state.releases[1].body, body);
   assert.equal('sha256:' + JSON.parse(state.files[stems[0] + '.json']).sha256, old);
   assert.equal(JSON.parse(state.files['mobile-channel.json']).source, first);
   assert.deepEqual(await planChannel(opts), {tag, baselineTag: tag, needsUpgrade: false, needsPublish: false});
@@ -233,5 +260,13 @@ test('published partial releases, mismatched tags and changed checksums cannot r
   state.refs[tag] = first;
   files.find(a => a.name === stems[1] + '.json').digest = 'sha256:' + '1'.repeat(64);
   await assert.rejects(publishChannel(opts), /Invalid published asset/);
+  assert.equal(state.head, null);
+});
+
+test('refuses an unreviewable mobile release before creating the draft', async t => {
+  const {opts, state} = fixture(t);
+  fs.writeFileSync(path.join(opts.root, 'CHANGELOG.md'), '# ' + tag + '\n\nNo changes recorded.');
+  await assert.rejects(publishChannel(opts), /check_release_changelog/);
+  assert.equal(state.releases.length, 1);
   assert.equal(state.head, null);
 });

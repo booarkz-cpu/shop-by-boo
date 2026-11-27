@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const {execFileSync} = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -137,7 +138,7 @@ async function getBaselineTag({github, context}) {
   return old ? old.catalog.tag : (await distribution(github, repo)).tag_name;
 }
 
-function releaseNotes(repo, c) {
+function downloadIndex(repo, c) {
   const link = name => `[Download](${download(repo, c, name)}) · [SHA-256](${download(repo, c, name + '.sha256')})`;
   const lines = [
     '# Mobile apps · Мобильные приложения · Мобільні застосунки', '',
@@ -242,7 +243,7 @@ async function findDraft(github, repo, tag) {
   }
 }
 
-async function publishChannel({github, context, core, sha, runId, directory = 'dist/mobile'}) {
+async function publishChannel({github, context, core, sha, runId, directory = 'dist/mobile', root = process.cwd()}) {
   const repo = context.repo, git = github.rest.git, releases = github.rest.repos;
   const current = async () => {
     if ((await releases.getBranch({...repo, branch: 'main'})).data.commit.sha !== sha) throw Error('Verified main moved');
@@ -260,6 +261,9 @@ async function publishChannel({github, context, core, sha, runId, directory = 'd
   }
   let release = plan.release;
   if (!plan.publicFiles) {
+    execFileSync('python3', ['scripts/audit/check_release_changelog.py', '--mobile-tag', tag], {cwd: root});
+    const notes = fs.readFileSync(path.join(root, 'docs/releases', tag + '.md'), 'utf8');
+    const body = notes.trimEnd() + '\n\n' + downloadIndex(repo, local);
     const draftTag = 'mobile-draft-' + sha;
     release = release || await findDraft(github, repo, draftTag);
     const ref = await tagRef();
@@ -270,7 +274,7 @@ async function publishChannel({github, context, core, sha, runId, directory = 'd
     const files = prepare(directory, repo, local);
     if (!release) release = (await releases.createRelease({...repo, tag_name: draftTag, target_commitish: sha,
       name: `Mobile ${local.family.versionName} · Client ${local.client.versionName}`,
-      body: releaseNotes(repo, local), draft: true, prerelease: false, make_latest: 'false'})).data;
+      body, draft: true, prerelease: false, make_latest: 'false'})).data;
     const existing = await assetsFor(github, repo, release);
     if ([...existing.keys()].some(name => !files.has(name))) throw Error('Unexpected asset in mobile draft');
     for (const [name, file] of files) {
@@ -293,7 +297,7 @@ async function publishChannel({github, context, core, sha, runId, directory = 'd
     const finalRef = await tagRef();
     if (finalRef && (finalRef.object.type !== 'commit' || finalRef.object.sha !== sha)) throw Error('Tag moved before publication');
     release = (await releases.updateRelease({...repo, release_id: release.id, tag_name: tag, target_commitish: sha,
-      draft: false, make_latest: 'false', body: releaseNotes(repo, local)})).data;
+      draft: false, make_latest: 'false', body})).data;
   }
   const {catalog, manifests} = plan.publicFiles || await published(github, repo, release);
   const ref = await tagRef();
@@ -302,7 +306,7 @@ async function publishChannel({github, context, core, sha, runId, directory = 'd
     const range = (await releases.compareCommitsWithBasehead({...repo, basehead: catalog.source + '...' + sha})).data;
     if (!['identical', 'ahead'].includes(range.status)) throw Error('Published source is outside verified main history');
   }
-  const documents = {...manifests, [inventory]: json(catalog).toString(), 'README.md': releaseNotes(repo, catalog)};
+  const documents = {...manifests, [inventory]: json(catalog).toString(), 'README.md': downloadIndex(repo, catalog)};
   const baseTree = prior && (await git.getCommit({...repo, commit_sha: prior.head})).data.tree.sha;
   const tree = (await git.createTree({...repo, ...(baseTree ? {base_tree: baseTree} : {}),
     tree: Object.entries(documents).map(([name, content]) => ({path: name, mode: '100644', type: 'blob', content}))})).data;

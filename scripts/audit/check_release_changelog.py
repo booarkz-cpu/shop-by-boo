@@ -104,16 +104,44 @@ def validate_current_client(root: Path) -> str:
     return validate_client(root, match.group(1))
 
 
+def mobile_version(root: Path, app: str) -> tuple[str, int]:
+    gradle = (root / "apps" / app / "android/app/build.gradle.kts").read_text(encoding="utf-8")
+    names = re.findall(r'^\s*versionName\s*=\s*"(\d+\.\d+\.\d+)"[ \t]*$', gradle, re.MULTILINE)
+    codes = re.findall(r"^\s*versionCode\s*=\s*([1-9]\d*)[ \t]*$", gradle, re.MULTILINE)
+    if len(names) != 1 or len(codes) != 1:
+        raise ValueError(f"Expected one release version in {app} Gradle settings")
+    return names[0], int(codes[0])
+
+
+def current_mobile_tag(root: Path) -> str:
+    family, code = mobile_version(root, "vpn-shop")
+    if mobile_version(root, "lucy-admin") != (family, code):
+        raise ValueError("Shop and admin mobile versions differ")
+    client, client_code = mobile_version(root, "vpn-client")
+    return f"mobile-v{family}-{code}-client-v{client}-{client_code}"
+
+
+def validate_mobile(root: Path, tag: str) -> str:
+    if tag != current_mobile_tag(root):
+        raise ValueError("Mobile release tag must match the source versions and build numbers")
+    return validate_notes(root, tag, f"docs/releases/{tag}.md")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--client-version")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--client-version")
+    selection.add_argument("--mobile-tag")
     args = parser.parse_args()
     try:
         if args.client_version is not None:
             print(validate_client(ROOT, args.client_version))
+        elif args.mobile_tag is not None:
+            print(validate_mobile(ROOT, args.mobile_tag))
         else:
             print(validate(ROOT))
             print(validate_current_client(ROOT))
+            print(validate_mobile(ROOT, current_mobile_tag(ROOT)))
         return 0
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print(f"Release changelog check failed: {exc}", file=sys.stderr)
