@@ -1,6 +1,4 @@
-<img align="right" width="64" height="64" alt="" src="apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png">
-
-# VPN Shop by Corgi Lucy
+# <img width="32" height="32" alt="" src="apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png"> VPN Shop by Corgi Lucy
 
 [Русский](README.md) · **English** · [Українська](README.uk.md)
 
@@ -12,13 +10,13 @@ A VPN subscription shop for your Remnawave panel. Customers buy access in Telegr
 
 ### Android
 
-Signed APKs for Android 8.0 and later. These links follow the latest stable release.
-
 | What you want to do | Download |
 | --- | --- |
 | **Shop** · buy or renew a plan and connect | [Download APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk.sha256) |
 | **Corgi Lucy Client** · connect using a subscription link you already have | [Download APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk.sha256) |
 | **Lucy Admin** · manage your shop | [Download APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk.sha256) |
+
+Signed APKs for Android 8.0 and later. These links follow the latest stable release.
 
 Open the APK on your phone and confirm installation. To verify a download on Linux, save both files to the same directory and run, for example, `sha256sum -c corgi-lusi-client.apk.sha256`.
 

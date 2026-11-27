@@ -1,6 +1,4 @@
-<img align="right" width="64" height="64" alt="" src="apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png">
-
-# VPN Shop by Corgi Lucy
+# <img width="32" height="32" alt="" src="apps/vpn-shop/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png"> VPN Shop by Corgi Lucy
 
 **Русский** · [English](README.en.md) · [Українська](README.uk.md)
 
@@ -12,13 +10,13 @@
 
 ### Android
 
-Подписанные APK для Android 8.0 и новее. Ссылки ведут на последний стабильный выпуск.
-
 | Что вы хотите сделать | Загрузка |
 | --- | --- |
 | **Магазин** · выбрать тариф, продлить подписку и подключиться | [Скачать APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android.apk.sha256) |
 | **Корги Люси: клиент** · подключиться по уже имеющейся ссылке на подписку | [Скачать APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-client.apk.sha256) |
 | **Lucy Admin** · управлять собственным магазином | [Скачать APK](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk) · [SHA-256](https://github.com/booarkz-cpu/shop-by-boo/releases/latest/download/corgi-lusi-android-admin.apk.sha256) |
+
+Подписанные APK для Android 8.0 и новее. Ссылки ведут на последний стабильный выпуск.
 
 Откройте скачанный APK на телефоне и подтвердите установку. На компьютере с Linux можно проверить файл в папке загрузки, например командой `sha256sum -c corgi-lusi-client.apk.sha256`.
 
