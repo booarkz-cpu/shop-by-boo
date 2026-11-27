@@ -11,16 +11,16 @@
 ## Итог
 
 - Требований: **657**, у всех есть ссылка на строки источника.
-- Подтверждено (`PASS`): **219** — 33.3%.
+- Подтверждено (`PASS`): **220** — 33.5%.
 
 | Статус | Сколько | Что значит |
 | --- | ---: | --- |
-| `PASS` | 219 | Проверено, доказательство указано |
+| `PASS` | 220 | Проверено, доказательство указано |
 | `PARTIAL` | 251 | Сделано частично, остаток описан |
 | `NOT_IMPLEMENTED` | 25 | Функции нет |
 | `BLOCKED_EXTERNAL` | 1 | Нужен внешний ресурс: сервер, устройство, аккаунт |
 | `BLOCKED_SECRETS` | 1 | Нужны ключи или токены владельца |
-| `NOT_TESTED` | 160 | Ещё не сверено с кодом |
+| `NOT_TESTED` | 159 | Ещё не сверено с кодом |
 
 | Раздел | Требований | PASS | PARTIAL | Блокировано | Не сверено |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -41,7 +41,7 @@
 | Мобильные приложения | 4 | 1 | 3 | 0 | 0 |
 | CI/CD и выпуски | 15 | 12 | 3 | 0 | 0 |
 | Документация | 38 | 25 | 5 | 0 | 7 |
-| Аудит, тесты, скриншоты | 69 | 20 | 8 | 0 | 40 |
+| Аудит, тесты, скриншоты | 69 | 21 | 8 | 0 | 39 |
 | Безопасность | 15 | 8 | 6 | 0 | 1 |
 | Архитектура | 20 | 12 | 7 | 0 | 0 |
 | Производительность и стоимость | 7 | 1 | 4 | 0 | 0 |
@@ -4454,9 +4454,12 @@
 
 > (s || []).map is not a function
 
-### REQ-QA-0007 — `NOT_TESTED`
+### REQ-QA-0007 — `PASS`
 
 - Источник: Часть I → Full Audit → Docker Checks (строка 237). Продукт: Все три.
+- Платформы: server, CI/CD.
+- Доказательство: `docs/DOCKER_ACCEPTANCE.md`; `docker-compose.yml`; `docker-compose.integration.yml`; `docker-compose.test.yml`; `services/support-pro/docker-compose.yml`; `scripts/ci/check-compose-profiles.py`; `scripts/ci/restore-drill.sh`; `tests/test_docker_installer.py`; `tests/test_container_logs.py`; `.github/workflows/ci.yml`; `.github/workflows/docker.yml`.
+- Примечание: Все перечисленные части Docker-аудита связаны с исполняемыми проверками: Dockerfile и multi-arch сборки, все комбинации Compose-профилей, постоянные тома и восстановление после их удаления, сети и опубликованные порты, healthcheck/dependencies, restart/read-only/non-root, окружение и обязательные секреты, чистые PostgreSQL 19/Alembic и восстановленная база, маскирование логов. Точная карта критериев и границ доказательства приведена в docs/DOCKER_ACCEPTANCE.md.
 
 > Dockerfile; Compose; volumes; networks; ports; health checks; restart policies; dependencies; environment; secrets; database; migrations; logs; доступность сервисов.
 
