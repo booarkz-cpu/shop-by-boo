@@ -2,7 +2,7 @@ name: Mobile packages
 
 on:
   pull_request:
-    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/mobile/apk-signer-digest.py', 'scripts/mobile/check-apk-version.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
+    paths: ['release-manifest.template.json', 'mobile/**', 'apps/**', 'packages/**', 'scripts/build-android-apk.sh', 'scripts/mobile/build-xray-aar.sh', 'scripts/mobile/xray-artifact.py', 'scripts/mobile/apk-signer-digest.py', 'scripts/mobile/distribution-assets.cjs', 'scripts/mobile/check-apk-version.py', 'scripts/build-ios-*.sh', '.github/workflows/mobile-release.yml']
   push:
     # v28.122.0: every push to main, without a paths filter. The release is published for the head of main; when a
     # commit that touched no app file became the head (v28.119.0: a CI-only commit), nothing built the packages for
@@ -252,37 +252,30 @@ jobs:
             const ios = fs.readFileSync('dist/mobile/ios-status.txt','utf8').trim();
             const gradle = fs.readFileSync('apps/vpn-shop/android/app/build.gradle.kts','utf8');
             const mobileVersion = gradle.match(/versionName = "([0-9.]+)"/)[1];
-            const v = mobileVersion.replace(/\./g, '_');
+            const {attachGroups, clientGroup, jsonAsset} = require(require('node:path').resolve('scripts/mobile/distribution-assets.cjs'));
+            // The distribution build owns every shop and admin file, including its APK reports and manifests.
+            // This workflow owns the independent client's download and the build status.
             const status = {version:mobileVersion, source_commit:context.sha, workflow_run:context.runId,
               android, ios, note:'Unsigned and preview packages are never production release assets.'};
-            fs.writeFileSync('dist/mobile/mobile-production-status.json', JSON.stringify(status,null,2)+'\n');
-            const names = fs.readdirSync('dist/mobile').filter(name =>
-              name === 'mobile-production-status.json' ||
-              (android === 'signed' && new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.(?:sha256|certificate\\.txt|package\\.txt))?$`).test(name)) ||
-              // Permanent names for releases/latest/download/… links (README, cabinet, bot); signed builds only.
-              (android === 'signed' && /^corgi-lusi-(?:android(?:-admin)?|client)\.apk(?:\.sha256)?$|^corgi-lusi-client\.json$|^corgi-lusi-android(?:-admin)?\.json$/.test(name)) ||
-              (ios === 'signed' && new RegExp(`^corgi_lusi_ios_(user|admin)_${v}_signed\\.ipa(?:\\.sha256)?$`).test(name)));
-            const releaseBuildOwns = name =>
-              new RegExp(`^corgi_lusi_android_(user|admin)_${v}_release\\.(?:apk|aab)(?:\\.sha256)?$`).test(name) ||
-              /^corgi-lusi-android(?:-admin)?\.(?:apk(?:\.sha256)?|json)$/.test(name);
-            const kept = [];
+            const name = 'mobile-production-status.json';
             const existing = (await github.rest.repos.listReleaseAssets({...args, release_id:release.id, per_page:100})).data;
-            for (const name of names) {
-              const old = existing.find(a => a.name === name);
-              const data = fs.readFileSync(`dist/mobile/${name}`);
-              const expectedDigest = 'sha256:' + require('crypto').createHash('sha256').update(data).digest('hex');
-              if (old && old.digest === expectedDigest && old.size === data.length) continue;
-              // «Build mobile apps for a release» attaches the shop and administrator packages too, and its copy is the
-              // one that stays (it replaces them). When the runner queue lets it finish first, its packages are already
-              // here and differ (builds are not byte-identical): they are kept, and the files only this job makes —
-              // the client, certificate and package notes, the status — are still attached. Before, the first such
-              // package stopped the job and the release stayed without them (v28.152.0: 25 files of 33).
-              if (old && releaseBuildOwns(name)) { kept.push(name); continue; }
-              if (old && name !== 'mobile-production-status.json') throw new Error(`Asset differs; refusing to replace ${name}`);
-              if (old) await github.rest.repos.deleteReleaseAsset({...args, asset_id:old.id});
-              const uploaded = (await github.rest.repos.uploadReleaseAsset({...args, release_id:release.id, name, data,
-                headers:{'content-type':'application/octet-stream','content-length':data.length}})).data;
-              if (uploaded.digest !== expectedDigest || uploaded.size !== data.length) throw new Error(`Upload verification failed: ${name}`);
+            const previous = existing.find(asset => asset.name === name);
+            if (previous) {
+              const old = await jsonAsset(github, args, previous);
+              if (old.version !== mobileVersion || old.source_commit !== context.sha || old.android !== android || old.ios !== ios) {
+                throw Error('The production status already published for this distribution differs');
+              }
+            }
+            if (android === 'signed') {
+              await attachGroups({github, repo:args, release, groups:[clientGroup('dist/mobile', args, tag)], core});
+            }
+            if (!previous) {
+              const data = Buffer.from(JSON.stringify(status,null,2)+'\n');
+              const result = (await github.rest.repos.uploadReleaseAsset({...args, release_id:release.id, name, data,
+                headers:{'content-type':'application/json', 'content-length':data.length}})).data;
+              if (result.size !== data.length || result.digest !== 'sha256:' + require('crypto').createHash('sha256').update(data).digest('hex')) {
+                throw Error('Production status upload verification failed');
+              }
             }
             // v28.111.0 (BACKLOG A6): «Корги Люси: клиент» also gets a release of its own, `client-v<version>`, once
             // per client version — Obtainium and people can follow the client alone. Never «latest»: the shop's
@@ -304,25 +297,8 @@ jobs:
                   body: clientNotes + '\n\n' + `«Корги Люси: клиент» ${client.versionName} (versionCode ${client.versionCode}), собран вместе с ${tag}.\n\n` +
                     `APK: \`corgi-lusi-client.apk\` (SHA-256 \`${client.sha256}\`). Obtainium: этот репозиторий, фильтр выпусков \`^client-v\`, фильтр APK \`^corgi-lusi-client\\.apk$\`.`})).data;
               }
-              const ownAssets = (await github.rest.repos.listReleaseAssets({...args, release_id: own.id, per_page: 100})).data;
-              const ownJson = Buffer.from(JSON.stringify({...client,
-                apk: `https://github.com/${context.repo.owner}/${context.repo.repo}/releases/download/${clientTag}/corgi-lusi-client.apk`}) + '\n');
-              for (const [name, data] of [['corgi-lusi-client.apk', fs.readFileSync('dist/mobile/corgi-lusi-client.apk')],
-                                          ['corgi-lusi-client.apk.sha256', fs.readFileSync('dist/mobile/corgi-lusi-client.apk.sha256')],
-                                          ['corgi-lusi-client.json', ownJson]]) {
-                const expectedDigest = 'sha256:' + require('crypto').createHash('sha256').update(data).digest('hex');
-                const old = ownAssets.find(a => a.name === name);
-                if (old) {
-                  // The same client version built again (another shop release): the first build stays.
-                  if (old.digest !== expectedDigest) core.notice(`${clientTag}: ${name} already published; kept.`);
-                  continue;
-                }
-                const uploaded = (await github.rest.repos.uploadReleaseAsset({...args, release_id: own.id, name, data,
-                  headers: {'content-type': 'application/octet-stream', 'content-length': data.length}})).data;
-                if (uploaded.digest !== expectedDigest || uploaded.size !== data.length) throw new Error(`Upload verification failed: ${clientTag}/${name}`);
-              }
+              await attachGroups({github, repo:args, release:own, groups:[clientGroup('dist/mobile', args, clientTag)], core});
             }
-            if (kept.length) core.notice(`Already attached by the release build and kept: ${kept.join(', ')}`);
             const marker = '\n<!-- mobile-production-status -->';
             const body = release.body.split(marker)[0] + marker +
               `\n\nMobile ${mobileVersion}: Android **${android}**, iOS **${ios}**.\n`;

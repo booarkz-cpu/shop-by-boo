@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2780**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2781**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -1904,6 +1904,7 @@
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ui-e2e.sh](../scripts/mobile/client-ui-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
+| [scripts/mobile/distribution-assets.cjs](../scripts/mobile/distribution-assets.cjs) | Эксплуатация и релиз |
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |

@@ -81,8 +81,6 @@ object AppUpdater {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-        // v28.137.0: Android 14+ — the app becomes the owner of its updates, the next ones go without a question.
-        if (Build.VERSION.SDK_INT >= 34) params.setRequestUpdateOwnership(true)
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_RESUME_VPN, resumeVpn).commit()
         val id = installer.createSession(params)
         installer.openSession(id).use { session ->
