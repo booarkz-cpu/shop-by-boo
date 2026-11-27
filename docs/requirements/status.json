@@ -4667,5 +4667,19 @@
     ],
     "note": "27.11.2026. README.md, README.en.md, README.uk.md и три Wiki-страницы Mobile содержат постоянные ссылки releases/latest/download только на три APK, которые действительно публикует mobile-release.yml. Живая проверка GitHub API и HTTP-редиректов сверяет эти имена с последним опубликованным непререлизным выпуском, ненулевым размером и sha256 digest каждого asset. На момент приёмки v28.161.0 подтверждены corgi-lusi-android.apk (160292276 B, 84ffb596…), corgi-lusi-android-admin.apk (9760473 B, 8bdec403…) и corgi-lusi-client.apk (159049531 B, c812d056…). Проверка выполняется в Autonomous audit на каждом PR и push main.",
     "platforms": "documentation, Android, CI/CD"
+  },
+  "REQ-QA-0061": {
+    "status": "PARTIAL",
+    "platforms": [
+      "Android client"
+    ],
+    "evidence": [
+      "apps/vpn-client/android/app/src/main/java/shop/corgi/client/core/Backup.kt",
+      "apps/vpn-client/android/app/src/main/java/shop/corgi/client/data/Store.kt",
+      "apps/vpn-client/android/app/src/test/java/shop/corgi/client/core/ProxyBackupSchemeTest.kt",
+      "apps/vpn-client/android/app/src/androidTest/java/shop/corgi/client/data/VaultTest.kt",
+      "docs/ru/new/ANDROID_CLIENT_APP.md"
+    ],
+    "note": "Восстановление копии v1 из JSON или ссылки проверяет версию, список профилей и настройки до записи. Явно пустой список допустим. JVM-регрессия охватывает повреждённые поля, тест Android проверяет сохранность зашифрованных данных и выбора сервера при повторном открытии хранилища. Прямой импорт ссылок и обновление подписки при сбое учитываются отдельно."
   }
 }
