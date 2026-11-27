@@ -17,6 +17,8 @@ On a standard installation, schedule a maintenance window and run the command be
 cd /opt/vpn-shop && sudo bash scripts/backup.sh
 ```
 
+Keep the distribution tag and full Git commit or the installation archive’s SHA-256 with the backup. The manifest’s `source_version` identifies the runtime/API version.
+
 The script briefly stops running services that write data while it captures the databases and files. By default it writes `shop-*.vpb` and its `.sha256` file to `/var/backups/vpn-shop`. Set `BACKUP_DEST` to choose another directory. Keep both files off the server and retain the previous verified backup until you have checked the next one. Use the admin panel to restore its own `.enc` backups.
 
 ## Recover on a separate host

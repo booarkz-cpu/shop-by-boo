@@ -45,6 +45,42 @@ def test_backup_guide_checks_the_selected_archive_before_decryption(tmp_path, re
     assert (f"cd {installation}" in result.stderr) == (record_type == "correct")
 
 
+@pytest.mark.parametrize("fault", ["none", "with_support", "damaged", "missing", "unlisted", "incomplete_support"])
+def test_documented_backup_manifest_check(tmp_path, fault):
+    import hashlib
+    import io
+    import subprocess
+    import tarfile
+
+    guide = (ROOT / "docs/ru/BACKUP_CURRENT.md").read_text(encoding="utf-8")
+    example, = re.findall(r"```bash\n(archive=/var/tmp/shop-recovery\.[^\n]+/recovery\.tar\n.*?)\n```", guide, re.S)
+    contents = {name: name.encode() for name in ("shop.dump", "media.tar.gz", "app-packages.tar.gz", "environment.tar.gz")}
+    if fault in ("with_support", "incomplete_support"):
+        contents["support.dump"] = b"support"
+    if fault == "with_support":
+        contents["support-uploads.tar.gz"] = b"uploads"
+    digests = {name: hashlib.sha256(data).hexdigest() for name, data in contents.items()}
+    contents["backup-manifest.json"] = json.dumps({"format": 1, "source_version": "test-release", "files": digests}).encode()
+    if fault == "damaged":
+        contents["shop.dump"] += b"changed"
+    elif fault == "missing":
+        del contents["media.tar.gz"]
+    elif fault == "unlisted":
+        contents["extra.txt"] = b"missing manifest entry"
+    archive = tmp_path / "recovery.tar"
+    with tarfile.open(archive, "w") as bundle:
+        for name, data in contents.items():
+            member = tarfile.TarInfo("./" + name)
+            member.size = len(data)
+            bundle.addfile(member, io.BytesIO(data))
+    script = re.sub(r"^archive=.*", 'archive="$1"', example, count=1)
+    result = subprocess.run(["bash", "-c", script, "verify", str(archive)], capture_output=True, text=True)
+    valid = fault in ("none", "with_support")
+    assert (result.returncode == 0) == valid, result.stderr
+    if valid:
+        assert "runtime/API" in result.stdout and "test-release" in result.stdout
+
+
 @pytest.mark.parametrize('filename',GUIDES)
 def test_current_guide_links_exist(filename):
     path = ROOT / filename
