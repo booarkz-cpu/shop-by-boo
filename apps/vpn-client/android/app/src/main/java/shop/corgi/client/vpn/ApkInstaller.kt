@@ -30,9 +30,6 @@ object ApkInstaller {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-        // v1.9.7: Android 14+ — this app becomes the owner of its updates, so the next ones go without a question even when
-        // it was first installed from a browser or a file manager.
-        if (Build.VERSION.SDK_INT >= 34) params.setRequestUpdateOwnership(true)
         // The tunnel comes back after the update (BootReceiver, MY_PACKAGE_REPLACED).
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_RESUME_VPN, resumeVpn).commit()
         val id = installer.createSession(params)

@@ -127,6 +127,9 @@ struct AdminRootView: View {
                 }
             }
             RemnaPrimary(title: t("add_profile")) { addProfile() }.disabled(busy)
+            if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+                Text("\(t("version")) \(adminAppVersion) (\(build))").font(.footnote).foregroundStyle(Remna.muted)
+            }
         }
     }
 

@@ -88,7 +88,7 @@ import plistlib,sys
 _,path,method,team,identity,*profiles=sys.argv
 with open(path,'wb') as f:
  plistlib.dump({'method':method,'destination':'export','teamID':team,'signingStyle':'manual',
-               'signingCertificate':identity,'provisioningProfiles':dict(p.split('=',1) for p in profiles)},f)
+               'signingCertificate':identity,'manageAppVersionAndBuildNumber':False,'provisioningProfiles':dict(p.split('=',1) for p in profiles)},f)
 PY
   ios_dir="$ROOT/apps/vpn-shop/ios"
   [[ "$role" != admin ]] || ios_dir="$ROOT/apps/lucy-admin/ios"
@@ -106,9 +106,12 @@ PY
   app="$WORK/verify-$role/Payload/$project.app"
   codesign --verify --deep --strict "$app"
   test -f "$app/embedded.mobileprovision"
-  version="$(xcodebuild -project "$ios_dir/$project.xcodeproj" -target "$project" -configuration Release \
-    -sdk iphoneos -showBuildSettings -json | python3 -c 'import json,sys; rows=json.load(sys.stdin); print(next(r["buildSettings"]["MARKETING_VERSION"] for r in rows if r["target"] == sys.argv[1]))' "$project")"
-  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+  settings="$(xcodebuild -project "$ios_dir/$project.xcodeproj" -target "$project" -configuration Release \
+    -sdk iphoneos -showBuildSettings -json | python3 -c 'import json,sys; settings=next(r["buildSettings"] for r in json.load(sys.stdin) if r["target"] == sys.argv[1]); print(settings["MARKETING_VERSION"], settings["CURRENT_PROJECT_VERSION"])' "$project")"
+  read -r version build <<< "$settings"
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ && "$build" =~ ^[1-9][0-9]*$ ]]
+  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")" = "shop.remnawave.$role"
+  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$app/Info.plist")" = "$build"
   test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = "$version"
   name="corgi_lusi_ios_${role}_${version//./_}_signed.ipa"
   cp "$ipa" "$OUT/$name"

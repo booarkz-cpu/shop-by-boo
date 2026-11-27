@@ -235,6 +235,13 @@ jobs:
           python scripts/audit/check_release_readiness.py
           python scripts/audit/run_full_audit.py
           python scripts/audit/check_payment_provider_registry.py --check
+      - name: Require an upgrade for both apps when their shared Android engine changes
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')
+        env:
+          ENGINE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          git fetch --no-tags --depth=1 origin "${ENGINE_BASE:-main}"
+          python scripts/mobile/xray-core-watch.py --check-against "$(git rev-parse FETCH_HEAD)"
       - name: Admin modules — which test exercises each changing route (docs/ru/new/ADMIN_VERIFICATION.md)
         env:
           MEDIA_DIR: /tmp/media
@@ -249,7 +256,7 @@ jobs:
         with:
           node-version: "26"
       - name: Release publisher invariants
-        run: node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs tests/dependabot-queue.test.cjs tests/mobile-client-release.test.cjs
+        run: node --test tests/release-publisher.test.cjs tests/dependabot-automerge.test.cjs tests/dependabot-queue.test.cjs tests/mobile-client-release.test.cjs tests/mobile-publish-channel.test.cjs
       - name: Terminal screen model
         run: node --experimental-strip-types --test tests/terminal-screen.test.mjs
       - name: Panel survives a wrapped list and an incomplete label

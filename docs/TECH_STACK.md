@@ -1,8 +1,6 @@
 # Технологический стек
 
-Версии взяты из `services/backend/requirements.txt`, `*/package.json`, `Dockerfile` и `docker-compose.yml`
-на выпуске v28.161.0. Ничего не переписано «по памяти»: каждую строку можно проверить по указанному
-файлу.
+Версии ниже соответствуют файлам этой ревизии. Для мобильных приложений источниками служат Gradle и проекты Xcode. Загрузки дистрибутива v28.161.0 и мобильных выпусков приведены в [README](../README.md).
 
 ## Backend
 
@@ -64,11 +62,11 @@
 
 | Платформа и версия в исходниках | Стек | Каталоги |
 | --- | --- | --- |
-| VPN Shop Android 3.9.1 | AGP 9.5.2, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
-| Corgi Lucy Client Android 1.10.2 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
-| Lucy Admin Android 3.9.1 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
-| VPN Shop iOS 3.9.1 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
-| Lucy Admin iOS 3.9.1 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
+| VPN Shop Android 3.9.2 | AGP 9.5.2, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-shop/android` |
+| Corgi Lucy Client Android 1.10.3 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose, встроенный **Xray-core** (`libv2ray.aar`) | `apps/vpn-client/android` |
+| Lucy Admin Android 3.9.2 | AGP 9.5.3, Kotlin 2.4.21, Jetpack Compose | `apps/lucy-admin/android` |
+| VPN Shop iOS 3.9.2 | Swift 6, SwiftUI, **LibXray** + HevSocks5Tunnel | `apps/vpn-shop/ios` |
+| Lucy Admin iOS 3.9.2 | Swift 6, SwiftUI | `apps/lucy-admin/ios` |
 
 Все три Android-приложения используют Gradle 9.9.2 и Compose BOM 2026.11.01, собираются с API 37.1, минимальным API 26 и целевым API 36. Каждый Gradle Wrapper проверяет SHA-256 ZIP по `distributionSha256Sum`. [Контрольные суммы Gradle](https://gradle.org/release-checksums/).
 

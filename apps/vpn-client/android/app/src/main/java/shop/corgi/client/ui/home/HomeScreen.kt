@@ -615,7 +615,7 @@ private fun share(context: Context) {
             "Корги Люси — бесплатный VPN-клиент: ",
             "Corgi Lusi — a free VPN client: ",
             "Коргі Люсі — безкоштовний VPN-клієнт: "
-        ) + "https://github.com/booarkz-cpu/shop-by-boo/releases/tag/client-v${BuildConfig.VERSION_NAME}"
+        ) + "https://github.com/booarkz-cpu/shop-by-boo/blob/mobile-updates/README.md"
     val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
     context.startActivity(Intent.createChooser(send, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }

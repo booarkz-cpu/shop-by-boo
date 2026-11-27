@@ -17,6 +17,9 @@ struct VpnShopUserApp: App {
     }
 }
 
+let shopAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+private let shopUserAgent = "CorgiLusi-iOS-User/" + shopAppVersion
+
 let localHttpHosts: Set<String> = ["localhost", "127.0.0.1", "10.0.2.2"]
 
 func pkceVerifier() throws -> String {
@@ -181,14 +184,13 @@ enum CorgiAnalytics {
         queue = []
         lastFlush = Date()
         lock.unlock()
-        let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
         var request = URLRequest(url: url, timeoutInterval: 10)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
-        request.setValue("CorgiLusi-iOS-User/3.9.1", forHTTPHeaderField: "User-Agent")
+        request.setValue(shopUserAgent, forHTTPHeaderField: "User-Agent")
         if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": version, "events": batch])
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["install_id": installId, "platform": "ios", "app_version": shopAppVersion, "events": batch])
         URLSession.shared.dataTask(with: request) { data, _, _ in
             // Statistics never get in the way: a lost batch is not retried.
             if let data, let answer = try? JSONSerialization.jsonObject(with: data) as? [String: Any], answer["enabled"] as? Bool == false { enabled = false }
@@ -303,7 +305,7 @@ final class ShopClient: Sendable {
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-User/3.9.1", forHTTPHeaderField: "User-Agent")
+        request.setValue(shopUserAgent, forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-User/2.9.0
         request.setValue("ios-user", forHTTPHeaderField: "X-Shop-Client")
 
@@ -461,7 +463,7 @@ final class PushCenter: ObservableObject {
         var body: [String: Any] = [
             "platform": "ios",
             "token": token,
-            "app_version": String((Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "").prefix(32)),
+            "app_version": String(shopAppVersion.prefix(32)),
             "locale": String(lang.prefix(8)),
         ]
         if let previous = UserDefaults.standard.string(forKey: tokenKey), previous != token { body["replaces"] = previous }
@@ -868,7 +870,7 @@ enum CorgiDiagnostics {
         let origin = CorgiMirrors.resolve(base)
         let host = URL(string: origin)?.host ?? ""
         checks.append(timed("dns", host) { try resolveHost(host) })
-        checks.append(timed("api", "\(origin)/health/live") { _ = try get("\(origin)/health/live", "CorgiLusi-iOS-User/3.9.1"); return "ok" })
+        checks.append(timed("api", "\(origin)/health/live") { _ = try get("\(origin)/health/live", shopUserAgent); return "ok" })
         var body = ""
         checks.append(timed("subscription", "") { body = try get(subscription, "v2rayNG/1.10.0 CorgiLusi"); return "\(CorgiXray.parseAll(body).count) серверов" })
         for (address, port) in body.isEmpty ? [] : endpoints(body) {

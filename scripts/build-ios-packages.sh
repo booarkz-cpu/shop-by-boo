@@ -17,13 +17,21 @@ for role in user admin; do
   [[ "$role" != admin ]] || dir="$ROOT/apps/lucy-admin/ios"
   version="$(sed -n 's/.*MARKETING_VERSION = \([^;]*\);.*/\1/p' "$dir/$project.xcodeproj/project.pbxproj" | head -1)"
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+  build="$(sed -n 's/.*CURRENT_PROJECT_VERSION = \([^;]*\);.*/\1/p' "$dir/$project.xcodeproj/project.pbxproj" | head -1)"
+  [[ "$build" =~ ^[1-9][0-9]*$ ]] || exit 1
+  verify_app() {
+    local info="$1/Info.plist"
+    test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$info")" = "shop.remnawave.$role"
+    test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$info")" = "$version"
+    test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$info")" = "$build"
+  }
   base="corgi_lusi_ios_${role}_${version//./_}"
   xcodebuild -project "$dir/$project.xcodeproj" -scheme "$project" \
     -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
     -archivePath "$WORK/$project.xcarchive" CODE_SIGNING_ALLOWED=NO CORGI_SHOP_URL="$CORGI_SHOP_URL" archive
   app="$WORK/$project.xcarchive/Products/Applications/$project.app"
   test -d "$app"
-  test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Info.plist")" = "$version"
+  verify_app "$app"
   # An unsigned IPA is a container for subsequent signing, not an installable iPhone app.
   mkdir -p "$WORK/$role/Payload"
   cp -R "$app" "$WORK/$role/Payload/"
@@ -31,7 +39,9 @@ for role in user admin; do
   xcodebuild -project "$dir/$project.xcodeproj" -scheme "$project" \
     -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
     -derivedDataPath "$WORK/simulator-$role" CODE_SIGNING_ALLOWED=NO CORGI_SHOP_URL="$CORGI_SHOP_URL" build
-  ditto -c -k --keepParent "$WORK/simulator-$role/Build/Products/Release-iphonesimulator/$project.app" \
+  simulator="$WORK/simulator-$role/Build/Products/Release-iphonesimulator/$project.app"
+  verify_app "$simulator"
+  ditto -c -k --keepParent "$simulator" \
     "$OUT/${base}_simulator.zip"
   (cd "$OUT" && shasum -a 256 "${base}_unsigned.ipa" > "${base}_unsigned.ipa.sha256" \
     && shasum -a 256 "${base}_simulator.zip" > "${base}_simulator.zip.sha256")

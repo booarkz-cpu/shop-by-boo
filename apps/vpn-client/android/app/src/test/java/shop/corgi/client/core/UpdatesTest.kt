@@ -16,6 +16,9 @@ class UpdatesTest {
     @Test fun newerOnly() {
         assertEquals("1.2.0", Update.newer(manifest(120), 110)!!.versionName)
         assertNull(Update.newer(manifest(110), 110))
+        val tagged = "https://github.com/booarkz-cpu/shop-by-boo/releases/download/mobile-v1/corgi-lusi-client.apk"
+        assertEquals(tagged, Update.newer(manifest(120, tagged), 110)?.apk)
+        assertThrows(IllegalArgumentException::class.java) { Update.parse(manifest(120, tagged.replace("client.apk", "android.apk"))) }
         assertThrows(IllegalArgumentException::class.java) { Update.parse(manifest(120, "https://evil.example.com/x.apk")) }
         assertThrows(IllegalArgumentException::class.java) { Update.parse(manifest(120).replace(sha, "zz")) }
     }

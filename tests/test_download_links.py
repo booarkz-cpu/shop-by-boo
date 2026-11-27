@@ -26,16 +26,14 @@ def test_build_script_names_both_apps():
 
 def test_release_workflow_publishes_the_permanent_names():
     workflow = (ROOT / ".github/workflows/mobile-release.yml").read_text()
-    pattern = re.search(r"/\^corgi-lusi-\(\?:android\(\?:-admin\)\?\|client\)\\\.apk\(\?:\\\.sha256\)\?\$", workflow)
-    assert pattern, "mobile-release.yml must attach the permanent APK names"
-    assert "^corgi-lusi-client\\.json$" in workflow and "corgi-lusi-client.json" in workflow, "the client's update manifest"
-    assert "^corgi-lusi-android(?:-admin)?\\.json$" in workflow, "update manifests of the shop and admin apps"
+    release = (ROOT / ".github/workflows/build-mobile.yml").read_text()
+    helper = (ROOT / "scripts/mobile/distribution-assets.cjs").read_text()
+    assert "distributionGroups(" in release and "attachGroups(" in release
+    assert "distributionGroups(" not in workflow and "clientGroup(" in workflow
+    assert all(name in helper for name in _produced())
+    assert "--clobber" not in release and "deleteReleaseAsset" not in workflow
     script = (ROOT / "scripts/build-android-apk.sh").read_text()
-    assert '"$OUT/${stable%.apk}.json"' in script and '"versionCode":%s' in script, "the build writes those manifests"
-    # «Build mobile apps for a release» replaces the stable APKs after the release: it must replace their manifests too,
-    # otherwise the SHA-256 in the manifest is of another build and the apps refuse the download.
-    rebuild = (ROOT / ".github/workflows/build-mobile.yml").read_text()
-    assert "*.sha256 corgi-lusi-android.json corgi-lusi-android-admin.json" in rebuild
+    assert '"$OUT/${stable%.apk}.json"' in script and '"versionCode":%s' in script
 
 
 def test_every_download_link_points_to_a_produced_file():

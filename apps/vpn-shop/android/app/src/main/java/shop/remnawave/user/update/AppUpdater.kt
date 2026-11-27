@@ -81,8 +81,6 @@ object AppUpdater {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-        // v28.137.0: Android 14+ — the app becomes the owner of its updates, the next ones go without a question.
-        if (Build.VERSION.SDK_INT >= 34) params.setRequestUpdateOwnership(true)
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_RESUME_VPN, resumeVpn).commit()
         val id = installer.createSession(params)
         installer.openSession(id).use { session ->
@@ -99,9 +97,11 @@ object AppUpdater {
     /** The job every 6 hours (was daily); scheduled again at every start and after an update; an older daily job is replaced. */
     fun schedule(context: Context) {
         val scheduler = context.getSystemService(JobScheduler::class.java) ?: return
-        if (scheduler.getPendingJob(JOB)?.intervalMillis == AppUpdate.JOB) return
+        val pending = scheduler.getPendingJob(JOB)
+        if (pending != null && pending.isPersisted && pending.intervalMillis == AppUpdate.JOB &&
+            pending.networkType == JobInfo.NETWORK_TYPE_ANY) return
         scheduler.schedule(JobInfo.Builder(JOB, ComponentName(context, AppUpdateJob::class.java))
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPeriodic(AppUpdate.JOB).build())
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPeriodic(AppUpdate.JOB).setPersisted(true).build())
     }
 
     /** The system's answer: when it needs a confirmation and the person is in the app, its own screen is opened. */
