@@ -60,7 +60,7 @@ struct UserRootView: View {
     // A string replaced in the admin panel («Строки приложения») wins over the bundled one.
     private func t(_ key: String) -> String { layout.strings[key] ?? strings[key] ?? key }
     private var theme: LayoutTheme { layout.theme }
-    private var appVersion: String { "Corgi Lusi " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") }
+    private var appVersion: String { "Corgi Lusi " + shopAppVersion }
 
     var body: some View {
         ZStack {

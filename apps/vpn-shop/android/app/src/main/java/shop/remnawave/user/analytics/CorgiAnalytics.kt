@@ -64,7 +64,7 @@ object CorgiAnalytics {
                     readTimeout = 10000
                     doOutput = true
                     setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("User-Agent", "CorgiLusi-Android-User/3.9.1")
+                    setRequestProperty("User-Agent", "CorgiLusi-Android-User/${BuildConfig.VERSION_NAME}")
                     setRequestProperty("X-Shop-Client", "android-user")
                     if (token.isNotBlank()) setRequestProperty("Authorization", "Bearer $token")
                 }

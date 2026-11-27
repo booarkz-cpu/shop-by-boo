@@ -4,7 +4,7 @@
 
 Карта строится из отслеживаемых Git файлов. Локальные секреты, зависимости и результаты сборки сюда не входят.
 
-Всего файлов: **2774**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
+Всего файлов: **2780**. Пересобрать: `python3 scripts/generate-project-map.py`; проверить: `python3 scripts/generate-project-map.py --check`.
 
 | Файл | Область |
 | --- | --- |
@@ -72,6 +72,7 @@
 | [.github/workflows/hetzner-live.yml](../.github/workflows/hetzner-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-live.yml](../.github/workflows/load-live.yml) | GitHub CI/CD |
 | [.github/workflows/load-security.yml](../.github/workflows/load-security.yml) | GitHub CI/CD |
+| [.github/workflows/mobile-channel.yml](../.github/workflows/mobile-channel.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-release.yml](../.github/workflows/mobile-release.yml) | GitHub CI/CD |
 | [.github/workflows/mobile-screenshots.yml](../.github/workflows/mobile-screenshots.yml) | GitHub CI/CD |
 | [.github/workflows/payments-acceptance.yml](../.github/workflows/payments-acceptance.yml) | GitHub CI/CD |
@@ -1099,6 +1100,7 @@
 | [docs/production/PRODUCTION_LAUNCH_V16_RU.md](../docs/production/PRODUCTION_LAUNCH_V16_RU.md) | Документация |
 | [docs/prompts/MASTER_PROMPT_V6.md](../docs/prompts/MASTER_PROMPT_V6.md) | Документация |
 | [docs/releases/client-v1.10.2.md](../docs/releases/client-v1.10.2.md) | Документация |
+| [docs/releases/client-v1.10.3.md](../docs/releases/client-v1.10.3.md) | Документация |
 | [docs/requirements/register.json](../docs/requirements/register.json) | Документация |
 | [docs/requirements/status.json](../docs/requirements/status.json) | Документация |
 | [docs/ru/ACCOUNT_MERGE_CURRENT.md](../docs/ru/ACCOUNT_MERGE_CURRENT.md) | Документация |
@@ -1898,12 +1900,15 @@
 | [scripts/masque-selfcheck.sh](../scripts/masque-selfcheck.sh) | Эксплуатация и релиз |
 | [scripts/mobile/apk-signer-digest.py](../scripts/mobile/apk-signer-digest.py) | Эксплуатация и релиз |
 | [scripts/mobile/build-xray-aar.sh](../scripts/mobile/build-xray-aar.sh) | Эксплуатация и релиз |
+| [scripts/mobile/check-apk-version.py](../scripts/mobile/check-apk-version.py) | Эксплуатация и релиз |
 | [scripts/mobile/client-ktlint.sh](../scripts/mobile/client-ktlint.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-ui-e2e.sh](../scripts/mobile/client-ui-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/client-vpn-e2e.sh](../scripts/mobile/client-vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/emulator-quiet.sh](../scripts/mobile/emulator-quiet.sh) | Эксплуатация и релиз |
 | [scripts/mobile/export-default-layout.py](../scripts/mobile/export-default-layout.py) | Эксплуатация и релиз |
 | [scripts/mobile/maestro-screens.sh](../scripts/mobile/maestro-screens.sh) | Эксплуатация и релиз |
+| [scripts/mobile/publish-channel.cjs](../scripts/mobile/publish-channel.cjs) | Эксплуатация и релиз |
+| [scripts/mobile/test-published-upgrade.sh](../scripts/mobile/test-published-upgrade.sh) | Эксплуатация и релиз |
 | [scripts/mobile/vpn-e2e.sh](../scripts/mobile/vpn-e2e.sh) | Эксплуатация и релиз |
 | [scripts/mobile/xray-artifact.py](../scripts/mobile/xray-artifact.py) | Эксплуатация и релиз |
 | [scripts/mobile/xray-core-watch.py](../scripts/mobile/xray-core-watch.py) | Эксплуатация и релиз |
@@ -2455,6 +2460,7 @@
 | [tests/load/shop.js](../tests/load/shop.js) | Проверки |
 | [tests/main_source.py](../tests/main_source.py) | Проверки |
 | [tests/mobile-client-release.test.cjs](../tests/mobile-client-release.test.cjs) | Проверки |
+| [tests/mobile-publish-channel.test.cjs](../tests/mobile-publish-channel.test.cjs) | Проверки |
 | [tests/passkey_browser_server.py](../tests/passkey_browser_server.py) | Проверки |
 | [tests/release-publisher.test.cjs](../tests/release-publisher.test.cjs) | Проверки |
 | [tests/terminal-screen.test.mjs](../tests/terminal-screen.test.mjs) | Проверки |

@@ -2,6 +2,7 @@ package shop.remnawave.user.support
 
 import org.json.JSONArray
 import org.json.JSONObject
+import shop.remnawave.user.BuildConfig
 import shop.remnawave.user.security.CorgiMirrors
 import shop.remnawave.user.vpn.ShareLinks
 import java.net.HttpURLConnection
@@ -75,7 +76,7 @@ object CorgiDiagnostics {
         val origin = CorgiMirrors.resolve(base)
         val host = try { URL(origin).host } catch (_: Exception) { "" }
         checks.put(check("dns", host) { InetAddress.getAllByName(host).joinToString { it.hostAddress ?: "" } })
-        checks.put(check("api", "$origin/health/live") { get("$origin/health/live", "CorgiLusi-Android-User/3.9.1"); "ok" })
+        checks.put(check("api", "$origin/health/live") { get("$origin/health/live", "CorgiLusi-Android-User/${BuildConfig.VERSION_NAME}"); "ok" })
         var body = ""
         checks.put(check("subscription", "") {
             body = get(subscriptionUrl, "v2rayNG/1.10.0 CorgiLusi")

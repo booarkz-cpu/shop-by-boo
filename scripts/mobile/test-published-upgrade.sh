@@ -13,7 +13,7 @@ tools="${ANDROID_HOME:?Android SDK required}/build-tools/35.0.0"
 pin=$(grep -Ex '[0-9a-f]{64}' "$root/mobile/android-signing-cert.sha256")
 previous=$(mktemp -d)
 trap 'rm -rf "$previous"' EXIT
-upgraded=0
+upgraded_packages=()
 
 # Limit privileged operations to an emulator. The signed apps are non-debuggable, so
 # only a rootable image can place and read a marker in the real private data directory.
@@ -82,14 +82,49 @@ check_upgrade() {
   [[ $before == "$after" ]] || fail "$package: UID or first install time changed"
   [[ $(adb shell cat "$marker" | tr -d '\r') == "$token" ]] || fail "$package: private app data lost"
   adb shell rm "$marker"
-  upgraded=$((upgraded + 1))
+  upgraded_packages+=("$package")
   echo "$package $old_code -> $new_code: signature, installed version, UID, first install time and private data verified"
 }
 
 check_upgrade vpn-shop shop.remnawave.user corgi-lusi-android
 check_upgrade lucy-admin shop.remnawave.admin corgi-lusi-android-admin
 check_upgrade vpn-client shop.corgi.client corgi-lusi-client
-if (( upgraded == 0 )); then
+if (( ${#upgraded_packages[@]} == 0 )); then
   echo "All three versions match $tag. No in-place upgrade was exercised."
   exit 3
 fi
+
+# Start the apps through their normal launcher once, then verify the same jobs
+# after a real reboot without opening any app. JobScheduler enforces the delay.
+wait_for_update_job() {
+  local package=$1 id=4301 state attempt
+  [[ $package != shop.corgi.client ]] || id=4202
+  for ((attempt = 0; attempt < 40; attempt++)); do
+    if state=$(adb shell cmd jobscheduler get-job-state "$package" "$id" 2>&1) &&
+       [[ $state =~ (^|[[:space:]])(waiting|pending|active|ready)($|[[:space:]]) ]]; then
+      echo "$package job $id: $state"
+      return
+    fi
+    sleep 2
+  done
+  fail "$package: update job $id missing ($state)"
+}
+
+for package in "${upgraded_packages[@]}"; do
+  launcher=$(adb shell cmd package resolve-activity --brief -a android.intent.action.MAIN \
+    -c android.intent.category.LAUNCHER "$package" | tr -d '\r' | tail -1)
+  [[ $launcher == "$package/"* ]] || fail "$package: launcher is unavailable"
+  adb shell am start -W -n "$launcher" | tr -d '\r' | grep -Fx 'Status: ok' >/dev/null
+  wait_for_update_job "$package"
+done
+
+old_boot=$(adb shell cat /proc/sys/kernel/random/boot_id | tr -d '\r')
+adb reboot
+# The child shell owns the timeout and receives the previous boot ID as $1.
+# shellcheck disable=SC2016
+timeout 300 bash -eu -o pipefail -c '
+  adb wait-for-device
+  until [[ $(adb shell getprop sys.boot_completed | tr -d "\r") == 1 ]] &&
+        [[ $(adb shell cat /proc/sys/kernel/random/boot_id | tr -d "\r") != "$1" ]]; do sleep 2; done
+' _ "$old_boot"
+for package in "${upgraded_packages[@]}"; do wait_for_update_job "$package"; done

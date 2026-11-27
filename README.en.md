@@ -8,6 +8,8 @@ A VPN subscription shop for your Remnawave panel. Customers buy access in Telegr
 
 ## Download the mobile apps
 
+**[Download the latest mobile apps](https://github.com/booarkz-cpu/shop-by-boo/releases?q=mobile-v)**. Each mobile release includes the APKs, iOS packages and their SHA-256 checksums. The tables below list downloads from the shop distribution.
+
 ### Android
 
 | What you want to do | Download |
@@ -19,6 +21,8 @@ A VPN subscription shop for your Remnawave panel. Customers buy access in Telegr
 Signed APKs for Android 8.0 and later. These links follow the latest stable release.
 
 Open the APK on your phone and confirm installation. To verify a download on Linux, save both files to the same directory and run, for example, `sha256sum -c corgi-lusi-client.apk.sha256`.
+
+If you have Shop or Lucy Admin 3.9.1 or earlier, or Client 1.10.2 or earlier, install the signed APK from the mobile release over the existing app. Keep the app installed to preserve its data. The updated app checks GitHub in the background. Android may ask you to confirm installation.
 
 ### iOS
 
@@ -103,8 +107,8 @@ In a standard deployment, Caddy routes HTTPS requests to the API and web apps. T
 
 | Product | Release v28.161.0 | main |
 | --- | --- | --- |
-| Shop and Lucy Admin · Android and iOS | 3.9.0 | 3.9.1 |
-| VPN client · Android | 1.10.1 | 1.10.2 |
+| Shop and Lucy Admin · Android and iOS | 3.9.0 | 3.9.2 |
+| VPN client · Android | 1.10.1 | 1.10.3 |
 | Backend · Python / PostgreSQL | 3.14 / 18.6 | 3.15 / 19.0 |
 | Support Pro · Alembic | `0008` | `0009` |
 

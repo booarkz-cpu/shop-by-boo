@@ -1,5 +1,6 @@
 """v28.28.0: the native customer apps show the family plan and the service status in ru/en/uk."""
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,10 +50,30 @@ def test_admin_apps_show_launch_readiness_and_alerts():
         assert all(catalog[lang].get(k) for k in ("launch", "launch_ready", "launch_missing", "alerts_test", "no_problems"))
 
 
+def android_version(module):
+    config = (ROOT / "apps" / module / "android/app/build.gradle.kts").read_text()
+    name, = re.findall(r'^[ \t]*versionName = "(\d+\.\d+\.\d+)"$', config, re.M)
+    code, = re.findall(r'^[ \t]*versionCode = ([1-9]\d*)$', config, re.M)
+    return name, int(code)
+
+
 def test_native_shop_and_admin_versions_match():
-    for gradle in ("apps/vpn-shop/android/app/build.gradle.kts", "apps/lucy-admin/android/app/build.gradle.kts"):
-        text = (ROOT / gradle).read_text()
-        assert "versionCode = 3910" in text and 'versionName = "3.9.1"' in text
+    name, code = android_version("vpn-shop")
+    assert android_version("lucy-admin") == (name, code)
     for project in ("apps/vpn-shop/ios/VpnShopUser.xcodeproj", "apps/lucy-admin/ios/VpnShopAdmin.xcodeproj"):
         text = (ROOT / project / "project.pbxproj").read_text()
-        assert "MARKETING_VERSION = 3.9.1" in text and "CURRENT_PROJECT_VERSION = 3910" in text
+        assert set(re.findall(r'\bMARKETING_VERSION = ([^;]+);', text)) == {name}
+        assert set(re.findall(r'\bCURRENT_PROJECT_VERSION = ([^;]+);', text)) == {str(code)}
+
+
+def test_mobile_channel_builds_can_replace_the_previous_actions_packages():
+    # Issue 509: those builds still read the old update feed and are already installed on some devices.
+    for module, last_code in (("vpn-shop", 3910), ("lucy-admin", 3910), ("vpn-client", 1102)):
+        assert android_version(module)[1] > last_code
+
+
+def test_native_api_user_agents_do_not_embed_a_fixed_marketing_version():
+    for module in ("vpn-shop", "lucy-admin"):
+        app = ROOT / "apps" / module
+        for source in [*(app / "android/app/src/main").rglob("*.kt"), *(app / "ios").rglob("*.swift")]:
+            assert not re.search(r'"CorgiLusi-(Android|iOS)-(Admin|User)/\d', source.read_text()), source

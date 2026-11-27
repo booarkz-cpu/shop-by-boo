@@ -9,6 +9,8 @@ struct VpnShopAdminApp: App {
     }
 }
 
+let adminAppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+
 private let localHttpHosts: Set<String> = ["localhost", "127.0.0.1", "10.0.2.2"]
 
 func pkceVerifier() throws -> String {
@@ -122,7 +124,7 @@ final class ShopClient: Sendable {
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(lang, forHTTPHeaderField: "Accept-Language")
-        request.setValue("CorgiLusi-iOS-Admin/3.9.1", forHTTPHeaderField: "User-Agent")
+        request.setValue("CorgiLusi-iOS-Admin/\(adminAppVersion)", forHTTPHeaderField: "User-Agent")
         // Historical compatibility marker: CorgiLusi-iOS-Admin/2.10.0
         // Historical compatibility marker: CorgiLusi-iOS-Admin/2.9.0
         request.setValue("ios-admin", forHTTPHeaderField: "X-Shop-Client")

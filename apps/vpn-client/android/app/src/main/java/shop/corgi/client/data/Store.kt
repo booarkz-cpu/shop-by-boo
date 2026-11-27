@@ -477,5 +477,14 @@ class Store private constructor(private val app: Context?, private val prefs: Sh
         return body to SubInfo.parse { name -> connection.getHeaderField(name) }
     }
 
-    private fun fetch(url: String): String = open(url).inputStream.bufferedReader().use { it.readText() }
+    private fun fetch(url: String): String {
+        val connection = open(url)
+        try {
+            return connection.inputStream.use {
+                shop.corgi.client.core.Capped.text(it, limit = 8192, declared = connection.contentLengthLong)
+            }
+        } finally {
+            connection.disconnect()
+        }
+    }
 }

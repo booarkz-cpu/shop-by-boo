@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,8 +20,4 @@ def test_v290_apk_script_notes_and_clients():
     assert "externalUrlAllowed" in user
     assert "private let localHttpHosts" not in ios_user
     assert "localHttpHosts" in (ROOT / "apps/vpn-shop/ios/VpnShopUser/ContentView.swift").read_text()
-    for role in ("user", "admin"):
-        gradle = (ROOT / {"user": "apps/vpn-shop/android", "admin": "apps/lucy-admin/android"}[role] / "app/build.gradle.kts").read_text()
-        assert re.search(r'^\s*versionName = "3\.9\.1"$', gradle, re.M)
-        assert re.search(r'^\s*versionCode = 3910$', gradle, re.M)
     assert "scripts/package-source.py" in (ROOT / "scripts/build-release.sh").read_text()
